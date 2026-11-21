@@ -514,7 +514,7 @@ namespace ReignBeta.Court.Campaign
                         ReignCourtLifeMatter matter = state.CourtLifeMatters.FirstOrDefault(x => x.MatterId == reply.Value<string>("matter_id"));
                         if (matter == null || !matter.IsPending) continue;
                         JObject data = ParseObject(matter.PayloadJson);
-                        if (data.Value<bool?>("replyPromoted") == true) continue;
+                        if (data.Value<bool?>("replyPromoted") == true || !MatchesInternationalReferral(matter, data, reply)) continue;
                         string status = reply.Value<string>("status") ?? "pending";
                         if (status == "pending") continue;
                         data["reply"] = reply.DeepClone();
@@ -578,71 +578,272 @@ namespace ReignBeta.Court.Campaign
             return promoted;
         }
 
+        private static bool MatchesInternationalReferral(ReignCourtLifeMatter matter, JObject data, JObject reply)
+        {
+            string referralId = data.Value<string>("referralId");
+            if (string.IsNullOrWhiteSpace(referralId) || reply == null
+                || reply.Value<string>("referral_id") != referralId
+                || reply.Value<string>("matter_id") != matter.MatterId
+                || reply.Value<string>("campaign_id") != matter.CampaignId
+                || reply.Value<string>("timeline_id") != matter.TimelineId)
+                return false;
+            string termsHash = data.Value<string>("referralTermsHash");
+            if (!string.IsNullOrWhiteSpace(termsHash)) return reply.Value<string>("terms_hash") == termsHash;
+            if (!((data["sentReferralCandidate"] ?? data["candidate"]) is JObject candidate)) return false;
+            if (JToken.DeepEquals(candidate, ParseObject(reply.Value<string>("exact_terms_json")))) return true;
+
+            // Legacy promotion replaced candidate with the counter. The exact saved
+            // referral ID scopes the original row and both saved counter copies must match.
+            return data.Value<bool?>("replyPromoted") == true && reply.Value<string>("status") == "countered"
+                && data["counterCandidate"] is JObject savedCounter && savedCounter.HasValues
+                && JToken.DeepEquals(savedCounter, candidate)
+                && JToken.DeepEquals(savedCounter, ParseObject(reply.Value<string>("counter_terms_json")));
+        }
+
+        private static JObject SovereignCourtAction(JObject reply)
+            => reply?.Value<string>("status") == "countered" ? reply["normalizedAction"] as JObject
+                : ParseObject(reply?.Value<string>("authoritative_receipt_json"))["normalizedAction"] as JObject;
+
+        private static ReignInternationalReplyDisposition ReadSovereignCourtReply(JObject reply, JObject data, JObject normalized)
+        {
+            if (reply == null) return ReignInternationalReplyDisposition.Unavailable;
+            JObject original = ParseObject(reply.Value<string>("exact_terms_json"));
+            string frozenRuler = original.Value<string>("courtRulerId");
+            string author = ParseObject(reply.Value<string>("authoritative_receipt_json")).Value<string>("responderHeroId");
+            if (!ReignInternationalDocketRules.HasHistoricalSovereignResponder(frozenRuler, author, data.Value<string>("foreignRulerId")))
+                return ReignInternationalReplyDisposition.Unavailable;
+            return ReignInternationalDocketRules.ReadSovereignReplyDisposition(
+                reply.Value<string>("status"), reply.Value<string>("outcome"), normalized?.HasValues == true);
+        }
+
+        private static JObject SovereignCourtMaterialTerms(JObject terms, string remedy, string targetSettlement)
+        {
+            if (terms == null) return null;
+            var material = (JObject)terms.DeepClone();
+            if (material["targetSettlementStringId"]?.Type == JTokenType.String
+                && material.Value<string>("targetSettlementStringId") == targetSettlement)
+                material.Remove("targetSettlementStringId");
+            if (remedy != "proposal" && material.Value<string>("remedy") == remedy) material.Remove("remedy");
+            if (remedy != "proposal" && remedy != "sign_trade_agreement")
+            {
+                // These fields carry the referral in the diplomatic promise system.
+                // Court only applies the material settlement terms below.
+                material.Remove("promise");
+                material.Remove("isPublic");
+                material.Remove("durationDays");
+            }
+            return material;
+        }
+
+        private static Dictionary<string, string> CourtMaterialValues(JObject terms)
+            => terms.Properties().ToDictionary(p => p.Name,
+                p => ReignCourtTerms.Canonicalize(p.Value.ToString(Formatting.None)), StringComparer.Ordinal);
+
+        private static Dictionary<string, string> CourtResolverAliases(JObject normalized)
+        {
+            var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
+            string actor = normalized.Value<string>("actorHeroStringId");
+            string target = normalized.Value<string>("targetHeroStringId");
+            if (!string.IsNullOrEmpty(actor)) aliases["fromHeroStringId"] = JsonConvert.ToString(actor);
+            if (!string.IsNullOrEmpty(target))
+            {
+                aliases["targetHeroStringId"] = JsonConvert.ToString(target);
+                aliases["toHeroStringId"] = JsonConvert.ToString(target);
+            }
+            return aliases;
+        }
+
+        private static JObject BoundSovereignCourtTerms(JObject reply, JObject data, JObject normalized,
+            ReignInternationalReplyDisposition disposition)
+        {
+            if (disposition != ReignInternationalReplyDisposition.Accepted && disposition != ReignInternationalReplyDisposition.Countered)
+                return null;
+            JObject original = ParseObject(reply.Value<string>("exact_terms_json"));
+            JObject authored = disposition == ReignInternationalReplyDisposition.Countered
+                ? ParseObject(reply.Value<string>("counter_terms_json")) : original;
+            string command = original.Value<string>("command");
+            string remedy = data.Value<string>("remedy");
+            string option = data.Value<string>("referredResolutionOption") ?? "accept";
+            if (command != data.Value<string>("referredCommand")
+                || (original["courtMatterId"] != null && original.Value<string>("courtMatterId") != reply.Value<string>("matter_id"))
+                || (original["courtOptionId"] != null && original.Value<string>("courtOptionId") != option)
+                || (original["courtRulerId"] != null && original.Value<string>("courtRulerId") != data.Value<string>("foreignRulerId"))
+                || !ReignInternationalDocketRules.MatchesSovereignReplyAction(command, authored.Value<string>("command"),
+                    normalized.Value<string>("command"), normalized.Value<string>("type"))
+                || (remedy == "sign_trade_agreement" && command != remedy)
+                || (remedy != "proposal" && remedy != "sign_trade_agreement" && command != "record_promise"))
+                return null;
+
+            string targetSettlement = original.Value<string>("targetSettlementStringId") ?? original.Value<string>("targetSettlementId") ?? "";
+            if ((authored.Value<string>("targetSettlementStringId") ?? authored.Value<string>("targetSettlementId") ?? "") != targetSettlement
+                || (normalized.Value<string>("targetSettlementStringId") ?? "") != targetSettlement
+                || (original.Value<string>("actorKingdomStringId") ?? original.Value<string>("actorKingdomId")) != normalized.Value<string>("actorKingdomStringId")
+                || (original.Value<string>("targetKingdomStringId") ?? original.Value<string>("targetKingdomId")) != normalized.Value<string>("targetKingdomStringId"))
+                return null;
+            foreach (string identity in new[] { "actorHeroStringId", "targetHeroStringId", "actorClanStringId", "targetClanStringId" })
+            {
+                string expected = original.Value<string>(identity);
+                if (!string.IsNullOrEmpty(expected)
+                    && (authored.Value<string>(identity) != expected || normalized.Value<string>(identity) != expected))
+                    return null;
+            }
+
+            var authoredTerms = authored["terms"] as JObject;
+            var originalAuthoredTerms = original["terms"] as JObject;
+            if (authoredTerms == null || originalAuthoredTerms == null) return null;
+            bool courtSettlement = remedy != "proposal" && remedy != "sign_trade_agreement";
+            if (courtSettlement && new[] { "promise", "isPublic", "durationDays" }.Any(key =>
+                authoredTerms[key] != null && !JToken.DeepEquals(authoredTerms[key], originalAuthoredTerms[key])))
+                return null;
+            JObject typedTerms = SovereignCourtMaterialTerms(authoredTerms, remedy, targetSettlement);
+            if (typedTerms == null || normalized["termsJson"]?.Type != JTokenType.String) return null;
+            JObject nativeTerms;
+            try { nativeTerms = JObject.Parse(normalized.Value<string>("termsJson")); }
+            catch (JsonException) { return null; }
+            nativeTerms = SovereignCourtMaterialTerms(nativeTerms, remedy, targetSettlement);
+            if (!ReignInternationalDocketRules.MatchesCourtNormalizedTerms(CourtMaterialValues(typedTerms),
+                CourtMaterialValues(nativeTerms), CourtResolverAliases(normalized))) return null;
+            if (command == "sign_trade_agreement")
+                return ReignInternationalDocketRules.BindsCourtTradeDuration(CourtMaterialValues(typedTerms)) ? typedTerms : null;
+            if (remedy == "proposal") return typedTerms;
+
+            JObject originalTerms = SovereignCourtMaterialTerms(originalAuthoredTerms, remedy, targetSettlement);
+            if (originalTerms == null || !ReignInternationalDocketRules.BindsCourtSettlementTerms(
+                CourtMaterialValues(originalTerms), CourtMaterialValues(typedTerms))) return null;
+            if (remedy == "prisoner" && (typedTerms["captiveId"]?.Type != JTokenType.String
+                || string.IsNullOrWhiteSpace(data.Value<string>("captiveId"))
+                || typedTerms.Value<string>("captiveId") != data.Value<string>("captiveId")
+                || (normalized.Value<string>("targetHeroStringId") is string targetHero && targetHero.Length > 0
+                    && targetHero != data.Value<string>("captiveId"))
+                || typedTerms["ransom"]?.Type != JTokenType.Boolean
+                || typedTerms.Value<bool>("ransom") != (data.Value<bool?>("ransom") == true))) return null;
+            if (data.Value<string>("remedy") is string currentRemedy) typedTerms["remedy"] = currentRemedy;
+            return typedTerms;
+        }
+
+        private static bool HasExactSovereignOffer(ReignCourtLifeMatter matter, JObject data, string option, JObject offered)
+        {
+            bool authorized = data.Value<bool?>("sovereignAuthorized") == true;
+            if (data.Value<bool?>("replyPromoted") == true)
+            {
+                JObject reply = data["reply"] as JObject;
+                JObject normalized = SovereignCourtAction(reply);
+                if (!authorized || option != (data.Value<string>("referredResolutionOption") ?? "accept")
+                    || !MatchesInternationalReferral(matter, data, reply)
+                    || !JToken.DeepEquals(normalized, data["normalizedAction"]))
+                    return false;
+                JObject exact = BoundSovereignCourtTerms(reply, data, normalized, ReadSovereignCourtReply(reply, data, normalized));
+                if (data.Value<string>("remedy") == "sign_trade_agreement" && offered.Value<string>("remedy") == "sign_trade_agreement")
+                {
+                    offered = (JObject)offered.DeepClone();
+                    offered.Remove("remedy");
+                }
+                return exact != null && JToken.DeepEquals(exact, offered);
+            }
+
+            if (option != "accept" || data.Value<bool?>("counterProposed") == true) return false;
+            if (data.Value<string>("kind") == "proposal")
+                return data["candidate"]?["terms"] is JObject candidateTerms && JToken.DeepEquals(candidateTerms, offered);
+
+            // Starting terms come from the constructive catalog and current native parties.
+            return authorized && ReignInternationalDocketCatalog.Find(matter.TemplateId)?.Constructive == true
+                && JToken.DeepEquals(InternationalOfferedTerms(data, option, data.Value<int?>("gold") ?? 0), offered);
+        }
+
+        private void RefreshSavedInternationalOffer(ReignCourtLifeMatter matter)
+        {
+            if (matter.Source != ReignDocketSource.International) return;
+            JObject data = ParseObject(matter.PayloadJson);
+            if (data.Value<bool?>("replyPromoted") != true || data.Value<bool?>("sovereignAuthorized") != true
+                || data.Value<bool?>("nativeActionStarted") == true || data.Value<bool?>("nativeEffectCommitted") == true)
+                return;
+            string option = data.Value<string>("referredResolutionOption") ?? "accept";
+            ReignCourtLifeOption offered = matter.Options.FirstOrDefault(x => x.OptionId == option);
+            if (offered != null)
+            {
+                JObject offeredTerms = ParseObject(offered.TermsJson);
+                if (HasExactSovereignOffer(matter, data, option, offeredTerms))
+                {
+                    SetSovereignReviewText(offered, data, offeredTerms, SovereignCourtAction(data["reply"] as JObject));
+                    return;
+                }
+            }
+
+            data["sovereignAuthorized"] = false;
+            matter.SelectedOptionId = "";
+            matter.Summary += " The saved sovereign terms could not be verified. You can decline or leave the matter pending.";
+            SetInternationalOptions(matter, data, new[] { "refuse" });
+            matter.PayloadJson = data.ToString(Formatting.None);
+        }
+
+        private const string SovereignDecisionUnavailable =
+            " The sovereign's decision could not be verified. You can refer revised terms or leave the matter pending.";
+
         private void PublishInternationalReply(ReignCourtLifeMatter matter, JObject data)
         {
             if (data.Value<bool?>("replyPromoted") == true || data.Value<bool?>("replyReady") != true) return;
             JObject reply = data["reply"] as JObject;
-            string status = reply?.Value<string>("status") ?? string.Empty;
+            if (!MatchesInternationalReferral(matter, data, reply)) return;
+            JObject normalized = SovereignCourtAction(reply);
+            var disposition = ReadSovereignCourtReply(reply, data, normalized);
+            string resolution = data.Value<string>("referredResolutionOption") ?? "accept";
+            JObject bound = BoundSovereignCourtTerms(reply, data, normalized, disposition);
+            if (bound != null && IsInternationalPaymentOption(data, resolution)
+                && !TryResolveInternationalPayment(data, resolution, bound, out _, out _, out _)) bound = null;
+
             data["replyPromoted"] = true;
             data["replyReady"] = false;
-            data["sovereignAuthorized"] = status == "accepted_awaiting_court" || status == "countered";
-            data["requiresSovereignReferral"] = false;
-            JObject receipt = ParseObject(reply?.Value<string>("authoritative_receipt_json"));
-            if (receipt["normalizedAction"] != null) data["normalizedAction"] = receipt["normalizedAction"].DeepClone();
-            if (status == "countered")
+            data["sovereignAuthorized"] = bound != null;
+            if (bound != null)
             {
-                data["counterCandidate"] = ParseObject(reply.Value<string>("counter_terms_json"));
-                data["candidate"] = data["counterCandidate"].DeepClone();
-                if (reply["normalizedAction"] is JObject) data["normalizedAction"] = reply["normalizedAction"].DeepClone();
-                else data["sovereignAuthorized"] = false;
-                if (data.Value<bool?>("sovereignAuthorized") == true && data.Value<string>("remedy") != "proposal" && data.Value<string>("remedy") != "sign_trade_agreement")
-                {
-                    JObject counter = data["candidate"] as JObject;
-                    if (counter?.Value<string>("command") != data.Value<string>("referredCommand"))
-                    {
-                        data["remedy"] = "proposal";
-                        data["referredResolutionOption"] = "accept";
-                        data.Remove("referredResolutionTerms");
-                    }
-                    else if (data["referredResolutionTerms"] is JObject materialTerms && materialTerms["gold"] != null)
-                    {
-                        JToken counterGold = counter?["terms"]?["gold"];
-                        if (counterGold?.Type != JTokenType.Integer || counterGold.Value<long>() < 0 || counterGold.Value<long>() > 1000000)
-                            data["sovereignAuthorized"] = false;
-                        else materialTerms["gold"] = counterGold.DeepClone();
-                        foreach (string partyKey in new[] { "payerHeroId", "recipientHeroId" })
-                        {
-                            JToken counterParty = counter?["terms"]?[partyKey];
-                            if (counterParty?.Type != JTokenType.String) data["sovereignAuthorized"] = false;
-                            else materialTerms[partyKey] = counterParty.DeepClone();
-                        }
-                        if (!TryResolveInternationalPayment(data, data.Value<string>("referredResolutionOption"), materialTerms, out _, out _, out _))
-                            data["sovereignAuthorized"] = false;
-                    }
-                }
-            }
-            JObject terms = data["candidate"]?["terms"] as JObject;
-            if (terms != null) data["termsSummary"] = DescribeInternationalTerms(terms);
-            string resolution = data.Value<string>("referredResolutionOption") ?? "accept";
-            SetInternationalOptions(matter, data, data.Value<bool?>("sovereignAuthorized") == true ? new[] { resolution, "refuse" } : new[] { "refuse" });
-            if (data["referredResolutionTerms"] is JObject resolutionTerms && data.Value<string>("remedy") != "proposal"
-                && data.Value<string>("remedy") != "sign_trade_agreement" && data.Value<bool?>("sovereignAuthorized") == true)
-            {
+                data["requiresSovereignReferral"] = false;
+                data["normalizedAction"] = normalized.DeepClone();
+                SetInternationalOptions(matter, data, new[] { resolution, "refuse" });
                 ReignCourtLifeOption exactOption = matter.Options.First(x => x.OptionId == resolution);
-                exactOption.TermsJson = resolutionTerms.ToString(Formatting.None);
-                exactOption.Description = DescribeInternationalTerms(resolutionTerms);
-                if (resolution == "compromise") exactOption.Label = "Settle for " + resolutionTerms.Value<int>("gold") + " gold";
+                exactOption.TermsJson = bound.ToString(Formatting.None);
+                SetSovereignReviewText(exactOption, data, bound, normalized);
+                data["termsSummary"] = exactOption.Description;
+                matter.Summary += disposition == ReignInternationalReplyDisposition.Countered
+                    ? " The foreign ruler has sent revised terms for your consideration."
+                    : " The foreign ruler has accepted the terms and awaits your final judgment.";
             }
-            matter.Summary += data.Value<bool?>("sovereignAuthorized") == true
-                ? status == "countered" ? " The foreign ruler has sent revised terms for your consideration." : " The foreign ruler has accepted the terms and awaits your final judgment."
-                : " The foreign ruler has declined the proposed agreement.";
+            else if (disposition == ReignInternationalReplyDisposition.Refused)
+            {
+                SetInternationalOptions(matter, data, new[] { "refuse" });
+                matter.Summary += " The foreign ruler has declined the proposed agreement.";
+            }
+            else
+            {
+                // Preserve the original options and exact candidate after a technical result.
+                matter.Summary += SovereignDecisionUnavailable;
+            }
+            matter.SelectedOptionId = "";
             matter.State = ReignCourtLifeMatterState.Pending;
             matter.AvailableDay = CampaignTime.Now.ToDays;
             matter.PayloadJson = data.ToString(Formatting.None);
             StateChanged?.Invoke();
         }
 
-        private static string DescribeInternationalTerms(JObject terms)
+        private static void SetSovereignReviewText(ReignCourtLifeOption option, JObject data, JObject terms, JObject normalized)
+        {
+            string summary = DescribeInternationalTerms(terms);
+            if (data.Value<string>("remedy") == "proposal")
+            {
+                string command = normalized.Value<string>("command").Replace('_', ' ');
+                string targetId = normalized.Value<string>("targetSettlementStringId");
+                if (!string.IsNullOrWhiteSpace(targetId))
+                    command += " at " + (Settlement.Find(targetId)?.Name?.ToString() ?? targetId);
+                summary = string.IsNullOrWhiteSpace(summary) ? command : command + " | " + summary;
+            }
+            option.Description = summary;
+            if (option.OptionId == "compromise")
+                option.Label = "Settle for " + terms.Value<int>("gold") + " gold";
+            else if (option.OptionId == "compensate")
+                option.Label = "Pay " + terms.Value<int>("gold")
+                    + (data.Value<bool?>("extortion") == true ? " gold to meet the demand" : " gold in compensation");
+        }
+
+        internal static string DescribeInternationalTerms(JObject terms)
         {
             return string.Join("; ", terms.Properties().Where(p => p.Name != "remedy" && p.Name != "ransom").Select(p =>
                 p.Name == "gold" ? p.Value + " gold" : p.Name == "durationDays" ? p.Value + " days"
