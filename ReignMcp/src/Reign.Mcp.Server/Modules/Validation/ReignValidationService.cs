@@ -24,14 +24,20 @@ public sealed partial class ReignValidationService(
         return catalog.CreatePlan(profile, configuration, restore, changedPaths);
     }
 
-    public async Task<ValidationReport> ValidateAsync(
+    public Task<ValidationReport> ValidateAsync(
         string profile,
         string configuration,
         bool restore,
         string changedPaths,
         bool failFast,
         CancellationToken cancellationToken,
-        string? requestingTaskId = null)
+        string? requestingTaskId = null) =>
+        ValidatePlanAsync(() => GetPlan(profile, configuration, restore, changedPaths),
+            restore, failFast, cancellationToken, requestingTaskId);
+
+    internal async Task<ValidationReport> ValidatePlanAsync(
+        Func<ValidationPlan> selectPlan, bool restore, bool failFast,
+        CancellationToken cancellationToken, string? requestingTaskId)
     {
         if (!options.AllowBuild)
         {
@@ -44,22 +50,30 @@ public sealed partial class ReignValidationService(
                 "Package restore is disabled. Set REIGN_MCP_ALLOW_RESTORE=true only when dependency resolution is intended.");
         }
 
-        var plan = GetPlan(profile, configuration, restore, changedPaths);
+        var plan = selectPlan();
+        var configuration = plan.Configuration;
         using var validationLease = ReignValidationLease.Acquire(options.EffectiveLeaseRoot, plan, requestingTaskId);
-        validationLease.Update("repository-hygiene");
-        var repositoryHygiene = await hygieneAudit.AuditAsync(cancellationToken)
-            .ConfigureAwait(false);
         validationLease.Update("fingerprinting");
         var sourceFingerprint = ComputeSourceFingerprint(plan);
-        var reusable = FindReusableSuccessfulReport(plan, sourceFingerprint, repositoryHygiene);
+        validationLease.Update("repository-hygiene", sourceFingerprint: sourceFingerprint);
+        var repositoryHygiene = await hygieneAudit.AuditAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var reusable = plan.CoverageComplete && !repositoryHygiene.BlocksValidation
+            ? FindReusableSuccessfulReport(plan, sourceFingerprint, repositoryHygiene)
+            : null;
+        string? finalFingerprint = null;
+        string? sourceError = null;
         if (reusable is not null)
         {
-            validationLease.Complete(reusable with { Reused = true });
-            return reusable with
+            // Verifying a retained artifact inventory can take time. Do not publish
+            // a reused success if the requesting tree changed during that check.
+            finalFingerprint = CheckFinalSource(plan, sourceFingerprint, out sourceError);
+            if (sourceError is null)
             {
-                Reused = true,
-                ReusedFromRunId = reusable.RunId
-            };
+                var result = reusable with { Reused = true, ReusedFromRunId = reusable.RunId };
+                validationLease.Complete(result);
+                return result;
+            }
         }
         var runId = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss")
             + "-"
@@ -77,7 +91,7 @@ public sealed partial class ReignValidationService(
             .ConfigureAwait(false);
         var results = new List<ProjectValidationResult>();
 
-        if (plan.CoverageComplete && !repositoryHygiene.BlocksValidation)
+        if (reusable is null && plan.CoverageComplete && !repositoryHygiene.BlocksValidation)
         {
             var filteredTestProjects = plan.VerificationOperations
                 .Where(item => item.Kind.Equals("test-filter", StringComparison.OrdinalIgnoreCase))
@@ -278,15 +292,23 @@ public sealed partial class ReignValidationService(
             }
         }
 
+        var artifactHashes = CaptureDeploymentArtifactHashes(runRoot);
+        if (reusable is null)
+        {
+            validationLease.Update("checking-final-source", completedOperations: results.Count);
+            finalFingerprint = CheckFinalSource(plan, sourceFingerprint, out sourceError);
+        }
         var report = new ValidationReport
         {
             Schema = "reign-validation-report-v4",
             ValidatorVersion = "0.7.3",
             RunId = runId,
             SourceFingerprintSha256 = sourceFingerprint,
+            FinalSourceFingerprintSha256 = finalFingerprint,
+            SourceFingerprintError = sourceError,
             StartedUtc = started.ToString("O"),
             CompletedUtc = DateTimeOffset.UtcNow.ToString("O"),
-            Ok = plan.CoverageComplete
+            Ok = sourceError is null && plan.CoverageComplete
                 && !repositoryHygiene.BlocksValidation
                 && (plan.NonCodeOnly || plan.Projects.All(project => results.Any(result =>
                     result.Project.ProjectPath.Equals(
@@ -300,7 +322,7 @@ public sealed partial class ReignValidationService(
             ReportPath = reportPath,
             RepositoryHygiene = repositoryHygiene,
             Results = results,
-            DeploymentArtifactHashes = CaptureDeploymentArtifactHashes(runRoot)
+            DeploymentArtifactHashes = artifactHashes
         };
         await File.WriteAllTextAsync(
             reportPath,
@@ -331,6 +353,7 @@ public sealed partial class ReignValidationService(
                     File.ReadAllText(path), JsonOptions);
                 if (candidate is null
                     || !candidate.Ok
+                    || !candidate.HasMatchingSourceFingerprints
                     || candidate.RepositoryHygiene.BlocksValidation
                     || !HygieneSnapshotsMatch(candidate.RepositoryHygiene, repositoryHygiene)
                     || !candidate.Plan.CoverageComplete
@@ -396,11 +419,27 @@ public sealed partial class ReignValidationService(
     private static string IssueKey(RepositoryHygieneIssue issue) =>
         string.Join("\0", issue.Category, issue.Path, issue.Classifier);
 
+    private string? CheckFinalSource(ValidationPlan plan, string initial, out string? error)
+    {
+        try
+        {
+            var final = ComputeSourceFingerprint(plan);
+            error = final == initial ? null : "Managed source changed during validation.";
+            return final;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException
+            or JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            error = $"Could not read managed source at the end of validation ({ex.GetType().Name}).";
+            return null;
+        }
+    }
+
     private string ComputeSourceFingerprint(ValidationPlan plan)
     {
         var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
+            ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".xaml", ".md",
             ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css", ".sh", ".service"
         };
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

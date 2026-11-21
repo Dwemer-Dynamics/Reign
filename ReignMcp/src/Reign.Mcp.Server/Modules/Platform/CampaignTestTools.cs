@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using ModelContextProtocol.Server;
+using static Reign.Mcp.Server.CampaignTestCheckpointOwnership;
 
 namespace Reign.Mcp.Server;
 
@@ -217,7 +218,11 @@ public sealed class CampaignTestService
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
         if (!string.Equals(state.CampaignId, expectedCampaignId, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
-        await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        if (!SameName(snapshot.FindString("activeSaveName"), state.CurrentSaveName))
+            throw new InvalidOperationException("Feature tests require the exact proven Current checkpoint to be loaded.");
+        state = RequireArmed(runId);
+        ValidateSnapshot(state, snapshot, allowBaseline: false);
         return CampaignTestAuthorization.From(state);
     }
 
@@ -231,6 +236,9 @@ public sealed class CampaignTestService
         if (!string.Equals(state.CampaignId, expectedCampaignId, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
         ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        ValidatePausedActionSnapshot(state, snapshot);
+        await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
+        state = RequireArmed(runId);
         ValidatePausedActionSnapshot(state, snapshot);
         return CampaignTestAuthorization.From(state);
     }
@@ -257,7 +265,7 @@ public sealed class CampaignTestService
             || string.IsNullOrWhiteSpace(state.SavePrefix)
             || state.CurrentSaveName != state.SavePrefix + "_Current"
             || string.Equals(state.CurrentSaveName, state.BaselineSaveName, StringComparison.OrdinalIgnoreCase)
-            || !state.Checkpoints.Contains(state.CurrentSaveName, StringComparer.OrdinalIgnoreCase))
+            || Find(state, state.CurrentSaveName) is null || state.PendingCheckpoint is not null)
             throw new InvalidOperationException("Siege setup requires the exact armed run-owned Current recovery checkpoint.");
         bool saved = state.Events.Any(e =>
         {
@@ -286,6 +294,7 @@ public sealed class CampaignTestService
             .ToLowerInvariant()[..8];
         string prefix = $"ReignTest_{slug}_{suffix}";
         string current = prefix + "_Current";
+        RequireDistinctBaseline(baselineSaveName, current);
         if (current.Length > 64) throw new InvalidOperationException("The generated test save name exceeds Bannerlord's 64-character limit.");
 
         lock (StateGate)
@@ -298,8 +307,10 @@ public sealed class CampaignTestService
                     || !string.Equals(existing.BaselineSaveName, baselineSaveName, StringComparison.OrdinalIgnoreCase)
                     || !string.Equals(existing.TestName, testName, StringComparison.Ordinal))
                     throw new InvalidOperationException("The run id is already enrolled with different immutable campaign-test inputs.");
+                RequireDistinctBaseline(existing.BaselineSaveName, existing.CurrentSaveName);
                 return StateEnvelope(existing, "already_prepared");
             }
+            RequireVacant(current, NativeHash(current), registered: false);
             var state = new CampaignTestState
             {
                 Schema = "reign-campaign-test-state-v1",
@@ -325,12 +336,18 @@ public sealed class CampaignTestService
     {
         RequireControl(confirmation, "start Reign campaign test on enrolled save");
         waitSeconds = InputGuard.Range(waitSeconds, nameof(waitSeconds), 60, 900);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = ReadState(runId);
+        RequireResolved(state);
+        RequireDistinctBaseline(state.BaselineSaveName, state.CurrentSaveName);
+        CampaignCheckpointReceipt? current = Find(state, state.CurrentSaveName);
+        if (state.Armed || current is not null)
+            current = await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
         await RequireUnifiedHealthAsync(cancellationToken).ConfigureAwait(false);
         ControllerCall status = await RunControllerAsync(new[] { "game", "status" }, 60,
             cancellationToken).ConfigureAwait(false);
         string lifecycleStatus = status.FindString("status");
-        string expectedSave = state.Armed ? state.CurrentSaveName : state.BaselineSaveName;
+        string expectedSave = current?.Attempt.SaveName ?? state.BaselineSaveName;
         ControllerCall result;
         if (status.FindBoolean("running"))
         {
@@ -343,9 +360,10 @@ public sealed class CampaignTestService
         }
         else
         {
-            result = await RunControllerAsync(new[] { "game", "start", "--save", expectedSave,
-                "--wait", waitSeconds.ToString(), "--save-sync-grace", "420" },
-                waitSeconds + 450, cancellationToken).ConfigureAwait(false);
+            var args = new List<string> { "game", "start", "--save", expectedSave,
+                "--wait", waitSeconds.ToString(), "--save-sync-grace", "420" };
+            if (current is not null) args.AddRange(["--owned-save-sha256", current.Sha256]);
+            result = await RunControllerAsync(args, waitSeconds + 450, cancellationToken).ConfigureAwait(false);
         }
         if (result.Ok)
         {
@@ -427,8 +445,22 @@ public sealed class CampaignTestService
     {
         RequireControl(confirmation, "arm Reign campaign test on disposable save");
         minutes = InputGuard.Range(minutes, nameof(minutes), 5, 720);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = ReadState(runId);
+        RequireResolved(state);
+        RequireDistinctBaseline(state.BaselineSaveName, state.CurrentSaveName);
+        bool hasCurrent = Find(state, state.CurrentSaveName) is not null;
+        if (!hasCurrent)
+        {
+            if (state.Armed || state.Checkpoints.Count > 0)
+                throw new InvalidOperationException("This enrollment has no provable Current checkpoint. Preserve its saves and use a fresh enrollment.");
+            RequireVacant(state.CurrentSaveName, NativeHash(state.CurrentSaveName), registered: false);
+        }
         await RequireUnifiedHealthAsync(cancellationToken).ConfigureAwait(false);
+        if (hasCurrent)
+            await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
+        await VerifyStartedRuntimeAsync(state, hasCurrent ? state.CurrentSaveName : state.BaselineSaveName,
+            cancellationToken).ConfigureAwait(false);
         ControllerCall armed = await RunControllerAsync(new[] { "arm", "--minutes", minutes.ToString() },
             60, cancellationToken).ConfigureAwait(false);
         if (!armed.Ok) return OperationEnvelope(state, "arm", armed);
@@ -437,23 +469,28 @@ public sealed class CampaignTestService
         string active = snapshot.FindString("activeSaveName");
         if (string.Equals(active, state.BaselineSaveName, StringComparison.OrdinalIgnoreCase))
         {
-            await RequireSaveCapacityAsync(state, state.CurrentSaveName, cancellationToken).ConfigureAwait(false);
+            if (state.Armed || state.Checkpoints.Count > 0 || state.CheckpointReceipts.Count > 0)
+                throw new InvalidOperationException("This enrollment has checkpoint history. Load its proven Current or use a fresh enrollment.");
+            CampaignCheckpointAttempt attempt = await BeginCheckpointAsync(state, snapshot,
+                state.CurrentSaveName, cancellationToken).ConfigureAwait(false);
             ControllerCall initial = await RunControllerAsync(new[] { "world-test", "checkpoint",
                 "--campaign", state.CampaignId, "--timeline", state.TimelineId,
                 "--save", state.CurrentSaveName, "--save-timeout", "420",
-                "--catch-up-timeout", "900", "--initial-baseline" }, 1380,
-                cancellationToken).ConfigureAwait(false);
+                "--catch-up-timeout", "900", "--initial-baseline", "--checkpoint-ownership",
+                JsonSerializer.Serialize(attempt, StateJson) }, 1380, cancellationToken).ConfigureAwait(false);
+            state = await FinishCheckpointAsync(state, attempt, initial, cancellationToken).ConfigureAwait(false);
             if (!initial.Ok) return OperationEnvelope(state, "initial_checkpoint", initial);
             snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
-            ValidateSnapshot(state, snapshot, allowBaseline: false);
         }
+        ValidateSnapshot(state, snapshot, allowBaseline: false);
+        if (!SameName(snapshot.FindString("activeSaveName"), state.CurrentSaveName))
+            throw new InvalidOperationException("Arming requires the exact proven Current to be loaded.");
+        await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
         lock (StateGate)
         {
             state = ReadState(runId);
             state.Armed = true;
             state.Status = "armed";
-            if (!state.Checkpoints.Contains(state.CurrentSaveName, StringComparer.OrdinalIgnoreCase))
-                state.Checkpoints.Add(state.CurrentSaveName);
             AddEvent(state, "armed", "Verified campaign test and disposable save isolation.", snapshot.Summary());
             WriteState(state);
         }
@@ -495,17 +532,24 @@ public sealed class CampaignTestService
             throw new ArgumentException("Government-news observation requires checkpointMode none (--no-save).");
         timeoutSeconds = InputGuard.Range(timeoutSeconds, nameof(timeoutSeconds), 120, 21600);
         catchUpTimeoutSeconds = InputGuard.Range(catchUpTimeoutSeconds, nameof(catchUpTimeoutSeconds), 60, 3600);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = RequireArmed(runId);
-        await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        CampaignCheckpointAttempt? attempt = null;
         if (checkpointMode == "rolling")
-            await RequireSaveCapacityAsync(state, state.CurrentSaveName, cancellationToken).ConfigureAwait(false);
+            attempt = await BeginCheckpointAsync(state, snapshot, state.CurrentSaveName, cancellationToken).ConfigureAwait(false);
         var args = new List<string> { "world-test", "advance", "--campaign", state.CampaignId,
             "--timeline", state.TimelineId, "--timeout", timeoutSeconds.ToString(),
             "--catch-up-timeout", catchUpTimeoutSeconds.ToString() };
         if (days.HasValue) { args.Add("--days"); args.Add(days.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
         else { args.Add("--target-day"); args.Add(targetDay!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
-        if (checkpointMode == "rolling") { args.Add("--save"); args.Add(state.CurrentSaveName); }
+        if (attempt is not null)
+        {
+            args.AddRange(["--save", state.CurrentSaveName, "--checkpoint-ownership",
+                JsonSerializer.Serialize(attempt, StateJson)]);
+        }
         else args.Add("--no-save");
+        args.AddRange(["--campaign-test-source", SerializeCheckpointSource(state, snapshot)]);
         if (observeGovernmentNews) args.Add("--observe-government-news");
         ControllerCall result;
         IReadOnlyDictionary<string, object?>? safetyRecovery = null;
@@ -522,8 +566,8 @@ public sealed class CampaignTestService
             lock (StateGate)
             {
                 state = ReadState(runId);
-                state.Status = Convert.ToBoolean(safetyRecovery["ok"] ?? false)
-                    ? "advance_cancelled_safe"
+                state.Status = state.PendingCheckpoint is not null ? "checkpoint_uncertain"
+                    : Convert.ToBoolean(safetyRecovery["ok"] ?? false) ? "advance_cancelled_safe"
                     : "advance_cancelled_recovery_failed";
                 AddEvent(state, "advance",
                     "Campaign advancement controller was cancelled; guarded safety recovery was attempted.",
@@ -537,14 +581,17 @@ public sealed class CampaignTestService
             safetyRecovery = await RecoverInterruptedAdvanceAsync(state,
                 catchUpTimeoutSeconds, observeGovernmentNews).ConfigureAwait(false);
         }
+        if (attempt is not null)
+            state = await FinishCheckpointAsync(state, attempt, result, cancellationToken).ConfigureAwait(false);
         lock (StateGate)
         {
             state = ReadState(runId);
             bool recoveryOk = safetyRecovery is not null
                 && Convert.ToBoolean(safetyRecovery["ok"] ?? false);
-            state.Status = result.Ok
-                ? "paused_caught_up"
-                : recoveryOk ? "advance_failed_safe" : "advance_failed_recovery_failed";
+            if (state.PendingCheckpoint is null)
+                state.Status = result.Ok
+                    ? "paused_caught_up"
+                    : recoveryOk ? "advance_failed_safe" : "advance_failed_recovery_failed";
             AddEvent(state, "advance",
                 result.Ok
                     ? "Campaign advancement reached a drained boundary."
@@ -572,21 +619,23 @@ public sealed class CampaignTestService
         RequireControl(confirmation, "stop and drain Reign campaign test");
         catchUpTimeoutSeconds = InputGuard.Range(catchUpTimeoutSeconds,
             nameof(catchUpTimeoutSeconds), 60, 3600);
-        CampaignTestState state = RequireArmed(runId);
+        CampaignTestState state = RequireArmed(runId, allowPendingCheckpoint: true);
         IReadOnlyDictionary<string, object?> activeAdvancePreemption =
             await CancelActivePassiveWorldRunAsync(state).ConfigureAwait(false);
         if (!Convert.ToBoolean(activeAdvancePreemption["ok"] ?? false))
             throw new InvalidOperationException(
                 "The active passive-world run could not be cancelled and paused before drain.");
-        await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
         ControllerCall result = await RunControllerAsync(new[] { "world-test", "drain",
             "--campaign", state.CampaignId, "--timeline", state.TimelineId,
-            "--catch-up-timeout", catchUpTimeoutSeconds.ToString() },
+            "--catch-up-timeout", catchUpTimeoutSeconds.ToString(),
+            "--campaign-test-source", SerializeCheckpointSource(state, snapshot) },
             catchUpTimeoutSeconds + 180, cancellationToken).ConfigureAwait(false);
         lock (StateGate)
         {
             state = ReadState(runId);
-            state.Status = result.Ok ? "paused_caught_up" : "drain_failed";
+            if (state.PendingCheckpoint is null)
+                state.Status = result.Ok ? "paused_caught_up" : "drain_failed";
             AddEvent(state, "stop", result.Ok ? "Campaign paused and queues drained." : "Campaign drain failed.", result.Summary());
             WriteState(state);
         }
@@ -605,28 +654,33 @@ public sealed class CampaignTestService
         saveTimeoutSeconds = InputGuard.Range(saveTimeoutSeconds, nameof(saveTimeoutSeconds), 180, 900);
         catchUpTimeoutSeconds = InputGuard.Range(catchUpTimeoutSeconds,
             nameof(catchUpTimeoutSeconds), 60, 3600);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = RequireArmed(runId);
-        await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
         string saveName = state.CurrentSaveName;
         if (!string.IsNullOrWhiteSpace(milestoneLabel))
         {
             string label = new string(milestoneLabel.Where(char.IsAsciiLetterOrDigit).Take(16).ToArray());
             if (label.Length == 0) throw new ArgumentException("milestoneLabel must contain ASCII letters or digits.", nameof(milestoneLabel));
             saveName = state.SavePrefix + "_" + label;
+            if (SameName(saveName, state.CurrentSaveName)) saveName = state.CurrentSaveName;
             if (saveName.Length > 64) throw new ArgumentException("The milestone save name exceeds 64 characters.", nameof(milestoneLabel));
         }
-        await RequireSaveCapacityAsync(state, saveName, cancellationToken).ConfigureAwait(false);
+        CampaignCheckpointAttempt attempt = await BeginCheckpointAsync(state, snapshot, saveName,
+            cancellationToken).ConfigureAwait(false);
         ControllerCall result = await RunControllerAsync(new[] { "world-test", "checkpoint",
             "--campaign", state.CampaignId, "--timeline", state.TimelineId,
             "--save", saveName, "--save-timeout", saveTimeoutSeconds.ToString(),
-            "--catch-up-timeout", catchUpTimeoutSeconds.ToString() },
+            "--catch-up-timeout", catchUpTimeoutSeconds.ToString(), "--checkpoint-ownership",
+            JsonSerializer.Serialize(attempt, StateJson) },
             saveTimeoutSeconds + catchUpTimeoutSeconds + 180, cancellationToken).ConfigureAwait(false);
+        state = await FinishCheckpointAsync(state, attempt, result, cancellationToken).ConfigureAwait(false);
         lock (StateGate)
         {
             state = ReadState(runId);
-            if (result.Ok && !state.Checkpoints.Contains(saveName, StringComparer.OrdinalIgnoreCase))
-                state.Checkpoints.Add(saveName);
-            state.Status = result.Ok ? "checkpointed" : "checkpoint_failed";
+            if (state.PendingCheckpoint is null)
+                state.Status = result.Ok && SameName(saveName, state.CurrentSaveName) ? "checkpointed"
+                    : result.Ok ? "milestone_checkpointed" : "checkpoint_failed";
             AddEvent(state, "checkpoint", result.Ok ? $"Saved {saveName}." : $"Checkpoint {saveName} failed.", result.Summary());
             WriteState(state);
         }
@@ -642,23 +696,30 @@ public sealed class CampaignTestService
         RequireControl(confirmation,
             "restart Reign campaign test on checkpointed disposable save");
         waitSeconds = InputGuard.Range(waitSeconds, nameof(waitSeconds), 60, 900);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = RequireArmed(runId);
-        await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall active = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
+        if (!SameName(active.FindString("activeSaveName"), state.CurrentSaveName))
+            throw new InvalidOperationException("Restart requires the exact Current checkpoint to be loaded.");
+        CampaignCheckpointReceipt current = await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
         if (!string.Equals(state.Status, "checkpointed", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The disposable Current save must be checkpointed and drained immediately before restart.");
         ControllerCall result = await RunControllerAsync(new[] { "game", "restart",
             "--save", state.CurrentSaveName, "--no-save", "--wait", waitSeconds.ToString(),
-            "--save-sync-grace", "420" }, waitSeconds + 600, cancellationToken)
+            "--save-sync-grace", "420", "--owned-save-sha256", current.Sha256,
+            "--campaign", state.CampaignId, "--campaign-test-source", SerializeCheckpointSource(state, active) },
+            waitSeconds + 600, cancellationToken)
             .ConfigureAwait(false);
         if (!result.Ok) return OperationEnvelope(state, "restart", result);
         ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
-        ValidateSnapshot(state, snapshot, allowBaseline: false);
+        VerifyReloadedCurrent(state, snapshot, active);
         string receipt = "campaign_test_restart_" + Guid.NewGuid().ToString("N");
         var evidence = new Dictionary<string, object?>
         {
             ["restartReceipt"] = receipt,
             ["saveName"] = state.CurrentSaveName,
+            ["savePointId"] = current.SavePointId,
             ["controller"] = result.Summary(),
             ["reloadedSnapshot"] = snapshot.Summary()
         };
@@ -679,27 +740,23 @@ public sealed class CampaignTestService
         RequireControl(confirmation,
             "restore Reign campaign-test checkpoint without saving current state");
         waitSeconds = InputGuard.Range(waitSeconds, nameof(waitSeconds), 60, 900);
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = RequireArmed(runId);
         ControllerCall activeSnapshot = await SnapshotAsync(state, cancellationToken)
             .ConfigureAwait(false);
         ValidateSnapshot(state, activeSnapshot, allowBaseline: false,
             requireSafeSettlement: false);
-        if (string.Equals(state.CurrentSaveName, state.BaselineSaveName,
-                StringComparison.OrdinalIgnoreCase)
-            || !state.Checkpoints.Contains(state.CurrentSaveName,
-                StringComparer.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "The exact run-owned Current checkpoint must already exist and cannot be the enrolled baseline.");
+        VerifyOwnedBytes(state, activeSnapshot.FindString("activeSaveName"));
+        CampaignCheckpointReceipt current = await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
         ControllerCall result = await RunControllerAsync(new[] { "game", "restart",
             "--save", state.CurrentSaveName, "--no-save", "--wait", waitSeconds.ToString(),
-            "--save-sync-grace", "420" }, waitSeconds + 600, cancellationToken)
+            "--save-sync-grace", "420", "--owned-save-sha256", current.Sha256,
+            "--campaign", state.CampaignId, "--campaign-test-source", SerializeCheckpointSource(state, activeSnapshot) },
+            waitSeconds + 600, cancellationToken)
             .ConfigureAwait(false);
         if (!result.Ok) return OperationEnvelope(state, "restore_checkpoint", result);
         ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
-        ValidateSnapshot(state, snapshot, allowBaseline: false);
-        if (!snapshot.FindBoolean("safeSettlement"))
-            throw new InvalidOperationException(
-                "The restored campaign-test checkpoint did not return to a safe settlement boundary.");
+        VerifyReloadedCurrent(state, snapshot, activeSnapshot);
         string receipt = "campaign_test_restore_" + Guid.NewGuid().ToString("N");
         var evidence = new Dictionary<string, object?>
         {
@@ -724,17 +781,21 @@ public sealed class CampaignTestService
     public CampaignTestAuthorization RequireRestartReceipt(string runId,
         string expectedCampaignId, string restartReceipt)
     {
-        CampaignTestState state = ReadState(runId);
+        CampaignTestState state = RequireArmed(runId);
+        var checkpoint = VerifyOwnedBytes(state, state.CurrentSaveName);
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
         restartReceipt = RequiredId(restartReceipt, nameof(restartReceipt));
         if (!string.Equals(state.CampaignId, expectedCampaignId,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The reload receipt does not belong to the requested campaign test.");
-        bool found = state.Events.Any(item => string.Equals(item.Operation, "restart",
-                StringComparison.OrdinalIgnoreCase)
-            && JsonSerializer.Serialize(item.Evidence, StateJson)
-                .Contains(restartReceipt, StringComparison.Ordinal));
+        bool found = state.Events.Any(item =>
+        {
+            if (item.Operation != "restart" || item.Evidence is null) return false;
+            JsonElement evidence = JsonSerializer.SerializeToElement(item.Evidence, StateJson);
+            return Text(evidence, "restartReceipt") == restartReceipt
+                && Text(evidence, "savePointId") == checkpoint.SavePointId;
+        });
         if (!found) throw new InvalidOperationException(
             "The supplied reload receipt was not issued by this guarded campaign test.");
         return CampaignTestAuthorization.From(state);
@@ -760,30 +821,52 @@ public sealed class CampaignTestService
         string confirmation, CancellationToken cancellationToken)
     {
         RequireControl(confirmation, "delete Reign campaign-test disposable saves");
+        using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = ReadState(runId);
+        RequireResolved(state);
+        RequireDistinctBaseline(state.BaselineSaveName, state.CurrentSaveName);
         ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        if (!snapshot.Ok || !SameName(snapshot.FindString("campaignId"), state.CampaignId)
+            || !SameName(snapshot.FindString("timelineId"), state.TimelineId))
+            throw new InvalidOperationException("Cleanup requires a verified native snapshot of the enrolled campaign and timeline.");
         string active = snapshot.FindString("activeSaveName");
-        if (state.Checkpoints.Contains(active, StringComparer.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Cleanup refused because a run-owned checkpoint is currently loaded. Load the protected baseline or another save first.");
+        if (string.IsNullOrWhiteSpace(active) || state.Checkpoints.Any(save => SameName(save, active)))
+            throw new InvalidOperationException("Cleanup requires a known loaded save outside the run's checkpoints.");
+        CampaignCheckpointReceipt[] receipts = state.Checkpoints.Select(save => VerifyOwnedBytes(state, save)).ToArray();
         var deleted = new List<object?>();
-        foreach (string save in state.Checkpoints.Distinct(StringComparer.OrdinalIgnoreCase).ToArray())
+        foreach (CampaignCheckpointReceipt receipt in receipts)
         {
-            if (string.Equals(save, state.BaselineSaveName, StringComparison.OrdinalIgnoreCase)
-                || !save.StartsWith(state.SavePrefix + "_", StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Cleanup state contains a save outside the exact run-owned namespace.");
+            string save = receipt.Attempt.SaveName;
             ControllerCall result = await RunControllerAsync(new[] { "world-test", "delete-checkpoint",
                 "--campaign", state.CampaignId, "--timeline", state.TimelineId,
-                "--save", save, "--prefix", state.SavePrefix }, 180, cancellationToken)
-                .ConfigureAwait(false);
+                "--save", save, "--prefix", state.SavePrefix, "--checkpoint-ownership",
+                JsonSerializer.Serialize(new
+                {
+                    baselineSaveName = state.BaselineSaveName,
+                    campaignId = state.CampaignId,
+                    timelineId = state.TimelineId,
+                    gameInstanceId = snapshot.FindString("checkpointGameInstanceId"),
+                    savePointId = receipt.SavePointId, sha256 = receipt.Sha256
+                }, StateJson) }, 180, cancellationToken).ConfigureAwait(false);
             deleted.Add(new Dictionary<string, object?> { ["saveName"] = save, ["result"] = result.AsObject() });
             if (!result.Ok) return OperationEnvelope(state, "cleanup", result,
                 new Dictionary<string, object?> { ["deleted"] = deleted });
+            lock (StateGate)
+            {
+                state = ReadState(runId);
+                state.Checkpoints.RemoveAll(name => SameName(name, save));
+                state.CheckpointReceipts.RemoveAll(prior => SameName(prior.Attempt.SaveName, save));
+                state.Armed = false;
+                state.Status = "cleanup_in_progress";
+                AddEvent(state, "cleanup", $"Deleted verified checkpoint {save}.", result.Summary());
+                WriteState(state);
+            }
         }
         lock (StateGate)
         {
             state = ReadState(runId);
+            state.Armed = false;
             state.Status = "cleaned";
-            state.Checkpoints.Clear();
             AddEvent(state, "cleanup", "Deleted all exact run-owned saves; baseline preserved.", null);
             WriteState(state);
         }
@@ -797,12 +880,54 @@ public sealed class CampaignTestService
         };
     }
 
-    private async Task VerifyActiveOwnedSaveAsync(CampaignTestState state,
+    private async Task<ControllerCall> VerifyActiveOwnedSaveAsync(CampaignTestState state,
         CancellationToken cancellationToken)
     {
         ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
         ValidateSnapshot(state, snapshot, allowBaseline: false);
+        var receipt = VerifyOwnedBytes(state, snapshot.FindString("activeSaveName"));
+        await RequireRegisteredPointAsync(state, receipt, cancellationToken).ConfigureAwait(false);
+        return snapshot;
     }
+
+    private static CampaignCheckpointReceipt VerifyOwnedBytes(CampaignTestState state, string name)
+    {
+        var receipt = Find(state, name) ?? throw new InvalidOperationException(
+            $"No durable campaign-test ownership receipt identifies {name}.");
+        VerifyBytes(receipt, NativeHash(name));
+        return receipt;
+    }
+
+    private static void VerifyReloadedCurrent(CampaignTestState state, ControllerCall snapshot,
+        ControllerCall previous)
+    {
+        ValidateSnapshot(state, snapshot, allowBaseline: false);
+        string previousInstance = previous.FindString("checkpointGameInstanceId");
+        string currentInstance = snapshot.FindString("checkpointGameInstanceId");
+        if (string.IsNullOrWhiteSpace(previousInstance) || string.IsNullOrWhiteSpace(currentInstance)
+            || previousInstance == currentInstance)
+            throw new InvalidOperationException("The checkpoint reload did not report a new native game instance.");
+        if (!SameName(snapshot.FindString("activeSaveName"), state.CurrentSaveName))
+            throw new InvalidOperationException("Bannerlord did not reload the exact run-owned Current checkpoint.");
+        VerifyOwnedBytes(state, state.CurrentSaveName);
+    }
+
+    private async Task<CampaignCheckpointReceipt> VerifyReloadableCurrentAsync(CampaignTestState state,
+        CancellationToken cancellationToken)
+    {
+        var receipt = VerifyOwnedBytes(state, state.CurrentSaveName);
+        await RequireRegisteredPointAsync(state, receipt, cancellationToken).ConfigureAwait(false);
+        return receipt;
+    }
+
+    private static string SerializeCheckpointSource(CampaignTestState state, ControllerCall snapshot) =>
+        JsonSerializer.Serialize(new
+        {
+            campaignId = state.CampaignId, timelineId = state.TimelineId,
+            sourceSaveName = snapshot.FindString("activeSaveName"),
+            sourcePointId = snapshot.FindString("checkpointSavePointId"),
+            gameInstanceId = snapshot.FindString("checkpointGameInstanceId")
+        }, StateJson);
 
     private Task<ControllerCall> SnapshotAsync(CampaignTestState state,
         CancellationToken cancellationToken)
@@ -822,28 +947,183 @@ public sealed class CampaignTestService
             throw new InvalidOperationException("The loaded campaign does not match the enrolled campaign.");
         if (!string.Equals(timeline, state.TimelineId, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The loaded timeline does not match the enrolled timeline.");
-        bool owned = state.Checkpoints.Contains(active, StringComparer.OrdinalIgnoreCase)
-            || string.Equals(active, state.CurrentSaveName, StringComparison.OrdinalIgnoreCase);
-        if (!owned && !(allowBaseline && string.Equals(active, state.BaselineSaveName, StringComparison.OrdinalIgnoreCase)))
-            throw new InvalidOperationException("The actual loaded Bannerlord save is neither the enrolled baseline nor an exact run-owned checkpoint.");
-        if (!snapshot.FindBoolean("saveSyncReady") || snapshot.FindBoolean("saveSyncAlignmentPending"))
+        RequireDistinctBaseline(state.BaselineSaveName, state.CurrentSaveName);
+        if (!(allowBaseline && SameName(active, state.BaselineSaveName)))
+        {
+            var receipt = Find(state, active);
+            if (receipt is null || receipt.SavePointId != snapshot.FindString("checkpointSavePointId"))
+                throw new InvalidOperationException("The actual loaded Bannerlord save lacks matching native and run-owned checkpoint evidence.");
+        }
+        if (!snapshot.FindBoolean("saveSyncReady") || snapshot.FindBoolean("saveSyncAlignmentPending", fallback: true))
             throw new InvalidOperationException("Save Sync is not finalized and aligned for the loaded campaign.");
         if (requireSafeSettlement && !snapshot.FindBoolean("safeSettlement"))
             throw new InvalidOperationException("The player must be safely inside a town or castle before autonomous campaign testing.");
     }
 
-    private async Task RequireSaveCapacityAsync(CampaignTestState state, string saveName,
-        CancellationToken cancellationToken)
+    private async Task<CampaignCheckpointAttempt> BeginCheckpointAsync(CampaignTestState state,
+        ControllerCall source, string destination, CancellationToken cancellationToken)
     {
-        IReadOnlyDictionary<string, object?> capacity = await SaveCapacityAsync(state, saveName, cancellationToken)
+        RequireDistinctBaseline(state.BaselineSaveName, destination);
+        string instanceId = source.FindString("checkpointGameInstanceId");
+        string sourceName = source.FindString("activeSaveName");
+        if (string.IsNullOrWhiteSpace(instanceId))
+            throw new InvalidOperationException("The native client did not report the checkpoint game instance.");
+        if (NativeHash(sourceName) is null)
+            throw new InvalidOperationException("The native source save is missing.");
+
+        var receipt = Find(state, destination);
+        var (point, count) = await ReadCheckpointSlotAsync(state.CampaignId, destination, cancellationToken)
             .ConfigureAwait(false);
-        if (!Convert.ToBoolean(capacity["ok"] ?? false))
-            throw new InvalidOperationException("Save Sync capacity is unavailable. Refusing to create a checkpoint until the server can prove the unique-state budget.");
-        int count = Convert.ToInt32(capacity["uniqueStateCount"] ?? 0);
-        bool alreadyRetained = Convert.ToBoolean(capacity["saveAlreadyRetained"] ?? false);
-        if (!alreadyRetained && count >= SaveSyncLimit)
-            throw new InvalidOperationException("Save Sync already retains 15 unique states. Delete an exact run-owned milestone or another user-approved native save before creating a new checkpoint.");
+        bool retained = point.HasValue && receipt is not null && MatchesPoint(point.Value, receipt);
+        if (point.HasValue && !retained)
+            RequireVacant(destination, nativeHash: null, registered: true);
+
+        string? destinationHash = NativeHash(destination);
+        if (receipt is null)
+        {
+            RequireVacant(destination, destinationHash, registered: false);
+            if (state.Checkpoints.Any(name => SameName(name, destination)))
+                throw new InvalidOperationException("A legacy checkpoint name in this run has no provable creation receipt.");
+            if (count >= SaveSyncLimit)
+                throw new InvalidOperationException("Save Sync already retains 15 unique states. A new checkpoint requires available capacity.");
+        }
+        else
+        {
+            VerifyBytes(receipt, destinationHash);
+            if (!retained)
+                throw new InvalidOperationException("The destination's run-owned Save Sync point is no longer available.");
+        }
+
+        var attempt = new CampaignCheckpointAttempt(Guid.NewGuid().ToString("N"), state.RunId,
+            state.CampaignId, state.TimelineId, state.BaselineSaveName, destination, sourceName,
+            source.FindString("checkpointSavePointId"), instanceId, receipt?.SavePointId ?? "",
+            receipt?.Sha256 ?? "", DateTime.UtcNow.ToString("O"));
+        lock (StateGate)
+        {
+            var latest = ReadState(state.RunId);
+            RequireResolved(latest);
+            latest.PendingCheckpoint = attempt;
+            latest.Status = "checkpoint_pending";
+            AddEvent(latest, "checkpoint_intent", "Persisted checkpoint intent before issuing native SaveAs.", attempt);
+            WriteState(latest);
+        }
+        return attempt;
     }
+
+    private async Task<CampaignTestState> FinishCheckpointAsync(CampaignTestState state,
+        CampaignCheckpointAttempt attempt, ControllerCall result, CancellationToken cancellationToken)
+    {
+        CampaignCheckpointReceipt? receipt = null;
+        bool notSubmitted = !result.Ok && result.Data is { ValueKind: JsonValueKind.Object } root
+            && Text(root, "checkpointNotSubmitted") == attempt.Id;
+        if (result.Ok)
+        {
+            try
+            {
+                receipt = ReadCompletion(attempt, result);
+                VerifyBytes(receipt, NativeHash(attempt.SaveName));
+                await RequireRegisteredPointAsync(state, receipt, cancellationToken).ConfigureAwait(false);
+            }
+            catch (InvalidOperationException error)
+            {
+                lock (StateGate)
+                {
+                    state = ReadState(state.RunId);
+                    state.Status = "checkpoint_uncertain";
+                    AddEvent(state, "checkpoint_uncertain", error.Message, result.Summary());
+                    WriteState(state);
+                }
+                throw;
+            }
+        }
+
+        lock (StateGate)
+        {
+            state = ReadState(state.RunId);
+            if (state.PendingCheckpoint != attempt)
+                throw new InvalidOperationException("The durable pending checkpoint changed while the native operation was running.");
+            if (receipt is not null)
+            {
+                state.CheckpointReceipts.RemoveAll(item => SameName(item.Attempt.SaveName, attempt.SaveName));
+                state.CheckpointReceipts.Add(receipt);
+                if (!state.Checkpoints.Any(name => SameName(name, attempt.SaveName)))
+                    state.Checkpoints.Add(attempt.SaveName);
+                AddEvent(state, "checkpoint_receipt", "Verified native bytes and the finalized Save Sync point.", receipt);
+            }
+            else
+            {
+                AddEvent(state, notSubmitted ? "checkpoint_not_submitted" : "checkpoint_uncertain",
+                    notSubmitted ? "The controller refused before submitting SaveAs."
+                        : "Checkpoint completion could not be established. The intent remains unresolved.",
+                    result.Summary());
+            }
+            if (receipt is not null || notSubmitted)
+                state.PendingCheckpoint = null;
+            state.Status = receipt is not null ? "checkpoint_verified"
+                : notSubmitted ? "checkpoint_not_submitted" : "checkpoint_uncertain";
+            WriteState(state);
+            return state;
+        }
+    }
+
+    private async Task RequireRegisteredPointAsync(CampaignTestState state,
+        CampaignCheckpointReceipt receipt, CancellationToken cancellationToken)
+    {
+        var (point, _) = await ReadCheckpointSlotAsync(state.CampaignId, receipt.Attempt.SaveName, cancellationToken)
+            .ConfigureAwait(false);
+        if (!point.HasValue || !MatchesPoint(point.Value, receipt))
+            throw new InvalidOperationException("Save Sync did not confirm the exact available finalized checkpoint point.");
+    }
+
+    private async Task<(JsonElement? Point, int Count)> ReadCheckpointSlotAsync(
+        string campaignId, string destination, CancellationToken cancellationToken)
+    {
+        ApiEnvelope envelope = await _api.GetAsync("/api/save-sync/status",
+            new Dictionary<string, string?> { ["campaignId"] = campaignId, ["checkpointSlot"] = destination },
+            cancellationToken).ConfigureAwait(false);
+        return ParseCheckpointSlot(envelope, campaignId, destination);
+    }
+
+    internal static (JsonElement? Point, int Count) ParseCheckpointSlot(
+        ApiEnvelope envelope, string campaignId, string destination)
+    {
+        if (!envelope.Ok || envelope.Data is not { ValueKind: JsonValueKind.Object } root
+            || !IsTrue(root, "enabled") || !SameName(Text(root, "campaignId"), campaignId)
+            || !SameName(Text(root, "checkpointSlot"), destination)
+            || !root.TryGetProperty("foreignRegistration", out var foreign)
+            || foreign.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new InvalidOperationException("Save Sync could not prove checkpoint destination occupancy.");
+
+        int count = ExactCount(root, "registrationUniqueStateCount");
+        int registrations = ExactCount(root, "registrationCount");
+        if (foreign.GetBoolean() || registrations > 1)
+            RequireVacant(destination, nativeHash: null, registered: true);
+        bool hasPoint = root.TryGetProperty("point", out var point);
+        if (registrations == 0 && !hasPoint)
+            return (null, count);
+        if (registrations != 1 || !hasPoint || point.ValueKind != JsonValueKind.Object
+            || !SameName(NativeSlot(Text(point, "nativeSaveName")), destination))
+            throw new InvalidOperationException("Save Sync did not return the registration for the exact checkpoint slot.");
+        return (point, count);
+    }
+
+    private static int ExactCount(JsonElement item, string key)
+    {
+        if (!item.TryGetProperty(key, out var property) || property.ValueKind != JsonValueKind.Number
+            || !property.TryGetInt32(out int value) || value < 0)
+            throw new InvalidOperationException($"Save Sync omitted a valid {key} count.");
+        return value;
+    }
+
+    private static string NativeSlot(string name) => name.Trim().EndsWith(".sav", StringComparison.OrdinalIgnoreCase)
+        ? name.Trim()[..^4] : name.Trim();
+
+    private static bool MatchesPoint(JsonElement point, CampaignCheckpointReceipt receipt) =>
+        Text(point, "savePointId") == receipt.SavePointId
+        && SameName(Text(point, "timelineId"), receipt.Attempt.TimelineId)
+        && SameName(NativeSlot(Text(point, "nativeSaveName")), receipt.Attempt.SaveName)
+        && Text(point, "status") == "ready" && IsTrue(point, "snapshotAvailable")
+        && !string.IsNullOrWhiteSpace(Text(point, "saveFinalizedUtc"));
 
     private async Task<IReadOnlyDictionary<string, object?>> SaveCapacityAsync(
         CampaignTestState state, string requested, CancellationToken cancellationToken)
@@ -916,9 +1196,23 @@ public sealed class CampaignTestService
             };
         }
 
+        ControllerCall snapshot;
+        try
+        {
+            snapshot = await VerifyActiveOwnedSaveAsync(state, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException error)
+        {
+            return new Dictionary<string, object?>
+            {
+                ["ok"] = false, ["cancellation"] = cancellation, ["drainAttempted"] = false,
+                ["error"] = error.Message
+            };
+        }
         var drainArgs = new List<string> { "world-test", "drain",
             "--campaign", state.CampaignId, "--timeline", state.TimelineId,
-            "--catch-up-timeout", catchUpTimeoutSeconds.ToString() };
+            "--catch-up-timeout", catchUpTimeoutSeconds.ToString(),
+            "--campaign-test-source", SerializeCheckpointSource(state, snapshot) };
         if (observeGovernmentNews) drainArgs.Add("--observe-government-news");
         ControllerCall drain = await RunControllerAsync(drainArgs,
             catchUpTimeoutSeconds + 180, CancellationToken.None).ConfigureAwait(false);
@@ -959,6 +1253,19 @@ public sealed class CampaignTestService
                 ["ok"] = true,
                 ["active"] = false,
                 ["cancelAttempted"] = false
+            };
+        }
+        if (!runtime.Data.Value.TryGetProperty("runtime", out var native)
+            || !SameName(Text(native, "campaignId"), state.CampaignId)
+            || Find(state, Text(native, "activeSaveName")) is not { } activeReceipt
+            || !SameName(activeReceipt.Sha256, NativeHash(activeReceipt.Attempt.SaveName))
+            || !native.TryGetProperty("saveSync", out var sync)
+            || !SameName(Text(sync, "timelineId"), state.TimelineId))
+        {
+            return new Dictionary<string, object?>
+            {
+                ["ok"] = false, ["active"] = true, ["cancelAttempted"] = false,
+                ["error"] = "The busy native runtime could not be matched to a proven checkpoint in this run."
             };
         }
         if (string.IsNullOrWhiteSpace(liveRunId))
@@ -1080,11 +1387,25 @@ public sealed class CampaignTestService
         InputGuard.RequireConfirmation(actualConfirmation, expectedConfirmation);
     }
 
-    private CampaignTestState RequireArmed(string runId)
+    private CampaignTestState RequireArmed(string runId, bool allowPendingCheckpoint = false)
     {
         CampaignTestState state = ReadState(runId);
-        if (!state.Armed) throw new InvalidOperationException("The campaign-test run is not armed.");
+        if (!allowPendingCheckpoint) RequireResolved(state);
+        RequireDistinctBaseline(state.BaselineSaveName, state.CurrentSaveName);
+        if (!state.Armed || Find(state, state.CurrentSaveName) is null)
+            throw new InvalidOperationException("The campaign-test run is not armed with a proven Current checkpoint.");
         return state;
+    }
+
+    private FileStream AcquireSaveOperation(string runId)
+    {
+        string path = StatePath(RequiredId(runId, nameof(runId))) + ".lock";
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        try { return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+        catch (IOException error)
+        {
+            throw new InvalidOperationException("A guarded campaign-test operation already owns this run, or its lock is unavailable.", error);
+        }
     }
 
     private CampaignTestState ReadState(string runId)
@@ -1108,7 +1429,11 @@ public sealed class CampaignTestService
         string path = StatePath(state.RunId);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         string temporary = path + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(state, StateJson), new UTF8Encoding(false));
+        using (var output = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
+        {
+            JsonSerializer.Serialize(output, state, StateJson);
+            output.Flush(flushToDisk: true);
+        }
         File.Move(temporary, path, true);
     }
 
@@ -1240,6 +1565,8 @@ public sealed record CampaignTestState
     public string PreparedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";
     public List<string> Checkpoints { get; set; } = [];
+    public List<CampaignCheckpointReceipt> CheckpointReceipts { get; set; } = [];
+    public CampaignCheckpointAttempt? PendingCheckpoint { get; set; }
     public List<CampaignTestEvent> Events { get; set; } = [];
 }
 
@@ -1282,9 +1609,9 @@ internal sealed class ControllerCall
         return Data.HasValue ? FindStringValue(Data.Value, name) : string.Empty;
     }
 
-    public bool FindBoolean(string name)
+    public bool FindBoolean(string name, bool fallback = false)
     {
-        return Data.HasValue && FindBooleanValue(Data.Value, name, false);
+        return Data.HasValue ? FindBooleanValue(Data.Value, name, fallback) : fallback;
     }
 
     public object AsObject()

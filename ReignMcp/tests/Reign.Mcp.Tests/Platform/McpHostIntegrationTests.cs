@@ -266,9 +266,17 @@ public sealed class McpHostIntegrationTests
 
             if (Environment.GetEnvironmentVariable("REIGN_MCP_LIVE_BUILD_ACCEPTANCE") == "1")
             {
-                var build = await AssertSuccessfulCallAsync(
-                    client,
-                    "reign_build",
+                var currentLane = await AssertSuccessfulCallAsync(client, "reign_get_validation_status", []);
+                using var state = JsonDocument.Parse(currentLane.StructuredContent!.ToString()!);
+                // The enclosing validator can own this lane. Contention is exercised
+                // against an isolated lease in ReignValidationServiceTests.
+                if (state.RootElement.GetProperty("status").GetString() == "busy")
+                {
+                    Console.WriteLine("Live reign_build acceptance deferred while the canonical lane is occupied.");
+                    return;
+                }
+                Assert.True(state.RootElement.GetProperty("canStart").GetBoolean());
+                var build = await AssertSuccessfulCallAsync(client, "reign_build",
                     new Dictionary<string, object?>
                     {
                         ["component"] = "mcp",
@@ -279,6 +287,7 @@ public sealed class McpHostIntegrationTests
                     build.StructuredContent?.ToString()
                     ?? throw new InvalidOperationException("Build structured content was empty."));
                 Assert.True(document.RootElement.GetProperty("ok").GetBoolean());
+                Assert.True(File.Exists(document.RootElement.GetProperty("validationReportPath").GetString()));
             }
         }
     }

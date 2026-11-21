@@ -381,6 +381,8 @@ Portable complete campaign backup remains a Control Center operation rather than
 
 ## Build and verification effects
 
+`reign_build` and `reign_validate` share the machine-wide validation lease, build and restore permissions, repository hygiene audit, and the verification gates of the selected plan. A project ID can select dependencies and tests. The legacy response identifies the canonical report. Deployment still requires its own qualified report, artifact inventory and reviewed authority.
+
 An isolated build redirects deployable output to the configured workspace build root. It may update ordinary workspace-local `obj` intermediates, but it does not use the projects' normal final output folders or any installed module directory.
 
 Quick/offline CLI verification uses Reign's supported non-listening mode and
@@ -441,6 +443,21 @@ checkpoint, and advancement commands return bounded receipts while retaining
 full native evidence in their referenced live-test reports, preventing an
 oversized status payload from erasing a successful checkpoint receipt.
 Checkpoint restoration is destructive only to unsaved transient state:
+The guarded campaign-test service requires the protected baseline to differ
+from every checkpoint destination under case-insensitive comparison. New
+destinations must be vacant in the native save directory and Save Sync inventory.
+Save Sync checks the exact generated slot across ledgers of campaigns with local
+metadata and reports foreign occupancy without returning details of that campaign.
+The service durably journals an attempt before dispatch. Native rechecks the
+source, game instance and destination before SaveAs. The completed attempt binds
+the native file SHA-256 and a new finalized, available Save Sync point to the
+enrollment. Mutation checks require that evidence, including a native point and
+byte recheck for the active save. Rolling overwrite and cleanup independently
+recheck the native destination. An unresolved intent is reported and blocks
+further guarded mutation. Name matches and legacy summaries cannot establish
+ownership. The existing exact legacy Spymaster cleanup route retains its
+separate scope.
+
 `reign_restore_campaign_test_checkpoint` verifies the exact active owned
 Current save, campaign, timeline, and finalized Save Sync while intentionally
 allowing the unsaved pre-reload encounter/menu location to be unsafe. It

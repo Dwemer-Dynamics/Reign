@@ -13,11 +13,9 @@ namespace ReignBeta.Platform.Integration
         private static string _successfulBaseUrl;
         private static DateTime _unavailableUntilUtc;
         private static bool _halfOpenProbeRunning;
-        // Identifies the one half-open recovery probe. Zero is an anonymous
-        // claim taken through the legacy entry point (court and similar callers),
-        // which legacy and live reports continue to release exactly as before.
-        // Reachability (any HTTP response resets it) is a global signal; claim
-        // ownership is released only by the matching identified operation.
+        // Identifies the one half-open recovery probe. Zero means no claim.
+        // Reachability is a global signal. Only the owning operation can
+        // release its recovery claim.
         private static long _halfOpenProbeClaim;
         private static long _nextProbeClaim;
         private static int _consecutiveFailures;
@@ -27,9 +25,9 @@ namespace ReignBeta.Platform.Integration
             return CurrentBaseUrl().TrimEnd('/') + NormalizeRoute(route);
         }
 
-        internal static IReadOnlyList<string> CandidateBaseUrls()
+        internal static IReadOnlyList<string> CandidateBaseUrls(string configured = null)
         {
-            string configured = ConfiguredBaseUrl();
+            configured = configured ?? ConfiguredBaseUrl();
             lock (Gate)
             {
                 return new[] { _successfulBaseUrl, configured, ShouldTryDefaultFallback(configured) ? DefaultBaseUrl : null }
@@ -40,20 +38,9 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        internal static bool TryBeginRequest(out string error)
-        {
-            return TryBeginRequest(out error, out _, false);
-        }
-
-        // An identified caller receives a nonzero claim only when it became the
-        // half-open recovery probe. It reports through the claim overloads below
-        // and calls ReleaseRequest(claim) unconditionally in finally.
+        // A caller receives a nonzero claim only when it became the half-open
+        // recovery probe. The transport releases it unconditionally in finally.
         internal static bool TryBeginRequest(out string error, out long probeClaim)
-        {
-            return TryBeginRequest(out error, out probeClaim, true);
-        }
-
-        private static bool TryBeginRequest(out string error, out long probeClaim, bool identified)
         {
             lock (Gate)
             {
@@ -69,7 +56,7 @@ namespace ReignBeta.Platform.Integration
                             return false;
                         }
                         _halfOpenProbeRunning = true;
-                        _halfOpenProbeClaim = identified ? ++_nextProbeClaim : 0;
+                        _halfOpenProbeClaim = ++_nextProbeClaim;
                         probeClaim = _halfOpenProbeClaim;
                     }
 
@@ -83,17 +70,8 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        // Legacy and explicit live reachability success: resets the breaker and
-        // releases an anonymous legacy claim, never an identified probe that
-        // another operation still owns.
-        internal static void ReportSuccess(string baseUrl)
-        {
-            ReportSuccess(baseUrl, 0);
-        }
-
-        // Any response resets global reachability. The claim is released only
-        // when it is this operation's own current claim (zero: anonymous only),
-        // so a superseded or older completion never mutates a newer claim.
+        // Any response resets global reachability. A matching nonzero claim
+        // also releases this operation's recovery probe.
         internal static void ReportSuccess(string baseUrl, long probeClaim)
         {
             lock (Gate)
@@ -101,19 +79,7 @@ namespace ReignBeta.Platform.Integration
                 _successfulBaseUrl = NormalizeBaseUrl(baseUrl);
                 _unavailableUntilUtc = DateTime.MinValue;
                 _consecutiveFailures = 0;
-                if (probeClaim == _halfOpenProbeClaim) ClearProbeClaim();
-            }
-        }
-
-        // Legacy global report (court, Save Sync). It still applies the usual
-        // backoff, but it can release only an anonymous legacy claim, never an
-        // identified probe that another operation still owns.
-        internal static void ReportTransportFailure()
-        {
-            lock (Gate)
-            {
-                ApplyTransportFailurePenalty();
-                if (_halfOpenProbeClaim == 0) _halfOpenProbeRunning = false;
+                if (probeClaim != 0 && probeClaim == _halfOpenProbeClaim) ClearProbeClaim();
             }
         }
 
@@ -174,7 +140,7 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        private static string ConfiguredBaseUrl()
+        internal static string ConfiguredBaseUrl()
         {
             return NormalizeBaseUrl(ReignBetaSettings.Instance?.LocalServerUrl);
         }

@@ -6,6 +6,15 @@ namespace Reign.Mcp.Server;
 
 public sealed partial class SensitiveDataRedactor
 {
+    private const string SourceCredentialMarker = "[REDACTED: possible credential]";
+    private const string LabeledSecretPrefix =
+        """(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)""";
+    private const string LabeledSecretExpression = LabeledSecretPrefix + """(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""";
+
+    // Source output masks the whole line, so stop at the first value character.
+    private static readonly Regex SourceLabeledSecretPattern = new(
+        LabeledSecretPrefix + @"[^\s,;}]", RegexOptions.NonBacktracking | RegexOptions.CultureInvariant);
+
     private static readonly HashSet<string> SensitiveKeys = new(StringComparer.OrdinalIgnoreCase)
     {
         "authorization", "apiKey", "api_key", "apikey", "password", "secret",
@@ -16,11 +25,22 @@ public sealed partial class SensitiveDataRedactor
     [GeneratedRegex(@"(?i)\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}")]
     private static partial Regex BearerPattern();
 
-    [GeneratedRegex("""(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""")]
+    [GeneratedRegex(LabeledSecretExpression)]
     private static partial Regex LabeledSecretPattern();
 
     [GeneratedRegex(@"\b(?:sk-[A-Za-z0-9_-]{12,}|AIza[A-Za-z0-9_-]{20,})\b")]
     private static partial Regex KnownCredentialPattern();
+
+    [GeneratedRegex(
+        """
+        ^\s*JToken\s+token\s*=\s*
+        (?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*(?:\(\s*[A-Za-z_]\w*\s*\))?
+        \s*\??\[\s*(?:[A-Za-z_]\w*|"[A-Za-z_]\w*")\s*\]\s*;
+        """, RegexOptions.IgnorePatternWhitespace)]
+    private static partial Regex CSharpTokenLookupPattern();
+
+    [GeneratedRegex(@"(?<![\w-])token\s*==\s*null(?=\s*(?:[?);]|&&|\|\||$))")]
+    private static partial Regex CSharpTokenNullComparisonPattern();
 
     private static bool IsSensitiveKey(string name)
     {
@@ -51,6 +71,31 @@ public sealed partial class SensitiveDataRedactor
         var result = BearerPattern().Replace(input, "$1[REDACTED]");
         result = LabeledSecretPattern().Replace(result, "$1$2\"[REDACTED]\"");
         return KnownCredentialPattern().Replace(result, "[REDACTED]");
+    }
+
+    internal string RedactSourceLine(string line, bool isCSharp)
+    {
+        if (BearerPattern().IsMatch(line) || KnownCredentialPattern().IsMatch(line))
+        {
+            return SourceCredentialMarker;
+        }
+
+        if (!SourceLabeledSecretPattern.IsMatch(line))
+        {
+            return line;
+        }
+        if (!isCSharp)
+        {
+            return SourceCredentialMarker;
+        }
+
+        // Check the rest of the line after an anchored JToken declaration.
+        var lookup = CSharpTokenLookupPattern().Match(line);
+        var remainder = lookup.Success ? line[lookup.Length..] : line;
+        // Keep a value character where a comparison was removed so an
+        // enclosing credential assignment can still be detected.
+        var candidate = CSharpTokenNullComparisonPattern().Replace(remainder, "~");
+        return SourceLabeledSecretPattern.IsMatch(candidate) ? SourceCredentialMarker : line;
     }
 
     // This single endpoint returns immutable, credential-redacted text from the

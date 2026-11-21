@@ -636,7 +636,7 @@ public sealed class PartyAgencyHarnessContractTests
             StringComparison.Ordinal);
         string campaignTest = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignMcp"), "CampaignTestTools.cs"));
-        Assert.Contains("if (!snapshot.FindBoolean(\"safeSettlement\"))",
+        Assert.Contains("VerifyReloadedCurrent(state, snapshot, activeSnapshot);",
             campaignTest, StringComparison.Ordinal);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(campaignTest,
             "requireSafeSettlement: false",
