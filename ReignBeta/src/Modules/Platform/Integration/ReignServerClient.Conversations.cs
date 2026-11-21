@@ -270,7 +270,7 @@ namespace ReignBeta.Platform.Integration
                         if (!current() || Hero.MainHero == null) return;
                         if (!approachOpening)
                         {
-                            _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event");
+                            _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event", response, current);
                         }
 
                         if (!IsDelimitedSpeechOnlyResponse(response) && string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
@@ -474,11 +474,14 @@ namespace ReignBeta.Platform.Integration
                 {
                     if (!fence.IsCurrent() || !RequestOwnerCurrent(requestOwner)) return;
                     ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
-                    if (reply.Ok && Hero.MainHero != null && !familyChambers)
+                    if (reply.Ok && Hero.MainHero != null)
                     {
-                        if (!IsDelimitedSpeechOnlyResponse(response) && string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
+                        if (!familyChambers && !IsDelimitedSpeechOnlyResponse(response) && string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
                             _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
-                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, playerText, "party_chat");
+                        // Family history stays confined to the responding speaker.
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker,
+                            familyChambers ? Enumerable.Empty<Hero>() : activeHeroes, playerText, "party_chat", response,
+                            () => fence.IsCurrent() && RequestOwnerCurrent(requestOwner));
                     }
                 }).ConfigureAwait(false);
 
@@ -1246,19 +1249,29 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        private static async Task ObservePlayerHistoricalClaimForListenersSafelyAsync(Hero respondingTarget, IEnumerable<Hero> listeners, string claim, string mode)
+        internal static async Task ObservePlayerHistoricalClaimForListenersSafelyAsync(Hero respondingTarget,
+            IEnumerable<Hero> listeners, string claim, string mode, JObject response, Func<bool> requestOwner)
         {
             try
             {
                 Hero player = Hero.MainHero;
-                claim = PublicSpokenPlayerText(claim);
-                if (player == null || !LooksLikeHistoricalWorldClaim(claim)) return;
-                List<Hero> targets = (listeners ?? Enumerable.Empty<Hero>()).Where(x => x != null && x != player && x != respondingTarget)
+                var accepted = response?["conversationExchange"]?["acceptedUnit"] as JObject;
+                string unitId = accepted?.Value<string>("unitId") ?? string.Empty;
+                if (player == null || accepted?["groupHistoryObservation"] is not JObject
+                    || string.IsNullOrWhiteSpace(unitId) || !LooksLikeHistoricalWorldClaim(claim)) return;
+                string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+                List<Hero> targets = new[] { respondingTarget }.Concat(listeners ?? Enumerable.Empty<Hero>())
+                    .Where(x => x != null && x != player)
                     .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase).Select(x => x.First()).Take(12).ToList();
                 foreach (Hero target in targets)
                 {
-                    await EvaluateHistoricalClaimBetweenHeroesAsync(player, target, claim, mode + "_player_to_listener").ConfigureAwait(false);
+                    await ReignWorldHistoryClient.CheckWorldHistoryLieAsync(string.Empty, player, target, 0f,
+                        timeline, mode + "_player_to_listener", unitId, requestOwner).ConfigureAwait(false);
                 }
+            }
+            catch (ReignRequestOwnerAbandonedException)
+            {
+                // An ended scene or changed campaign cannot dispatch another listener.
             }
             catch (Exception ex)
             {
