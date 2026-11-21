@@ -30,6 +30,12 @@ namespace ReignBeta.WorldSimulation.World
     {
         public static ReignActionResult Execute(ReignWorldActionRecord action)
         {
+            if (action?.Type == ReignWorldActionType.RegularTradePackage)
+            {
+                ReignActionResult replay = ReignTradePackageExecutor.ReplayMaterialTrade(action);
+                if (replay != null) return replay;
+            }
+
             if (!ReignActionValidator.Validate(action, out string validationFailure))
             {
                 return ReignActionResult.ValidationFailed(validationFailure);

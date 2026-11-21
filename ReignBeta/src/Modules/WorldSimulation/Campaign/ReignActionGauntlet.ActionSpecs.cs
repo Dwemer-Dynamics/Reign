@@ -576,7 +576,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
 
             EnsureLeaderGold(actor, 10000);
-            return DiplomacySpec(ReignWorldActionType.DiplomacyPackage, c, "DiplomaticPackage", actor, target, settlement, new JObject
+            var spec = DiplomacySpec(ReignWorldActionType.DiplomacyPackage, c, "DiplomaticPackage", actor, target, settlement, new JObject
             {
                 ["gold"] = 100,
                 ["fromHeroStringId"] = actor.Leader?.StringId ?? string.Empty,
@@ -584,6 +584,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["settlementIds"] = new JArray(settlement.StringId),
                 ["packageText"] = "gauntlet compound package"
             });
+            return ExpectedFailure(spec.Action);
         }
 
         private static ActionSpec PeaceAgreementSpec(ReignWorldActionType type, GauntletContext c, string label, string kind, int days)

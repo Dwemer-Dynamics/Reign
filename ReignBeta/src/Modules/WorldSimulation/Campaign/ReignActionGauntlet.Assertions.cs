@@ -160,23 +160,6 @@ namespace ReignBeta.WorldSimulation.Campaign
             return target != null && enemy != null && target.IsAtWarWith(enemy) ? string.Empty : "Expected target kingdom to join war against third kingdom.";
         }
 
-        private static string DiplomaticPackageEffect(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
-        {
-            if (result == null || !result.Success)
-            {
-                return result?.Message ?? "Diplomatic package failed.";
-            }
-
-            if (!HasEffect(result, "diplomatic_package"))
-            {
-                return "Expected diplomatic_package effect.";
-            }
-
-            return ReignActionReceiptFormatter.ValidatePromisedEffects(action, result, out string reason)
-                ? string.Empty
-                : reason;
-        }
-
         private static string VerifiedTransactionCompleted(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
         {
             return ReignActionReceiptFormatter.ValidatePromisedEffects(action, result, out string reason)

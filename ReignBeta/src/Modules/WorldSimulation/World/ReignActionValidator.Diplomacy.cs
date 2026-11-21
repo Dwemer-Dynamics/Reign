@@ -261,34 +261,6 @@ namespace ReignBeta.WorldSimulation.World
                 || type == ReignWorldActionType.DiplomacyDemandSurrenderPeace;
         }
 
-        private static bool HasDiplomaticPackageTerm(ReignWorldActionRecord action)
-        {
-            JObject terms = string.IsNullOrWhiteSpace(action.TermsJson) ? new JObject() : JObject.Parse(action.TermsJson);
-            string assetText = string.Join(" ", new[]
-            {
-                ReadStringTerm(action.TermsJson, "asset", string.Empty),
-                ReadStringTerm(action.TermsJson, "assetClass", string.Empty),
-                ReadStringTerm(action.TermsJson, "assetName", string.Empty)
-            }).ToLowerInvariant();
-            return ReadIntTerm(action.TermsJson, "gold", 0) > 0
-                || ReadIntTerm(action.TermsJson, "GoldAmount", 0) > 0
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "item", string.Empty))
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "itemId", string.Empty))
-                || ReignValueService.ReadItemTermObjects(terms).Count > 0
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "prisonerHero", string.Empty))
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "prisonerHeroStringId", string.Empty))
-                || ReadStringListTerm(action.TermsJson, "settlementIds").Count > 0
-                || !string.IsNullOrWhiteSpace(action.TargetSettlementStringId)
-                || assetText.Contains("ship")
-                || assetText.Contains("fleet")
-                || assetText.Contains("naval")
-                || ReignMarriageService.HasMarriageIntent(action)
-                || string.Equals(ReadStringTerm(action.TermsJson, "treatyKind", string.Empty), "alliance_package", StringComparison.OrdinalIgnoreCase)
-                || ReadBoolTerm(action.TermsJson, "guaranteeIndependence", false)
-                || ReadBoolTerm(action.TermsJson, "militaryCommitment", false)
-                || ReadBoolTerm(action.TermsJson, "warSupport", false);
-        }
-
         private static bool ValidateDiplomaticPackage(ReignWorldActionRecord action, Kingdom actor, Kingdom target, out string reason)
         {
             var wedding = ReignMarriageService.LinkedWedding(action);
@@ -298,15 +270,16 @@ namespace ReignBeta.WorldSimulation.World
                 reason = exact ? string.Empty : "The wedding no longer matches the signed diplomatic package.";
                 return exact;
             }
+            if (!ReignMarriageService.HasMarriageIntent(action))
+            {
+                reason = "This diplomatic package has no recoverable barter execution path. Use a supported diplomatic action or structured agreement.";
+                return false;
+            }
+
             bool alliancePackage = string.Equals(ReadStringTerm(action.TermsJson, "treatyKind", string.Empty), "alliance_package", StringComparison.OrdinalIgnoreCase);
             if (alliancePackage && actor.IsAtWarWith(target))
             {
                 reason = "An alliance package cannot be executed while the kingdoms are at war.";
-                return false;
-            }
-            if (!HasDiplomaticPackageTerm(action))
-            {
-                reason = "Diplomatic package requires a concrete executable term: gold, item, prisoner, settlement, ship, or real marriage.";
                 return false;
             }
 
@@ -315,12 +288,11 @@ namespace ReignBeta.WorldSimulation.World
                 return false;
             }
 
-            if (ReignMarriageService.HasMarriageIntent(action)
-                && !ReignMarriageService.TryResolveCouple(action, out Hero _, out Hero _, out reason))
+            if (!ReignMarriageService.TryResolveCouple(action, out Hero _, out Hero _, out reason))
             {
                 return false;
             }
-            if (alliancePackage && string.Equals(action.Source, "world_diplomacy_director", StringComparison.OrdinalIgnoreCase) && ReignMarriageService.HasMarriageIntent(action)
+            if (alliancePackage && string.Equals(action.Source, "world_diplomacy_director", StringComparison.OrdinalIgnoreCase)
                 && (string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "marriageHero1StringId", string.Empty)) || string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "marriageHero2StringId", string.Empty))))
             {
                 reason = "NPC world alliance marriages require two explicit eligible hero IDs.";

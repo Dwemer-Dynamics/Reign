@@ -196,6 +196,10 @@ Read only the procedure relevant to the current task. Existing provider, campaig
 
 ## Feature harnesses
 
+### Legacy trade packages
+
+The provider-free LegacyTradeJournalTests exercise gold and item legs, exact rollback or unresolved holdings, and replay of serialized native receipts. The scripted action gauntlet expects validation to reject non-wedding diplomatic barter before assets or agreements change. Its live positive cases cover gold and item trades, authorized settlement purchases, wedding packages and standalone diplomacy. Workshop, prisoner and ship terms in ordinary trade packages require a separate supported transaction. Run native and provider-backed cases only under their existing authorization and disposable-campaign gates.
+
 ### Government fief interception regression (2026-09-22)
 
 `GOV-NATIVE-044`/`045` call native `Kingdom.AddDecision` for an NPC/player kingdom and require one captured hearing, no pre-vote award, one native invocation and one actual ownership event. Duplicate decision objects, direct election/outcome calls and repeated Government ticks must preserve that result. The player case proves the adapter only; player UI interaction remains separate. `046` removes the real proposal hook, checks group rollback and refusal to capture the late native event, then restores all hooks in `finally`; it does not execute a native election or spend Influence. `047` models an old pending save without provenance and requires quarantine without effects. `048` proves approved preliminary reassignment creates a distinct allocation hearing.

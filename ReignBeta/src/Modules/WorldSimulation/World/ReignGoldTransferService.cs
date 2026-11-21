@@ -16,17 +16,35 @@ namespace ReignBeta.WorldSimulation.World
     {
         private GoldPaymentLedger _ledger = new GoldPaymentLedger();
         private string _serialized = "";
+        private string _tradePackagesSerialized = "";
+        internal LegacyTradeJournal TradePackages { get; private set; } = new LegacyTradeJournal();
         public static ReignGoldTransferService Instance => ReignServices.GoldTransferService;
         public override void RegisterEvents() { ReignServices.GoldTransferService = this; }
         public override void SyncData(IDataStore store)
         {
-            if (store.IsSaving) _serialized = JsonConvert.SerializeObject(_ledger);
+            if (store.IsSaving)
+            {
+                _serialized = JsonConvert.SerializeObject(_ledger);
+                if (TradePackages != null)
+                    _tradePackagesSerialized = JsonConvert.SerializeObject(TradePackages);
+            }
             store.SyncData("_reign_gold_receipts_v1", ref _serialized);
+            if (store.IsLoading)
+            {
+                _tradePackagesSerialized = "";
+                TradePackages = null;
+            }
+            store.SyncData("_reign_legacy_trade_packages_v1", ref _tradePackagesSerialized);
             if (store.IsLoading)
             {
                 _ledger = string.IsNullOrEmpty(_serialized) ? new GoldPaymentLedger() : JsonConvert.DeserializeObject<GoldPaymentLedger>(_serialized);
                 if (_ledger == null || _ledger.Version != 1 || _ledger.Receipts == null)
                     throw new InvalidOperationException("Unsupported Reign gold receipt save data.");
+                var tradePackages = string.IsNullOrEmpty(_tradePackagesSerialized) ? new LegacyTradeJournal()
+                    : JsonConvert.DeserializeObject<LegacyTradeJournal>(_tradePackagesSerialized);
+                if (tradePackages == null || tradePackages.Version != 1 || tradePackages.Receipts == null)
+                    throw new InvalidOperationException("Unsupported Reign trade journal save data.");
+                TradePackages = tradePackages;
             }
         }
         public JArray Snapshot(Hero hero) => JArray.FromObject(_ledger.Receipts

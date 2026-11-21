@@ -160,6 +160,11 @@ namespace ReignBeta.Platform.Campaign
             if (IsUncertainExecutionHeld(saved)) return UncertainExecutionResult();
             if (!string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)) return result;
             if (saved == null) return null;
+            if (saved.Type == ReignWorldActionType.RegularTradePackage)
+            {
+                var receipt = ReignTradePackageExecutor.ReplayMaterialTrade(saved);
+                if (receipt != null) return receipt;
+            }
             if (saved.Status == ReignWorldActionStatus.Completed) return ReignActionResult.Done("Already completed; the saved action receipt prevents a second execution.");
             if (saved.Status == ReignWorldActionStatus.Cancelled) return ReignActionResult.NoOp("This action was cancelled; its saved receipt prevents another execution.")
                 .WithResultCode("action_cancelled").WithOutcome("cancelled");

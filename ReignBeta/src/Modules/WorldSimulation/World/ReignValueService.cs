@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.PartyAgency;
+using ReignBeta.Characters.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
@@ -11,6 +12,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
+using TaleWorlds.ObjectSystem;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.PartyAgency;
 using ReignBeta.Platform.Runtime;
@@ -55,7 +57,19 @@ namespace ReignBeta.WorldSimulation.World
                 appraisal = new ReignTradeAppraisal();
                 return false;
             }
-            if (!ValidateMaterialTransfers(action, out reason))
+            if (HasUnjournaledTradeAssets(terms))
+            {
+                appraisal = new ReignTradeAppraisal();
+                reason = "This trade package cannot safely exchange workshops, prisoners, or ships. Use a supported transaction for the asset.";
+                return false;
+            }
+            if (ReignMarriageService.HasMarriageIntent(action))
+            {
+                appraisal = new ReignTradeAppraisal();
+                reason = "A regular trade package cannot execute a marriage. Use a supported wedding agreement.";
+                return false;
+            }
+            if (action.Type != ReignWorldActionType.RegularTradePackage && !ValidateMaterialTransfers(action, out reason))
             {
                 appraisal = new ReignTradeAppraisal();
                 return false;
@@ -69,7 +83,7 @@ namespace ReignBeta.WorldSimulation.World
 
             if (appraisal.Quotes.Count == 0)
             {
-                reason = "Trade package requires at least one concrete gold, item, ship, settlement, workshop, or prisoner term.";
+                reason = "Trade package requires at least one concrete gold, item, or settlement term.";
                 return false;
             }
 
@@ -214,6 +228,12 @@ namespace ReignBeta.WorldSimulation.World
         }
 
         private static bool HasNonGoldSettlementPackageAsset(JObject terms)
+            => ReadItemTermObjects(terms).Count > 0
+                || !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "itemId", ""))
+                || !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "item", ""))
+                || HasUnjournaledTradeAssets(terms);
+
+        private static bool HasUnjournaledTradeAssets(JObject terms)
         {
             string assetText = string.Join(" ", new[]
             {
@@ -222,10 +242,7 @@ namespace ReignBeta.WorldSimulation.World
                 ReadStringTerm(terms, "assetName", ""),
                 ReadStringTerm(terms, "packageText", "")
             }).ToLowerInvariant();
-            return ReadItemTermObjects(terms).Count > 0
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "itemId", ""))
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "item", ""))
-                || !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "workshopId",
+            return !string.IsNullOrWhiteSpace(ReadStringTerm(terms, "workshopId",
                     ReadStringTerm(terms, "workshop", "")))
                 || !string.IsNullOrWhiteSpace(ReadStringTerm(terms,
                     "prisonerHeroStringId", ReadStringTerm(terms, "prisonerHero", "")))
@@ -313,7 +330,18 @@ namespace ReignBeta.WorldSimulation.World
             appraisal.BypassedFairness = IsFairnessBypassed(action, terms);
 
             if (!TryAddGoldQuote(action, terms, appraisal, out reason)) return appraisal;
-            if (ReadItemTermObjects(terms).Count == 0)
+            if (action.Type == ReignWorldActionType.RegularTradePackage)
+            {
+                if (!TryResolveTradeItems(action, terms, out var transfers, out reason)) return appraisal;
+                foreach (var transfer in transfers)
+                {
+                    ItemObject item = transfer.Element.Item;
+                    int value = EstimateItemValue(item, transfer.Element, transfer.Amount, transfer.Source, out string source);
+                    AddQuote(appraisal, "item", item.StringId, item.Name.ToString(), transfer.From, transfer.To,
+                        transfer.Amount, value / transfer.Amount, value, source);
+                }
+            }
+            else if (ReadItemTermObjects(terms).Count == 0)
             {
                 if (!TryAddItemQuote(action, terms, appraisal, out reason)) return appraisal;
             }
@@ -336,6 +364,145 @@ namespace ReignBeta.WorldSimulation.World
                 + ";recommendedCounter=" + appraisal.RecommendedCounter.ToString(CultureInfo.InvariantCulture)
                 + ";bypass=" + appraisal.BypassedFairness;
             return appraisal;
+        }
+
+        internal sealed class TradeItemTransfer
+        {
+            internal Hero From;
+            internal Hero To;
+            internal MobileParty Source;
+            internal MobileParty Destination;
+            internal EquipmentElement Element;
+            internal Equipment Equipment;
+            internal EquipmentIndex Slot;
+            internal string EquipmentSet;
+            internal int Amount;
+            internal int Available;
+        }
+
+        internal static bool TryResolveTradeItems(ReignWorldActionRecord action, JObject terms,
+            out List<TradeItemTransfer> transfers, out string reason)
+        {
+            transfers = new List<TradeItemTransfer>();
+            reason = string.Empty;
+            List<JObject> rows = ReadItemTermObjects(terms);
+            JToken itemList = terms["items"] ?? terms["itemTerms"];
+            if ((itemList is JArray array && array.Count != rows.Count)
+                || (itemList != null && itemList.Type != JTokenType.Null && !(itemList is JArray) && !(itemList is JObject)))
+            {
+                reason = "The trade item list contains an invalid term.";
+                return false;
+            }
+
+            if (rows.Count == 0 && ReadItemId(terms).Length != 0) rows.Add(terms);
+            foreach (var row in rows)
+            {
+                if (!ReferenceEquals(row, terms) && (HasUnjournaledTradeAssets(row)
+                    || ReadSettlementIds(null, row).Count != 0))
+                {
+                    reason = "The trade item list contains an unsupported ownership or custody term.";
+                    return false;
+                }
+
+                var item = ReignObjectResolver.FindItem(ReadItemId(row));
+                Hero from = ResolveItemHero(action, terms, row, true);
+                Hero to = ResolveItemHero(action, terms, row, false);
+                MobileParty source = PartyForInventory(from);
+                MobileParty destination = PartyForInventory(to);
+                int amount = ReadIntTerm(row, "amount", ReadIntTerm(row, "Amount", 1));
+                if (from == null || to == null || source?.ItemRoster == null || destination?.ItemRoster == null
+                    || source == destination || item == null || item.IsUniqueItem || amount <= 0)
+                {
+                    reason = "Each trade item requires a transferable item, a positive quantity, and two different party inventories.";
+                    return false;
+                }
+
+                string modifierId = ReadStringTerm(row, "itemModifierId", "").Trim();
+                ItemModifier modifier = modifierId.Length == 0 ? null : MBObjectManager.Instance.GetObject<ItemModifier>(modifierId);
+                if (modifierId.Length != 0 && modifier == null)
+                {
+                    reason = "The trade's exact item modifier is unavailable.";
+                    return false;
+                }
+
+                var transfer = new TradeItemTransfer
+                {
+                    From = from, To = to, Source = source, Destination = destination,
+                    Element = new EquipmentElement(item, modifier), Amount = amount
+                };
+                int stack = CountTradeStack(source.ItemRoster, transfer.Element);
+                string slot = ReadStringTerm(row, "sourceEquipmentSlot", "").Trim();
+                string set = ReadStringTerm(row, "sourceEquipmentSet", "").Trim();
+                bool selectsEquipment = slot.Length != 0 || set.Length != 0;
+                if (selectsEquipment || stack < amount)
+                {
+                    if (amount != 1 || (!selectsEquipment && modifier == null && source.ItemRoster.GetItemNumber(item) > 0)
+                        || !TrySelectTradeEquipment(transfer, slot, set))
+                    {
+                        reason = "The exact inventory quantity or a unique matching equipped item is unavailable.";
+                        return false;
+                    }
+                    transfer.Available = 1;
+                }
+                else
+                {
+                    transfer.Available = stack;
+                }
+                transfers.Add(transfer);
+            }
+
+            foreach (var group in transfers.GroupBy(x => new
+            {
+                Party = x.Equipment == null ? x.Source : null,
+                StackItem = x.Equipment == null ? x.Element.Item : null,
+                StackModifier = x.Equipment == null ? x.Element.ItemModifier : null,
+                x.Equipment,
+                x.Slot
+            }))
+            {
+                if (group.Sum(x => (long)x.Amount) <= group.First().Available) continue;
+                reason = "The combined trade exceeds the quantity in an exact source stack or equipment slot.";
+                return false;
+            }
+            return true;
+        }
+
+        private static string ReadItemId(JObject row) => ReadStringTerm(row, "itemId", ReadStringTerm(row, "item", string.Empty));
+
+        internal static int CountTradeStack(ItemRoster roster, EquipmentElement element)
+        {
+            int index = roster.FindIndexOfElement(element);
+            return index < 0 ? 0 : roster.GetElementNumber(index);
+        }
+
+        private static bool TrySelectTradeEquipment(TradeItemTransfer transfer, string wantedSlot, string wantedSet)
+        {
+            if (ReignServices.TemporaryPartyGuest?.IsTemporaryGuestEquipmentLocked(transfer.From) == true) return false;
+
+            var item = transfer.Element.Item;
+            var modifier = transfer.Element.ItemModifier;
+            foreach (var candidate in new[]
+            {
+                new { Set = "battle", Equipment = transfer.From.BattleEquipment },
+                new { Set = "civilian", Equipment = transfer.From.CivilianEquipment }
+            })
+            {
+                if (candidate.Equipment == null
+                    || (wantedSet.Length != 0 && !wantedSet.Equals(candidate.Set, StringComparison.OrdinalIgnoreCase))) continue;
+                for (int i = 0; i < (int)EquipmentIndex.NumEquipmentSetSlots; i++)
+                {
+                    var slot = (EquipmentIndex)i;
+                    if (wantedSlot.Length != 0 && !wantedSlot.Equals(slot.ToString(), StringComparison.OrdinalIgnoreCase)) continue;
+                    EquipmentElement element = candidate.Equipment[slot];
+                    if (element.Item != item || (modifier != null && element.ItemModifier != modifier)) continue;
+                    if (transfer.Equipment != null) return false;
+                    transfer.Equipment = candidate.Equipment;
+                    transfer.EquipmentSet = candidate.Set;
+                    transfer.Slot = slot;
+                    transfer.Element = element;
+                }
+            }
+            return transfer.Equipment != null;
         }
 
         public static int EstimateItemValue(ItemObject item, EquipmentElement element, int amount, MobileParty tradingParty, out string source)
@@ -596,6 +763,14 @@ namespace ReignBeta.WorldSimulation.World
 
         private static Hero ResolveItemHero(ReignWorldActionRecord action, JObject terms, JObject itemTerm, bool source)
         {
+            if (ReferenceEquals(itemTerm, terms))
+            {
+                return source
+                    ? ResolveHero(ReadStringTerm(terms, "itemFromHeroStringId", ReadStringTerm(terms, "assetFromHeroStringId",
+                        ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId))))
+                    : ResolveHero(ReadStringTerm(terms, "itemToHeroStringId", ReadStringTerm(terms, "assetToHeroStringId",
+                        ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))));
+            }
             if (source)
             {
                 return ResolveHero(ReadStringTerm(itemTerm, "fromHeroStringId",
@@ -664,6 +839,12 @@ namespace ReignBeta.WorldSimulation.World
             if (from.Gold < gold)
             {
                 reason = from.Name + " does not have enough denars for this trade package.";
+                return false;
+            }
+
+            if (action.Type == ReignWorldActionType.RegularTradePackage && (long)to.Gold + gold > int.MaxValue)
+            {
+                reason = "The trade recipient cannot hold the exact payment.";
                 return false;
             }
 
