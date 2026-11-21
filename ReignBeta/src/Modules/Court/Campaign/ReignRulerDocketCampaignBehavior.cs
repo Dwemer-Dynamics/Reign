@@ -380,6 +380,16 @@ namespace ReignBeta.Court.Campaign
                             { job.Skipped = true; job.Applied = true; job.ReceiptId = "skipped_dead_identity_" + job.JobId; job.LastError = "The remembering hero died before delivery."; }
                             return;
                         }
+                        if (job.EventType == "noble_visitor_invitation")
+                        {
+                            // Legacy queued invitations asserted agreement from prose. Keep the
+                            // job and its original payload, without sending it as a new fact.
+                            job.Skipped = true;
+                            job.Applied = true;
+                            job.ReceiptId = "skipped_unconfirmed_invitation_" + job.JobId;
+                            job.LastError = "The legacy invitation had no verified agreement.";
+                            return;
+                        }
                         request = ReignCorrespondenceClient.RecordRulerDocketMemoryAsync(job.JobId, hero, job.EventType, job.Summary, job.WorldDay);
                     }).ConfigureAwait(false);
                     if (request == null) continue;

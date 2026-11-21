@@ -64,6 +64,7 @@ namespace ReignBeta.Court.Campaign
                 if (hero == null || !hero.IsAlive || hero.IsPrisoner)
                 { error = participant.Name + " is unavailable."; matter.TechnicalFailure = true; return false; }
             }
+            RefreshSavedInternationalOffer(matter);
             matter.State = ReignCourtLifeMatterState.Active;
             matter.TranscriptId = string.IsNullOrWhiteSpace(matter.TranscriptId) ? "court_life_" + matter.MatterId : matter.TranscriptId;
             StateChanged?.Invoke();
@@ -79,6 +80,9 @@ namespace ReignBeta.Court.Campaign
             string optionId = decision?.Value<string>("optionId") ?? string.Empty;
             ReignCourtLifeOption option = matter.Options.FirstOrDefault(x => x.OptionId == optionId);
             if (option == null) { summary = "Choose one of the current audience's available decisions."; return false; }
+            if (decision["terms"] is JObject reviewedTerms
+                && !JToken.DeepEquals(reviewedTerms, ParseCourtLifeJson(option.TermsJson)))
+            { summary = "The offered terms changed. Review the choice again before confirming."; return false; }
             bool applied;
             if (matter.Source == ReignDocketSource.International)
                 applied = ApplyInternationalDecision(matter, decision, out summary);
