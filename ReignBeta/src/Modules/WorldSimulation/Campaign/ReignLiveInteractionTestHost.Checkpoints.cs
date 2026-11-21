@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
@@ -46,15 +48,33 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> SaveCheckpointAsync(JObject command)
         {
+            string requested = command.Value<string>("saveName") ?? string.Empty;
+            string saveName = SanitizeSaveName(string.IsNullOrWhiteSpace(requested)
+                ? "Reign_Conversation_Qualification_A" : requested);
+            if (string.IsNullOrWhiteSpace(saveName))
+                return LiveCommandResult.Failed("A valid save name is required.");
+
+            JObject ownership = command["checkpointOwnership"] as JObject;
+            if (saveName.StartsWith("ReignTest_", StringComparison.OrdinalIgnoreCase) || ownership != null)
+            {
+                if (ownership == null || requested != saveName
+                    || !Guid.TryParseExact(ownership.Value<string>("id"), "N", out _)
+                    || string.IsNullOrWhiteSpace(ownership.Value<string>("runId"))
+                    || ownership.Value<string>("saveName") != saveName)
+                    return LiveCommandResult.Failed("An exact campaign-test checkpoint intent is required for this native save.");
+                if (!await ReignMainThread.InvokeAsync(() => ValidCheckpointDestination(ownership, saveName)).ConfigureAwait(false))
+                    return CheckpointNotQueued(ownership, "The campaign-test source or checkpoint destination does not match its intent.");
+            }
             if (await ReignMainThread.InvokeAsync(() => ConversationClockRequiresRestore).ConfigureAwait(false))
                 return LiveCommandResult.Failed("A conversation clock diagnostic requires restoring Current without saving; no checkpoint was queued.",
-                    new JObject { ["requiresCheckpointRestore"] = true, ["nativeSaveQueued"] = false });
+                    CheckpointNotQueuedEvidence(ownership, new JObject { ["requiresCheckpointRestore"] = true }));
             if (await ReignMainThread.InvokeAsync(() => TaleWorlds.MountAndBlade.Mission.Current != null).ConfigureAwait(false))
                 return LiveCommandResult.Failed("Leave the native mission before checkpointing; no save was queued.",
-                    new JObject { ["nativeMissionActive"] = true, ["nativeSaveQueued"] = false });
+                    CheckpointNotQueuedEvidence(ownership, new JObject { ["nativeMissionActive"] = true }));
             JObject visiblePartyConversation = await FinishVisiblePartyConversationForCheckpointAsync().ConfigureAwait(false);
             if (visiblePartyConversation.Value<bool?>("ok") != true)
-                return LiveCommandResult.Failed(visiblePartyConversation.Value<string>("error"), visiblePartyConversation);
+                return LiveCommandResult.Failed(visiblePartyConversation.Value<string>("error"),
+                    CheckpointNotQueuedEvidence(ownership, visiblePartyConversation));
             if (_individualVm != null || _partyVm != null || _eventVm != null)
                 await CloseSessionAsync(false).ConfigureAwait(false);
 
@@ -63,13 +83,6 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ReignDiplomacyAnnouncementScreenManager.TryAcknowledgeForLiveHarness(
                     false,
                     out acknowledgedDiplomacyEventId)).ConfigureAwait(false);
-
-            string requested = command.Value<string>("saveName") ?? string.Empty;
-            string saveName = SanitizeSaveName(string.IsNullOrWhiteSpace(requested)
-                ? "Reign_Conversation_Qualification_A"
-                : requested);
-            if (string.IsNullOrWhiteSpace(saveName))
-                return LiveCommandResult.Failed("A valid save name is required.");
 
             ReignSaveSyncCoordinator.SetAutomationSaveNotificationSuppressed(true);
             try
@@ -89,7 +102,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 return LiveCommandResult.Failed(
                     "No active campaign was available to pause before the checkpoint.",
-                    SaveDiagnostics(saveName, "campaign_pause_failed"));
+                    CheckpointNotQueuedEvidence(ownership, SaveDiagnostics(saveName, "campaign_pause_failed")));
             }
 
             DateTime diplomacyDeadline = commandDeadline
@@ -103,7 +116,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 return LiveCommandResult.Failed(
                     "Diplomacy did not become idle before the checkpoint deadline; Bannerlord's native save was not started.",
-                    SaveDiagnostics(saveName, "diplomacy_preflight_timeout"));
+                    CheckpointNotQueuedEvidence(ownership, SaveDiagnostics(saveName, "diplomacy_preflight_timeout")));
             }
 
             // Bannerlord accepts SaveAs while its native MapScreen Escape menu is
@@ -148,9 +161,10 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ReignWorldHistoryTransport.UploadInFlight;
                 return LiveCommandResult.Failed(
                     "World History did not drain before the checkpoint deadline; Bannerlord's native save was not started.",
-                    diagnostics);
+                    CheckpointNotQueuedEvidence(ownership, diagnostics));
             }
 
+            long expectedSequence = (nativeBefore.Value<long?>("sequence") ?? 0L) + 1L;
             bool queued = await ReignMainThread.InvokeAsync(() =>
             {
                 // A periodic scheduling hold never grants permission to save over real work.
@@ -161,6 +175,10 @@ namespace ReignBeta.WorldSimulation.Campaign
                     || TaleWorlds.CampaignSystem.Campaign.Current?.SaveHandler == null
                     || TaleWorlds.CampaignSystem.Campaign.Current.SaveHandler.IsSaving)
                     return false;
+                if (ownership != null && !ValidCheckpointDestination(ownership, saveName))
+                    return false;
+                if (ownership != null)
+                    expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation().Value<long>("sequence") + 1L;
                 // Save Sync registers before Bannerlord's completion callback
                 // reveals the SaveAs name. Supplying the intended name here lets
                 // the server treat an overwrite as a rotation and reserve the
@@ -179,12 +197,13 @@ namespace ReignBeta.WorldSimulation.Campaign
             }).ConfigureAwait(false);
             if (!queued)
             {
+                if (ownership != null)
+                    return CheckpointNotQueued(ownership, "Native saving, in-flight work, or a changed checkpoint identity prevented SaveAs.");
                 return LiveCommandResult.Failed(
                     "Communication work is in flight, Bannerlord is already saving, or no campaign save handler is available.",
                     SaveDiagnostics(saveName, "queue_rejected"));
             }
 
-            long expectedSequence = (nativeBefore.Value<long?>("sequence") ?? 0L) + 1L;
             DateTime nativeStartDeadline = DateTime.UtcNow.AddSeconds(15);
             bool observedSaving = false;
             bool observedNativeStart = false;
@@ -208,6 +227,31 @@ namespace ReignBeta.WorldSimulation.Campaign
                     && (finalization.Value<int?>("inFlight") ?? 0) == 0;
                 if (nativeCompleted && native.Value<bool?>("succeeded") == true && !saving && syncCompleted)
                 {
+                    JObject checkpointReceipt = null;
+                    if (ownership != null)
+                    {
+                        string point = await ReignMainThread.InvokeAsync(() =>
+                        {
+                            string actual = ReignServices.SaveSync?.CurrentSavePointId;
+                            return completedSequence == expectedSequence
+                                && CheckpointScopeMatches(ownership)
+                                && CheckpointNamesEqual(ActiveSaveName(), saveName)
+                                && !string.IsNullOrWhiteSpace(actual)
+                                && NativeSaveHasPoint(saveName, ownership.Value<string>("campaignId"), actual)
+                                ? actual : null;
+                        }).ConfigureAwait(false);
+                        string hash = point == null ? null : NativeCheckpointHash(saveName);
+                        if (hash == null)
+                            return LiveCommandResult.Failed("SaveAs completed without exact native campaign-test checkpoint proof.",
+                                SaveDiagnostics(saveName, "checkpoint_evidence_unavailable"));
+                        checkpointReceipt = new JObject
+                        {
+                            ["id"] = ownership.Value<string>("id"),
+                            ["runId"] = ownership.Value<string>("runId"),
+                            ["gameInstanceId"] = ownership.Value<string>("gameInstanceId"),
+                            ["saveName"] = saveName, ["savePointId"] = point, ["sha256"] = hash
+                        };
+                    }
                     _lastAutomationSaveName = saveName;
                     _lastAutomationSaveCompletedUtc = DateTime.UtcNow;
                     return LiveCommandResult.Completed("Bannerlord save and Save Sync checkpoint completed.", new JObject
@@ -222,7 +266,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["acknowledgedDiplomacyAnnouncement"] = acknowledgedDiplomacyAnnouncement,
                         ["acknowledgedDiplomacyEventId"] = acknowledgedDiplomacyEventId,
                         ["nativeSave"] = native,
-                        ["saveFinalization"] = finalization
+                        ["saveFinalization"] = finalization,
+                        ["checkpointOwnership"] = checkpointReceipt
                     });
                 }
                 if (!observedNativeStart && DateTime.UtcNow >= nativeStartDeadline)
@@ -258,6 +303,81 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ReignSaveSyncCoordinator.SetAutomationSaveNotificationSuppressed(false);
             }
         }
+
+        private static bool CheckpointNamesEqual(string left, string right) =>
+            string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
+
+        private static bool CheckpointScopeMatches(JObject ownership)
+        {
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            return !string.IsNullOrWhiteSpace(campaign)
+                && CheckpointNamesEqual(campaign, ownership.Value<string>("campaignId"))
+                && !string.IsNullOrWhiteSpace(_gameInstanceId)
+                && _gameInstanceId == ownership.Value<string>("gameInstanceId")
+                && CheckpointNamesEqual(ReignServices.WorldHistory?.TimelineId ?? "main", ownership.Value<string>("timelineId"))
+                && ReignSaveSyncCoordinator.IsReadyForCampaign(campaign)
+                && !ReignSaveSyncCoordinator.IsAlignmentPending;
+        }
+
+        private static bool CheckpointSourceMatches(JObject ownership)
+        {
+            string source = ownership.Value<string>("sourceSaveName");
+            return !string.IsNullOrWhiteSpace(source) && CheckpointScopeMatches(ownership)
+                && CheckpointNamesEqual(ActiveSaveName(), source)
+                && (ReignServices.SaveSync?.CurrentSavePointId ?? string.Empty) == ownership.Value<string>("sourcePointId");
+        }
+
+        private static bool ValidCheckpointDestination(JObject ownership, string saveName)
+        {
+            string baseline = ownership.Value<string>("baselineSaveName");
+            if (!saveName.StartsWith("ReignTest_", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(baseline) || CheckpointNamesEqual(baseline, saveName)
+                || !CheckpointSourceMatches(ownership))
+                return false;
+
+            string point = ownership.Value<string>("previousDestinationPointId");
+            string hash = NativeCheckpointHash(saveName);
+            if (string.IsNullOrEmpty(point))
+                return hash == null && MBSaveLoad.GetSaveFileWithName(saveName) == null;
+            return hash != null && CheckpointNamesEqual(hash, ownership.Value<string>("previousDestinationSha256"))
+                && NativeSaveHasPoint(saveName, ownership.Value<string>("campaignId"), point);
+        }
+
+        private static bool NativeSaveHasPoint(string saveName, string campaignId, string point)
+        {
+            var metadata = MBSaveLoad.GetSaveFileWithName(saveName)?.MetaData;
+            return metadata != null && CheckpointNamesEqual(metadata["ReignCampaignId"], campaignId)
+                && metadata["ReignSavePointId"] == point;
+        }
+
+        private static string NativeCheckpointHash(string name)
+        {
+            if (SanitizeSaveName(name) != name || string.IsNullOrWhiteSpace(name))
+                throw new InvalidOperationException("Invalid native checkpoint name.");
+            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Mount and Blade II Bannerlord", "Game Saves", name + ".sav");
+            try
+            {
+                using (var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var sha = SHA256.Create())
+                {
+                    if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                        throw new InvalidOperationException("A linked native checkpoint cannot prove ownership.");
+                    return BitConverter.ToString(sha.ComputeHash(input)).Replace("-", string.Empty);
+                }
+            }
+            catch (FileNotFoundException) { return null; }
+        }
+
+        private static JObject CheckpointNotQueuedEvidence(JObject ownership, JObject evidence)
+        {
+            evidence["nativeSaveQueued"] = false;
+            if (ownership != null) evidence["checkpointNotSubmitted"] = ownership.Value<string>("id");
+            return evidence;
+        }
+
+        private static LiveCommandResult CheckpointNotQueued(JObject ownership, string message) =>
+            LiveCommandResult.Failed(message, CheckpointNotQueuedEvidence(ownership, new JObject()));
 
         private static async Task<JObject> FinishVisiblePartyConversationForCheckpointAsync()
         {

@@ -104,6 +104,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     switch (operation)
                     {
                         case "world_time_control":
+                            if (command["campaignTestSource"] is JObject source && !CheckpointSourceMatches(source))
+                                return LiveCommandResult.Failed("The loaded campaign-test source changed before the native drain.");
                         {
                             if (command["periodicCommunicationHoldSeconds"] != null)
                             {
@@ -180,6 +182,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                 };
                 LiveCommandResult started = await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (command["campaignTestSource"] is JObject source
+                        && (!CheckpointSourceMatches(source) || string.IsNullOrWhiteSpace(source.Value<string>("sourcePointId"))))
+                        return LiveCommandResult.Failed("The loaded campaign-test checkpoint changed before native advancement.");
                     if (CloseNativeMapEscapeMenuIfOpen()) escapeMenuRecoveryCount++;
                     LiveCommandResult startResult = SocialBalanceTimeControl(startCommand,
                         "passive-world test campaign");
@@ -597,6 +602,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                 {
                     ["campaignId"] = campaignId,
                     ["activeSaveName"] = ActiveSaveName(),
+                    ["checkpointGameInstanceId"] = _gameInstanceId,
+                    ["checkpointSavePointId"] = ReignServices.SaveSync?.CurrentSavePointId ?? string.Empty,
                     ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["worldDay"] = CampaignTime.Now.ToDays,
                     ["timeMode"] = campaign.TimeControlMode.ToString(),
@@ -627,6 +634,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 && prefix.StartsWith("ReignTest_", StringComparison.Ordinal)
                 && !string.IsNullOrWhiteSpace(saveName)
                 && saveName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+            JObject ownership = command["checkpointOwnership"] as JObject;
             bool exactLegacySpymasterCheckpoint = string.Equals(
                     prefix,
                     "Reign_Spymaster_Organic_",
@@ -643,6 +651,19 @@ namespace ReignBeta.WorldSimulation.Campaign
                 string active = ActiveSaveName();
                 if (string.Equals(active, saveName, StringComparison.OrdinalIgnoreCase))
                     return LiveCommandResult.Failed("The currently loaded Bannerlord save cannot be deleted.");
+                if (runOwnedCheckpoint)
+                {
+                    string baseline = ownership?.Value<string>("baselineSaveName");
+                    string point = ownership?.Value<string>("savePointId");
+                    if (string.IsNullOrWhiteSpace(baseline) || CheckpointNamesEqual(saveName, baseline)
+                        || !saveName.StartsWith(prefix + "_", StringComparison.OrdinalIgnoreCase)
+                        || string.IsNullOrWhiteSpace(active) || !Guid.TryParseExact(point, "N", out _)
+                        || !CheckpointScopeMatches(ownership)
+                        || !NativeSaveHasPoint(saveName, ownership.Value<string>("campaignId"), point)
+                        || string.IsNullOrWhiteSpace(ownership.Value<string>("sha256"))
+                        || !CheckpointNamesEqual(NativeCheckpointHash(saveName), ownership.Value<string>("sha256")))
+                        return LiveCommandResult.Failed("The deletion target lacks exact native campaign-test checkpoint evidence.");
+                }
                 bool deleted = MBSaveLoad.DeleteSaveGame(saveName);
                 return deleted
                     ? LiveCommandResult.Completed("Deleted the exact run-owned campaign-test checkpoint.",

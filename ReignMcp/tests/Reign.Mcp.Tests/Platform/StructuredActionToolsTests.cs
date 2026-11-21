@@ -218,34 +218,52 @@ public sealed class StructuredActionToolsTests
         if (allowed) Assert.Single(StructuredActionTools.ParseCases(json));
         else Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(json));
     }
+    private static CampaignCheckpointReceipt TestCheckpoint(CampaignTestState state, string name) =>
+        new(new CampaignCheckpointAttempt(Guid.NewGuid().ToString("N"), state.RunId, state.CampaignId,
+            state.TimelineId, state.BaselineSaveName, name, state.BaselineSaveName, "",
+            "test-game", "", "", "2026-11-20T12:00:00Z"), Guid.NewGuid().ToString("N"),
+            new string('a', 64), "2026-11-20T12:01:00Z");
+
+    private static ControllerCall FixtureCall(object data) =>
+        ControllerCall.Create(new ProcessResult { Ok = true, ExitCode = 0, Command = "fixture",
+            WorkingDirectory = "fixture", DurationMs = 0, TimedOut = false, OutputTruncated = false,
+            StandardOutput = JsonSerializer.Serialize(data), StandardError = "" });
+
     private static (CampaignTestState State, ControllerCall Snapshot) PausedActionSnapshot(
         bool safeSettlement, string mutation = "")
     {
-        var state = new CampaignTestState { CampaignId = "campaign", TimelineId = "timeline",
-            BaselineSaveName = "BaseThree", CurrentSaveName = "ReignTest_Actions_Current", Armed = true,
+        var state = new CampaignTestState { RunId = "run", CampaignId = "campaign", TimelineId = "timeline",
+            BaselineSaveName = "BaseThree", SavePrefix = "ReignTest_Actions",
+            CurrentSaveName = "ReignTest_Actions_Current", Armed = true,
             Checkpoints = ["ReignTest_Actions_Current", "ReignTest_Actions_Milestone"] };
+        state.CheckpointReceipts.AddRange(state.Checkpoints.Select(name => TestCheckpoint(state, name)));
         var data = new Dictionary<string, object?> { ["ok"] = true, ["campaignId"] = state.CampaignId,
             ["timelineId"] = state.TimelineId, ["activeSaveName"] = state.CurrentSaveName,
             ["saveSyncReady"] = true, ["saveSyncAlignmentPending"] = false,
-            ["safeSettlement"] = safeSettlement, ["timeMode"] = "Stop" };
+            ["safeSettlement"] = safeSettlement, ["timeMode"] = "Stop",
+            ["checkpointSavePointId"] = state.CheckpointReceipts[0].SavePointId };
         switch (mutation)
         {
             case "baseline": data["activeSaveName"] = state.BaselineSaveName; break;
             case "foreign_save": data["activeSaveName"] = "ReignTest_Foreign_Current"; break;
-            case "milestone": data["activeSaveName"] = state.Checkpoints[1]; break;
+            case "milestone": data["activeSaveName"] = state.Checkpoints[1];
+                data["checkpointSavePointId"] = state.CheckpointReceipts[1].SavePointId; break;
+            case "name_only": state.Checkpoints.Clear(); state.CheckpointReceipts.Clear(); break;
+            case "legacy_name": state.CheckpointReceipts.Clear(); break;
+            case "baseline_alias": state.BaselineSaveName = state.CurrentSaveName.ToLowerInvariant(); break;
+            case "wrong_point": data["checkpointSavePointId"] = Guid.NewGuid().ToString("N"); break;
+            case "foreign_receipt": state.RunId = "new-run"; break;
             case "campaign": data["campaignId"] = "foreign"; break;
             case "timeline": data["timelineId"] = "foreign"; break;
             case "unaligned": data["saveSyncAlignmentPending"] = true; break;
+            case "missing_alignment": data.Remove("saveSyncAlignmentPending"); break;
             case "sync_not_ready": data["saveSyncReady"] = false; break;
             case "missing_time": data.Remove("timeMode"); break;
             case "advancing": data["timeMode"] = "StoppableFastForward"; break;
             case "unknown_time": data["timeMode"] = "stop"; break;
             case "failed_snapshot": data["ok"] = false; break;
         }
-        var snapshot = ControllerCall.Create(new ProcessResult { Ok = true, ExitCode = 0, Command = "fixture",
-            WorkingDirectory = "fixture", DurationMs = 0, TimedOut = false, OutputTruncated = false,
-            StandardOutput = JsonSerializer.Serialize(data), StandardError = "" });
-        return (state, snapshot);
+        return (state, FixtureCall(data));
     }
 
     [Theory]
@@ -267,15 +285,101 @@ public sealed class StructuredActionToolsTests
     [InlineData("campaign")]
     [InlineData("timeline")]
     [InlineData("unaligned")]
+    [InlineData("missing_alignment")]
     [InlineData("sync_not_ready")]
     [InlineData("missing_time")]
     [InlineData("advancing")]
     [InlineData("unknown_time")]
     [InlineData("failed_snapshot")]
+    [InlineData("name_only")]
+    [InlineData("legacy_name")]
+    [InlineData("baseline_alias")]
+    [InlineData("wrong_point")]
+    [InlineData("foreign_receipt")]
     public void PausedActionsRejectUnownedUnalignedOrMovingSnapshots(string mutation)
     {
         var (state, snapshot) = PausedActionSnapshot(false, mutation);
         Assert.Throws<InvalidOperationException>(() => CampaignTestService.ValidatePausedActionSnapshot(state, snapshot));
+    }
+
+    [Fact]
+    public void CampaignCheckpointProtectsBaselineAndForeignDestinationBytes()
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var receipt = state.CheckpointReceipts[0];
+        string directory = Path.Combine(Path.GetTempPath(), "reign-checkpoint-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string file = Path.Combine(directory, state.CurrentSaveName + ".sav");
+        try
+        {
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership
+                .RequireDistinctBaseline(state.CurrentSaveName.ToLowerInvariant(), state.CurrentSaveName));
+            CampaignTestCheckpointOwnership.RequireVacant(state.CurrentSaveName,
+                CampaignTestCheckpointOwnership.NativeHash(state.CurrentSaveName, directory), registered: false);
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership
+                .RequireVacant(state.CurrentSaveName, null, registered: true));
+            File.WriteAllText(file, "fixture initial bytes");
+            string hash = CampaignTestCheckpointOwnership.NativeHash(state.CurrentSaveName, directory)!;
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership
+                .RequireVacant(state.CurrentSaveName, hash, registered: false));
+            receipt = receipt with { Sha256 = hash };
+            CampaignTestCheckpointOwnership.VerifyBytes(receipt, hash);
+            File.WriteAllText(file, "same name, different fixture bytes");
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership
+                .VerifyBytes(receipt, CampaignTestCheckpointOwnership.NativeHash(state.CurrentSaveName, directory)));
+        }
+        finally
+        {
+            File.Delete(file);
+            Directory.Delete(directory);
+        }
+    }
+
+    [Theory]
+    [InlineData("valid")]
+    [InlineData("missing")]
+    [InlineData("wrongAttempt")]
+    [InlineData("wrongInstance")]
+    [InlineData("oldPoint")]
+    [InlineData("nativeFailed")]
+    [InlineData("saveSyncFailed")]
+    [InlineData("notQuiescent")]
+    public void CampaignCheckpointRequiresCorrelatedNativeAndSaveSyncCompletion(string mutation)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var receipt = state.CheckpointReceipts[0];
+        var attempt = receipt.Attempt with { SourcePointId = Guid.NewGuid().ToString("N") };
+        state.Checkpoints.Clear();
+        state.CheckpointReceipts.Clear();
+        state.PendingCheckpoint = attempt;
+        var reloaded = JsonSerializer.Deserialize<CampaignTestState>(JsonSerializer.Serialize(state))!;
+        Assert.Equal(attempt, reloaded.PendingCheckpoint);
+        Assert.Null(CampaignTestCheckpointOwnership.Find(reloaded, attempt.SaveName));
+        Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership.RequireResolved(reloaded));
+
+        var nativeReceipt = new
+        {
+            id = mutation == "wrongAttempt" ? Guid.NewGuid().ToString("N") : attempt.Id,
+            runId = attempt.RunId, saveName = attempt.SaveName,
+            gameInstanceId = mutation == "wrongInstance" ? "wrong-game" : attempt.GameInstanceId,
+            savePointId = mutation == "oldPoint" ? attempt.SourcePointId : receipt.SavePointId,
+            sha256 = receipt.Sha256
+        };
+        var controller = FixtureCall(new
+        {
+            ok = true, postSaveRuntimeQuiesced = mutation != "notQuiescent",
+            save = new
+            {
+                ok = true, saveName = attempt.SaveName,
+                nativeSave = new { succeeded = mutation != "nativeFailed", saveName = attempt.SaveName },
+                saveFinalization = new { succeeded = mutation != "saveSyncFailed", completedSaveName = attempt.SaveName },
+                checkpointOwnership = mutation == "missing" ? null : nativeReceipt
+            }
+        });
+        if (mutation == "valid")
+            Assert.Equal(receipt.SavePointId, CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller).SavePointId);
+        else
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller));
     }
 
     private static string PlayerEncounterCase(string args) => "[{\"caseId\":\"entry\",\"phase\":\"fixture\",\"kind\":\"fixture\",\"operationId\":\"entry_1\",\"actionId\":\"fixture.player_settlement_encounter\",\"arguments\":" + args + "}]";
@@ -359,6 +463,7 @@ public sealed class StructuredActionToolsTests
         var state = new CampaignTestState { RunId = "run", CampaignId = "campaign", TimelineId = "timeline",
             Armed = true, SavePrefix = "ReignTest_task", CurrentSaveName = "ReignTest_task_Current", BaselineSaveName = "BaseThree" };
         state.Checkpoints.Add(state.CurrentSaveName);
+        state.CheckpointReceipts.Add(TestCheckpoint(state, state.CurrentSaveName));
         state.Events.Add(new CampaignTestEvent { Operation = "checkpoint", Evidence = new
         {
             ok = mutation != "failedSave", activeSaveName = mutation == "otherSave" ? "other" : state.CurrentSaveName
