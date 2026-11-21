@@ -311,9 +311,17 @@ namespace ReignBeta.Relationships.Campaign
             // An unready map leaves the invitation queued without a decision.
             ReignPlayerApproachPopup.TryPresentOnMap(() => ShowReadyRequest(request));
         }
+        private static bool LacksSharedApproachContact(JObject request)
+        {
+            if (request.Value<string>("kind") != "shared") return false;
+            var heroes = request["heroes"] as JArray;
+            return heroes?.Count != 1 || heroes[0] is not JObject hero || hero["lastContact"] is not JObject contact
+                || contact["exchange"]?.Type != JTokenType.String || string.IsNullOrWhiteSpace(contact.Value<string>("exchange"));
+        }
         private void ShowReadyRequest(JObject request)
         {
-            if (!Enabled(request) || !StillPresent(request)) { QueueCancel(request); return; }
+            // A save can retain an unanswered invitation issued before the contact requirement.
+            if (!Enabled(request) || !StillPresent(request) || LacksSharedApproachContact(request)) { QueueCancel(request); return; }
             string kind = request.Value<string>("kind"), names = string.Join(", ", (request["heroes"] as JArray).OfType<JObject>().Select(h => h.Value<string>("name")));
             string detail = kind == "shared" ? names + " is asking to speak with you." : kind == "patrol" ? names + "'s party is approaching you." : names + " wish to speak with you.";
             NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
@@ -365,7 +373,8 @@ namespace ReignBeta.Relationships.Campaign
                     }
                     ReleaseTime(request);
                     string accepted = response["request"]?.Value<string>("status");
-                    if (accepted == "accepted" && Enabled(request) && StillPresent(request))
+                    if (accepted == "accepted" && Enabled(request) && StillPresent(request)
+                        && (choice != "cancel" || !LacksSharedApproachContact(request)))
                     {
                         var heroes = (request["heroes"] as JArray).OfType<JObject>().Select(r => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == r.Value<string>("heroId"))).Where(h => h != null).ToList();
                         if (request.Value<string>("kind") == "keep") ReignPartyChatScreenManager.OpenApproach(heroes, request);
