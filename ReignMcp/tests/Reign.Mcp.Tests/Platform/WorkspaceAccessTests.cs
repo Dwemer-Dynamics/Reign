@@ -60,7 +60,7 @@ public sealed class WorkspaceAccessTests
     {
         using var fixture = new SourceFixture();
         var prefix = "// fixture " + new string('x', 479);
-        var harmless = "// fixture " + new string('y', 520);
+        var harmless = "// fixture " + string.Concat(Enumerable.Repeat("xy-", 32_768));
         fixture.Write("Fixture.cs", [
             prefix + " Bearer syntheticFixtureToken",
             harmless

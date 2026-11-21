@@ -7,6 +7,11 @@ namespace Reign.Mcp.Server;
 public sealed partial class SensitiveDataRedactor
 {
     private const string SourceCredentialMarker = "[REDACTED: possible credential]";
+    private const string LabeledSecretExpression =
+        """(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""";
+
+    // Search scans the full line before clipping it for display.
+    private static readonly Regex SourceLabeledSecretPattern = new(LabeledSecretExpression, RegexOptions.NonBacktracking);
 
     private static readonly HashSet<string> SensitiveKeys = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -18,7 +23,7 @@ public sealed partial class SensitiveDataRedactor
     [GeneratedRegex(@"(?i)\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}")]
     private static partial Regex BearerPattern();
 
-    [GeneratedRegex("""(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""")]
+    [GeneratedRegex(LabeledSecretExpression)]
     private static partial Regex LabeledSecretPattern();
 
     [GeneratedRegex(@"\b(?:sk-[A-Za-z0-9_-]{12,}|AIza[A-Za-z0-9_-]{20,})\b")]
@@ -73,7 +78,7 @@ public sealed partial class SensitiveDataRedactor
             return SourceCredentialMarker;
         }
 
-        for (var match = LabeledSecretPattern().Match(line); match.Success;)
+        for (var match = SourceLabeledSecretPattern.Match(line); match.Success;)
         {
             var expressionEnd = isCSharp ? CSharpTokenExpressionEnd(line, match) : match.Index;
             if (expressionEnd == match.Index)
@@ -84,7 +89,7 @@ public sealed partial class SensitiveDataRedactor
             }
             // Resume at the end of the code expression because the text
             // pattern may have consumed adjacent labels as part of its value.
-            match = LabeledSecretPattern().Match(line, expressionEnd);
+            match = SourceLabeledSecretPattern.Match(line, expressionEnd);
         }
         return line;
     }
