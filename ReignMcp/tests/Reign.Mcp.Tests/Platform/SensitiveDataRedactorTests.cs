@@ -71,4 +71,42 @@ public sealed class SensitiveDataRedactorTests
         Assert.Contains("safe", result, StringComparison.Ordinal);
         Assert.Contains("[REDACTED]", result, StringComparison.Ordinal);
     }
+
+    [Theory]
+    [InlineData("    JToken token = obj[key];")]
+    [InlineData("    JToken token = obj?[\"supporterClanIds\"];")]
+    [InlineData("    JToken token = JObject.Parse(json)[key];")]
+    [InlineData("    return token == null ? fallback : token.Value<float>();")]
+    [InlineData("    if (token==null||token.Type == JTokenType.Null)")]
+    public void PreservesCSharpJsonLookupsAndNullComparisonsOnlyInSource(string line)
+    {
+        var redactor = new SensitiveDataRedactor();
+
+        Assert.Equal(line, redactor.RedactSourceLine(line, isCSharp: true));
+        Assert.Equal("[REDACTED: possible credential]", redactor.RedactSourceLine(line, isCSharp: false));
+        Assert.Contains("[REDACTED]", redactor.RedactText(line), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("JToken token = \"fixture-opaque\";")]
+    [InlineData("token = fixtureOpaque;")]
+    [InlineData("if (token == \"fixture-opaque\") return;")]
+    [InlineData("""// {"openRouterApiKey":"fixture\"suffix"}""")]
+    [InlineData("JToken token = obj[key]; // Bearer syntheticFixtureToken")]
+    [InlineData("if (token==null?password=fixtureOpaque:fallback) return;")]
+    public void MarksCredentialBearingSourceLinesWithoutReturningTheirText(string line)
+    {
+        Assert.Equal("[REDACTED: possible credential]",
+            new SensitiveDataRedactor().RedactSourceLine(line, isCSharp: true));
+    }
+
+    [Fact]
+    public void RecognizableCredentialStillTakesPrecedenceOverASourceExpression()
+    {
+        string credential = "AIza" + new string('x', 24);
+        var line = $"JToken token = obj[\"{credential}\"];";
+
+        Assert.Equal("[REDACTED: possible credential]",
+            new SensitiveDataRedactor().RedactSourceLine(line, isCSharp: true));
+    }
 }

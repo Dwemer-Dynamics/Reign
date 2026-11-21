@@ -6,6 +6,8 @@ namespace Reign.Mcp.Server;
 
 public sealed partial class SensitiveDataRedactor
 {
+    private const string SourceCredentialMarker = "[REDACTED: possible credential]";
+
     private static readonly HashSet<string> SensitiveKeys = new(StringComparer.OrdinalIgnoreCase)
     {
         "authorization", "apiKey", "api_key", "apikey", "password", "secret",
@@ -21,6 +23,17 @@ public sealed partial class SensitiveDataRedactor
 
     [GeneratedRegex(@"\b(?:sk-[A-Za-z0-9_-]{12,}|AIza[A-Za-z0-9_-]{20,})\b")]
     private static partial Regex KnownCredentialPattern();
+
+    [GeneratedRegex(
+        """
+        ^\s*JToken\s+(?<label>token)\s*=\s*
+        (?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*(?:\(\s*[A-Za-z_]\w*\s*\))?
+        \s*\??\[\s*(?:[A-Za-z_]\w*|"[A-Za-z_]\w*")\s*\]\s*;
+        """, RegexOptions.IgnorePatternWhitespace)]
+    private static partial Regex CSharpTokenLookupPattern();
+
+    [GeneratedRegex(@"\Gtoken\s*==\s*null(?=\s*(?:[?);]|&&|\|\||$))")]
+    private static partial Regex CSharpTokenNullComparisonPattern();
 
     private static bool IsSensitiveKey(string name)
     {
@@ -51,6 +64,46 @@ public sealed partial class SensitiveDataRedactor
         var result = BearerPattern().Replace(input, "$1[REDACTED]");
         result = LabeledSecretPattern().Replace(result, "$1$2\"[REDACTED]\"");
         return KnownCredentialPattern().Replace(result, "[REDACTED]");
+    }
+
+    internal string RedactSourceLine(string line, bool isCSharp)
+    {
+        if (BearerPattern().IsMatch(line) || KnownCredentialPattern().IsMatch(line))
+        {
+            return SourceCredentialMarker;
+        }
+
+        for (var match = LabeledSecretPattern().Match(line); match.Success;)
+        {
+            var expressionEnd = isCSharp ? CSharpTokenExpressionEnd(line, match) : match.Index;
+            if (expressionEnd == match.Index)
+            {
+                // The text detector does not parse source literals. Suppress
+                // the entire line so unmatched parts of a credential stay hidden.
+                return SourceCredentialMarker;
+            }
+            // Resume at the end of the code expression because the text
+            // pattern may have consumed adjacent labels as part of its value.
+            match = LabeledSecretPattern().Match(line, expressionEnd);
+        }
+        return line;
+    }
+
+    private static int CSharpTokenExpressionEnd(string line, Match match)
+    {
+        if (!match.Groups[1].ValueSpan.SequenceEqual("token"))
+        {
+            return match.Index;
+        }
+
+        var lookup = CSharpTokenLookupPattern().Match(line);
+        if (lookup.Success && lookup.Groups["label"].Index == match.Index)
+        {
+            return lookup.Index + lookup.Length;
+        }
+
+        var comparison = CSharpTokenNullComparisonPattern().Match(line, match.Index);
+        return comparison.Success ? comparison.Index + comparison.Length : match.Index;
     }
 
     // This single endpoint returns immutable, credential-redacted text from the
