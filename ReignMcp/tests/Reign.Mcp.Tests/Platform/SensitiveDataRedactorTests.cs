@@ -92,7 +92,12 @@ public sealed class SensitiveDataRedactorTests
     [InlineData("token = fixtureOpaque;")]
     [InlineData("if (token == \"fixture-opaque\") return;")]
     [InlineData("""// {"openRouterApiKey":"fixture\"suffix"}""")]
+    [InlineData("""token = "unterminated-synthetic-value""")]
     [InlineData("JToken token = obj[key]; // Bearer syntheticFixtureToken")]
+    [InlineData("JToken token = obj[key]; // password=fixtureOpaque")]
+    [InlineData("JToken token = obj[key]; // token = fixtureOpaque")]
+    [InlineData("token = token == null")]
+    [InlineData("access-token==null")]
     [InlineData("if (token==null?password=fixtureOpaque:fallback) return;")]
     public void MarksCredentialBearingSourceLinesWithoutReturningTheirText(string line)
     {
@@ -108,5 +113,14 @@ public sealed class SensitiveDataRedactorTests
 
         Assert.Equal("[REDACTED: possible credential]",
             new SensitiveDataRedactor().RedactSourceLine(line, isCSharp: true));
+    }
+
+    [Fact]
+    public void PreservesALongChainOfAdjacentNullComparisons()
+    {
+        var chain = string.Join("||", Enumerable.Repeat("(token==null)", 8_192));
+        var line = "return " + chain + ";";
+
+        Assert.Equal(line, new SensitiveDataRedactor().RedactSourceLine(line, isCSharp: true));
     }
 }

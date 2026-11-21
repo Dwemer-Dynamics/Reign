@@ -7,11 +7,13 @@ namespace Reign.Mcp.Server;
 public sealed partial class SensitiveDataRedactor
 {
     private const string SourceCredentialMarker = "[REDACTED: possible credential]";
-    private const string LabeledSecretExpression =
-        """(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""";
+    private const string LabeledSecretPrefix =
+        """(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)""";
+    private const string LabeledSecretExpression = LabeledSecretPrefix + """(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""";
 
-    // Search scans the full line before clipping it for display.
-    private static readonly Regex SourceLabeledSecretPattern = new(LabeledSecretExpression, RegexOptions.NonBacktracking);
+    // Source output masks the whole line, so stop at the first value character.
+    private static readonly Regex SourceLabeledSecretPattern = new(
+        LabeledSecretPrefix + @"[^\s,;}]", RegexOptions.NonBacktracking);
 
     private static readonly HashSet<string> SensitiveKeys = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -31,13 +33,13 @@ public sealed partial class SensitiveDataRedactor
 
     [GeneratedRegex(
         """
-        ^\s*JToken\s+(?<label>token)\s*=\s*
+        ^\s*JToken\s+token\s*=\s*
         (?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*(?:\(\s*[A-Za-z_]\w*\s*\))?
         \s*\??\[\s*(?:[A-Za-z_]\w*|"[A-Za-z_]\w*")\s*\]\s*;
         """, RegexOptions.IgnorePatternWhitespace)]
     private static partial Regex CSharpTokenLookupPattern();
 
-    [GeneratedRegex(@"\Gtoken\s*==\s*null(?=\s*(?:[?);]|&&|\|\||$))")]
+    [GeneratedRegex(@"(?<![\w-])token\s*==\s*null(?=\s*(?:[?);]|&&|\|\||$))")]
     private static partial Regex CSharpTokenNullComparisonPattern();
 
     private static bool IsSensitiveKey(string name)
@@ -78,37 +80,22 @@ public sealed partial class SensitiveDataRedactor
             return SourceCredentialMarker;
         }
 
-        for (var match = SourceLabeledSecretPattern.Match(line); match.Success;)
+        if (!SourceLabeledSecretPattern.IsMatch(line))
         {
-            var expressionEnd = isCSharp ? CSharpTokenExpressionEnd(line, match) : match.Index;
-            if (expressionEnd == match.Index)
-            {
-                // The text detector does not parse source literals. Suppress
-                // the entire line so unmatched parts of a credential stay hidden.
-                return SourceCredentialMarker;
-            }
-            // Resume at the end of the code expression because the text
-            // pattern may have consumed adjacent labels as part of its value.
-            match = SourceLabeledSecretPattern.Match(line, expressionEnd);
+            return line;
         }
-        return line;
-    }
-
-    private static int CSharpTokenExpressionEnd(string line, Match match)
-    {
-        if (!match.Groups[1].ValueSpan.SequenceEqual("token"))
+        if (!isCSharp)
         {
-            return match.Index;
+            return SourceCredentialMarker;
         }
 
+        // Check the rest of the line after an anchored JToken declaration.
         var lookup = CSharpTokenLookupPattern().Match(line);
-        if (lookup.Success && lookup.Groups["label"].Index == match.Index)
-        {
-            return lookup.Index + lookup.Length;
-        }
-
-        var comparison = CSharpTokenNullComparisonPattern().Match(line, match.Index);
-        return comparison.Success ? comparison.Index + comparison.Length : match.Index;
+        var remainder = lookup.Success ? line[lookup.Length..] : line;
+        // Keep a value character where a comparison was removed so an
+        // enclosing credential assignment can still be detected.
+        var candidate = CSharpTokenNullComparisonPattern().Replace(remainder, "~");
+        return SourceLabeledSecretPattern.IsMatch(candidate) ? SourceCredentialMarker : line;
     }
 
     // This single endpoint returns immutable, credential-redacted text from the
