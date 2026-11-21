@@ -644,7 +644,7 @@ namespace ReignBeta.Court.Campaign
             if (disposition == ReignInternationalReplyDisposition.Unavailable)
             {
                 data["sovereignAuthorized"] = false;
-                matter.Summary += " The sovereign's decision was unavailable. You may decline the offer or refer revised terms.";
+                matter.Summary += " The sovereign's decision was unavailable. You can refer revised terms or leave the matter pending.";
                 matter.State = ReignCourtLifeMatterState.Pending;
                 matter.AvailableDay = CampaignTime.Now.ToDays;
                 matter.PayloadJson = data.ToString(Formatting.None);
@@ -712,7 +712,7 @@ namespace ReignBeta.Court.Campaign
             StateChanged?.Invoke();
         }
 
-        private static string DescribeInternationalTerms(JObject terms)
+        internal static string DescribeInternationalTerms(JObject terms)
         {
             return string.Join("; ", terms.Properties().Where(p => p.Name != "remedy" && p.Name != "ransom").Select(p =>
                 p.Name == "gold" ? p.Value + " gold" : p.Name == "durationDays" ? p.Value + " days"

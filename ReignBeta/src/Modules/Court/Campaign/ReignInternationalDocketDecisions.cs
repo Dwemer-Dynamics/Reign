@@ -362,7 +362,7 @@ namespace ReignBeta.Court.Campaign
                 }
                 candidate = new JObject { ["command"] = remedy == "sign_trade_agreement" ? remedy : "record_promise",
                     ["actorKingdomId"] = Clan.PlayerClan.Kingdom.StringId, ["targetKingdomId"] = matter.KingdomId,
-                    ["publicReason"] = matter.Summary, ["terms"] = referralTerms };
+                    ["publicReason"] = candidate?.Value<string>("publicReason") ?? matter.Summary, ["terms"] = referralTerms };
             }
             else if (!JToken.DeepEquals(candidate["terms"], exactTerms))
             {

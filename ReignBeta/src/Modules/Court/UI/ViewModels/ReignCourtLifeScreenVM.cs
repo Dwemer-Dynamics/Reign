@@ -366,6 +366,7 @@ namespace ReignBeta.Court.UI
                                     Notify();
                                 }
                             }
+                            ShowAssentProposal(interpretationPayload, decision, person, acceptedReply);
                             _matter.CompletedInterpretationKeys.Add(key); _court.NotifyCourtLifeChanged();
                         }).ConfigureAwait(false);
                     }
@@ -507,6 +508,33 @@ namespace ReignBeta.Court.UI
             JObject offered = (payload["options"] as JArray)?.OfType<JObject>().FirstOrDefault(x => x.Value<string>("optionId") == optionId);
             return current != null && offered != null
                 && JToken.DeepEquals(offered["terms"], ReignCourtCampaignBehavior.ParseCourtLifeJson(current.TermsJson));
+        }
+
+        private void ShowAssentProposal(JObject payload, JObject decision, ReignCourtLifeParticipant person, string acceptedReply)
+        {
+            if (_finalized || string.IsNullOrWhiteSpace(acceptedReply) || !(decision["npcAssentProposal"] is JObject proposal)
+                || proposal.Value<string>("speakerHeroId") != person.HeroId
+                || !(proposal["terms"] is JObject terms))
+                return;
+
+            string id = decision.Value<string>("optionId");
+            if (!SameOfferedOption(payload, id)) return;
+            ReignCourtLifeOption option = _matter.Options.First(x => x.OptionId == id);
+            if (!JToken.DeepEquals(terms, ReignCourtCampaignBehavior.ParseCourtLifeJson(option.TermsJson)))
+                return;
+
+            string quote = proposal.Value<string>("quote")?.Trim();
+            if (string.IsNullOrWhiteSpace(quote) || quote.Length < 3) return;
+            int start = acceptedReply.IndexOf(quote, StringComparison.OrdinalIgnoreCase);
+            if (start < 0) return;
+
+            string excerpt = acceptedReply.Substring(start, quote.Length);
+            string details = ReignCourtCampaignBehavior.DescribeInternationalTerms(terms);
+            string offer = string.IsNullOrWhiteSpace(details) ? OptionLabel(option) : OptionLabel(option) + " (" + details + ")";
+            // View-only annotation, distinct from the stored speech and decision.
+            Transcript.Add(new ReignChatLineVM("Court Clerk",
+                person.Name + " appeared to assent to " + offer + ". “" + excerpt + "” This proposal is unconfirmed.", "system"));
+            _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
         }
 
         private bool ApplyOption(string id)
