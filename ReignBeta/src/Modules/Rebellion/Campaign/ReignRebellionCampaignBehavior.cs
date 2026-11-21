@@ -39,8 +39,6 @@ namespace ReignBeta.Rebellion.Campaign
     /// </summary>
     public sealed partial class ReignRebellionCampaignBehavior : CampaignBehaviorBase
     {
-        private const int RelationshipThreshold = -35;
-        private const int WeeklyOutbreakPercent = 5;
         private const float RealmCooldownDays = 63f;
         private const float RebellionCommitmentDays = 3650f;
         private const float LeadershipCaptureGraceDays = 3f;
@@ -55,6 +53,7 @@ namespace ReignBeta.Rebellion.Campaign
         private string _socialBalanceRollOverridesJson = string.Empty;
         private float _lastEvaluationDay = -1000f;
         private bool _judgmentInquiryOpen;
+        private Dictionary<string, int> _nextRebellionWeekByRealm = new Dictionary<string, int>();
         private bool _weeklyEvaluationPending;
         private bool _backingEvaluationPending;
         private readonly object _backingUpdatesLock = new object();
@@ -107,6 +106,8 @@ namespace ReignBeta.Rebellion.Campaign
             dataStore.SyncData("_reign_negotiatedActions", ref _negotiations);
             dataStore.SyncData("_reign_socialBalanceRebellionRollOverrides", ref _socialBalanceRollOverridesJson);
             dataStore.SyncData("_reign_rebellionLastEvaluationDay", ref _lastEvaluationDay);
+            dataStore.SyncData("_reign_rebellionNextWeekByRealm", ref _nextRebellionWeekByRealm);
+            if (_nextRebellionWeekByRealm == null) _nextRebellionWeekByRealm = new Dictionary<string, int>();
             _movements = (_movements ?? new List<ReignRebellionMovementRecord>()).Where(x => x != null).ToList();
             _memberships = (_memberships ?? new List<ReignRebellionMembershipRecord>()).Where(x => x != null).ToList();
             _weeklyRolls = (_weeklyRolls ?? new List<ReignRebellionWeeklyRollRecord>()).Where(x => x != null).ToList();
@@ -230,57 +231,63 @@ namespace ReignBeta.Rebellion.Campaign
             if (_weeklyEvaluationPending) return;
             int currentWeek = WeekIndex(now);
             int completedWeek = WeekIndex(_lastEvaluationDay);
-            int weekIndex = completedWeek < 0 ? currentWeek : completedWeek + 1;
-            if (weekIndex < 0 || weekIndex > currentWeek) return;
+            if (currentWeek < 0 || completedWeek >= currentWeek) return;
             _weeklyEvaluationPending = true;
-            _ = EvaluateWeeklyRelationshipOutbreaksAsync(weekIndex, now);
+            _ = EvaluateWeeklyRelationshipOutbreaksAsync(currentWeek, completedWeek, now);
         }
 
-        private async Task EvaluateWeeklyRelationshipOutbreaksAsync(
-            int weekIndex, float now)
+        private async Task EvaluateWeeklyRelationshipOutbreaksAsync(int currentWeek, int previousWeek, float now)
         {
-            bool completed = false;
-            string stage = "building the political relationship request";
+            bool catchUp = false;
+            ReignServerClient.RequestFence fence = null;
             try
             {
-                JArray requestedPairs = BuildPoliticalAttitudeRequest();
-                stage = "resolving effective political relationships";
-                ReignEffectiveAttitudeResult resolved =
-                    await ReignRebellionServerClient.ResolveEffectiveAttitudesAsync(requestedPairs)
-                        .ConfigureAwait(false);
-                stage = "applying weekly rebellion rolls";
+                fence = ReignServerClient.RequestFence.Capture();
+                string campaign = ReignServerClient.GetCampaignId();
+                string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+                var kingdoms = Kingdom.All.Where(x => x != null && !x.IsEliminated && !IsRebelKingdom(x))
+                    .OrderBy(x => x.StringId).ToList();
+                WeeklyRebellionSchedule.Enroll(_nextRebellionWeekByRealm, kingdoms.Select(x => x.StringId), previousWeek, currentWeek);
+                var due = kingdoms.Select(k => (Kingdom: k, Id: k.StringId, Week: _nextRebellionWeekByRealm[k.StringId]))
+                    .Where(work => work.Week <= currentWeek).ToList();
+                foreach (var work in due)
+                {
+                    try
+                    {
+                        var realm = await ReignMainThread.InvokeAsync(() =>
+                        {
+                            if (!fence.IsCurrent()) throw new OperationCanceledException();
+                            return CaptureWeeklyRealm(work.Kingdom, work.Week, now);
+                        }).ConfigureAwait(false);
+                        if (realm != null && !await EvaluateWeeklyRealmAsync(work.Kingdom, realm, work.Week, now,
+                            fence, campaign, timeline).ConfigureAwait(false)) continue;
+                        await ReignMainThread.InvokeAsync(() =>
+                        {
+                            if (!fence.IsCurrent()) throw new OperationCanceledException();
+                            catchUp |= WeeklyRebellionSchedule.Finish(_nextRebellionWeekByRealm, work.Id, work.Week, currentWeek);
+                        }).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!await ReignMainThread.InvokeAsync(fence.IsCurrent).ConfigureAwait(false)) return;
+                        ReignLog.Warn("Weekly rebellion evaluation deferred for " + work.Id + " week=" + work.Week + ": " + ex.Message);
+                    }
+                }
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (!resolved.Ok)
-                    {
-                        ReignLog.Warn("Weekly rebellion evaluation deferred: "
-                            + (string.IsNullOrWhiteSpace(resolved.Error)
-                                ? "Reign relationship state was unavailable."
-                                : resolved.Error));
-                        return;
-                    }
-                    EvaluateWeeklyRelationshipOutbreaks(weekIndex, now,
-                        resolved.Attitudes);
-                    int completedRolls = _weeklyRolls.Count(x => x != null
-                        && x.WeekIndex == weekIndex);
-                    // Preserve the completed cadence boundary rather than the
-                    // current catch-up day. If Bannerlord advanced by more than
-                    // one week while the server request was in flight, the next
-                    // missing week must still be evaluated.
-                    _lastEvaluationDay = weekIndex * 7f;
-                    ReignLog.Info("Weekly rebellion evaluation completed week="
-                        + weekIndex + " rolls=" + completedRolls
-                        + " requestedPairs=" + requestedPairs.Count);
-                    completed = true;
+                    if (!fence.IsCurrent()) return;
+                    int completedWeek = WeeklyRebellionSchedule.CompletedWeek(_nextRebellionWeekByRealm, currentWeek);
+                    if (completedWeek > WeekIndex(_lastEvaluationDay))
+                        ReignLog.Info("Weekly rebellion evaluation completed week=" + completedWeek
+                            + " rolls=" + _weeklyRolls.Count(x => x.WeekIndex == completedWeek));
+                    _lastEvaluationDay = completedWeek * 7f;
+                    _weeklyRolls.RemoveAll(x => x.WeekIndex >= 0 && x.WeekIndex < currentWeek - 26
+                        && (!_nextRebellionWeekByRealm.TryGetValue(x.KingdomStringId ?? string.Empty, out int pending) || x.WeekIndex < pending));
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                // This task is intentionally started without blocking the daily campaign
-                // tick. Observe every failure here so a bad native kingdom/clan state or
-                // a transport failure cannot silently strand the weekly cadence forever.
-                ReignLog.Warn("Weekly rebellion evaluation failed for week "
-                    + weekIndex + " while " + stage + ": " + ex);
+                ReignLog.Warn("Weekly rebellion evaluation failed: " + ex);
             }
             finally
             {
@@ -289,163 +296,110 @@ namespace ReignBeta.Rebellion.Campaign
                     await ReignMainThread.InvokeAsync(() =>
                     {
                         _weeklyEvaluationPending = false;
-                        // Continue draining crossed weekly boundaries immediately,
-                        // including while campaign time is now paused. A provider
-                        // failure waits for the next daily tick rather than spinning.
-                        if (completed)
+                        if (fence?.IsCurrent() == true && (catchUp || WeekIndex(CurrentDay()) > currentWeek))
                             TryStartWeeklyRelationshipEvaluation(CurrentDay());
                     }).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    // If main-thread dispatch itself is unavailable, do not leave the
-                    // in-memory guard permanently latched. The next daily tick may retry.
                     _weeklyEvaluationPending = false;
-                    ReignLog.Warn("Weekly rebellion evaluation cleanup failed for week "
-                        + weekIndex + ": " + ex);
+                    ReignLog.Warn("Weekly rebellion cleanup failed: " + ex.Message);
                 }
             }
         }
 
-        private static JArray BuildPoliticalAttitudeRequest()
+        private async Task<bool> EvaluateWeeklyRealmAsync(Kingdom kingdom, WeeklyRebellionRealm realm,
+            int weekIndex, float now, ReignServerClient.RequestFence fence, string campaign, string timeline)
         {
-            JArray requests = new JArray();
-            HashSet<string> seen = new HashSet<string>(
-                StringComparer.OrdinalIgnoreCase);
-            foreach (Kingdom kingdom in Kingdom.All
-                .Where(x => x != null && !x.IsEliminated && !IsRebelKingdomStatic(x))
-                .OrderBy(x => x.StringId))
+            var attitudes = new WeeklyRebellionAttitudes();
+            Task<JObject> Post(JObject payload) => ReignRebellionServerClient.RequestEffectiveAttitudesAsync(payload, fence);
+            bool StillCurrent()
             {
-                List<Hero> leaders = kingdom.Clans
-                    .Where(clan => clan != null && clan.Leader != null
-                        && !clan.Leader.IsDead && clan != Clan.PlayerClan)
-                    .Select(clan => clan.Leader)
-                    .Concat(kingdom.Leader == null
-                        ? Enumerable.Empty<Hero>()
-                        : new[] { kingdom.Leader })
-                    .Where(hero => hero != null && hero != Hero.MainHero)
-                    .GroupBy(hero => hero.StringId,
-                        StringComparer.OrdinalIgnoreCase)
-                    .Select(group => group.First()).ToList();
-                foreach (Hero observer in leaders)
-                foreach (Hero target in leaders)
-                {
-                    if (observer == target) continue;
-                    string key = observer.StringId + "|" + target.StringId;
-                    if (!seen.Add(key)) continue;
-                    requests.Add(new JObject
-                    {
-                        ["observerId"] = observer.StringId,
-                        ["targetId"] = target.StringId,
-                        ["context"] = "weekly_rebellion"
-                    });
-                }
+                if (!fence.IsCurrent()) throw new OperationCanceledException();
+                return realm.SameRoster(CaptureWeeklyRealm(kingdom, weekIndex, now));
             }
-            return requests;
-        }
 
-        private static bool IsRebelKingdomStatic(Kingdom kingdom)
-        {
-            return Instance?.IsRebelKingdom(kingdom) == true;
-        }
-
-        private void EvaluateWeeklyRelationshipOutbreaks(int weekIndex, float now,
-            IReadOnlyDictionary<string, JObject> attitudes)
-        {
-            foreach (Kingdom kingdom in Kingdom.All
-                .Where(x => x != null && !x.IsEliminated && !IsRebelKingdom(x))
-                .OrderBy(x => x.StringId)
-                .ToList())
+            await attitudes.Fetch(realm.Grievances(), campaign, timeline, Post).ConfigureAwait(false);
+            bool ready = await ReignMainThread.InvokeAsync(() => StillCurrent() && realm.RecordRolls(attitudes,
+                (clan, attitude, exclusion) => SaveWeeklyRoll(realm, clan, attitude, exclusion, weekIndex, now)))
+                .ConfigureAwait(false);
+            if (!ready)
             {
-                string realmExclusionReason = HasActiveMovement(kingdom)
-                    ? "active_war"
-                    : IsRealmOnCooldown(kingdom, now) ? "cooldown" : string.Empty;
-                Hero ruler = kingdom.Leader;
-                if (ruler == null || ruler.IsDead) realmExclusionReason = "missing_ruler";
-
-                List<Tuple<Clan, int>> successes = new List<Tuple<Clan, int>>();
-                foreach (Clan clan in kingdom.Clans
-                    .Where(x => x != null && x != kingdom.RulingClan && x != Clan.PlayerClan)
-                    .OrderBy(x => x.StringId)
-                    .ToList())
-                {
-                    ReignRebellionWeeklyRollRecord existing = _weeklyRolls.FirstOrDefault(x =>
-                        Same(x.KingdomStringId, kingdom.StringId) && Same(x.ClanStringId, clan.StringId) && x.WeekIndex == weekIndex);
-                    if (existing != null)
-                    {
-                        if (existing.Triggered) successes.Add(Tuple.Create(clan, existing.RulerRelation));
-                        continue;
-                    }
-
-                    Hero leader = clan.Leader;
-                    bool hasAttitude = TryGetEffectiveAttitude(attitudes, leader,
-                        ruler, out int personalAffinity, out int publicStanding,
-                        out int relation, out int standingRevision);
-                    bool leaderEligible = IsEligibleNpcVassalLeader(clan, kingdom);
-                    bool eligible = string.IsNullOrWhiteSpace(realmExclusionReason)
-                        && leaderEligible && hasAttitude
-                        && relation <= RelationshipThreshold;
-                    string exclusionReason = eligible
-                        ? string.Empty
-                        : !string.IsNullOrWhiteSpace(realmExclusionReason)
-                            ? realmExclusionReason
-                            : !leaderEligible ? "ineligible_leader"
-                            : !hasAttitude ? "missing_effective_relationship"
-                            : "relationship_threshold";
-                    JObject testOverride = eligible ? TakeSocialBalanceRollOverride(kingdom.StringId, clan.StringId) : null;
-                    int roll = eligible
-                        ? testOverride == null ? MBRandom.RandomInt(1, 101) : Math.Max(1, Math.Min(100, testOverride.Value<int?>("roll") ?? 100))
-                        : 0;
-                    bool triggered = eligible && roll <= WeeklyOutbreakPercent;
-                    _weeklyRolls.Add(new ReignRebellionWeeklyRollRecord
-                    {
-                        KingdomStringId = kingdom.StringId,
-                        ClanStringId = clan.StringId,
-                        WeekIndex = weekIndex,
-                        Roll = roll,
-                        RulerRelation = relation,
-                        PersonalAffinityToRuler = personalAffinity,
-                        RulerPublicStanding = publicStanding,
-                        RulerStandingRevision = standingRevision,
-                        WasEligible = eligible,
-                        Triggered = triggered,
-                        RolledDay = now,
-                        ExclusionReason = exclusionReason,
-                        TestOverride = testOverride != null,
-                        TestRunId = testOverride?.Value<string>("runId") ?? string.Empty
-                    });
-                    if (triggered) successes.Add(Tuple.Create(clan, relation));
-                }
-
-                Clan leaderClan = successes.OrderBy(x => x.Item2).ThenBy(x => x.Item1.StringId).Select(x => x.Item1).FirstOrDefault();
-                if (leaderClan != null) StartRelationshipRebellion(kingdom,
-                    leaderClan, weekIndex, attitudes);
-            }
-
-            // Keep enough audit history for long campaigns without unbounded save growth.
-            int oldestWeek = weekIndex - 26;
-            _weeklyRolls.RemoveAll(x => x.WeekIndex >= 0 && x.WeekIndex < oldestWeek);
-        }
-
-        private static bool TryGetEffectiveAttitude(
-            IReadOnlyDictionary<string, JObject> attitudes, Hero observer,
-            Hero target, out int personalAffinity, out int publicStanding,
-            out int effectiveAttitude, out int standingRevision)
-        {
-            personalAffinity = 0;
-            publicStanding = 0;
-            effectiveAttitude = 0;
-            standingRevision = 0;
-            if (observer == null || target == null || attitudes == null
-                || !attitudes.TryGetValue(observer.StringId + "|"
-                    + target.StringId, out JObject attitude)
-                || attitude.Value<bool?>("hasPair") != true)
+                ReignLog.Warn("Weekly rebellion grievances or roster unresolved for " + realm.Id + " week=" + weekIndex);
                 return false;
-            personalAffinity = attitude.Value<int?>("personalAffinity") ?? 0;
-            publicStanding = attitude.Value<int?>("targetPublicStanding") ?? 0;
-            effectiveAttitude = attitude.Value<int?>("effectiveAttitude") ?? 0;
-            standingRevision = attitude.Value<int?>("publicStandingRevision") ?? 0;
-            return true;
+            }
+            var winner = realm.Winner();
+            if (winner == null) return true;
+
+            await attitudes.Fetch(realm.JoinPairs(winner), campaign, timeline, Post).ConfigureAwait(false);
+            return await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!StillCurrent() || !realm.TryPoll(winner, attitudes, out var memberships))
+                {
+                    ReignLog.Warn("Weekly rebellion supporters or roster unresolved for " + realm.Id + " week=" + weekIndex);
+                    return false;
+                }
+                var clans = kingdom.Clans.Where(clan => clan != null).ToDictionary(clan => clan.StringId);
+                var movement = CreateMovement(kingdom, clans[winner.Id], false, weekIndex);
+                foreach (var member in memberships)
+                    AddOrUpdateMember(movement, clans[member.ClanId], member.Rebel ? "rebel" : "loyalist",
+                        member.Rebel ? "relationship_poll" : "relationship_loyalist", member.ToRebel, member.ToRuler);
+                StartCivilWar(movement);
+                return true;
+            }).ConfigureAwait(false);
+        }
+
+        private WeeklyRebellionRealm CaptureWeeklyRealm(Kingdom kingdom, int weekIndex, float now)
+        {
+            if (kingdom.IsEliminated || IsRebelKingdom(kingdom)
+                || _movements.Any(m => !m.IsPlayerLed && m.OutbreakWeekIndex == weekIndex
+                    && Same(m.ParentKingdomStringId, kingdom.StringId))) return null;
+            var ruler = kingdom.Leader;
+            string exclusion = ruler == null || ruler.IsDead ? "missing_ruler"
+                : HasActiveMovement(kingdom) ? "active_war" : IsRealmOnCooldown(kingdom, now) ? "cooldown" : string.Empty;
+            var realm = new WeeklyRebellionRealm
+            {
+                Id = kingdom.StringId, Ruler = ruler?.StringId ?? string.Empty, Exclusion = exclusion
+            };
+            var rolls = _weeklyRolls.Where(x => x.WeekIndex == weekIndex && Same(x.KingdomStringId, kingdom.StringId))
+                .ToLookup(x => x.ClanStringId, StringComparer.OrdinalIgnoreCase);
+            foreach (var clan in kingdom.Clans.Where(x => x != null).OrderBy(x => x.StringId))
+            {
+                var leader = clan.Leader;
+                var saved = rolls[clan.StringId].FirstOrDefault();
+                realm.Clans.Add(new WeeklyRebellionClan
+                {
+                    Id = clan.StringId, Leader = leader?.StringId ?? string.Empty, HasLivingLeader = leader != null && !leader.IsDead,
+                    IsPlayer = clan == Clan.PlayerClan, IsRuling = clan == kingdom.RulingClan,
+                    EligibleLeader = IsEligibleNpcVassalLeader(clan, kingdom), HasRoll = saved != null,
+                    Triggered = saved?.Triggered == true
+                        && WeeklyRebellionClan.MatchesSavedHero(saved.LeaderHeroStringId, leader?.StringId)
+                        && WeeklyRebellionClan.MatchesSavedHero(saved.RulerHeroStringId, realm.Ruler),
+                    RulerRelation = saved?.RulerRelation ?? 0
+                });
+            }
+            return realm;
+        }
+
+        private int SaveWeeklyRoll(WeeklyRebellionRealm realm, WeeklyRebellionClan clan, JObject attitude,
+            string exclusion, int weekIndex, float now)
+        {
+            bool eligible = exclusion.Length == 0;
+            var testOverride = eligible ? TakeSocialBalanceRollOverride(realm.Id, clan.Id) : null;
+            int roll = !eligible ? 0 : testOverride == null ? MBRandom.RandomInt(1, 101)
+                : Math.Max(1, Math.Min(100, testOverride.Value<int?>("roll") ?? 100));
+            _weeklyRolls.Add(new ReignRebellionWeeklyRollRecord
+            {
+                KingdomStringId = realm.Id, ClanStringId = clan.Id, LeaderHeroStringId = clan.Leader,
+                RulerHeroStringId = realm.Ruler, WeekIndex = weekIndex, Roll = roll, RulerRelation = clan.RulerRelation,
+                PersonalAffinityToRuler = attitude?.Value<int>("personalAffinity") ?? 0,
+                RulerPublicStanding = attitude?.Value<int>("targetPublicStanding") ?? 0,
+                RulerStandingRevision = attitude?.Value<int>("publicStandingRevision") ?? 0,
+                WasEligible = eligible, Triggered = WeeklyRebellionRealm.WonRoll(eligible, roll),
+                RolledDay = now, ExclusionReason = exclusion, TestOverride = testOverride != null,
+                TestRunId = testOverride?.Value<string>("runId") ?? string.Empty
+            });
+            return roll;
         }
 
         public bool QueueSocialBalanceRollOverride(string kingdomId, string clanId, int roll, string runId, out string result)
@@ -519,35 +473,6 @@ namespace ReignBeta.Rebellion.Campaign
         private static string SocialBalanceRollKey(string kingdomId, string clanId)
         {
             return (kingdomId ?? string.Empty).ToLowerInvariant() + "|" + (clanId ?? string.Empty).ToLowerInvariant();
-        }
-
-        private void StartRelationshipRebellion(Kingdom kingdom, Clan leaderClan,
-            int weekIndex, IReadOnlyDictionary<string, JObject> attitudes)
-        {
-            Hero rebelLeader = leaderClan?.Leader;
-            Hero ruler = kingdom?.Leader;
-            if (!IsEligibleNpcVassalLeader(leaderClan, kingdom) || ruler == null || HasActiveMovement(kingdom)) return;
-
-            ReignRebellionMovementRecord movement = CreateMovement(kingdom, leaderClan, false, weekIndex);
-            foreach (Clan clan in kingdom.Clans.Where(x => x != null).OrderBy(x => x.StringId).ToList())
-            {
-                Hero clanLeader = clan.Leader;
-                bool rebel = clan == leaderClan;
-                TryGetEffectiveAttitude(attitudes, clanLeader, rebelLeader,
-                    out _, out _, out int rebelRelation, out _);
-                TryGetEffectiveAttitude(attitudes, clanLeader, ruler,
-                    out _, out _, out int rulerRelation, out _);
-                if (!rebel && clan != kingdom.RulingClan && clan != Clan.PlayerClan
-                    && IsEligibleNpcVassalLeader(clan, kingdom)
-                    && rebelRelation > rulerRelation)
-                {
-                    rebel = true;
-                }
-                AddOrUpdateMember(movement, clan, rebel ? "rebel" : "loyalist",
-                    rebel ? "relationship_poll" : "relationship_loyalist", rebelRelation, rulerRelation);
-            }
-
-            StartCivilWar(movement);
         }
 
         public bool IsRebelKingdom(Kingdom kingdom)
