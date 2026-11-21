@@ -28,6 +28,7 @@ namespace ReignBeta.Dialogue.Integration
             internal TaleWorlds.CampaignSystem.Campaign Campaign;
             internal string CampaignId, Timeline, Generation;
             internal int InFlight;
+            internal DateTime NextCompositionWake;
             internal DateTime NextPoll, NextScopeCheck;
             internal readonly PersonalGossipWakeState Wake = new PersonalGossipWakeState();
             internal double NextDue = double.PositiveInfinity;
@@ -492,9 +493,17 @@ namespace ReignBeta.Dialogue.Integration
                     bool work = ready.Value<int?>("pendingComposition") > 0 || ready.Value<int?>("awaitingNativeClock") > 0;
                     pump.Wake.Observe(observedRevision, ready.Value<bool?>("enabled") == true, work, DateTime.UtcNow);
                     if (ready.Value<bool?>("enabled") != true) { pump.NextDue = double.PositiveInfinity; return null; }
-                    if (ready.Value<int?>("awaitingNativeClock") == 0 && pump.NextDue > CampaignTime.Now.ToDays) return null;
+                    var communications = ready["communications"];
+                    long pendingGossip = (ready.Value<long?>("pendingComposition") ?? 0)
+                        - (communications?.Value<long?>("pending") ?? 0) - (communications?.Value<long?>("failed") ?? 0);
+                    // A pending row survives refused admission and server restart. Revisit it on
+                    // a bounded cadence, even while paused and without a ready nonce or arrival.
+                    bool wakeComposition = pendingGossip > 0 && DateTime.UtcNow >= pump.NextCompositionWake;
+                    if (!wakeComposition && ready.Value<int?>("awaitingNativeClock") == 0 && pump.NextDue > CampaignTime.Now.ToDays) return null;
                     // Readiness was received before this main-thread clock/roster capture.
-                    return CapturePersonalGossipPresence();
+                    var presence = CapturePersonalGossipPresence();
+                    if (presence != null) pump.NextCompositionWake = DateTime.UtcNow.AddSeconds(30);
+                    return presence;
                 }).ConfigureAwait(false);
                 if (snapshot != null)
                 {
