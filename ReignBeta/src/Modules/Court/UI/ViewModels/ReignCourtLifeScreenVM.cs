@@ -38,6 +38,7 @@ namespace ReignBeta.Court.UI
         private readonly ReignCourtAudienceScenePresentation _scene;
         private string _eventImageId;
         private bool _busy, _finalized;
+        private JObject _reviewedOption;
         private string _input = "", _status = "Your guests await an audience.";
         private int _scroll;
         private ReignCourtLifeMatterState _lastState;
@@ -47,6 +48,7 @@ namespace ReignBeta.Court.UI
             RecoverPersistedOpeningReceipts(matter);
             if (matter.Source == ReignDocketSource.Patronage && !matter.EffectsCommitted)
                 court.RefreshPatronageOptions(matter);
+            _reviewedOption = CaptureReviewOption(SelectedOption());
             Transcript = new MBBindingList<ReignChatLineVM>();
             ActiveParticipants = new MBBindingList<ReignCourtLifeAttendeeVM>();
             AvailableAttendees = new MBBindingList<ReignCourtLifeAttendeeVM>();
@@ -176,13 +178,15 @@ namespace ReignBeta.Court.UI
         public void ExecuteGrantDirect()
         {
             if (!CanGrantDirect) return;
+            var shown = _matter.Options.ToDictionary(x => x.OptionId, CaptureReviewOption, StringComparer.Ordinal);
             var choices = _matter.Options.Select(x => new InquiryElement(x.OptionId, OptionLabel(x) + " — " + x.Description, null)).ToList();
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Court decision", "Select terms to review before confirming.",
                 choices, true, 1, 1, "Review", "Back", selected => {
-                    _matter.SelectedOptionId = selected?.FirstOrDefault()?.Identifier as string ?? ""; Notify();
+                    string id = selected?.FirstOrDefault()?.Identifier as string;
+                    if (id != null && shown.TryGetValue(id, out JObject reviewed)) SelectReviewOption(id, reviewed);
                 }, selected => { }, string.Empty, false), true, false);
         }
-        public void ExecuteGrantWithGold() { if (CanGrantWithGold) ApplyOption(_matter.SelectedOptionId); }
+        public void ExecuteGrantWithGold() { if (CanGrantWithGold) ApplyReviewedOption(); }
         public void ExecuteRefuse()
         {
             if (!CanRefuse) return;
@@ -200,8 +204,11 @@ namespace ReignBeta.Court.UI
             switch ((action ?? "").ToLowerInvariant().Replace('_', '-'))
             {
                 case "send": if (!ConversationEnabled || string.IsNullOrWhiteSpace(value)) break; InputText = value; ExecuteSend(); return true;
-                case "choose": if (_matter.Options.Any(x => x.OptionId == value)) { _matter.SelectedOptionId = value; Notify(); return true; } break;
-                case "confirm": if (CanGrantWithGold) return ApplyOption(_matter.SelectedOptionId); break;
+                case "choose":
+                    var offered = _matter.Options.FirstOrDefault(x => x.OptionId == value);
+                    if (offered != null) { SelectReviewOption(value, CaptureReviewOption(offered)); return true; }
+                    break;
+                case "confirm": if (CanGrantWithGold) return ApplyReviewedOption(); break;
                 case "decide": if (ConversationEnabled) return ApplyOption(value); break;
                 case "refuse": if (CanRefuse) { ExecuteRefuse(); return true; } break;
                 case "continue": if (CanContinue) { ExecuteContinue(); return true; } break;
@@ -361,9 +368,9 @@ namespace ReignBeta.Court.UI
                                 }
                                 if (selected != null)
                                 {
-                                    _matter.SelectedOptionId = selected;
-                                    StatusText = "Your decision is ready to confirm: " + SelectedOption()?.Label;
-                                    Notify();
+                                    var chosen = _matter.Options.First(x => x.OptionId == selected);
+                                    StatusText = "Your decision is ready to confirm: " + chosen.Label;
+                                    SelectReviewOption(selected, CaptureReviewOption(chosen));
                                 }
                             }
                             ShowAssentProposal(interpretationPayload, decision, person, acceptedReply);
@@ -533,13 +540,44 @@ namespace ReignBeta.Court.UI
             string offer = string.IsNullOrWhiteSpace(details) ? OptionLabel(option) : OptionLabel(option) + " (" + details + ")";
             // View-only annotation, distinct from the stored speech and decision.
             Transcript.Add(new ReignChatLineVM("Court Clerk",
-                person.Name + " appeared to assent to " + offer + ". “" + excerpt + "” This proposal is unconfirmed.", "system"));
+                "Review " + offer + " alongside this excerpt from " + person.Name + "’s reply. “" + excerpt + "” This proposal is unconfirmed.", "system"));
             _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
         }
 
-        private bool ApplyOption(string id)
+        private JObject CaptureReviewOption(ReignCourtLifeOption option)
         {
-            var decision = new JObject { ["optionId"] = id };
+            if (option == null) return null;
+            var snapshot = new JObject { ["optionId"] = option.OptionId, ["label"] = OptionLabel(option),
+                ["description"] = option.Description, ["terms"] = ReignCourtCampaignBehavior.ParseCourtLifeJson(option.TermsJson) };
+            if (option.OptionId == "refer")
+                snapshot["referral"] = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
+            return snapshot;
+        }
+
+        private void SelectReviewOption(string id, JObject reviewed)
+        {
+            _matter.SelectedOptionId = id;
+            _reviewedOption = reviewed;
+            Notify();
+        }
+
+        private bool ApplyReviewedOption()
+        {
+            JObject current = CaptureReviewOption(SelectedOption());
+            if (current == null || !JToken.DeepEquals(_reviewedOption, current))
+            {
+                StatusText = "The offered terms changed. Review the choice again before confirming.";
+                Notify();
+                return false;
+            }
+            return ApplyOption(_matter.SelectedOptionId, _reviewedOption["terms"] as JObject);
+        }
+
+        private bool ApplyOption(string id, JObject reviewedTerms = null)
+        {
+            var option = _matter.Options.FirstOrDefault(x => x.OptionId == id);
+            var decision = new JObject { ["optionId"] = id, ["terms"] = reviewedTerms?.DeepClone()
+                ?? ReignCourtCampaignBehavior.ParseCourtLifeJson(option?.TermsJson) };
             // Older saves may carry prose-derived NPC flags here. Only forward
             // the separately checked player instruction to refer exact terms.
             if (id == "refer")

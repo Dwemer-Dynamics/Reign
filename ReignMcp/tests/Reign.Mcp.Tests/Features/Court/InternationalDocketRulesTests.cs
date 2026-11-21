@@ -135,6 +135,25 @@ public sealed class InternationalDocketRulesTests
     }
 
     [Fact]
+    public void ExactTermsPermitOnlyResolverAliasesMatchingTheBoundIdentities()
+    {
+        var authored = new Dictionary<string, string> { ["durationDays"] = "90" };
+        var aliases = new Dictionary<string, string> { ["fromHeroStringId"] = "\"ruler1\"",
+            ["targetHeroStringId"] = "\"ruler2\"", ["toHeroStringId"] = "\"ruler2\"" };
+        var normalized = new Dictionary<string, string>(aliases) { ["durationDays"] = "90" };
+
+        Assert.True(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        normalized["durationDays"] = "91";
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        normalized["durationDays"] = "90";
+        normalized["fromHeroStringId"] = "\"otherRuler\"";
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        authored["fromHeroStringId"] = "\"ruler1\"";
+        normalized.Remove("fromHeroStringId");
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+    }
+
+    [Fact]
     public void CaptiveCounterKeepsTheNamedCaptiveAndRansomMode()
     {
         var original = new Dictionary<string, string> { ["captiveId"] = "\"capt1\"", ["ransom"] = "true",

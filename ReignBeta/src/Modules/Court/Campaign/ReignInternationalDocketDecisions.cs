@@ -115,8 +115,10 @@ namespace ReignBeta.Court.Campaign
             if (effectCommitted && data.Value<string>("nativeOptionId") != option)
             { summary = "The original judgment has already taken effect and must finish recording."; return false; }
             if (option == "refer") return StartInternationalReferral(matter, data, decision, out summary);
-            bool consensus = ReignInternationalDocketRules.RequiresForeignAcceptance(option,
-                data.Value<string>("remedy"), data.Value<bool?>("ransom") == true);
+            string remedy = data.Value<string>("remedy");
+            bool unilateralGoodwill = option == "accept" && remedy == "goodwill" && data.Value<string>("kind") == "incident";
+            bool consensus = !unilateralGoodwill && ReignInternationalDocketRules.RequiresForeignAcceptance(
+                option, remedy, data.Value<bool?>("ransom") == true);
             JObject offeredTerms = ParseObject(offered.TermsJson);
             // Court prose and older saved interpretation flags cannot establish consensus.
             bool promotedOffer = data.Value<bool?>("replyPromoted") == true && data.Value<bool?>("sovereignAuthorized") == true
@@ -339,7 +341,8 @@ namespace ReignBeta.Court.Campaign
             summary = "The exact terms are being sent to the represented ruler; no agreement has executed.";
             ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x => x.IsResident && x.OriginKingdomStringId == matter.KingdomId);
             if (posting == null) { summary = "The ambassador must be present before sending a referral."; return false; }
-            JObject candidate = data["candidate"] is JObject currentCandidate ? (JObject)currentCandidate.DeepClone() : null;
+            JObject previous = data["candidate"] as JObject;
+            JObject candidate = (JObject)previous?.DeepClone();
             ReignCourtLifeOption intended = matter.Options.FirstOrDefault(x => x.OptionId == (decision.Value<string>("optionId") == "refer"
                 ? decision.Value<string>("referralOptionId")
                 : decision.Value<string>("optionId")));
@@ -377,13 +380,26 @@ namespace ReignBeta.Court.Campaign
                 summary = "The saved diplomatic proposal no longer matches the chosen terms.";
                 return false;
             }
-            // The referral ledger keys replay on the full candidate. An identical
-            // offer in a different audience still needs its own sovereign decision.
-            candidate["courtMatterId"] = matter.MatterId;
-            candidate["courtRulerId"] = data.Value<string>("foreignRulerId");
-            candidate["courtOptionId"] = intended.OptionId;
             candidate["actorKingdomStringId"] = candidate["actorKingdomStringId"] ?? candidate["actorKingdomId"];
             candidate["targetKingdomStringId"] = candidate["targetKingdomStringId"] ?? candidate["targetKingdomId"];
+            // A previously sent legacy candidate keeps its exact ledger ID on replay.
+            bool replayLegacy = previous != null && previous["courtMatterId"] == null
+                && !string.IsNullOrWhiteSpace(data.Value<string>("referralId"))
+                && JToken.DeepEquals(previous, candidate);
+            if (!replayLegacy)
+            {
+                candidate["courtMatterId"] = matter.MatterId;
+                candidate["courtRulerId"] = data.Value<string>("foreignRulerId");
+                candidate["courtOptionId"] = intended.OptionId;
+            }
+            JObject savedReply = data["reply"] as JObject;
+            if (previous != null && JToken.DeepEquals(previous, candidate) && data.Value<bool?>("replyPromoted") == true
+                && savedReply?.Value<string>("status") == "model_output_unusable"
+                && MatchesInternationalReferral(matter, data, savedReply))
+            {
+                summary = "The sovereign's decision was unavailable. Review materially revised terms or leave the matter pending.";
+                return false;
+            }
             data["referredCommand"] = candidate.Value<string>("command");
             if (!_internationalReferralInFlight.Add(matter.MatterId)) return false;
             matter.State = ReignCourtLifeMatterState.Deferred;

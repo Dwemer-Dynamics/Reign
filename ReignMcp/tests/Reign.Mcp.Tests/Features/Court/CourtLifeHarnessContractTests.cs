@@ -369,9 +369,9 @@ public sealed class CourtLifeHarnessContractTests
         string viewModel = File.ReadAllText(Path.Combine(root,
             "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
         int annotation = viewModel.IndexOf("private void ShowAssentProposal(", StringComparison.Ordinal);
-        int apply = viewModel.IndexOf("private bool ApplyOption(", StringComparison.Ordinal);
-        Assert.True(annotation >= 0 && apply > annotation);
-        string display = viewModel[annotation..apply];
+        int snapshot = viewModel.IndexOf("private JObject CaptureReviewOption(", StringComparison.Ordinal);
+        Assert.True(annotation >= 0 && snapshot > annotation);
+        string display = viewModel[annotation..snapshot];
         Assert.Contains("proposal.Value<string>(\"speakerHeroId\") != person.HeroId", display, StringComparison.Ordinal);
         Assert.Contains("SameOfferedOption(payload, id)", display, StringComparison.Ordinal);
         Assert.Contains("acceptedReply.Substring(start, quote.Length)", display, StringComparison.Ordinal);
@@ -380,6 +380,23 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("This proposal is unconfirmed.", display, StringComparison.Ordinal);
         Assert.DoesNotContain("AddLine(", display, StringComparison.Ordinal);
         Assert.DoesNotContain("AcceptedDecisionJson", display, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CourtOptionConfirmationUsesTheFrozenSnapshotOfTheDisplayedChoice()
+    {
+        string root = TestOptions.FindWorkspace();
+        string viewModel = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
+        string activation = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeCampaignBehavior.cs"));
+        string decisions = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
+        Assert.Contains("ToDictionary(x => x.OptionId, CaptureReviewOption", viewModel, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(_reviewedOption, current)", viewModel, StringComparison.Ordinal);
+        Assert.Contains("ApplyOption(_matter.SelectedOptionId, _reviewedOption[\"terms\"] as JObject)", viewModel, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(reviewedTerms, ParseCourtLifeJson(option.TermsJson))", activation, StringComparison.Ordinal);
+        Assert.Contains("remedy == \"goodwill\" && data.Value<string>(\"kind\") == \"incident\"", decisions, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -400,6 +417,8 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("candidate?.Value<string>(\"publicReason\")", decisions, StringComparison.Ordinal);
         Assert.DoesNotContain("[\"publicReason\"] = matter.Summary", decisions, StringComparison.Ordinal);
         Assert.Contains("sameTerms ? previousTerms.Value<string>(\"promise\")", decisions, StringComparison.Ordinal);
+        Assert.Contains("if (!replayLegacy)", decisions, StringComparison.Ordinal);
+        Assert.Contains("savedReply?.Value<string>(\"status\") == \"model_output_unusable\"", decisions, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -415,7 +434,11 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("reply.Value<string>(\"timeline_id\") != matter.TimelineId", docket, StringComparison.Ordinal);
         Assert.Contains("reply.Value<string>(\"terms_hash\") == termsHash", docket, StringComparison.Ordinal);
         Assert.Contains("JToken.DeepEquals(exact, offered)", docket, StringComparison.Ordinal);
-        Assert.Contains("JToken.DeepEquals(typedTerms, SovereignCourtMaterialTerms(nativeTerms", docket, StringComparison.Ordinal);
+        Assert.Contains("MatchesCourtNormalizedTerms(CourtMaterialValues(typedTerms)", docket, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(savedCounter, ParseObject(reply.Value<string>(\"counter_terms_json\")))", docket, StringComparison.Ordinal);
+        Assert.Contains("SetSovereignReviewText(exactOption, data, bound, normalized)", docket, StringComparison.Ordinal);
+        Assert.Contains("option.Label = \"Pay \" + terms.Value<int>(\"gold\")", docket, StringComparison.Ordinal);
+        Assert.Contains("author != frozenRuler", docket, StringComparison.Ordinal);
         Assert.Contains("BoundSovereignCourtTerms(reply, data, normalized, disposition)", docket, StringComparison.Ordinal);
         Assert.Contains("JToken.DeepEquals(normalized, data[\"normalizedAction\"])", docket, StringComparison.Ordinal);
 
