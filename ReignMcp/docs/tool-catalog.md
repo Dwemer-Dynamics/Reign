@@ -226,7 +226,7 @@ to duplicate every evolving input parameter.
 | --- | --- | --- |
 | `reign_start_verification` | `REIGN_MCP_ALLOW_VERIFICATION_CONTROL=true` plus confirmation | Writes isolated Verification Lab state; live-LLM/game tiers may consume provider/game resources |
 | `reign_cancel_verification` | same gate plus confirmation | Requests cancellation after the active check |
-| `reign_build` | `REIGN_MCP_ALLOW_BUILD=true` | Writes isolated build artifacts under `.codex-build` |
+| `reign_build` | Same build, restore and verification gates as `reign_validate` | A project ID selects its project-file plan, falling back to its containing core or tooling profile when the plan omits the project. Named profiles use their canonical plans. Returns the original validation run ID, report path and reuse status. |
 | `reign_get_validation_plan` | None | Discovers projects and reports coverage without running commands |
 | `reign_validate` | `REIGN_MCP_ALLOW_BUILD=true` | Runs `changed`, `core`, `product`, `tooling`, or ecosystem-release `all` validation and writes a structured report |
 | `reign_run_offline_verification` | `REIGN_MCP_ALLOW_OFFLINE_VERIFICATION=true`, a successful Release `reign_validate` run ID, plus confirmation | Runs only quick/offline non-listening verification from that exact immutable validation artifact and returns its report, source-fingerprint, executable-path, and executable-hash provenance |
