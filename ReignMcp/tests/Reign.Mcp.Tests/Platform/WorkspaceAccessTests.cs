@@ -36,7 +36,7 @@ public sealed class WorkspaceAccessTests
             "{",
             assignment,
             comparison,
-            """    string token = "synthetic-fixture";""",
+            """    string token = "fixture";""",
             "}"
         ]);
 
