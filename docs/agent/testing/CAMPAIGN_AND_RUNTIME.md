@@ -1,5 +1,15 @@
 # Campaign and runtime operations
 
+## Reading bounded operational logs
+
+Use the Control Center Log Viewer for a selected file and campaign. `reign_query_logs` reads the global server log. Both use `GET /api/logs` in newest-first order. Full-text search covers the complete redacted record, including words found only in an omitted prompt. The `eventType` filter matches the first populated event type, phase, request type, type or kind. The `severity` filter uses the recorded severity or level, then recognized status, event or HTTP outcomes. Rows without a classification match `unclassified`. Filters ignore case.
+
+Each serialized entry fits 16 KiB and the complete UTF-8 JSON body fits 256 KiB, including metadata and separators. `responseCharacters` retains its original meaning as the sum of entry JSON lengths. `elided` marks an individual entry whose fields were omitted. `responseLimitReached` and the compatibility field `truncated` report a byte-limited page. `hasMore` also covers the requested row limit. Supply `nextCursor` with the same file, resolved campaign and filters to read the next match. Appends preserve that position. If retention, clearing or a server restart invalidates it, load the latest page again.
+
+An elided entry reports `unabridgedRow` as `unavailable_from_this_response`. A `relatedEvidence` object names a separate paged payload. Use its exact IDs, including the campaign for prompt and historical audit evidence. Retention can remove that evidence between requests.
+
+Canonical changed validation runs the isolated quick `contracts.log_page_*` cases against disposable JSONL files, including a 612,101-character first row. Use the emitted `log-query-ui/control-center.html` with the existing `control-center-ui-contract.mjs` browser matrix. It exercises the Log Viewer's filters, continuation and live-refresh behavior with intercepted requests.
+
 ## Live interaction source contracts
 
 Run `reign_run_offline_verification tier=quick suite=live_interaction` against an exact successful Release validation artifact. This invokes the existing live-interaction self-tests with bounded case evidence, including the native-save and relationship telemetry wrappers. Source contracts only; native campaign/save acceptance remains separate. The non-listening CLI uses isolated run-owned data and performs no provider calls, native game/save operations or runtime control.

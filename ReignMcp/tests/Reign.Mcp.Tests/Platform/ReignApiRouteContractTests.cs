@@ -168,10 +168,9 @@ public sealed class ReignApiRouteContractTests
         Assert.Contains("WriteIdleLiveTestRunIndex", liveTests, StringComparison.Ordinal);
         Assert.Contains("ReadBool(indexed, \"scanComplete\", false)", liveTests, StringComparison.Ordinal);
         Assert.Contains("[\"status\"] = \"idle\"", liveTests, StringComparison.Ordinal);
-        Assert.Contains("maxResponseCharacters = 256 * 1024", platform, StringComparison.Ordinal);
-        Assert.Contains("Math.Min(500, limit)", platform, StringComparison.Ordinal);
-        Assert.Contains("IndexOf(search, StringComparison.OrdinalIgnoreCase)", platform, StringComparison.Ordinal);
-        Assert.Contains("[\"truncated\"] = rows.Count < candidates.Count", platform, StringComparison.Ordinal);
+        // The isolated server contracts exercise the log handler's wire size, search and continuation.
+        Assert.Contains("routes.Get(\"/api/logs\", request => OperationsService.ReadLogApi(request.Query))",
+            platform, StringComparison.Ordinal);
         Assert.Contains("server.client_disconnect", platform, StringComparison.Ordinal);
         Assert.Contains("[\"path\"] = request?.Path", platform, StringComparison.Ordinal);
         Assert.Contains("catch (DirectoryNotFoundException ex)", platform, StringComparison.Ordinal);
