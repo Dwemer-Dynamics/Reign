@@ -29,7 +29,10 @@ namespace ReignBeta.Platform.Integration
                     continue;
                 }
 
-                if (row["typeValue"] is JContainer || row["type"] is JContainer || row["command"] is JContainer)
+                if (row["type"] is JContainer || row["command"] is JContainer
+                    || !IsOptionalInt(row["typeValue"])
+                    || !IsOptionalFiniteFloat(row["acceptedDay"])
+                    || !IsOptionalFiniteFloat(row["executeAfterDays"]))
                 {
                     reject(index, id, "invalid_action_fields");
                     continue;
@@ -52,6 +55,21 @@ namespace ReignBeta.Platform.Integration
             }
 
             return actions;
+        }
+
+        // Match the scalar/string conversions used by ParseActionRecord, but
+        // reserve its defaults for missing or null wire fields.
+        private static bool IsOptionalInt(JToken? token)
+        {
+            return token == null || token.Type == JTokenType.Null
+                || int.TryParse(token.ToString(), out _);
+        }
+
+        private static bool IsOptionalFiniteFloat(JToken? token)
+        {
+            return token == null || token.Type == JTokenType.Null
+                || (float.TryParse(token.ToString(), out float value)
+                    && !float.IsNaN(value) && !float.IsInfinity(value));
         }
 
         private static string? ReadId(JObject row)

@@ -41,6 +41,45 @@ public sealed class ActionReliabilityContractTests
     }
 
     [Fact]
+    public void PollRejectsExplicitInvalidSelectorAndScheduleBeforeCreatingRecords()
+    {
+        var rows = JArray.Parse("""
+            [
+              {"actionId":"overflow","command":"fixture_command","typeValue":2147483648},
+              {"actionId":"legacy-missing","command":"fixture_command"},
+              {"actionId":"invalid-selector","command":"fixture_command","typeValue":"invalid"},
+              {"actionId":"object-delay","command":"fixture_command","executeAfterDays":{}},
+              {"actionId":"bad-accepted-day","command":"fixture_command","acceptedDay":"later"},
+              {"actionId":"legacy-null","command":"fixture_command","typeValue":null,"acceptedDay":null,"executeAfterDays":null},
+              {"actionId":"nonfinite-accepted","command":"fixture_command","acceptedDay":"NaN"},
+              {"actionId":"nonfinite-delay","command":"fixture_command","executeAfterDays":"Infinity"},
+              {"actionId":"legacy-strings","typeValue":"3","acceptedDay":"1","executeAfterDays":"2"},
+              {"actionId":"healthy","typeValue":3,"acceptedDay":1,"executeAfterDays":2}
+            ]
+            """);
+        var created = new List<string>();
+        var rejected = new List<(string? ActionId, string Reason)>();
+
+        var accepted = ReignActionPollRows.Read(rows, (_, id) =>
+        {
+            created.Add(id);
+            return id;
+        }, (_, id, reason) => rejected.Add((id, reason)));
+
+        Assert.Equal(new[] { "legacy-missing", "legacy-null", "legacy-strings", "healthy" }, created);
+        Assert.Equal(created, accepted);
+        Assert.Equal(new (string?, string)[]
+        {
+            ("overflow", "invalid_action_fields"),
+            ("invalid-selector", "invalid_action_fields"),
+            ("object-delay", "invalid_action_fields"),
+            ("bad-accepted-day", "invalid_action_fields"),
+            ("nonfinite-accepted", "invalid_action_fields"),
+            ("nonfinite-delay", "invalid_action_fields")
+        }, rejected);
+    }
+
+    [Fact]
     public void PollPreservesCallerCancellation()
     {
         var rows = new JArray(new JObject { ["actionId"] = "canceled" });
