@@ -153,7 +153,7 @@ namespace ReignBeta.Platform.Integration
                 {
                     // Rechecked before every progressive dispatch: a stale owner sends nothing more.
                     response = await PostOwnedJsonAsync("/events/social/turn", payload, owned).ConfigureAwait(false);
-                    await DeliverSocialEventRepliesAsync(response, session, playerText, turn, delivered, onReply, participantRequests,
+                    await DeliverSocialEventRepliesAsync(response, attendees, playerText, turn, delivered, onReply, participantRequests,
                         fence, requestOwner).ConfigureAwait(false);
                     if (response.Value<bool?>("ok") == true && response.Value<bool?>("hasMore") == true)
                     {
@@ -249,7 +249,7 @@ namespace ReignBeta.Platform.Integration
         }
 
         private static async Task DeliverSocialEventRepliesAsync(JObject response,
-            ReignSocialEventSession session, string playerText, ReignSocialEventTurnReply turn,
+            IReadOnlyList<Hero> attendees, string playerText, ReignSocialEventTurnReply turn,
             HashSet<string> delivered, Action<ReignEventReply> onReply, JArray participantRequests,
             RequestFence fence, Func<bool> requestOwner)
         {
@@ -288,12 +288,11 @@ namespace ReignBeta.Platform.Integration
                     if (speaker != null)
                     {
                         ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
-                        if (!string.IsNullOrWhiteSpace(reply.Text))
-                        {
-                            if (!IsDelimitedSpeechOnlyResponse(row))
-                                _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
-                            _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), playerText, "social_event");
-                        }
+                        if (!string.IsNullOrWhiteSpace(reply.Text) && !IsDelimitedSpeechOnlyResponse(row)
+                            && row["conversationExchange"]?["acceptedUnit"]?["privateExchange"]?.Value<bool?>("ok") != true)
+                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, attendees, reply.Text, "social_event");
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event", row,
+                            () => fence.IsCurrent() && RequestOwnerCurrent(requestOwner));
                     }
                     onReply?.Invoke(reply);
                 }).ConfigureAwait(false);

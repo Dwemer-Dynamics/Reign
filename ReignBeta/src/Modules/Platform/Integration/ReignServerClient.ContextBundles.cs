@@ -101,14 +101,16 @@ namespace ReignBeta.Platform.Integration
                 Stopwatch pullTimer = Stopwatch.StartNew();
                 JArray bundles = await ReignMainThread.InvokeAsync(() =>
                     BuildContextBundles(selectedPulls, speaker, participants, mode)).ConfigureAwait(false);
-                if (selectedPulls.OfType<JObject>().Any(x => string.Equals(x.Value<string>("id") ?? x.Value<string>("pullId"), "verify_world_history", StringComparison.OrdinalIgnoreCase)))
+                string playerText = payload.Value<string>("playerText") ?? string.Empty;
+                bool lookupOnly = LooksLikeWorldHistoryLookupQuestion(playerText);
+                // Group assertions are adjudicated after server-side audience projection and acceptance.
+                if ((lookupOnly || (mode != "party_chat" && mode != "social_event"))
+                    && selectedPulls.OfType<JObject>().Any(x => string.Equals(x.Value<string>("id") ?? x.Value<string>("pullId"), "verify_world_history", StringComparison.OrdinalIgnoreCase)))
                 {
                     Stopwatch historyTimer = Stopwatch.StartNew();
                     try
                     {
-                        string playerText = payload.Value<string>("playerText") ?? string.Empty;
                         float worldDay = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
-                        bool lookupOnly = LooksLikeWorldHistoryLookupQuestion(playerText);
                         JObject verification = lookupOnly
                             ? await ReignWorldHistoryClient.VerifyWorldHistoryAsync(playerText, string.Empty, speaker?.StringId ?? string.Empty,
                                 speaker?.Clan?.Kingdom?.StringId ?? speaker?.MapFaction?.StringId ?? string.Empty, worldDay,

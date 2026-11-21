@@ -67,23 +67,6 @@ namespace ReignBeta.Platform.Integration
             return string.IsNullOrWhiteSpace(reference) ? message : message + " Reference: " + reference.Trim();
         }
 
-        private static string PublicSpokenPlayerText(string text)
-        {
-            string source = text ?? string.Empty;
-            StringBuilder publicSpeech = new StringBuilder();
-            bool privateSpeech = false;
-            int cursor = 0;
-            foreach (Match action in Regex.Matches(source, @"\*([^*]+)\*", RegexOptions.Singleline))
-            {
-                if (!privateSpeech) publicSpeech.Append(source.Substring(cursor, action.Index - cursor));
-                privateSpeech = Regex.IsMatch(action.Groups[1].Value,
-                    @"\bwhisper(?:s|ed|ing)?\b", RegexOptions.IgnoreCase);
-                cursor = action.Index + action.Length;
-            }
-            if (!privateSpeech) publicSpeech.Append(source.Substring(cursor));
-            return publicSpeech.ToString();
-        }
-
         private static string FormatTimingSummary(JObject timing)
         {
             if (timing == null)
@@ -105,11 +88,33 @@ namespace ReignBeta.Platform.Integration
             return ReignServerEndpoint.BuildUrl(route);
         }
 
+        private static JObject BuildGroupHistoryContext(IEnumerable<Hero> attendees)
+        {
+            var player = Hero.MainHero;
+            var listeners = new JArray();
+            foreach (Hero listener in attendees.Where(hero => hero != null && hero != player).Distinct())
+                listeners.Add(new JObject
+                {
+                    ["heroStringId"] = listener.StringId,
+                    ["kingdomId"] = listener.Clan?.Kingdom?.StringId ?? listener.MapFaction?.StringId ?? string.Empty,
+                    ["skills"] = BuildGroupHistorySkills(listener),
+                    ["sceneRisk"] = BuildLieSceneRisk(player, listener)
+                });
+            return new JObject { ["claimantSkills"] = BuildGroupHistorySkills(player), ["listeners"] = listeners };
+        }
+
+        private static JObject BuildGroupHistorySkills(Hero hero) => hero == null ? null : new JObject
+        {
+            ["roguery"] = hero.GetSkillValue(DefaultSkills.Roguery),
+            ["charm"] = hero.GetSkillValue(DefaultSkills.Charm)
+        };
+
         private static JObject BuildSocialEventPayload(ReignSocialEventSession session, Hero speaker, string playerText)
         {
             SocialEventRecord record = session.Record;
             JArray attendees = new JArray();
-            foreach (Hero hero in record.GetAttendees())
+            var present = record.GetAttendees().ToList();
+            foreach (Hero hero in present)
             {
                 attendees.Add(BuildHeroProfile(hero));
             }
@@ -155,6 +160,7 @@ namespace ReignBeta.Platform.Integration
                 ["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false,
                 ["activeHeroIds"] = new JArray(session.ActiveHeroStringIds),
                 ["attendees"] = attendees,
+                ["groupHistoryContext"] = BuildGroupHistoryContext(present),
                 ["transcript"] = new JArray(session.RecentTranscriptLines ?? new List<string>()),
                 ["actionResolutionIndex"] = BuildActionResolutionIndex(
                     speaker,
@@ -233,6 +239,7 @@ namespace ReignBeta.Platform.Integration
                     .Where(id => !string.IsNullOrWhiteSpace(id))
                     .Distinct(StringComparer.OrdinalIgnoreCase)),
                 ["attendees"] = attendees,
+                ["groupHistoryContext"] = BuildGroupHistoryContext(activeHeroes),
                 ["transcript"] = new JArray(session.RecentTranscriptLines ?? new List<string>()),
                 ["groupTranscript"] = structuredTranscript,
                 ["partySpeakerIndex"] = speakerIndex,

@@ -41,10 +41,20 @@ namespace ReignBeta.WorldSimulation.Integration
             }).ConfigureAwait(false);
         }
 
-        internal static async Task<JObject> CheckWorldHistoryLieAsync(string claim, Hero claimant, Hero target, float worldDay, string timelineId, string mode)
+        internal static async Task<JObject> CheckWorldHistoryLieAsync(string claim, Hero claimant, Hero target,
+            float worldDay, string timelineId, string mode, string acceptedUnitId = null, Func<bool> requestOwner = null)
         {
             JObject payload = await ReignMainThread.InvokeAsync(() =>
             {
+                EnsureRequestOwner(requestOwner, "historical claim payload capture");
+                if (!string.IsNullOrWhiteSpace(acceptedUnitId))
+                    return new JObject
+                    {
+                        ["campaignId"] = GetCampaignId(), ["timelineId"] = timelineId ?? "main",
+                        ["claimantId"] = claimant?.StringId ?? string.Empty, ["targetId"] = target?.StringId ?? string.Empty,
+                        ["mode"] = mode ?? string.Empty, ["acceptedUnitId"] = acceptedUnitId
+                    };
+
                 var claimantSettlement = claimant?.CurrentSettlement;
                 var targetSettlement = target?.CurrentSettlement;
                 return new JObject
@@ -76,7 +86,7 @@ namespace ReignBeta.WorldSimulation.Integration
                     }
                 };
             }).ConfigureAwait(false);
-            return await PostJsonAsync("/world-history/lie-check", payload).ConfigureAwait(false);
+            return await PostOwnedJsonAsync("/world-history/lie-check", payload, requestOwner).ConfigureAwait(false);
         }
 
         internal static async Task<JObject> IngestWorldHistoryBatchAsync(string campaignId, string timelineId, float completeFromDay, JArray events, string generation, long epoch)

@@ -57,12 +57,14 @@ namespace ReignBeta.Characters.Integration
                     return new JObject { ["ok"] = false, ["error"] = "Local server is disabled." };
                 var request = (JObject)payload.DeepClone();
                 Hero speaker = null; var participants = new List<Hero>();
+                RequestFence fence = null;
                 Action<JObject> completeAction = null;
                 if (operation == "respond")
                 {
                     await ReignMainThread.InvokeAsync(() => {
                         if (GetCampaignId() != request.Value<string>("campaignId") || (ReignServices.WorldHistory?.TimelineId ?? "main") != request.Value<string>("timelineId"))
                             throw new InvalidOperationException("The campaign changed before this conversation turn.");
+                        fence = RequestFence.Capture();
                         var town = Settlement.Find(request.Value<string>("townId"));
                         var behavior = ReignServices.TavernHouse;
                         if (behavior == null || Hero.MainHero?.CurrentSettlement != town) throw new InvalidOperationException("The player is no longer at this town.");
@@ -107,8 +109,12 @@ namespace ReignBeta.Characters.Integration
                 }).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)
                     await ReignMainThread.InvokeAsync(() => {
-                        if (GetCampaignId() == request.Value<string>("campaignId") && (ReignServices.WorldHistory?.TimelineId ?? "main") == request.Value<string>("timelineId"))
-                            ApplyHeroEncyclopediaText(speaker, response.Value<string>("encyclopediaText") ?? "");
+                        bool CurrentTurn() => fence?.IsCurrent() == true
+                            && Hero.MainHero?.CurrentSettlement?.StringId == request.Value<string>("townId");
+                        if (!CurrentTurn()) return;
+                        ApplyHeroEncyclopediaText(speaker, response.Value<string>("encyclopediaText") ?? "");
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, Array.Empty<Hero>(),
+                            request.Value<string>("playerText"), "party_chat", response, CurrentTurn);
                     }).ConfigureAwait(false);
                 return response;
             }
