@@ -111,16 +111,20 @@ namespace ReignBeta.Court.Campaign
             }
             if (data.Value<bool?>("nativeActionStarted") == true && data.Value<string>("nativeOptionId") != option)
             { summary = "The accepted action is still completing; its terms cannot be replaced."; return false; }
+            bool effectCommitted = data.Value<bool?>("nativeEffectCommitted") == true;
+            if (effectCommitted && data.Value<string>("nativeOptionId") != option)
+            { summary = "The original judgment has already taken effect and must finish recording."; return false; }
             if (option == "refer") return StartInternationalReferral(matter, data, decision, out summary);
-            bool consensus = ReignInternationalDocketRules.RequiresForeignAcceptance(option,
-                data.Value<string>("remedy"), data.Value<bool?>("ransom") == true);
-            bool sovereignTerms = data.Value<bool?>("sovereignAuthorized") == true
-                || (data.Value<string>("kind") == "proposal" && data.Value<bool?>("counterProposed") != true);
-            string agreeingHeroId = decision.Value<string>("agreeingHeroId") ?? string.Empty;
-            if (consensus && !sovereignTerms && (decision.Value<bool?>("npcAccepted") != true
-                || !matter.Participants.Any(x => x.Role == "ambassador" && x.HeroId == agreeingHeroId)))
-            { summary = "The exact agreement still requires an explicit response from the foreign representative."; return false; }
+            string remedy = data.Value<string>("remedy");
+            bool unilateralGoodwill = option == "accept" && remedy == "goodwill" && data.Value<string>("kind") == "incident";
+            bool consensus = !unilateralGoodwill && ReignInternationalDocketRules.RequiresForeignAcceptance(
+                option, remedy, data.Value<bool?>("ransom") == true);
             JObject offeredTerms = ParseObject(offered.TermsJson);
+            // Court prose and older saved interpretation flags cannot establish consensus.
+            bool promotedOffer = data.Value<bool?>("replyPromoted") == true && data.Value<bool?>("sovereignAuthorized") == true
+                && option == (data.Value<string>("referredResolutionOption") ?? "accept");
+            if (!effectCommitted && (consensus || promotedOffer) && !HasExactSovereignOffer(matter, data, option, offeredTerms))
+            { summary = "Refer these exact terms for the foreign ruler's decision before confirming the agreement."; return false; }
             JObject requestedTerms = decision["terms"] as JObject;
             if (requestedTerms != null && requestedTerms.Properties().Any(p => offeredTerms[p.Name] == null || !JToken.DeepEquals(offeredTerms[p.Name], p.Value)))
             { summary = "Changed terms must be offered and accepted before they can be executed."; return false; }
@@ -129,11 +133,9 @@ namespace ReignBeta.Court.Campaign
             Hero paymentPayer = null, paymentRecipient = null;
             if (IsInternationalPaymentOption(data, option) && data.Value<bool?>("nativeEffectCommitted") != true
                 && !TryResolveInternationalPayment(data, option, offeredTerms, out paymentPayer, out paymentRecipient, out summary)) return false;
-            if (consensus && data.Value<bool?>("requiresSovereignReferral") == true)
+            if (consensus && !effectCommitted && data.Value<bool?>("requiresSovereignReferral") == true)
                 return StartInternationalReferral(matter, data, decision, out summary);
-            if (data.Value<bool?>("nativeEffectCommitted") == true && data.Value<string>("nativeOptionId") != option)
-            { summary = "The original judgment has already taken effect and must finish recording."; return false; }
-            if (data.Value<bool?>("nativeEffectCommitted") != true)
+            if (!effectCommitted)
             {
             if (option == "accept" && ((data["normalizedAction"] is JObject && data.Value<string>("remedy") == "proposal") || data.Value<string>("remedy") == "sign_trade_agreement"))
             {
@@ -212,15 +214,15 @@ namespace ReignBeta.Court.Campaign
             data["nativeOptionId"] = option;
             matter.PayloadJson = data.ToString(Formatting.None);
             }
-            CompleteInternationalCourtSettlement(matter, data, decision, option, gold, out summary);
+            CompleteInternationalCourtSettlement(matter, data, option, gold, out summary);
             ProcessInternationalCourtLife(CampaignTime.Now.ToDays);
             return true;
         }
 
         private void CompleteInternationalCourtSettlement(ReignCourtLifeMatter matter, JObject data,
-            JObject decision, string option, int gold, out string summary)
+            string option, int gold, out string summary)
         {
-            QueueInternationalRelations(matter, data, option, decision);
+            QueueInternationalRelations(matter, data, option);
             summary = option == "refuse" ? "The foreign request was refused." : option == "favor_domestic" ? "The ruler upheld the domestic noble's position."
                 : option == "favor_foreign" ? "The ruler upheld the foreign noble's position." : option == "compromise" ? "The accepted settlement was carried out."
                 : option == "compensate" ? gold + (data.Value<bool?>("extortion") == true ? " gold was paid to satisfy the foreign crown's demand." : " gold was paid in compensation.") : "The accepted terms were carried out.";
@@ -295,7 +297,7 @@ namespace ReignBeta.Court.Campaign
 
             data["nativeEffectCommitted"] = true;
             data["nativeReceipt"] = CourtNativeCompletionReceipt(stored);
-            CompleteInternationalCourtSettlement(matter, data, decision, "accept", 0, out string summary);
+            CompleteInternationalCourtSettlement(matter, data, "accept", 0, out string summary);
             List<ReignDocketHistoryRecord> history = EnsureRulerDocketState().History;
             if (!history.Any(x => x.RecordId == matter.ResolutionReceiptId))
                 history.Add(new ReignDocketHistoryRecord { RecordId = matter.ResolutionReceiptId,
@@ -339,7 +341,8 @@ namespace ReignBeta.Court.Campaign
             summary = "The exact terms are being sent to the represented ruler; no agreement has executed.";
             ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x => x.IsResident && x.OriginKingdomStringId == matter.KingdomId);
             if (posting == null) { summary = "The ambassador must be present before sending a referral."; return false; }
-            JObject candidate = data["candidate"] as JObject;
+            JObject previous = data["candidate"] as JObject;
+            JObject candidate = (JObject)previous?.DeepClone();
             ReignCourtLifeOption intended = matter.Options.FirstOrDefault(x => x.OptionId == (decision.Value<string>("optionId") == "refer"
                 ? decision.Value<string>("referralOptionId")
                 : decision.Value<string>("optionId")));
@@ -352,22 +355,52 @@ namespace ReignBeta.Court.Campaign
                 && !TryResolveInternationalPayment(data, intended.OptionId, exactTerms, out _, out _, out summary)) return false;
             data["referredResolutionOption"] = intended.OptionId;
             data["referredResolutionTerms"] = exactTerms.DeepClone();
-            if (candidate == null)
+            string remedy = data.Value<string>("remedy");
+            if (candidate == null || (remedy != "proposal" && remedy != "sign_trade_agreement"))
             {
-                string remedy = data.Value<string>("remedy");
                 JObject referralTerms = (JObject)exactTerms.DeepClone();
                 if (remedy != "sign_trade_agreement")
                 {
                     referralTerms["durationDays"] = 120;
                     referralTerms["isPublic"] = true;
-                    referralTerms["promise"] = "Accept this exact settlement of the court matter: " + DescribeInternationalTerms(exactTerms);
+                    JObject previousTerms = candidate?["terms"] as JObject;
+                    bool sameTerms = previousTerms != null
+                        && exactTerms.Properties().All(p => JToken.DeepEquals(p.Value, previousTerms[p.Name]));
+                    referralTerms["promise"] = (sameTerms ? previousTerms.Value<string>("promise") : null)
+                        ?? "Accept the exact terms of the proposed court settlement.";
                 }
                 candidate = new JObject { ["command"] = remedy == "sign_trade_agreement" ? remedy : "record_promise",
                     ["actorKingdomId"] = Clan.PlayerClan.Kingdom.StringId, ["targetKingdomId"] = matter.KingdomId,
-                    ["publicReason"] = matter.Summary, ["terms"] = referralTerms };
+                    ["publicReason"] = candidate?.Value<string>("publicReason")
+                        ?? "The ruler referred the exact terms of a court matter for a sovereign decision.",
+                    ["terms"] = referralTerms };
+            }
+            else if (!JToken.DeepEquals(candidate["terms"], exactTerms))
+            {
+                summary = "The saved diplomatic proposal no longer matches the chosen terms.";
+                return false;
             }
             candidate["actorKingdomStringId"] = candidate["actorKingdomStringId"] ?? candidate["actorKingdomId"];
             candidate["targetKingdomStringId"] = candidate["targetKingdomStringId"] ?? candidate["targetKingdomId"];
+            JObject savedReply = data["reply"] as JObject;
+            bool knownReply = MatchesInternationalReferral(matter, data, savedReply);
+            // Offer revisions can update candidate. Keep the sent body as the proof of replay.
+            JObject sent = data["sentReferralCandidate"] as JObject
+                ?? (knownReply ? ParseObject(savedReply.Value<string>("exact_terms_json")) : null);
+            bool replayLegacy = sent?.HasValues == true && sent["courtMatterId"] == null
+                && JToken.DeepEquals(sent, candidate);
+            if (!replayLegacy)
+            {
+                candidate["courtMatterId"] = matter.MatterId;
+                candidate["courtRulerId"] = data.Value<string>("foreignRulerId");
+                candidate["courtOptionId"] = intended.OptionId;
+            }
+            if (knownReply && JToken.DeepEquals(sent, candidate) && data.Value<bool?>("replyPromoted") == true
+                && savedReply.Value<string>("status") == "model_output_unusable")
+            {
+                summary = "The sovereign's decision was unavailable. Review materially revised terms or leave the matter pending.";
+                return false;
+            }
             data["referredCommand"] = candidate.Value<string>("command");
             if (!_internationalReferralInFlight.Add(matter.MatterId)) return false;
             matter.State = ReignCourtLifeMatterState.Deferred;
@@ -385,8 +418,15 @@ namespace ReignBeta.Court.Campaign
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     JObject data = ParseObject(matter.PayloadJson);
-                    if (response.Ok) { data["referralId"] = response.Raw.Value<string>("referralId"); data["referralDueDay"] = response.Raw.Value<double?>("dueDay");
-                        data["replyPromoted"] = false; data["candidate"] = candidate; }
+                    if (response.Ok)
+                    {
+                        data["referralId"] = response.Raw.Value<string>("referralId");
+                        data["referralTermsHash"] = response.Raw.Value<string>("termsHash");
+                        data["referralDueDay"] = response.Raw.Value<double?>("dueDay");
+                        data["replyPromoted"] = false;
+                        data["candidate"] = candidate;
+                        data["sentReferralCandidate"] = candidate.DeepClone();
+                    }
                     else { matter.State = ReignCourtLifeMatterState.Pending; data["referralError"] = response.Error; }
                     matter.PayloadJson = data.ToString(Formatting.None);
                     StateChanged?.Invoke();
@@ -400,28 +440,14 @@ namespace ReignBeta.Court.Campaign
             finally { await ReignMainThread.InvokeAsync(() => _internationalReferralInFlight.Remove(matter.MatterId)).ConfigureAwait(false); }
         }
 
-        private void QueueInternationalRelations(ReignCourtLifeMatter matter, JObject data, string option, JObject decision)
+        private void QueueInternationalRelations(ReignCourtLifeMatter matter, JObject data, string option)
         {
             string paidRecipient = (data["nativeReceipt"] as JObject)?.Value<string>("recipientId");
             bool foreignWins = ReignCourtPartyAcceptanceRules.ForeignSideBenefits(option, paidRecipient, data.Value<string>("domesticLordId"));
             int winner = ReignRulerDocketRules.NobleWinnerRelation(matter.Severity);
             string foreignId = data.Value<string>("foreignLordId");
             string domesticId = data.Value<string>("domesticLordId");
-            var acceptances = new Dictionary<string, int>(StringComparer.Ordinal);
-            ReignCourtLifeOption chosen = matter.Options.FirstOrDefault(x => x.OptionId == option);
-            bool exactAgreement = decision.Value<string>("optionId") == option && chosen != null
-                && JToken.DeepEquals(decision["acceptedTerms"], ParseCourtLifeJson(chosen.TermsJson));
-            if (exactAgreement && decision["acceptedPartyTiers"] is JObject recorded)
-                foreach (JProperty entry in recorded.Properties())
-                    if (entry.Value.Type == JTokenType.Integer && matter.Participants.Any(x => x.HeroId == entry.Name))
-                        acceptances[entry.Name] = entry.Value.Value<int>();
-            string agreeingHeroId = decision.Value<string>("agreeingHeroId");
-            if (exactAgreement && decision.Value<bool?>("npcAccepted") == true && !string.IsNullOrWhiteSpace(agreeingHeroId))
-                acceptances[agreeingHeroId] = decision.Value<int?>("acceptanceTier") ?? 0;
-            int acceptance = ReignCourtPartyAcceptanceRules.LosingPartyTier(foreignWins, domesticId,
-                matter.Participants.Where(x => x.Role == "ambassador").Select(x => x.HeroId), acceptances);
-            int loser = ReignRulerDocketRules.AcceptedLossRelation(ReignRulerDocketRules.NobleLoserRelation(matter.Severity),
-                acceptance);
+            int loser = ReignRulerDocketRules.NobleLoserRelation(matter.Severity);
             QueueInternationalRelation(matter, foreignId, foreignWins ? winner : loser);
             QueueInternationalRelation(matter, domesticId, foreignWins ? loser : winner);
             string rulerId = data.Value<string>("foreignRulerId");
