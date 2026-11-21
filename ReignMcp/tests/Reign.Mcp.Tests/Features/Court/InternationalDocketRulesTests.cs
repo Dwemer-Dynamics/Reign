@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Reign.Core.Contracts.Court;
 
 namespace Reign.Mcp.Tests.Features.Court;
@@ -76,6 +77,112 @@ public sealed class InternationalDocketRulesTests
     public void OnlyUnconditionalPrisonerReleaseIsAUnilateralAcceptDecision(
         string optionId, string remedy, bool ransom, bool expected)
         => Assert.Equal(expected, ReignInternationalDocketRules.RequiresForeignAcceptance(optionId, remedy, ransom));
+
+    [Fact]
+    public void UnusableSovereignResponseInThePersistedReferralIsTechnicallyUnavailable()
+    {
+        using var receipt = JsonDocument.Parse("""
+            {
+                "referral_id": "court_referral_1",
+                "status": "model_output_unusable",
+                "outcome": "format_failure",
+                "authoritative_receipt_json": "{\"technicalFailure\":true}"
+            }
+            """);
+        var persisted = receipt.RootElement;
+        Assert.Equal(ReignInternationalReplyDisposition.Unavailable,
+            ReignInternationalDocketRules.ReadSovereignReplyDisposition(
+                persisted.GetProperty("status").GetString()!, persisted.GetProperty("outcome").GetString()!, false));
+    }
+
+    [Theory]
+    [InlineData(null, null, "ruler", false)]
+    [InlineData(null, "", "ruler", false)]
+    [InlineData(null, " ", "ruler", false)]
+    [InlineData(null, "ruler", "ruler", true)]
+    [InlineData(null, "predecessor", "ruler", false)]
+    [InlineData("ruler", null, "ruler", false)]
+    [InlineData("ruler", "ruler", "ruler", true)]
+    [InlineData("predecessor", "ruler", "ruler", false)]
+    public void SovereignAssentRequiresTheHistoricalResponder(string frozen, string responder, string expected, bool valid)
+        => Assert.Equal(valid, ReignInternationalDocketRules.HasHistoricalSovereignResponder(frozen, responder, expected));
+
+    [Theory]
+    [InlineData("accepted_awaiting_court", "accept", true, ReignInternationalReplyDisposition.Accepted)]
+    [InlineData("accepted_awaiting_court", "accept", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("accepted_awaiting_court", "counter_accept", true, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("countered", "counter", true, ReignInternationalReplyDisposition.Countered)]
+    [InlineData("countered", "counter", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("refused", "refuse", false, ReignInternationalReplyDisposition.Refused)]
+    [InlineData("refused", "validation_failed", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("cancelled", "posting_ended", false, ReignInternationalReplyDisposition.Unavailable)]
+    public void PersistedSovereignReplyRequiresTheExactOutcomeAndAction(
+        string status, string outcome, bool hasNormalizedAction, ReignInternationalReplyDisposition expected)
+        => Assert.Equal(expected, ReignInternationalDocketRules.ReadSovereignReplyDisposition(status, outcome, hasNormalizedAction));
+
+    [Theory]
+    [InlineData("sign_trade_agreement", "sign_trade_agreement", "sign_trade_agreement", "DiplomacySignTradeAgreement", true)]
+    [InlineData("sign_trade_agreement", "sign_trade_agreement", "sign_trade_agreement", "DiplomacySignDefensivePact", false)]
+    [InlineData("sign_trade_agreement", "sign_defensive_pact", "sign_defensive_pact", "DiplomacySignDefensivePact", false)]
+    [InlineData("record_promise", "record_promise", "record_promise", "DiplomacyRecordPromise", true)]
+    [InlineData("record_promise", "ransom_package", "ransom_package", "DiplomacyRansomPackage", false)]
+    public void SovereignCounterKeepsTheFrozenCommandAndFixedNativeActionType(
+        string frozen, string authored, string normalized, string nativeType, bool valid)
+        => Assert.Equal(valid, ReignInternationalDocketRules.MatchesSovereignReplyAction(frozen, authored, normalized, nativeType));
+
+    [Theory]
+    [InlineData("1", true)]
+    [InlineData("365", true)]
+    [InlineData("366", false)]
+    [InlineData("0", false)]
+    [InlineData("30.0", false)]
+    [InlineData("\"30\"", false)]
+    public void TradeDurationRequiresOneMaterialIntegerInRange(string duration, bool valid)
+    {
+        var terms = new Dictionary<string, string> { ["durationDays"] = duration };
+        Assert.Equal(valid, ReignInternationalDocketRules.BindsCourtTradeDuration(terms));
+        terms["gold"] = "200";
+        Assert.False(ReignInternationalDocketRules.BindsCourtTradeDuration(terms));
+        Assert.False(ReignInternationalDocketRules.BindsCourtTradeDuration(new Dictionary<string, string>()));
+    }
+
+    [Fact]
+    public void ExactTermsPermitOnlyResolverAliasesMatchingTheBoundIdentities()
+    {
+        var authored = new Dictionary<string, string> { ["durationDays"] = "90" };
+        var aliases = new Dictionary<string, string> { ["fromHeroStringId"] = "\"ruler1\"",
+            ["targetHeroStringId"] = "\"ruler2\"", ["toHeroStringId"] = "\"ruler2\"" };
+        var normalized = new Dictionary<string, string>(aliases) { ["durationDays"] = "90" };
+
+        Assert.True(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        normalized["durationDays"] = "91";
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        normalized["durationDays"] = "90";
+        normalized["fromHeroStringId"] = "\"otherRuler\"";
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+        authored["fromHeroStringId"] = "\"ruler1\"";
+        normalized.Remove("fromHeroStringId");
+        Assert.False(ReignInternationalDocketRules.MatchesCourtNormalizedTerms(authored, normalized, aliases));
+    }
+
+    [Fact]
+    public void CaptiveCounterKeepsTheNamedCaptiveAndRansomMode()
+    {
+        var original = new Dictionary<string, string> { ["captiveId"] = "\"capt1\"", ["ransom"] = "true",
+            ["gold"] = "500", ["payerHeroId"] = "\"lord1\"", ["recipientHeroId"] = "\"lord2\"" };
+        var revised = new Dictionary<string, string>(original) { ["gold"] = "600" };
+        Assert.True(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["captiveId"] = "\"capt2\"";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised.Remove("captiveId");
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["captiveId"] = original["captiveId"];
+        revised["ransom"] = "false";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["ransom"] = original["ransom"];
+        revised["newCaptiveId"] = "\"capt2\"";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+    }
 
     [Fact]
     public void RulingForThePlayerActivelyReducesExistingForeignPressure()

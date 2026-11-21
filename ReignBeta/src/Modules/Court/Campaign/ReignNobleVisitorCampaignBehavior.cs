@@ -298,9 +298,10 @@ namespace ReignBeta.Court.Campaign
             return stay == null ? new JObject() : NobleVisitorContext(stay, Hero.MainHero, heroId);
         }
 
-        public bool RecordNobleVisitorInvitation(string matterId, string heroId, string turnId, string agreedWords, bool npcAccepted)
+        internal bool RecordNobleVisitorInvitationProposal(string matterId, string heroId, string turnId, string speaker, string quote)
         {
-            if (string.IsNullOrWhiteSpace(turnId) || string.IsNullOrWhiteSpace(agreedWords) || !npcAccepted) return false;
+            if (string.IsNullOrWhiteSpace(turnId) || string.IsNullOrWhiteSpace(quote)
+                || (speaker != "player" && speaker != "npc")) return false;
             NormalizeNobleVisitorState();
             ReignNobleVisitorStay stay = EnsureRulerDocketState().NobleVisitorStays.FirstOrDefault(x => x.MatterId == matterId
                 && !x.Departed && x.Arrived && string.IsNullOrEmpty(x.DepartureReason)
@@ -309,11 +310,14 @@ namespace ReignBeta.Court.Campaign
             if (stay == null || hero == null || !hero.IsAlive || hero.IsPrisoner || hero.Age < Math.Max(18, TaleWorlds.CampaignSystem.Campaign.Current?.Models.AgeModel.HeroComesOfAge ?? 18)) return false;
             string id = stay.StayId + "_invitation_" + heroId + "_" + turnId;
             if (stay.Invitations.Any(x => x.InvitationId == id)) return true;
+            string attribution = speaker == "player" ? "The ruler" : hero.Name.ToString();
+            string excerpt = attribution + " said: " + quote;
+            if (excerpt.Length > 1200) excerpt = excerpt.Substring(0, 1200);
             stay.Invitations.Add(new ReignNobleVisitorInvitation { InvitationId = id, HeroId = heroId, TurnId = turnId,
-                AgreedWords = agreedWords.Length > 1200 ? agreedWords.Substring(0, 1200) : agreedWords, NpcAccepted = true, CreatedDay = CurrentCourtLifeDay() });
+                AgreedWords = excerpt, NpcAccepted = false, CreatedDay = CurrentCourtLifeDay() });
             EnsureRulerDocketState().PendingMemoryJobs.Add(new ReignDocketMemoryJob { JobId = id, HeroId = heroId,
-                EventType = "noble_visitor_invitation", Summary = "During the court visit, a later conversation was agreed: " + agreedWords
-                    + " This is a remembered invitation only; it does not establish a completed private meeting or romantic consent.", WorldDay = CurrentDay() });
+                EventType = "noble_visitor_invitation_proposed",
+                Summary = "During the court visit, a private conversation was proposed. Agreement was unconfirmed. " + excerpt, WorldDay = CurrentDay() });
             StateChanged?.Invoke(); return true;
         }
 
@@ -328,7 +332,8 @@ namespace ReignBeta.Court.Campaign
                 ["romanceEligibleNow"] = IsNobleVisitorRomanticCandidate(FindHero(stay.CandidateHeroId), ruler),
                 ["members"] = new JArray(stay.Members.Select(m => new JObject { ["heroId"] = m.HeroId, ["name"] = m.Name, ["role"] = m.Role,
                     ["age"] = FindHero(m.HeroId)?.Age ?? 0, ["isFemale"] = FindHero(m.HeroId)?.IsFemale ?? false })),
-                ["agreedInvitations"] = new JArray(stay.Invitations.Where(i => heroId == null || i.HeroId == heroId).Select(i => JObject.FromObject(i))),
+                ["proposedInvitations"] = new JArray(stay.Invitations.Where(i => i.HeroId == heroId)
+                    .Select(i => new JObject { ["turnId"] = i.TurnId, ["words"] = i.AgreedWords })),
                 ["noAutomaticPrivateMeeting"] = true, ["noAutomaticRomanticConsent"] = true };
         }
 
