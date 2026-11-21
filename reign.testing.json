@@ -2036,7 +2036,9 @@
     {
       "id": "conversation-gauntlet",
       "entry": "ReignLiveTest gauntlet",
-      "risk": "mixed"
+      "risk": "mixed",
+      "legacyBarter": "Scripted non-wedding diplomatic barter is a validation rejection. Live positive cases cover supported gold and item trades, settlement purchases, wedding packages and standalone diplomacy. The provider-free legacy trade journal fixtures exercise partial failure, compensation and replay outside Bannerlord.",
+      "procedure": "docs/agent/testing/FEATURE_HARNESSES.md"
     },
     {
       "id": "sovereign-demeanor",

@@ -52,6 +52,7 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignTemporaryGuestCustodyPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Runtime\ReignWildernessEventCompletion.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignLegacyTradeJournal.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignSurrenderHandoff.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignWorldActionType.cs" />
   </ItemGroup>
