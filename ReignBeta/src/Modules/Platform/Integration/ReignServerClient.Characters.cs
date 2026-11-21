@@ -572,24 +572,30 @@ namespace ReignBeta.Platform.Integration
             }
             catch (Exception ex)
             {
-                if (portraitProduct && ex is OperationCanceledException
+                bool unknownOutcome = ex is ReignHttpTransport.UnknownMutationOutcomeException;
+                if (portraitProduct && (ex is OperationCanceledException || unknownOutcome)
                     && !string.IsNullOrWhiteSpace(generationOperationId))
                 {
                     ReignPortraitGenerationResult recovered = await RecoverPortraitGenerationAsync(
                         cacheKey, heroStringId, generationOperationId, 180000).ConfigureAwait(false);
                     if (recovered != null && recovered.Ok && recovered.ProductAccepted)
                     {
-                        ReignLog.Info("Recovered completed portrait operation after the generation response timed out operation="
+                        ReignLog.Info("Recovered completed portrait operation after the generation response was unavailable operation="
                             + generationOperationId + " hero=" + (heroStringId ?? ""));
                         return recovered;
                     }
-                    if (recovered != null && recovered.GenerationMayStillComplete)
+                    // A fast transport failure can precede registration on the
+                    // server. Keep the exact operation for the next status check.
+                    if (recovered != null && (recovered.GenerationMayStillComplete
+                        || (unknownOutcome && string.Equals(recovered.GenerationStatus, "not_found", StringComparison.OrdinalIgnoreCase))))
                     {
                         result.GenerationStatus = recovered.GenerationStatus;
                         result.GenerationMayStillComplete = true;
                     }
                 }
-                string error = BuildPortraitServerError(ex);
+                string error = unknownOutcome && result.GenerationMayStillComplete
+                    ? "The portrait request's outcome is unknown. Reign will check this operation before requesting another portrait."
+                    : BuildPortraitServerError(ex);
                 result.Error = error;
                 ReignLog.Warn("Portrait generation server call failed url=" + BuildUrl("/portraits/generate")
                     + " cacheKey=" + ShortLog(cacheKey)

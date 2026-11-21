@@ -1,16 +1,18 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ReignBeta.Platform.Integration
 {
     // The one HTTP transport to the local Reign server: pooled clients per route class,
-    // candidate endpoint failover with the shared circuit breaker, transport diagnostics,
+    // read-only candidate fallback with the shared circuit breaker, transport diagnostics,
     // response provenance and the pinned terminal-report channel. Readiness gates,
     // conversation preparation and module routes stay with the callers (ReignServerClient).
     internal static class ReignHttpTransport
@@ -34,7 +36,7 @@ namespace ReignBeta.Platform.Integration
         private static long _totalPostSerializationMs;
         private static long _peakPostSerializationMs;
 
-        internal static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360, bool allowAutoRedirect = true)
+        internal static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360, bool allowAutoRedirect = false)
         {
             // Bannerlord runs this assembly on .NET Framework, whose default HTTP
             // connection limit is only two. At accelerated campaign speed that
@@ -50,7 +52,16 @@ namespace ReignBeta.Platform.Integration
                 UseProxy = false,
                 AllowAutoRedirect = allowAutoRedirect
             };
-            return new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(handler)) { Timeout = TimeSpan.FromSeconds(Math.Max(2, timeoutSeconds)) };
+            return new HttpClient(CreateProtocolPipeline(handler)) { Timeout = TimeSpan.FromSeconds(Math.Max(2, timeoutSeconds)) };
+        }
+
+        internal static HttpMessageHandler CreateProtocolPipeline(HttpMessageHandler handler)
+        {
+            // Track the application request on either side of the protocol health
+            // check. The check's own GET has no marker and cannot submit the mutation.
+            var dispatch = new DispatchTrackingHandler(handler, DispatchStage.Application);
+            var protocol = new Reign.Core.Contracts.Platform.ReignProtocolHandler(dispatch);
+            return new DispatchTrackingHandler(protocol, DispatchStage.ProtocolCheck);
         }
 
         internal static bool IsPriorityServerRoute(string route)
@@ -136,46 +147,229 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
+        private enum RoutePolicy { Mutation, ReadWithFallback, ReadFromConfiguredEndpoint }
+
+        // Several GET routes write delivery state. Some reads also carry proof
+        // or status for an operation owned by one installation.
+        private static RoutePolicy ClassifyRoute(HttpMethod method, string route)
+        {
+            string path = RoutePath(route);
+            if (method == HttpMethod.Get)
+            {
+                switch (path)
+                {
+                    case "/api/gameplay-options":
+                    case "/court/patronage/public-history":
+                    case "/tests/live/run/status":
+                    case "/tests/npc-dialogue/status":
+                    case "/tests/party-dialogue/status":
+                    case "/verification/status":
+                    case "/verification/results":
+                        return RoutePolicy.ReadWithFallback;
+                    case "/gossip/status":
+                        // Readiness returns the clock epoch and nonces for /gossip/tick.
+                        return RoutePolicy.ReadFromConfiguredEndpoint;
+                    case "/diplomacy/events/next":
+                        return QueryValue(route, "publicHistory") == "true"
+                            ? RoutePolicy.ReadWithFallback : RoutePolicy.Mutation;
+                    case "/negotiations/query":
+                        return string.IsNullOrWhiteSpace(QueryValue(route, "negotiationId"))
+                            ? RoutePolicy.ReadWithFallback : RoutePolicy.Mutation;
+                }
+            }
+
+            if (method == HttpMethod.Post)
+            {
+                switch (path)
+                {
+                    case "/identity/query":
+                    case "/court/view":
+                    case "/correspondence/threads":
+                    case "/dialogue/history":
+                    case "/party-chat/history":
+                        return RoutePolicy.ReadWithFallback;
+                    case "/portraits/generate/status":
+                        // The generation operation ID is local to its originating backend.
+                        return RoutePolicy.ReadFromConfiguredEndpoint;
+                }
+            }
+
+            return RoutePolicy.Mutation;
+        }
+
+        private static string RoutePath(string route)
+        {
+            string path = route.Split(new[] { '?', '#' }, 2)[0];
+            return path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
+        }
+
+        private static string QueryValue(string route, string key)
+        {
+            // Match ingress: URL-decoded names, ordinal-ignore-case lookup and
+            // the last occurrence wins. Fragments are never sent to the server.
+            int query = route.IndexOf('?');
+            int fragment = route.IndexOf('#');
+            if (query < 0 || (fragment >= 0 && fragment < query)) return string.Empty;
+            string value = string.Empty;
+            string encoded = fragment < 0 ? route.Substring(query + 1) : route.Substring(query + 1, fragment - query - 1);
+            foreach (string part in encoded.Split('&'))
+            {
+                string[] field = part.Split(new[] { '=' }, 2);
+                if (string.Equals(WebUtility.UrlDecode(field[0]), key, StringComparison.OrdinalIgnoreCase))
+                    value = field.Length == 2 ? WebUtility.UrlDecode(field[1]) : string.Empty;
+            }
+            return value;
+        }
+
+        private enum DispatchStage { Preparing, Untracked, ProtocolCheck, Application }
+
+        private sealed class RequestAttempt
+        {
+            internal RequestAttempt(RoutePolicy policy) { MayMutate = policy == RoutePolicy.Mutation; }
+
+            internal bool MayMutate { get; }
+            internal DispatchStage Stage { get; set; }
+            internal bool MayHaveDispatched => Stage == DispatchStage.Application || Stage == DispatchStage.Untracked;
+
+            internal Task<HttpResponseMessage> SendAsync(HttpClient client, HttpRequestMessage request,
+                HttpCompletionOption completion = HttpCompletionOption.ResponseContentRead)
+            {
+                request.Properties.Add(DispatchMarker, this);
+                Stage = DispatchStage.Untracked;
+                return client.SendAsync(request, completion);
+            }
+        }
+
+        private const string DispatchMarker = "ReignHttpTransport.RequestAttempt";
+
+        private sealed class DispatchTrackingHandler : DelegatingHandler
+        {
+            private readonly DispatchStage _stage;
+
+            internal DispatchTrackingHandler(HttpMessageHandler inner, DispatchStage stage) : base(inner)
+            {
+                _stage = stage;
+            }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                if (request.Properties.TryGetValue(DispatchMarker, out object entry) && entry is RequestAttempt attempt)
+                    attempt.Stage = _stage;
+                return base.SendAsync(request, cancellationToken);
+            }
+        }
+
+        internal sealed class UnknownMutationOutcomeException : HttpRequestException
+        {
+            internal UnknownMutationOutcomeException(HttpMethod method, string routePath, Exception cause)
+                : base("unknown_outcome: Reign could not confirm the outcome of " + method + " " + routePath
+                    + ". " + cause.Message, cause) { }
+        }
+
+        private static async Task<T> WithCandidatesAsync<T>(HttpMethod method, string route,
+            Func<string, string, RequestAttempt, Task<T>> send, Action reportFailure)
+        {
+            string configured = ReignServerEndpoint.ConfiguredBaseUrl();
+            if (!Uri.TryCreate(configured, UriKind.Absolute, out Uri configuredUri)
+                || !IsHttpEndpoint(configuredUri))
+                throw new InvalidOperationException("The Reign server URL must be an HTTP endpoint without a query or fragment.");
+
+            // A route mounted below a configured path prefix has no reviewed
+            // fallback contract. Evaluate read replay on root endpoints only.
+            RoutePolicy policy = configuredUri.AbsolutePath == "/" ? ClassifyRoute(method, route) : RoutePolicy.Mutation;
+            // A version handshake or a cached read proves reachability, not common
+            // backend/campaign identity. Even localhost and 127.0.0.1 can route
+            // differently. Only the configured destination is authoritative for a
+            // mutation. Exact-operation replay belongs to origin-pinned protocols.
+            var candidates = policy == RoutePolicy.ReadWithFallback
+                ? ReignServerEndpoint.CandidateBaseUrls(configured)
+                    .Where(value => Uri.TryCreate(value, UriKind.Absolute, out Uri uri) && IsHttpEndpoint(uri) && uri.AbsolutePath == "/")
+                    .GroupBy(value => new Uri(value).GetLeftPart(UriPartial.Authority), StringComparer.OrdinalIgnoreCase)
+                    .Select(group => group.First())
+                : new[] { configured };
+            Exception lastFailure = null;
+            foreach (string baseUrl in candidates)
+            {
+                var attempt = new RequestAttempt(policy);
+                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
+                try
+                {
+                    return await send(baseUrl, url, attempt).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (!(ex is UnknownMutationOutcomeException) && attempt.Stage != DispatchStage.Preparing &&
+                    (ReignServerEndpoint.IsTransportFailure(ex) || ex is IOException || ex is OperationCanceledException))
+                {
+                    lastFailure = ex;
+                    if (attempt.MayMutate && attempt.MayHaveDispatched)
+                    {
+                        reportFailure();
+                        throw new UnknownMutationOutcomeException(method, RoutePath(route), ex);
+                    }
+                }
+            }
+
+            reportFailure();
+            throw lastFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+        }
+
+        private static bool IsHttpEndpoint(Uri uri) =>
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+            && uri.Query.Length == 0 && uri.Fragment.Length == 0;
+
+        private static async Task<string> ReadBodyAsync(HttpResponseMessage response)
+        {
+            if (response.Content == null) return string.Empty;
+            try { return await response.Content.ReadAsStringAsync().ConfigureAwait(false); }
+            catch (InvalidOperationException ex) when (ex.InnerException is ArgumentException)
+            {
+                throw new IOException("Reign could not decode the server reply.", ex);
+            }
+        }
+
+        private static JObject ParseResponse(HttpMethod method, string route, string body, RequestAttempt attempt)
+        {
+            try { return JObject.Parse(body); }
+            catch (JsonException ex) when (attempt.MayMutate)
+            {
+                throw new UnknownMutationOutcomeException(method, RoutePath(route), ex);
+            }
+        }
+
+        private static Exception HttpRejection(HttpMethod method, string route,
+            HttpResponseMessage response, string body, RequestAttempt attempt)
+        {
+            int status = (int)response.StatusCode;
+            var error = new InvalidOperationException("HTTP " + status + ": " + body);
+            // Failure after dispatch can be generated after a write, including by
+            // a gateway. Preserve definitive client refusals and their error text.
+            if (attempt.MayMutate && (status < 400 || status == 408 || status >= 500))
+                return new UnknownMutationOutcomeException(method, RoutePath(route), error);
+            return error;
+        }
+
         internal static async Task<JObject> GetJsonAsync(string route, HttpClient requestClient)
         {
             if (!ReignServerEndpoint.TryBeginRequest(out string unavailable, out long probeClaim))
-            {
                 throw new HttpRequestException(unavailable);
-            }
 
             try
             {
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+                return await WithCandidatesAsync(HttpMethod.Get, route, async (baseUrl, url, attempt) =>
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    try
+                    using (var request = new HttpRequestMessage(HttpMethod.Get, url))
+                    using (HttpResponseMessage response = await attempt.SendAsync(requestClient ?? Client, request).ConfigureAwait(false))
                     {
-                        using (HttpResponseMessage response = await (requestClient ?? Client).GetAsync(url).ConfigureAwait(false))
-                        {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                            }
+                        string body = await ReadBodyAsync(response).ConfigureAwait(false);
+                        ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
+                        if (!response.IsSuccessStatusCode)
+                            throw HttpRejection(HttpMethod.Get, route, response, body, attempt);
 
-                            return RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
-                        }
+                        return RecordResponseOrigin(route, baseUrl, url, response, ParseResponse(HttpMethod.Get, route, body, attempt));
                     }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        lastTransportFailure = ex;
-                    }
-                }
-
-                ReignServerEndpoint.ReportTransportFailure(probeClaim);
-                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+                }, () => ReignServerEndpoint.ReportTransportFailure(probeClaim)).ConfigureAwait(false);
             }
             finally
             {
-                // Unconditional matching release: a no-op once this operation's
-                // report settled its claim, never able to clear a newer probe.
                 ReignServerEndpoint.ReleaseRequest(probeClaim);
             }
         }
@@ -258,13 +452,13 @@ namespace ReignBeta.Platform.Integration
         }
 
         // One POST to the local server: pooled client per route class, candidate endpoint
-        // failover and the shared circuit breaker. isCurrentRequest and requestOwner are
+        // policy and the shared circuit breaker. isCurrentRequest and requestOwner are
         // rechecked before encoding and again before dispatch. encodeOffThread moves large
         // payload serialization off the game thread. onAccepted runs after a successful
         // response is parsed, before it is returned.
         internal static async Task<JObject> PostAsync(string route, JObject payload,
             Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner, bool encodeOffThread,
-            Func<JObject, Task> onAccepted)
+            Func<JObject, Task> onAccepted, HttpClient requestClient = null)
         {
             bool liveTestRoute = route.StartsWith(
                 "/tests/live/", StringComparison.OrdinalIgnoreCase);
@@ -283,45 +477,33 @@ namespace ReignBeta.Platform.Integration
 
             try
             {
-                HttpClient routeClient = liveTestRoute
+                HttpClient routeClient = requestClient ?? (liveTestRoute
                     ? LiveTestClient
                     : IsProviderBackedInteractiveRoute(route) ? InteractiveClient
-                    : IsPriorityServerRoute(route) ? PriorityClient : Client;
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+                    : IsPriorityServerRoute(route) ? PriorityClient : Client);
+                JObject result = await WithCandidatesAsync(HttpMethod.Post, route, async (baseUrl, url, attempt) =>
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
                     Stopwatch timer = Stopwatch.StartNew();
-                    ReignJsonHttpContent content = null;
-                    try
+                    if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
+                        throw new OperationCanceledException("Request belongs to a previous loaded save.");
+                    await EnsureRequestOwnerAsync(requestOwner, "request encoding").ConfigureAwait(false);
+                    using (ReignJsonHttpContent content = encodeOffThread
+                        ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
+                        : new ReignJsonHttpContent(payload ?? new JObject()))
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, url))
                     {
                         if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                            throw new OperationCanceledException("Request belongs to a previous loaded save.");
-                        await EnsureRequestOwnerAsync(requestOwner, "request encoding").ConfigureAwait(false);
-                        content = encodeOffThread
-                            ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
-                            : new ReignJsonHttpContent(payload ?? new JObject());
-                        using (content)
-                        using (HttpRequestMessage request = new HttpRequestMessage(
-                            HttpMethod.Post,
-                            url))
+                            throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
+                        await EnsureRequestOwnerAsync(requestOwner, "transport dispatch").ConfigureAwait(false);
+                        request.Content = content;
+                        try
                         {
-                            if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                                throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
-                            await EnsureRequestOwnerAsync(requestOwner, "transport dispatch").ConfigureAwait(false);
-                            request.Content = content;
-                            using (HttpResponseMessage response = await routeClient.SendAsync(
-                                request,
+                            using (HttpResponseMessage response = await attempt.SendAsync(routeClient, request,
                                 HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                             {
-                                string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                string body = await ReadBodyAsync(response).ConfigureAwait(false);
                                 timer.Stop();
-                                RecordStreamedPost(content);
-                                // Successful empty control-plane polls are intentionally
-                                // quiet. Logging several of them per second was itself a
-                                // large source of transient strings and file I/O during
-                                // unattended runs. Slow calls and all substantive routes
-                                // remain visible.
+                                // Successful empty control-plane polls are intentionally quiet.
                                 if (!IsHighFrequencyControlRoute(route)
                                     || timer.ElapsedMilliseconds >= 250
                                     || !response.IsSuccessStatusCode)
@@ -333,33 +515,27 @@ namespace ReignBeta.Platform.Integration
                                         + " serializationMs=" + content.SerializationDurationMs
                                         + " responseChars=" + body.Length);
                                 }
-                                // Live routes carry no claim (zero): explicit live
-                                // reachability success, as before.
+
                                 ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
                                 if (!response.IsSuccessStatusCode)
-                                {
-                                    throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                                }
+                                    throw HttpRejection(HttpMethod.Post, route, response, body, attempt);
 
-                                JObject parsedResponse = RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
-                                // The caller's acceptance work runs here, inside the attempt, exactly where
-                                // it ran before the transport was extracted.
-                                if (onAccepted != null) await onAccepted(parsedResponse).ConfigureAwait(false);
-                                return parsedResponse;
+                                return RecordResponseOrigin(route, baseUrl, url, response, ParseResponse(HttpMethod.Post, route, body, attempt));
                             }
                         }
+                        finally
+                        {
+                            RecordStreamedPost(content);
+                        }
                     }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        RecordStreamedPost(content);
-                        content?.Dispose();
-                        lastTransportFailure = ex;
-                    }
-                }
+                }, () =>
+                {
+                    if (!liveTestRoute) ReignServerEndpoint.ReportTransportFailure(probeClaim);
+                }).ConfigureAwait(false);
 
-                if (!liveTestRoute)
-                    ReignServerEndpoint.ReportTransportFailure(probeClaim);
-                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+                // A local callback failure cannot authorize a second HTTP request.
+                if (onAccepted != null) await onAccepted(result).ConfigureAwait(false);
+                return result;
             }
             finally
             {
@@ -371,54 +547,63 @@ namespace ReignBeta.Platform.Integration
         }
 
         // One answered direct POST: the HTTP status and body of the first candidate endpoint
-        // that answered, its base URL and request URL, and the final request URI after redirects.
+        // that answered, its base URL and request URL, and the observed final request URI.
         internal sealed class DirectJsonResponse
         {
             internal int StatusCode;
             internal bool IsSuccessStatusCode;
             internal string Body;
+            internal JObject Json;
             internal string BaseUrl;
             internal string RequestUrl;
             internal Uri FinalRequestUri;
             internal long ElapsedMilliseconds;
         }
 
-        // Direct JSON POST for callers that own their gating (Save Sync, the Court client):
-        // the caller's HttpClient, compact JSON as UTF-8 application/json, candidate endpoint
-        // failover, and the legacy (unclaimed) shared-breaker success/failure reports. No
-        // readiness gate, probe claim, log line or status check here; the caller adds those.
-        // Throws the last transport failure when no candidate answered.
-        internal static async Task<DirectJsonResponse> PostDirectJsonAsync(HttpClient client, string route, string json)
+        // Court observes the shared breaker. Save Sync owns its readiness gates
+        // and continues to report reachability without taking a recovery claim.
+        internal static async Task<DirectJsonResponse> PostDirectJsonAsync(HttpClient client, string route,
+            string json, bool checkAvailability = false)
         {
-            Exception last = null;
-            foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+            long probeClaim = 0;
+            if (checkAvailability && !ReignServerEndpoint.TryBeginRequest(out string unavailable, out probeClaim))
+                throw new HttpRequestException(unavailable);
+
+            try
             {
-                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                Stopwatch timer = Stopwatch.StartNew();
-                try
+                return await WithCandidatesAsync(HttpMethod.Post, route, async (baseUrl, url, attempt) =>
                 {
-                    using (StringContent content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
-                    using (HttpResponseMessage response = await client.PostAsync(url, content).ConfigureAwait(false))
+                    Stopwatch timer = Stopwatch.StartNew();
+                    using (var request = new HttpRequestMessage(HttpMethod.Post, url)
                     {
-                        string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                    })
+                    using (HttpResponseMessage response = await attempt.SendAsync(client, request).ConfigureAwait(false))
+                    {
+                        string body = await ReadBodyAsync(response).ConfigureAwait(false);
                         timer.Stop();
-                        ReignServerEndpoint.ReportSuccess(baseUrl);
+                        ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
+                        if (!response.IsSuccessStatusCode && HttpRejection(HttpMethod.Post, route, response, body, attempt)
+                            is UnknownMutationOutcomeException unknown)
+                            throw unknown;
                         return new DirectJsonResponse
                         {
                             StatusCode = (int)response.StatusCode,
                             IsSuccessStatusCode = response.IsSuccessStatusCode,
                             Body = body,
+                            Json = response.IsSuccessStatusCode ? ParseResponse(HttpMethod.Post, route, body, attempt) : null,
                             BaseUrl = baseUrl,
                             RequestUrl = url,
                             FinalRequestUri = response.RequestMessage?.RequestUri,
                             ElapsedMilliseconds = timer.ElapsedMilliseconds
                         };
                     }
-                }
-                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex)) { last = ex; }
+                }, () => ReignServerEndpoint.ReportTransportFailure(probeClaim)).ConfigureAwait(false);
             }
-            ReignServerEndpoint.ReportTransportFailure();
-            throw last ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+            finally
+            {
+                ReignServerEndpoint.ReleaseRequest(probeClaim);
+            }
         }
 
         private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
