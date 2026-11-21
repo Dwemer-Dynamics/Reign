@@ -92,6 +92,7 @@ public sealed partial class WorkspaceAccess
                 continue;
             }
 
+            var isCSharp = IsCSharpSource(path);
             var lineNumber = 0;
             foreach (var line in File.ReadLines(path))
             {
@@ -105,10 +106,11 @@ public sealed partial class WorkspaceAccess
                     truncated = true;
                     break;
                 }
+                var text = _redactor.RedactSourceLine(line, isCSharp);
                 matches.Add(new SourceMatch(
                     Path.GetRelativePath(_options.WorkspaceRoot, path),
                     lineNumber,
-                    _redactor.RedactText(line.Length > 500 ? line[..500] + "…" : line)));
+                    text.Length > 500 ? text[..500] + "…" : text));
             }
             if (truncated)
             {
@@ -127,9 +129,15 @@ public sealed partial class WorkspaceAccess
 
     public SourceDocument ReadSource(string relativePath, int startLine, int lineCount)
     {
+        return ReadLineWindow(relativePath, startLine, lineCount, sourceRedaction: true);
+    }
+
+    private SourceDocument ReadLineWindow(string relativePath, int startLine, int lineCount, bool sourceRedaction)
+    {
         startLine = InputGuard.Range(startLine, nameof(startLine), 1, 1_000_000);
         lineCount = InputGuard.Range(lineCount, nameof(lineCount), 1, 1000);
         var path = ResolveReadablePath(relativePath);
+        var isCSharp = IsCSharpSource(path);
         var builder = new StringBuilder();
         var current = 0;
         var included = 0;
@@ -147,7 +155,8 @@ public sealed partial class WorkspaceAccess
                 truncated = true;
                 break;
             }
-            var rendered = $"{current,6}: {_redactor.RedactText(line)}{Environment.NewLine}";
+            var text = sourceRedaction ? _redactor.RedactSourceLine(line, isCSharp) : _redactor.RedactText(line);
+            var rendered = $"{current,6}: {text}{Environment.NewLine}";
             if (Encoding.UTF8.GetByteCount(builder.ToString()) + Encoding.UTF8.GetByteCount(rendered)
                 > _options.MaxToolTextBytes)
             {
@@ -170,8 +179,13 @@ public sealed partial class WorkspaceAccess
 
     public string ReadDocumentation(string relativePath)
     {
-        var document = ReadSource(relativePath, 1, 1000);
+        var document = ReadLineWindow(relativePath, 1, 1000, sourceRedaction: false);
         return document.Text;
+    }
+
+    private static bool IsCSharpSource(string path)
+    {
+        return string.Equals(Path.GetExtension(path), ".cs", StringComparison.OrdinalIgnoreCase);
     }
 
     internal string ResolveReadablePath(string relativePath)
