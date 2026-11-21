@@ -65,6 +65,8 @@ namespace ReignBeta.Persistence.Campaign
 
         internal static bool IsNativeSaveInProgress => _nativeSaveInProgress;
 
+        internal string CurrentSavePointId => _savePointId ?? string.Empty;
+
         internal static JObject NativeSaveObservation()
         {
             lock (NativeSaveObservationGate)

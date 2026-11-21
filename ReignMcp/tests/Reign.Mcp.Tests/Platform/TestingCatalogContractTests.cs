@@ -1585,6 +1585,10 @@ public sealed class TestingCatalogContractTests
             Assert.StartsWith("ReignTest_WarEconomyYearOne_", state.GetProperty("currentSaveName").GetString());
             Assert.EndsWith("_Current", state.GetProperty("currentSaveName").GetString());
             Assert.True(state.GetProperty("currentSaveName").GetString()!.Length <= 64);
+            string alias = state.GetProperty("currentSaveName").GetString()!.ToLowerInvariant();
+            var error = Assert.Throws<InvalidOperationException>(() =>
+                service.Prepare("campaignA", "main", alias, "run-123", "War Economy Year One"));
+            Assert.Contains("protected baseline name", error.Message, StringComparison.Ordinal);
         }
         finally
         {
@@ -1620,7 +1624,7 @@ public sealed class TestingCatalogContractTests
 
         Assert.Contains("ValidateSnapshot(state, activeSnapshot, allowBaseline: false,\n            requireSafeSettlement: false);",
             source, StringComparison.Ordinal);
-        Assert.Contains("if (!snapshot.FindBoolean(\"safeSettlement\"))", source,
+        Assert.Contains("VerifyReloadedCurrent(state, snapshot, activeSnapshot);", source,
             StringComparison.Ordinal);
         Assert.Contains("if (requireSafeSettlement && !snapshot.FindBoolean(\"safeSettlement\"))",
             source, StringComparison.Ordinal);

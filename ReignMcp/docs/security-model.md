@@ -441,6 +441,21 @@ checkpoint, and advancement commands return bounded receipts while retaining
 full native evidence in their referenced live-test reports, preventing an
 oversized status payload from erasing a successful checkpoint receipt.
 Checkpoint restoration is destructive only to unsaved transient state:
+The guarded campaign-test service requires the protected baseline to differ
+from every checkpoint destination under case-insensitive comparison. New
+destinations must be vacant in the native save directory and Save Sync inventory.
+Save Sync checks the exact generated slot across ledgers of campaigns with local
+metadata and reports foreign occupancy without returning details of that campaign.
+The service durably journals an attempt before dispatch. Native rechecks the
+source, game instance and destination before SaveAs. The completed attempt binds
+the native file SHA-256 and a new finalized, available Save Sync point to the
+enrollment. Mutation checks require that evidence, including a native point and
+byte recheck for the active save. Rolling overwrite and cleanup independently
+recheck the native destination. An unresolved intent is reported and blocks
+further guarded mutation. Name matches and legacy summaries cannot establish
+ownership. The existing exact legacy Spymaster cleanup route retains its
+separate scope.
+
 `reign_restore_campaign_test_checkpoint` verifies the exact active owned
 Current save, campaign, timeline, and finalized Save Sync while intentionally
 allowing the unsaved pre-reload encounter/menu location to be unsafe. It
