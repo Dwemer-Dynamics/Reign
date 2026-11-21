@@ -10,7 +10,8 @@ public sealed class ConversationDiagnosticsTests
     [Fact]
     public async Task LogQueryPreservesFullTextAndFollowsTheReturnedCursor()
     {
-        string cursor = "2147483647." + new string('F', 64);
+        string cursor = "2147483647." + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes("fixture log anchor")));
+        const string traceId = "0123456789abcdef0123456789abcdef", payloadId = "fedcba9876543210fedcba9876543210";
         const string search = "body only & 雪\n🦊";
         var requests = new List<Uri>();
         using var http = new HttpClient(new Handler(request => {
@@ -18,12 +19,17 @@ public sealed class ConversationDiagnosticsTests
             Assert.Null(request.Content);
             requests.Add(request.RequestUri!);
             return Json(requests.Count == 1
-                ? JsonSerializer.Serialize(new { ok = true, entries = new[] { new { elided = true } }, hasMore = true, nextCursor = cursor })
+                ? JsonSerializer.Serialize(new { ok = true, entries = new[] { new { elided = true,
+                    relatedEvidence = new { route = "/api/diagnostics/conversations/payload", traceId, payloadId } } }, hasMore = true, nextCursor = cursor })
                 : """{"ok":true,"entries":[{"eventType":"older"}],"hasMore":false,"nextCursor":null}""");
         }));
         var api = new ReignApiClient(http, TestOptions.Create(), new SensitiveDataRedactor());
         var first = await RuntimeTools.QueryLogs(api, search, 1, eventType: "fixture", severity: "warning");
-        Assert.True(first.Data!.Value.GetProperty("entries")[0].GetProperty("elided").GetBoolean());
+        var entry = first.Data!.Value.GetProperty("entries")[0];
+        Assert.True(entry.GetProperty("elided").GetBoolean());
+        var evidence = entry.GetProperty("relatedEvidence");
+        Assert.Equal(traceId, evidence.GetProperty("traceId").GetString());
+        Assert.Equal(payloadId, evidence.GetProperty("payloadId").GetString());
         var next = first.Data.Value.GetProperty("nextCursor").GetString()!;
         Assert.Equal(cursor, next);
         var second = await RuntimeTools.QueryLogs(api, search, 1, cursor: next, eventType: "fixture", severity: "warning");
