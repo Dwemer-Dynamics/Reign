@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
+using Reign.Relationships;
+using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -355,11 +358,34 @@ namespace ReignBeta.Characters.World
             if (pending == null && !ReignActionValidator.IsStructuredAction(action)
                 && !string.Equals(action.AuthorizationMode, "dialogue_acceptance", StringComparison.OrdinalIgnoreCase))
                 StampResolvedCouple(action, first, second);
-            return result.WithEffect("marriage_completed", "hero", second.StringId, secondName,
+            result.WithEffect("marriage_completed", "hero", second.StringId, secondName,
                     "alreadyMarried=" + alreadyMarried + ";hero1=" + first.StringId + ";hero1Name=" + firstName
                     + ";hero2=" + second.StringId + ";hero2Name=" + secondName)
                 .WithChangedEntity("hero", first.StringId, firstName, "spouse_changed")
                 .WithChangedEntity("hero", second.StringId, secondName, "spouse_changed");
+            if (TryVerifiedDiplomaticMarriageFee(action, pending, out int fee))
+                result.WithEffect("diplomatic_marriage_settled", "action", action.ActionId, "",
+                    fee.ToString(CultureInfo.InvariantCulture));
+            return result;
+        }
+
+        private static bool TryVerifiedDiplomaticMarriageFee(ReignWorldActionRecord action, ReignWedding wedding, out int fee)
+        {
+            fee = -1;
+            if (wedding?.State != WeddingState.Completed || !wedding.Settled.Contains("native_marriage") || !IsNpcWorldAlliance(action))
+                return false;
+            var quote = ReignValueService.ParseTerms(action)["marriageTerms"] as JObject;
+            if (quote?.Value<int?>("policyVersion") != ArrangedMarriagePolicy.Version) return false;
+            fee = quote.Value<int?>("fee") ?? -1;
+            if (fee < 0) return false;
+            var payment = wedding.Consideration?.Clauses?.FirstOrDefault(clause => clause?.Id == "arranged_fee");
+            if (fee == 0) return payment == null;
+            return payment != null && payment.ActionId == "give.gold"
+                && payment.ActorId == quote.Value<string>("payerId") && payment.RecipientId == quote.Value<string>("payeeId")
+                && ReignActionService.Arg(payment, "quantity") == fee.ToString(CultureInfo.InvariantCulture)
+                && wedding.Settled.Contains(payment.Id)
+                && wedding.SettlementEvidence.TryGetValue(payment.Id, out JObject evidence)
+                && evidence?.Value<bool?>("verified") == true;
         }
 
         private static void StampResolvedCouple(ReignWorldActionRecord action, Hero first, Hero second)
