@@ -34,6 +34,8 @@ public sealed class ReignDeploymentSourceTests
     [Theory]
     [InlineData("unchanged", true)]
     [InlineData("source-fingerprint", false)]
+    [InlineData("historical-report", false)]
+    [InlineData("source-drift", false)]
     [InlineData("artifact-swap", false)]
     [InlineData("extra-artifact", false)]
     [InlineData("foreign-report", false)]
@@ -42,17 +44,22 @@ public sealed class ReignDeploymentSourceTests
     {
         using var fixture = new ReportFixture();
         var plan = fixture.Service.GetPlan("product", "Release", false);
+        var fingerprint = fixture.Fingerprint(plan);
         var report = fixture.BaseReport with
         {
             Plan = plan,
-            SourceFingerprintSha256 = fixture.Fingerprint(plan),
+            SourceFingerprintSha256 = fingerprint,
+            FinalSourceFingerprintSha256 = fingerprint,
             DeploymentArtifactHashes = new Dictionary<string, string>
             {
                 ["client/out/example.dll"] = ReignValidationService.FileSha256(fixture.ArtifactFile)
             }
         };
         string supplied = report.ReportPath;
-        if (change == "source-fingerprint") report = report with { SourceFingerprintSha256 = new string('0', 64) };
+        if (change == "source-fingerprint") report = report with
+            { SourceFingerprintSha256 = new string('0', 64), FinalSourceFingerprintSha256 = new string('0', 64) };
+        if (change == "historical-report") report = report with { FinalSourceFingerprintSha256 = null };
+        if (change == "source-drift") report = report with { FinalSourceFingerprintSha256 = new string('0', 64) };
         if (change == "artifact-swap") File.WriteAllText(fixture.ArtifactFile, "older DLL bytes");
         if (change == "extra-artifact") File.WriteAllText(Path.Combine(Path.GetDirectoryName(fixture.ArtifactFile)!, "extra.dll"), "unexpected");
         if (change == "artifact-escape") report = report with { DeploymentArtifactHashes = new Dictionary<string, string> { ["../outside"] = new string('0', 64) } };
@@ -70,6 +77,7 @@ public sealed class ReignDeploymentSourceTests
             string reason = change switch
             {
                 "source-fingerprint" => "current source",
+                "historical-report" or "source-drift" => "matching initial and final",
                 "artifact-swap" => "missing or changed",
                 "extra-artifact" => "extra or missing",
                 "foreign-report" => "Foreign/copied",

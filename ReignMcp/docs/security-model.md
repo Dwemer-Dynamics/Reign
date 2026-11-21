@@ -381,6 +381,8 @@ Portable complete campaign backup remains a Control Center operation rather than
 
 ## Build and verification effects
 
+`reign_build` and `reign_validate` share the machine-wide validation lease, build and restore permissions, repository hygiene audit, and the verification gates of the selected plan. A project ID can select dependencies and tests. The legacy response identifies the canonical report. Deployment still requires its own qualified report, artifact inventory and reviewed authority.
+
 An isolated build redirects deployable output to the configured workspace build root. It may update ordinary workspace-local `obj` intermediates, but it does not use the projects' normal final output folders or any installed module directory.
 
 Quick/offline CLI verification uses Reign's supported non-listening mode and

@@ -1925,7 +1925,9 @@
       "all"
     ],
     "productScope": "Core Reign runtime, shared contracts, server, client, Verification Lab, live-test controller, and Reign MCP. Independent editor, portrait-generator, and legacy-importer projects are excluded.",
-    "releaseScope": "The all profile is the ecosystem release profile: it covers every managed project and complete offline verification, and is reserved for releases and shared ownership/build/validator changes.",
+    "releaseScope": "The all profile is the ecosystem release profile. It covers every managed project and quick verification for releases and shared ownership, build or validator changes.",
+    "sourceQualification": "Ordinary validation hashes managed WPF .xaml bytes. SourceFingerprintSha256 records the initial tree and FinalSourceFingerprintSha256 records the tree after artifact hashing. Source drift or a failed final read yields Ok=false with SourceFingerprintError and retained diagnostics. Reuse and the current client deployment verifier require matching recorded fingerprints.",
+    "legacyBuild": "reign_build maps a discovered project ID to its project file's changed-path plan, using its containing core or tooling profile when a ready boundary plan omits the project. The core, product, tooling and all profiles retain their canonical scope. The same build, restore, shared lease, hygiene and verification gates apply. The response adds validationRunId, validationReportPath and reused to its original fields. ReignValidationServiceTests exercises concurrent callers, source drift, old receipts and compiled XAML edits.",
     "coordination": "The machine-wide lease (one per WSL validation lane, shared by every worktree) prevents overlapping validations and is enforced by the OS. Call reign_get_validation_status before acquisition; its snapshot is not a reservation. Supply requestingTaskId for exact task attribution. Continue independent work while busy, or reuse only a matching successful report.",
     "changedPathsRequired": true,
     "artifactDeploymentHook": {

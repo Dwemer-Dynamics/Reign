@@ -86,6 +86,9 @@ public sealed record BuildBatchResult
     public required string Configuration { get; init; }
     public required string ArtifactRoot { get; init; }
     public required IReadOnlyList<ProcessResult> Results { get; init; }
+    public bool Reused { get; init; }
+    public string? ValidationRunId { get; init; }
+    public string? ValidationReportPath { get; init; }
 }
 
 public sealed record ReignProject
@@ -204,6 +207,11 @@ public sealed record ValidationReport
     public required string ValidatorVersion { get; init; }
     public required string RunId { get; init; }
     public required string SourceFingerprintSha256 { get; init; }
+    public string? FinalSourceFingerprintSha256 { get; init; }
+    public string? SourceFingerprintError { get; init; }
+    internal bool HasMatchingSourceFingerprints => SourceFingerprintError is null
+        && !string.IsNullOrEmpty(FinalSourceFingerprintSha256)
+        && SourceFingerprintSha256 == FinalSourceFingerprintSha256;
     public required string StartedUtc { get; init; }
     public required string CompletedUtc { get; init; }
     public required bool Ok { get; init; }

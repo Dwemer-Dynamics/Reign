@@ -4,11 +4,11 @@ using System.Text.Json;
 
 namespace Reign.Mcp.Server;
 
-public sealed class ReignProcessRunner(
+public class ReignProcessRunner(
     ReignMcpOptions options,
     SensitiveDataRedactor redactor)
 {
-    public async Task<ProcessResult> RunAsync(
+    public virtual async Task<ProcessResult> RunAsync(
         string executable,
         IReadOnlyList<string> arguments,
         string workingDirectory,
