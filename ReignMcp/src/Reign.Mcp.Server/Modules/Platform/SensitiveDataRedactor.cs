@@ -13,7 +13,7 @@ public sealed partial class SensitiveDataRedactor
 
     // Source output masks the whole line, so stop at the first value character.
     private static readonly Regex SourceLabeledSecretPattern = new(
-        LabeledSecretPrefix + @"[^\s,;}]", RegexOptions.NonBacktracking);
+        LabeledSecretPrefix + @"[^\s,;}]", RegexOptions.NonBacktracking | RegexOptions.CultureInvariant);
 
     private static readonly HashSet<string> SensitiveKeys = new(StringComparer.OrdinalIgnoreCase)
     {

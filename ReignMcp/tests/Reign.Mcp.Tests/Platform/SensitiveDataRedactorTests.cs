@@ -91,6 +91,8 @@ public sealed class SensitiveDataRedactorTests
     [InlineData("JToken token = \"fixture-opaque\";")]
     [InlineData("token = fixtureOpaque;")]
     [InlineData("if (token == \"fixture-opaque\") return;")]
+    [InlineData("API_KEY=synthetic-fixture-value")]
+    [InlineData("CLIENT_SECRET=synthetic-fixture-value")]
     [InlineData("""// {"openRouterApiKey":"fixture\"suffix"}""")]
     [InlineData("""token = "unterminated-synthetic-value""")]
     [InlineData("JToken token = obj[key]; // Bearer syntheticFixtureToken")]
