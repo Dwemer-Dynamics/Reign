@@ -104,7 +104,7 @@ public sealed class InternationalDocketRulesTests
     [InlineData("ruler", null, "ruler", false)]
     [InlineData("ruler", "ruler", "ruler", true)]
     [InlineData("predecessor", "ruler", "ruler", false)]
-    public void SovereignAssentRequiresTheHistoricalResponder(string frozen, string responder, string expected, bool valid)
+    public void SovereignAssentRequiresTheHistoricalResponder(string? frozen, string? responder, string expected, bool valid)
         => Assert.Equal(valid, ReignInternationalDocketRules.HasHistoricalSovereignResponder(frozen, responder, expected));
 
     [Theory]
