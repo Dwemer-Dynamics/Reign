@@ -1081,6 +1081,12 @@ public sealed class CampaignTestService
         ApiEnvelope envelope = await _api.GetAsync("/api/save-sync/status",
             new Dictionary<string, string?> { ["campaignId"] = campaignId, ["checkpointSlot"] = destination },
             cancellationToken).ConfigureAwait(false);
+        return ParseCheckpointSlot(envelope, campaignId, destination);
+    }
+
+    internal static (JsonElement? Point, int Count) ParseCheckpointSlot(
+        ApiEnvelope envelope, string campaignId, string destination)
+    {
         if (!envelope.Ok || envelope.Data is not { ValueKind: JsonValueKind.Object } root
             || !IsTrue(root, "enabled") || !SameName(Text(root, "campaignId"), campaignId)
             || !SameName(Text(root, "checkpointSlot"), destination)
@@ -1088,13 +1094,14 @@ public sealed class CampaignTestService
             || foreign.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
             throw new InvalidOperationException("Save Sync could not prove checkpoint destination occupancy.");
 
-        int count = ExactCount(root, "uniqueStateCount");
+        int count = ExactCount(root, "registrationUniqueStateCount");
         int registrations = ExactCount(root, "registrationCount");
         if (foreign.GetBoolean() || registrations > 1)
             RequireVacant(destination, nativeHash: null, registered: true);
-        if (registrations == 0)
+        bool hasPoint = root.TryGetProperty("point", out var point);
+        if (registrations == 0 && !hasPoint)
             return (null, count);
-        if (!root.TryGetProperty("point", out var point) || point.ValueKind != JsonValueKind.Object
+        if (registrations != 1 || !hasPoint || point.ValueKind != JsonValueKind.Object
             || !SameName(NativeSlot(Text(point, "nativeSaveName")), destination))
             throw new InvalidOperationException("Save Sync did not return the registration for the exact checkpoint slot.");
         return (point, count);

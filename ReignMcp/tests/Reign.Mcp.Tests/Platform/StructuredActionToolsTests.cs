@@ -218,6 +218,66 @@ public sealed class StructuredActionToolsTests
         if (allowed) Assert.Single(StructuredActionTools.ParseCases(json));
         else Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(json));
     }
+    [Theory]
+    [InlineData("vacant")]
+    [InlineData("retained")]
+    [InlineData("foreign")]
+    [InlineData("duplicate")]
+    [InlineData("missing_point")]
+    [InlineData("unexpected_point")]
+    [InlineData("different_slot")]
+    [InlineData("wrong_campaign")]
+    [InlineData("wrong_slot")]
+    [InlineData("disabled")]
+    [InlineData("invalid_foreign")]
+    [InlineData("missing_capacity")]
+    public void CheckpointSlotResponseRequiresExactUnambiguousOccupancy(string scenario)
+    {
+        const string campaign = "campaign";
+        const string slot = "ReignTest_Inventory_Current";
+        var data = new Dictionary<string, object?>
+        {
+            ["enabled"] = true, ["campaignId"] = campaign, ["checkpointSlot"] = slot,
+            ["foreignRegistration"] = false, ["registrationCount"] = 0,
+            ["registrationUniqueStateCount"] = 2
+        };
+        switch (scenario)
+        {
+            case "retained":
+                data["registrationCount"] = 1;
+                data["point"] = new { nativeSaveName = " reigntest_inventory_current.SAV " };
+                break;
+            case "foreign": data["foreignRegistration"] = true; break;
+            case "duplicate": data["registrationCount"] = 2; break;
+            case "missing_point": data["registrationCount"] = 1; break;
+            case "unexpected_point": data["point"] = new { nativeSaveName = slot }; break;
+            case "different_slot":
+                data["registrationCount"] = 1;
+                data["point"] = new { nativeSaveName = "ReignTest_Other_Current" };
+                break;
+            case "wrong_campaign": data["campaignId"] = "other"; break;
+            case "wrong_slot": data["checkpointSlot"] = "ReignTest_Other_Current"; break;
+            case "disabled": data["enabled"] = false; break;
+            case "invalid_foreign": data["foreignRegistration"] = "false"; break;
+            case "missing_capacity": data.Remove("registrationUniqueStateCount"); break;
+        }
+        var envelope = new ApiEnvelope
+        {
+            Ok = true, Endpoint = "/api/save-sync/status", RetrievedUtc = "2026-11-20T12:00:00Z",
+            Data = JsonSerializer.SerializeToElement(data)
+        };
+        if (scenario is "vacant" or "retained")
+        {
+            var (point, count) = CampaignTestService.ParseCheckpointSlot(envelope, campaign, slot);
+            Assert.Equal(2, count);
+            Assert.Equal(scenario == "retained", point.HasValue);
+        }
+        else
+        {
+            Assert.Throws<InvalidOperationException>(() => CampaignTestService.ParseCheckpointSlot(envelope, campaign, slot));
+        }
+    }
+
     private static CampaignCheckpointReceipt TestCheckpoint(CampaignTestState state, string name) =>
         new(new CampaignCheckpointAttempt(Guid.NewGuid().ToString("N"), state.RunId, state.CampaignId,
             state.TimelineId, state.BaselineSaveName, name, state.BaselineSaveName, "",
