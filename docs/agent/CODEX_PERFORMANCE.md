@@ -24,7 +24,7 @@ The persisted Codex bank is `settings.codexOptions` with schema `reign-codex-opt
 
 The defaults are deliberately off. The existing flat reasoning values remain the legacy/non-Codex settings. When Codex is selected, the visible reasoning controls edit the Codex bank; leaving Codex restores the unsaved legacy values. A save must send the captured legacy values back to the flat fields and send the Codex values under `codexOptions`, so changing Codex reasoning cannot rewrite another provider's settings.
 
-Fast mode changes the requested processing tier only. It does not choose a model, change reasoning effort, shorten dialogue, change the response contract, or bypass repair/finalization. An unsupported tier may be reported as Standard on the same model. The UI explains that Fast mode can increase usage and does not promise an end-to-end speedup.
+Fast mode changes the requested processing tier only. Model selection, reasoning effort, the response contract, and finalization are determined separately. An unsupported tier may be reported as Standard on the same model. The UI explains that Fast mode can increase usage and does not promise an end-to-end speedup.
 
 The six independent experiment switches are:
 
@@ -37,7 +37,7 @@ The six independent experiment switches are:
 | `reuseThreads` | Reuse short ordinary-conversation threads only while identity, visibility, state, model, reasoning, Fast mode, and schema remain compatible. |
 | `asyncThreadCleanup` | Return a validated result before bounded deletion of inactive Reign-owned threads completes. |
 
-Unknown or customized contracts use the legacy request path. A switch being enabled does not remove semantic validation, action authority checks, repair passes, acceptance markers, or finalization.
+Unknown or customized contracts use the legacy request path. Ordinary individual and group/event dialogue use a single generation pass for authored speech. Separate deterministic checks cover response format, action authority, source eligibility for durable records, and atomic acceptance and replay.
 
 ## Model catalog and verification
 
