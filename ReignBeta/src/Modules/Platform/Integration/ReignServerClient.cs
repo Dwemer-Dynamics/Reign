@@ -113,75 +113,48 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        public static async Task<List<ReignWorldActionRecord>> FetchActionCommandsAsync()
+        internal static async Task<List<ReignWorldActionRecord>> FetchActionCommandsAsync(RequestFence fence)
         {
-            List<ReignWorldActionRecord> results = new List<ReignWorldActionRecord>();
-            try
+            ReignBetaSettings settings = ReignBetaSettings.Instance;
+            if (settings != null && (!settings.UseLocalServer || !settings.ReceiveServerActionCommands))
             {
-                ReignBetaSettings settings = ReignBetaSettings.Instance;
-                if (settings != null && (!settings.UseLocalServer || !settings.ReceiveServerActionCommands))
-                {
-                    return results;
-                }
+                return new List<ReignWorldActionRecord>();
+            }
 
-                string route = "/actions/next?campaignId=" + Uri.EscapeDataString(GetCampaignId()) + "&limit=10";
-                JObject response = await GetJsonAsync(route).ConfigureAwait(false);
-                if (response.Value<bool?>("ok") != true)
-                {
-                    return results;
-                }
+            string campaignId = GetCampaignId();
+            string route = "/actions/next?campaignId=" + Uri.EscapeDataString(campaignId) + "&limit=10";
+            JObject response = await GetJsonAsync(route).ConfigureAwait(false);
+            if (response?["ok"]?.Type != JTokenType.Boolean || response.Value<bool>("ok") != true
+                || response["campaignId"]?.Type != JTokenType.String || response.Value<string>("campaignId") != campaignId
+                || !(response["actions"] is JArray actions))
+                throw new InvalidOperationException("Invalid server action poll response for the requested campaign.");
 
-                JArray actions = response["actions"] as JArray;
-                if (actions == null)
+            return await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!fence.IsCurrentActionPoll())
                 {
-                    return results;
+                    ReignLog.Warn("Dropped server action poll from an earlier loaded campaign scope.");
+                    return new List<ReignWorldActionRecord>();
                 }
 
                 string origin = ResponseOrigin(response) ?? string.Empty;
-                foreach (JToken token in actions)
+                return ReignActionPollRows.Read(actions, (row, id) =>
                 {
-                    JObject obj = token as JObject;
-                    ReignWorldActionRecord record = ParseActionRecord(obj);
-                    if (record != null && record.Type != ReignWorldActionType.Unknown)
-                    {
-                        record.ImportOrigin = origin;
-                        if (IsStaleUndeliveredAction(obj))
-                        {
-                            ReignLog.Warn("Rejected stale server action " + record.ActionId + " type=" + record.Type + " correlationId=" + ReadString(obj, "correlationId", ""));
-                            await ReportActionAsync(record, "expired", "Undelivered action exceeded the six-hour delivery window.").ConfigureAwait(false);
-                            continue;
-                        }
-                        results.Add(record);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Warn("Local server action poll failed: " + ex.Message);
-            }
+                    ReignWorldActionRecord record = ParseActionRecord(row, id);
+                    if (record == null || record.Type == ReignWorldActionType.Unknown
+                        || !Enum.IsDefined(typeof(ReignWorldActionType), record.Type)) return null;
+                    if (float.IsNaN(record.ExecuteAfterDay) || float.IsInfinity(record.ExecuteAfterDay)
+                        || float.IsNaN(record.AcceptedDay) || float.IsInfinity(record.AcceptedDay))
+                        throw new FormatException("Non-finite campaign day.");
 
-            return results;
-        }
+                    record.ImportOrigin = origin;
+                    record.ImportFence = fence;
+                    return record;
+                }, (index, id, reason) => ReignLog.Warn("Rejected server action poll row index=" + index
+                    + " action=" + (id == null ? "(unavailable)" : id.Substring(0, Math.Min(id.Length, 128)))
+                    + " reason=" + reason));
 
-        private static bool IsStaleUndeliveredAction(JObject obj)
-        {
-            string correlationId = ReadString(obj, "correlationId", "");
-            if (string.IsNullOrWhiteSpace(correlationId))
-            {
-                return false;
-            }
-
-            string[] parts = correlationId.Split('-');
-            foreach (string part in parts)
-            {
-                if (part.Length == 13 && long.TryParse(part, out long unixMs))
-                {
-                    long ageMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - unixMs;
-                    return ageMs > 6L * 60L * 60L * 1000L;
-                }
-            }
-
-            return false;
+            }).ConfigureAwait(false);
         }
 
         public static async Task ReportActionAsync(ReignWorldActionRecord action, string status, string message, ReignActionResult result = null)
@@ -681,13 +654,17 @@ namespace ReignBeta.Platform.Integration
                 && string.Equals(_campaignId, GetCampaignId(), StringComparison.Ordinal)
                 && string.Equals(_timelineId, CurrentTimeline(), StringComparison.Ordinal);
 
+            internal bool IsCurrentActionPoll() => !ReignSaveSyncCoordinator.IsAlignmentPending && IsCurrent()
+                && string.Equals(SharedActivityGeneration, ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty,
+                    StringComparison.Ordinal);
+
             private static string InitializationGeneration() =>
                 ReignCampaignInitializationGate.Snapshot().Value<string>("generationId") ?? string.Empty;
 
             private static string CurrentTimeline() => ReignServices.WorldHistory?.TimelineId ?? "main";
         }
 
-        internal static ReignWorldActionRecord ParseActionRecord(JObject obj)
+        internal static ReignWorldActionRecord ParseActionRecord(JObject obj, string pollActionId = null)
         {
             if (obj == null)
             {
@@ -697,7 +674,7 @@ namespace ReignBeta.Platform.Integration
             float now = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
             ReignWorldActionRecord action = new ReignWorldActionRecord
             {
-                ActionId = ReadString(obj, "actionId", ReadString(obj, "serverActionId", Guid.NewGuid().ToString("N"))),
+                ActionId = pollActionId ?? ReadString(obj, "actionId", ReadString(obj, "serverActionId", Guid.NewGuid().ToString("N"))),
                 Source = ReadString(obj, "source", "server_llm_or_manual"),
                 ActorHeroStringId = ReadString(obj, "actorHeroStringId", ReadString(obj, "actorHeroId", "")),
                 ActorKingdomStringId = ReadString(obj, "actorKingdomStringId", ReadString(obj, "actorKingdomId", "")),
