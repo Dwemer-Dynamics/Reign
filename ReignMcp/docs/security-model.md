@@ -448,6 +448,8 @@ from every checkpoint destination under case-insensitive comparison. New
 destinations must be vacant in the native save directory and Save Sync inventory.
 Save Sync checks the exact generated slot across ledgers of campaigns with local
 metadata and reports foreign occupancy without returning details of that campaign.
+Campaign identity is case-sensitive. If a recovery fence prevents proving slot
+occupancy, the lookup refuses guarded checkpoint operations for that shared slot.
 The service durably journals an attempt before dispatch. Native rechecks the
 source, game instance and destination before SaveAs. The completed attempt binds
 the native file SHA-256 and a new finalized, available Save Sync point to the
