@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 using Reign.Core.Contracts.Platform;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 
 namespace ReignBeta.WorldSimulation.Runtime
@@ -18,10 +19,13 @@ namespace ReignBeta.WorldSimulation.Runtime
         public const string PromptRule = "Bannerlord Reign calendar: one year is 126 campaign days; there are four seasons, each lasting 31.5 days. Every character ages at this same 126-day-per-year rate. Never use the native 84-day year or 21-day season.";
 
         private static readonly object Gate = new object();
-        private static ReignCalendarState _state;
-        private static string _campaignId;
-        private static bool _ready;
+        private static ReignCalendarStore _store;
+        private static WeakReference<TaleWorlds.CampaignSystem.Campaign> _owner;
         private static bool _dirty;
+
+        private static ReignCalendarState CurrentState =>
+            _store != null && _owner.TryGetTarget(out var owner) && ReferenceEquals(owner, TaleWorlds.CampaignSystem.Campaign.Current)
+                ? _store.State : null;
 
         public static bool IsReady
         {
@@ -29,7 +33,7 @@ namespace ReignBeta.WorldSimulation.Runtime
             {
                 lock (Gate)
                 {
-                    return _ready && TaleWorlds.CampaignSystem.Campaign.Current != null;
+                    return CurrentState != null;
                 }
             }
         }
@@ -38,15 +42,24 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                _ready = false;
-                _campaignId = ReignCampaignIdentity.CurrentCampaignId();
-                _state = LoadState() ?? CreateStateFromNativeCalendar();
-                _state.AgeAnchors = _state.AgeAnchors ?? new Dictionary<string, ReignAgeAnchor>(StringComparer.OrdinalIgnoreCase);
+                if (CurrentState != null) return;
+                Reset();
+                var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                string campaignId = campaign?.UniqueGameId?.Trim();
+                var save = ReignSaveSyncCampaignBehavior.Instance;
+                if (!ReignSaveSyncCampaignBehavior.IsDurableCampaignId(campaignId) || save == null
+                    || !ReignSaveSyncCoordinator.IsReadyForCampaign(campaignId))
+                    throw new InvalidOperationException("The native campaign identity and Save Sync alignment must be ready before loading its calendar.");
+                var store = ReignCalendarStore.Open(StatePath(campaignId), campaignId, save.CanCreateCalendar,
+                    save.RegisteredCalendarSha256, () => CreateStateFromNativeCalendar(campaignId));
+                var state = store.State;
+                bool needsPublish = store.PublishedSha256 == null;
 
                 double now = CampaignTime.Now.ToDays;
+                state.ValidateTimeline(CampaignTime.Never.ToDays, now, DaysPerYear);
                 foreach (Hero hero in Hero.AllAliveHeroes)
                 {
-                    if (hero == null || string.IsNullOrWhiteSpace(hero.StringId) || _state.AgeAnchors.ContainsKey(hero.StringId))
+                    if (hero == null || string.IsNullOrWhiteSpace(hero.StringId) || state.AgeAnchors.ContainsKey(hero.StringId))
                     {
                         continue;
                     }
@@ -54,17 +67,18 @@ namespace ReignBeta.WorldSimulation.Runtime
                     float nativeAge = hero.Age;
                     if (nativeAge >= 0f && nativeAge < 200f)
                     {
-                        _state.AgeAnchors[hero.StringId] = new ReignAgeAnchor { Day = now, Age = nativeAge };
-                        _dirty = true;
+                        state.AgeAnchors[hero.StringId] = new ReignAgeAnchor { Day = now, Age = nativeAge };
+                        needsPublish = true;
                     }
                 }
 
-                _ready = true;
-                SaveIfDirty(true);
-                ReignLog.Info("Reign calendar initialized campaign=" + _campaignId
+                if (needsPublish) store.Publish();
+                _owner = new WeakReference<TaleWorlds.CampaignSystem.Campaign>(campaign);
+                _store = store;
+                ReignLog.Info("Reign calendar initialized campaign=" + campaignId
                     + " daysPerYear=" + DaysPerYear.ToString("0")
                     + " daysPerSeason=" + DaysPerSeason.ToString("0.0")
-                    + " ageAnchors=" + _state.AgeAnchors.Count + ".");
+                    + " ageAnchors=" + state.AgeAnchors.Count + ".");
             }
         }
 
@@ -72,20 +86,21 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                if (!_ready || _state == null || hero == null || string.IsNullOrWhiteSpace(hero.StringId) || TaleWorlds.CampaignSystem.Campaign.Current == null)
+                var state = CurrentState;
+                if (state == null || hero == null || string.IsNullOrWhiteSpace(hero.StringId))
                 {
                     return engineAge;
                 }
 
-                if (!_state.AgeAnchors.TryGetValue(hero.StringId, out ReignAgeAnchor anchor))
+                if (!state.AgeAnchors.TryGetValue(hero.StringId, out ReignAgeAnchor anchor))
                 {
-                    if (engineAge < 0f || engineAge >= 200f)
+                    if (!(engineAge >= 0f && engineAge < 200f))
                     {
                         return engineAge;
                     }
 
                     anchor = new ReignAgeAnchor { Day = CampaignTime.Now.ToDays, Age = engineAge };
-                    _state.AgeAnchors[hero.StringId] = anchor;
+                    state.AgeAnchors[hero.StringId] = anchor;
                     _dirty = true;
                 }
 
@@ -95,8 +110,7 @@ namespace ReignBeta.WorldSimulation.Runtime
                     endDay = Math.Min(endDay, hero.DeathDay.ToDays);
                 }
 
-                double adjusted = anchor.Age + ((endDay - anchor.Day) / DaysPerYear);
-                return (float)Math.Max(0d, Math.Min(200d, adjusted));
+                return anchor.AgeAt(endDay, DaysPerYear);
             }
         }
 
@@ -104,8 +118,8 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                if (!_ready || _state == null || hero == null || string.IsNullOrWhiteSpace(hero.StringId)
-                    || TaleWorlds.CampaignSystem.Campaign.Current == null)
+                var state = CurrentState;
+                if (state == null || hero == null || string.IsNullOrWhiteSpace(hero.StringId))
                     return;
 
                 // Explicit native age edits must replace the migration anchor as well as the
@@ -113,9 +127,9 @@ namespace ReignBeta.WorldSimulation.Runtime
                 float age = birthDay.ElapsedYearsUntilNow;
                 if (float.IsNaN(age) || float.IsInfinity(age) || age < 0f || age >= 200f)
                     return;
-                _state.AgeAnchors[hero.StringId] = new ReignAgeAnchor { Day = CampaignTime.Now.ToDays, Age = age };
+                state.AgeAnchors[hero.StringId] = new ReignAgeAnchor { Day = CampaignTime.Now.ToDays, Age = age };
                 _dirty = true;
-                SaveIfDirty(false);
+                Flush();
             }
         }
 
@@ -124,9 +138,10 @@ namespace ReignBeta.WorldSimulation.Runtime
             lock (Gate)
             {
                 day = 0;
-                if (!_ready || _state == null) return false;
-                day = _state.CalendarDayAnchor + (time.ToDays - _state.NativeDayAnchor);
-                return !double.IsNaN(day) && !double.IsInfinity(day);
+                var state = CurrentState;
+                if (state == null) return false;
+                day = state.CalendarDayAt(time.ToDays);
+                return ReignCalendarState.HasRepresentableYear(day, DaysPerYear);
             }
         }
 
@@ -135,8 +150,10 @@ namespace ReignBeta.WorldSimulation.Runtime
             lock (Gate)
             {
                 time = CampaignTime.Never;
-                if (!_ready || _state == null || double.IsNaN(day) || double.IsInfinity(day)) return false;
-                double nativeDay = _state.NativeDayAnchor + (day - _state.CalendarDayAnchor);
+                var state = CurrentState;
+                if (state == null || double.IsNaN(day) || double.IsInfinity(day)) return false;
+                double nativeDay = state.NativeDayAt(day);
+                if (!(Math.Abs(nativeDay) < CampaignTime.Never.ToDays)) return false;
                 // Days(float) also multiplies in single precision. Preserve the anchor through the
                 // native millisecond factory so half-day season boundaries do not drift a day in UI.
                 time = CampaignTime.Milliseconds((long)Math.Round(nativeDay * CampaignTime.Days(1f).ToMilliseconds));
@@ -153,12 +170,14 @@ namespace ReignBeta.WorldSimulation.Runtime
                 season = 0;
                 dayOfSeason = 0;
                 weekOfSeason = 0;
-                if (!_ready || _state == null)
+                var state = CurrentState;
+                if (state == null)
                 {
                     return false;
                 }
 
-                double totalDays = _state.CalendarDayAnchor + (time.ToDays - _state.NativeDayAnchor);
+                double totalDays = state.CalendarDayAt(time.ToDays);
+                if (!ReignCalendarState.HasRepresentableYear(totalDays, DaysPerYear)) return false;
                 year = FloorDiv(totalDays, DaysPerYear);
                 double withinYear = PositiveModulo(totalDays, DaysPerYear);
                 dayOfYear = (int)Math.Floor(withinYear);
@@ -184,12 +203,13 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                if (!_ready || _state == null || Math.Abs(years) < 200f)
+                var state = CurrentState;
+                if (state == null || Math.Abs(years) < 200f)
                 {
                     return CampaignTime.Days((float)(years * DaysPerYear));
                 }
 
-                double nativeDay = _state.NativeDayAnchor + ((years * DaysPerYear) - _state.CalendarDayAnchor);
+                double nativeDay = state.NativeDayAt(years * DaysPerYear);
                 return CampaignTime.Days((float)nativeDay);
             }
         }
@@ -198,7 +218,21 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                SaveIfDirty(false);
+                if (CurrentState == null || !_dirty) return;
+                try { PublishDirty(); }
+                catch (Exception ex) { ReignLog.Warn("Reign calendar state save failed: " + ex.Message); }
+            }
+        }
+
+        internal static string FlushForSavePoint(string campaignId)
+        {
+            lock (Gate)
+            {
+                if (CurrentState == null || !string.Equals(campaignId, _store.State.CampaignId, StringComparison.Ordinal))
+                    throw new InvalidOperationException("The current campaign calendar is unavailable for Save Sync.");
+                if (_dirty) PublishDirty();
+                else _store.VerifyPublished();
+                return _store.PublishedSha256;
             }
         }
 
@@ -206,14 +240,15 @@ namespace ReignBeta.WorldSimulation.Runtime
         {
             lock (Gate)
             {
-                SaveIfDirty(false);
-                _ready = false;
-                _state = null;
-                _campaignId = null;
+                // Both native load and Save Sync rollback may have just replaced the sidecar.
+                // The previous in-memory state no longer owns that file.
+                _store = null;
+                _owner = null;
+                _dirty = false;
             }
         }
 
-        private static ReignCalendarState CreateStateFromNativeCalendar()
+        private static ReignCalendarState CreateStateFromNativeCalendar(string campaignId)
         {
             double nativeDay = CampaignTime.Now.ToDays;
             int nativeYear = CampaignTime.Now.GetYear;
@@ -222,56 +257,22 @@ namespace ReignBeta.WorldSimulation.Runtime
             return new ReignCalendarState
             {
                 Version = 1,
-                CampaignId = _campaignId,
+                CampaignId = campaignId,
                 NativeDayAnchor = nativeDay,
                 CalendarDayAnchor = (nativeYear * DaysPerYear) + (nativeDayOfYear * 1.5d) + dayFraction,
                 AgeAnchors = new Dictionary<string, ReignAgeAnchor>(StringComparer.OrdinalIgnoreCase)
             };
         }
 
-        private static ReignCalendarState LoadState()
+        private static void PublishDirty()
         {
-            try
-            {
-                string path = StatePath();
-                if (!File.Exists(path))
-                {
-                    return null;
-                }
-
-                ReignCalendarState state = JsonConvert.DeserializeObject<ReignCalendarState>(File.ReadAllText(path));
-                return state != null && state.Version == 1 ? state : null;
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Warn("Reign calendar state load failed: " + ex.Message);
-                return null;
-            }
+            _store.Publish();
+            _dirty = false;
         }
 
-        private static void SaveIfDirty(bool force)
+        private static string StatePath(string campaignId)
         {
-            if (_state == null || (!force && !_dirty))
-            {
-                return;
-            }
-
-            try
-            {
-                string path = StatePath();
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
-                File.WriteAllText(path, JsonConvert.SerializeObject(_state, Formatting.Indented));
-                _dirty = false;
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Warn("Reign calendar state save failed: " + ex.Message);
-            }
-        }
-
-        private static string StatePath()
-        {
-            string folder = ReignCampaignIdentity.SafePathSegment(_campaignId, "unknown");
+            string folder = ReignCampaignIdentity.SafePathSegment(campaignId, "unknown");
             string dataRoot = ReignInstallation.TryLoadCurrent()?.DataRoot
                 ?? Path.Combine(BasePath.Name, "Modules", "ReignBeta", "server", "app", "data");
             return Path.Combine(dataRoot, "campaigns", folder, "world", "calendar.json");
@@ -297,21 +298,6 @@ namespace ReignBeta.WorldSimulation.Runtime
                 case 2: return "Autumn";
                 default: return "Winter";
             }
-        }
-
-        private sealed class ReignCalendarState
-        {
-            public int Version { get; set; }
-            public string CampaignId { get; set; }
-            public double NativeDayAnchor { get; set; }
-            public double CalendarDayAnchor { get; set; }
-            public Dictionary<string, ReignAgeAnchor> AgeAnchors { get; set; }
-        }
-
-        private sealed class ReignAgeAnchor
-        {
-            public double Day { get; set; }
-            public float Age { get; set; }
         }
     }
 }
