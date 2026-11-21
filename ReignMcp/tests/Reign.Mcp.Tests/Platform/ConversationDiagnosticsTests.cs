@@ -8,6 +8,46 @@ namespace Reign.Mcp.Tests;
 public sealed class ConversationDiagnosticsTests
 {
     [Fact]
+    public async Task LogQueryPreservesFullTextAndFollowsTheReturnedCursor()
+    {
+        string cursor = "2147483647." + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes("fixture log anchor")));
+        const string traceId = "0123456789abcdef0123456789abcdef", payloadId = "fedcba9876543210fedcba9876543210";
+        const string search = "body only & 雪\n🦊";
+        var requests = new List<Uri>();
+        using var http = new HttpClient(new Handler(request => {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Null(request.Content);
+            requests.Add(request.RequestUri!);
+            return Json(requests.Count == 1
+                ? JsonSerializer.Serialize(new { ok = true, entries = new[] { new { elided = true,
+                    relatedEvidence = new { route = "/api/diagnostics/conversations/payload", traceId, payloadId } } }, hasMore = true, nextCursor = cursor })
+                : """{"ok":true,"entries":[{"eventType":"older"}],"hasMore":false,"nextCursor":null}""");
+        }));
+        var api = new ReignApiClient(http, TestOptions.Create(), new SensitiveDataRedactor());
+        var first = await RuntimeTools.QueryLogs(api, search, 1, eventType: "fixture", severity: "warning");
+        var entry = first.Data!.Value.GetProperty("entries")[0];
+        Assert.True(entry.GetProperty("elided").GetBoolean());
+        var evidence = entry.GetProperty("relatedEvidence");
+        Assert.Equal(traceId, evidence.GetProperty("traceId").GetString());
+        Assert.Equal(payloadId, evidence.GetProperty("payloadId").GetString());
+        var next = first.Data.Value.GetProperty("nextCursor").GetString()!;
+        Assert.Equal(cursor, next);
+        var second = await RuntimeTools.QueryLogs(api, search, 1, cursor: next, eventType: "fixture", severity: "warning");
+        Assert.False(second.Data!.Value.GetProperty("hasMore").GetBoolean());
+        Assert.Equal("/api/logs", second.Endpoint);
+        Assert.All(requests, uri => {
+            Assert.Equal("/api/logs", uri.AbsolutePath);
+            Assert.Contains("search=" + Uri.EscapeDataString(search), uri.Query);
+            Assert.Contains("eventType=fixture", uri.Query);
+            Assert.Contains("severity=warning", uri.Query);
+            Assert.Contains("limit=1", uri.Query);
+        });
+        Assert.Contains("cursor=" + cursor, requests[1].Query);
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => RuntimeTools.QueryLogs(api, cursor: new string('a', 76)));
+        Assert.Equal(2, requests.Count);
+    }
+
+    [Fact]
     public async Task ToolsOnlyReadBoundedRetainedEvidence()
     {
         var requests = new List<Uri>();

@@ -1515,6 +1515,16 @@
     "isolation": "Exact-artifact non-listening CLI, injected provider responses, GUID-owned response_recovery_test_ campaign in ReignValidation with finally cleanup. No real providers, installed settings, visible runtime, native time, baseline saves or historical transcript changes. Full-capture private campaign text is not checked into public fixtures.",
     "acceptance": "Canonical changed Release Tier 3, artifact-bound architecture/prompt/structured-action/drinking coverage and self-contained Linux artifact. Live provider willingness, truncation frequency and native display remain separate acceptance after authorized deployment. Never infer a drink or NPC consent from incomplete JSON or private summaries."
   },
+  "operationalLogQuery": {
+    "tool": "reign_query_logs",
+    "route": "GET /api/logs",
+    "maxEntryBytes": 16384,
+    "maxResponseBytes": 262144,
+    "procedure": "docs/agent/testing/CAMPAIGN_AND_RUNTIME.md",
+    "privacy": "Full-text search covers the complete credential-redacted row after private conversation references are removed. Entries expose bounded operational metadata. Elided rows may carry exact related evidence identifiers.",
+    "continuation": "Keep the same source and filters. nextCursor pins the next match across appends. A replaced anchor or server restart requires a fresh first page.",
+    "coverage": "Isolated quick contracts.log_page_* fixtures, MCP GET forwarding and the Control Center browser contract exercise oversized first rows, escaped and Unicode text, both budgets, retention and continuation."
+  },
   "conversationDiagnostics": {
     "schema": "reign-conversation-diagnostics-v1",
     "suite": "interaction_architecture",
@@ -2026,7 +2036,9 @@
     {
       "id": "conversation-gauntlet",
       "entry": "ReignLiveTest gauntlet",
-      "risk": "mixed"
+      "risk": "mixed",
+      "legacyBarter": "Scripted non-wedding diplomatic barter is a validation rejection. Live positive cases cover supported gold and item trades, settlement purchases, wedding packages and standalone diplomacy. The provider-free legacy trade journal fixtures exercise partial failure, compensation and replay outside Bannerlord.",
+      "procedure": "docs/agent/testing/FEATURE_HARNESSES.md"
     },
     {
       "id": "sovereign-demeanor",

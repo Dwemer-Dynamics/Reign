@@ -637,19 +637,10 @@ namespace ReignBeta.WorldSimulation.Campaign
             AddLiveCase(cases, "trade_buy_armor", "Trade package armor purchase", actor, "I will pay you 5000 denars for your best armor.", ReignWorldActionType.RegularTradePackage);
             AddLiveCase(cases, "complex_trade_sell_grain_horses", "Complex trade: player grain and horses for gold", actor, "I will sell you 50 grain and 4 horses for 1800 denars.", ReignWorldActionType.RegularTradePackage, true);
             AddLiveCase(cases, "complex_trade_buy_grain_horses", "Complex trade: NPC grain and horses for gold", actor, "Sell me 40 grain and 3 horses for 2200 denars.", ReignWorldActionType.RegularTradePackage, true);
-            if (context.PrisonerHero != null)
-            {
-                AddLiveCase(cases, "trade_prisoner_ransom", "Trade package prisoner ransom", actor, "I will pay you 20000 denars for the prisoner " + context.PrisonerHero.Name + ".", ReignWorldActionType.RegularTradePackage);
-                AddLiveCase(cases, "complex_prisoner_gold_grain_package", "Complex diplomatic package: prisoner for gold and grain", ruler, "Accept this diplomatic package: I will pay you 12000 denars and send 50 grain for the release of prisoner " + context.PrisonerHero.Name + " and a public non-aggression promise.", ReignWorldActionType.DiplomacyPackage, true);
-            }
-            else
-            {
-                AddLiveCase(cases, "trade_buy_grain", "Trade package grain purchase", actor, "I will pay you 300 denars for 50 grain.", ReignWorldActionType.RegularTradePackage);
-            }
+            AddLiveCase(cases, "trade_buy_grain", "Trade package grain purchase", actor, "I will pay you 300 denars for 50 grain.", ReignWorldActionType.RegularTradePackage);
 
             AddLiveCase(cases, "trade_agreement", "Trade agreement", ruler, "Let us sign a trade agreement between our kingdoms.", ReignWorldActionType.DiplomacySignTradeAgreement);
             AddLiveCase(cases, "complex_marriage_dowry_horses", "Complex diplomatic package: marriage dowry with horses", ruler, "Accept a compound marriage alliance: one of your family members marries into my clan, and I will pay you 12000 denars plus 6 horses as the dowry.", ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_alliance_gold_grain_horses", "Complex diplomatic package: alliance for resources", ruler, "Accept this alliance package: I give your kingdom 15000 denars, 80 grain, and 5 horses as the price for a public alliance.", ReignWorldActionType.DiplomacyPackage, true);
             AddLiveCase(cases, "marriage_alliance_plain", "Marriage alliance plain", ruler, "Make a marriage alliance between your clan and mine.", ReignWorldActionType.PoliticsMarriageAlliance, true);
             AddLiveCase(cases, "non_aggression", "Non-aggression pact", ruler, "Agree to a non-aggression pact with my kingdom.", ReignWorldActionType.DiplomacySignNonAggressionPact);
             AddLiveCase(cases, "alliance", "Alliance", ruler, "Accept an alliance between our kingdoms.", ReignWorldActionType.DiplomacySignAlliance);
@@ -738,20 +729,6 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ? "Accept a compound marriage alliance: one eligible member of your family marries an eligible member of mine, and I will pay you 12000 denars plus 6 horses as the dowry."
                 : "Accept a compound marriage alliance where " + namedMarriageHero.Name + " specifically marries an eligible member of my clan, and I will pay you 12000 denars plus 6 horses as the dowry.";
             AddLiveCase(cases, "complex_mcm_marriage_dowry", "Named real marriage with gold and horse dowry", ruler, marriagePrompt, ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_mcm_alliance_player_assets", "Alliance bought with player goods", ruler, "Accept this alliance package: I give your kingdom 15000 denars, 20 tools, 15 hardwood, and 4 horses as the price for a public alliance.", ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_mcm_alliance_npc_assets", "Alliance bought with NPC goods", ruler, "Accept an alliance package where you give my kingdom 9000 denars, 10 linen, 8 velvet, and 3 horses as the price for our public alliance.", ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_mcm_nonaggression_player_assets", "Non-aggression bought with player resources", ruler, "Accept this diplomatic package: I give you 7000 denars, 12 charcoal, 10 hides, and 2 horses in exchange for a public non-aggression pact.", ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_mcm_nonaggression_npc_assets", "Non-aggression bought with NPC resources", ruler, "Accept a diplomatic package where you give me 6000 denars, 15 pottery, 12 fur, and 2 horses in exchange for our non-aggression pact.", ReignWorldActionType.DiplomacyPackage, true);
-            AddLiveCase(cases, "complex_mcm_trade_treaty_assets", "Trade treaty with varied goods", ruler, "Accept this diplomatic package: I give you 5000 denars, 15 meat, 12 felt, and 2 horses, and our kingdoms sign a public trade agreement.", ReignWorldActionType.DiplomacyPackage, true);
-
-            if (context.PrisonerHero != null)
-            {
-                AddLiveCase(cases, "complex_mcm_prisoner_package", "Prisoner release with gold and trade goods", ruler, "Accept this diplomatic package: I pay you 12000 denars and send 25 planks plus 10 tools for the release of prisoner " + context.PrisonerHero.Name + " and a public non-aggression promise.", ReignWorldActionType.DiplomacyPackage, true);
-            }
-            else
-            {
-                AddLiveCase(cases, "complex_mcm_fallback_package", "Fallback alliance resource package", ruler, "Accept this diplomatic package: I give you 8000 denars, 20 iron ore, 12 charcoal, and 3 horses as the price for a public alliance.", ReignWorldActionType.DiplomacyPackage, true);
-            }
             return cases.Take(LiveDialogueBatchSize).ToList();
         }
 
@@ -774,7 +751,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 items.Add(DefaultItems.Grain);
             }
 
-            int bundleCount = 4;
+            int bundleCount = 7;
             int bundleSize = Math.Max(1, (int)Math.Ceiling(items.Count / (double)bundleCount));
             List<List<LiveDialogueItemTerm>> bundles = items
                 .Select((item, index) => new { item, index })
@@ -945,14 +922,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                 case "complex_trade_buy_grain_horses":
                     options = new[] { fallback, "Sell me 40 grain and 3 horses for 2200 denars.", "I will pay you 2200 denars for 40 grain and 3 horses." };
                     break;
-                case "complex_prisoner_gold_grain_package":
-                    options = new[] { fallback, "Accept a package where I pay 12000 denars and 50 grain for the prisoner's release plus a non-aggression promise.", "I will give you 12000 denars and 50 grain in exchange for releasing the prisoner and promising non-aggression." };
-                    break;
                 case "complex_marriage_dowry_horses":
                     options = new[] { fallback, "Accept a marriage alliance: your family member marries into my clan, and I pay 12000 denars plus 6 horses as dowry.", "Seal a marriage alliance with my clan in exchange for 12000 denars and 6 horses as dowry." };
-                    break;
-                case "complex_alliance_gold_grain_horses":
-                    options = new[] { fallback, "Accept an alliance package where I give you 15000 denars, 80 grain, and 5 horses.", "Make a public alliance in exchange for 15000 denars, 80 grain, and 5 horses from my stores." };
                     break;
                 case "marriage_alliance_plain":
                     options = new[] { fallback, "Seal a marriage alliance between your clan and mine.", "Join our clans through a formal marriage alliance." };

@@ -189,7 +189,7 @@ to duplicate every evolving input parameter.
 | `reign_get_capabilities` | Report enforced configuration and boundaries |
 | `reign_get_status` | Composite server/provider/background/memory/telemetry status |
 | `reign_get_prompt_inventory` | UI-safe prompt inventory and cache state |
-| `reign_query_logs` | Bounded, redacted operational-log query |
+| `reign_query_logs` | Search complete redacted operational rows, including omitted prompt text. Filter by exact `eventType` or `severity`. Follow `nextCursor` with the same filters while `hasMore` is true. Entries contain bounded metadata and any exact related evidence IDs. |
 | `reign_query_audit` | Bounded audit-ledger query |
 | `reign_list_campaigns` | Real World Test campaign/timeline discovery |
 | `reign_get_campaign_storage_audit` | Physical `.sav` ownership, matching campaigns, stale/overwritten registrations, pending retirement, protected imports, orphan roots, and `_shared` storage |

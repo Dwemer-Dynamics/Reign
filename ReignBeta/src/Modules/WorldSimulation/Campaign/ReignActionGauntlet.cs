@@ -465,7 +465,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             Run(results, context, "Diplomacy", "PayToJoinWar", DiplomacyPayToJoinWar, WarStartedAgainstThird);
             Run(results, context, "Diplomacy", "GuaranteeIndependence", DiplomacyGuaranteeIndependence, TreatyRecorded);
             Run(results, context, "Diplomacy", "ProtectorateOrVassalage", DiplomacyProtectorateOrVassalage, TreatyRecorded);
-            Run(results, context, "Diplomacy", "DiplomaticPackage", DiplomacyPackage, DiplomaticPackageEffect);
+            Run(results, context, "Failure/Validation", "DiplomaticPackage", DiplomacyPackage, ExpectedValidationFailure);
             Run(results, context, "Diplomacy", "DemandSurrenderPeace", DiplomacyDemandSurrenderPeace, FullSurrenderTransferredLand);
         }
 

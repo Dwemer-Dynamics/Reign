@@ -6,6 +6,8 @@
   <ItemGroup>
     <Compile Include="..\..\..\ReignServer\src\Modules\Platform\NativeProviderTestGuard.cs" Link="Shared\NativeProviderTestGuard.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Rebellion\Campaign\ReignWeeklyRebellion.cs"
+             Link="Shared\ReignWeeklyRebellion.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\Tournament\TournamentHeroEligibility.cs"
              Link="Shared\TournamentHeroEligibility.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\TeamTournament\TeamTournamentHelpers.cs"
@@ -23,6 +25,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\World\ReignSceneTeamSafety.cs"
              Link="Shared\ReignSceneTeamSafety.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Runtime\ReignCalendarStore.cs"
+             Link="Shared\ReignCalendarStore.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Integration\ReignCourtAudienceScene.cs"
              Link="Shared\ReignCourtAudienceScene.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"

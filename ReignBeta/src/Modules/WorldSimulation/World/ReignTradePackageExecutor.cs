@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
-using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using ReignBeta.World;
+using ReignBeta.Shared.Dialogue;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -18,6 +19,9 @@ namespace ReignBeta.WorldSimulation.World
     {
         public static ReignActionResult Execute(ReignWorldActionRecord action)
         {
+            ReignActionResult replay = ReplayMaterialTrade(action);
+            if (replay != null) return replay;
+
             if (!ReignValueService.ValidateTradePackage(action, out string validationFailure, out ReignTradeAppraisal appraisal))
             {
                 return ReignActionResult.ValidationFailed(validationFailure);
@@ -42,24 +46,7 @@ namespace ReignBeta.WorldSimulation.World
                 return ExecuteSettlementTradeAtomically(action, terms, result);
             }
 
-            ApplyMaterialTerms(action, terms, result);
-            ApplySettlements(action, terms, result);
-            ApplyWorkshop(action, terms, result);
-            ApplyPrisoner(action, terms, result);
-            ApplyShips(action, terms, result);
-
-            if (!ReignActionReceiptFormatter.ValidatePromisedEffects(action, result, out string receiptFailure))
-            {
-                return ReignActionResult.FailTerminal("Trade execution verification failed: " + receiptFailure, "trade_verification_failed", "state_verification");
-            }
-
-            string receipt = ReignActionReceiptFormatter.BuildVerifiedReceipt(result);
-            if (!string.IsNullOrWhiteSpace(receipt))
-            {
-                result.WithMessage("Verified trade: " + receipt + ".");
-            }
-
-            return result;
+            return ExecuteMaterialTrade(action, terms, result);
         }
 
         private static ReignActionResult ExecuteSettlementTradeAtomically(
@@ -237,311 +224,189 @@ namespace ReignBeta.WorldSimulation.World
             public int ToGold;
         }
 
-        internal static void ApplyMaterialTerms(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
+        internal static ReignActionResult ReplayMaterialTrade(ReignWorldActionRecord action)
         {
-            ApplyGold(action, terms, result);
-            if (ReignValueService.ReadItemTermObjects(terms).Count == 0)
+            if (string.IsNullOrWhiteSpace(action.ActionId)) return null;
+            try
             {
-                ApplyItem(action, terms, result);
+                var journal = ReignGoldTransferService.Instance?.TradePackages;
+                var receipt = journal?.Find(action.ActionId, Binding(action));
+                if (receipt?.State == LegacyTradeJournal.Applying && journal.IsApplying(action.ActionId))
+                    return ReignActionResult.Progress("The native trade is still being applied.");
+                return receipt == null ? null : TradeResult(receipt);
             }
-            else
+            catch (InvalidOperationException ex)
             {
-                ApplyItemList(action, terms, result);
+                return ReignActionResult.ValidationFailed(ex.Message);
             }
         }
 
-        private static void ApplyGold(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
+        private static string Binding(ReignWorldActionRecord action)
+            => PlayerActionRules.Hash(new JArray(action.TypeValue, action.ActorHeroStringId, action.TargetHeroStringId,
+                action.ActorKingdomStringId, action.TargetKingdomStringId, action.TargetSettlementStringId,
+                action.ActorClanStringId, action.TargetClanStringId, action.AuthorizationMode, action.NegotiationId,
+                action.TermsHash, action.TermsJson).ToString(Formatting.None));
+
+        private static ReignActionResult ExecuteMaterialTrade(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
         {
-            int amount = ReignValueService.ReadIntTerm(terms, "gold", ReignValueService.ReadIntTerm(terms, "GoldAmount", ReignValueService.ReadIntTerm(terms, "goldAmount", 0)));
-            if (amount <= 0)
-            {
-                return;
-            }
+            var journal = ReignGoldTransferService.Instance?.TradePackages;
+            if (journal == null)
+                return ReignActionResult.ValidationFailed("The native trade journal is unavailable.");
 
-            Hero from = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "goldFromHeroStringId", ReignValueService.ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId)));
-            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "goldToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId)));
-            if (from == null || to == null)
+            try
             {
-                return;
-            }
+                var legs = new List<LegacyTradeLeg>();
+                AddGoldLeg(action, terms, result, legs);
+                if (!ReignValueService.TryResolveTradeItems(action, terms, out var items, out string reason))
+                    return ReignActionResult.ValidationFailed(reason);
+                foreach (var item in items) AddItemLeg(item, result, legs);
 
-            int fromBefore = from.Gold;
-            int toBefore = to.Gold;
-            GiveGoldAction.ApplyBetweenCharacters(from, to, amount, false);
-            if (from.Gold != fromBefore - amount || to.Gold != toBefore + amount)
+                var receipt = journal.Execute(action.ActionId, Binding(action), legs, () =>
+                {
+                    if (!ReignActionReceiptFormatter.ValidatePromisedEffects(action, result, out string failure))
+                        throw new InvalidOperationException("Trade receipt verification failed: " + failure);
+                    string summary = ReignActionReceiptFormatter.BuildVerifiedReceipt(result);
+                    if (!string.IsNullOrWhiteSpace(summary)) result.WithMessage("Verified trade: " + summary + ".");
+                    return new JObject
+                    {
+                        ["message"] = result.Message,
+                        ["effects"] = JArray.FromObject(result.Effects),
+                        ["changedEntities"] = JArray.FromObject(result.ChangedEntities),
+                        ["diagnostics"] = JArray.FromObject(result.Diagnostics)
+                    };
+                });
+                return TradeResult(receipt);
+            }
+            catch (InvalidOperationException ex)
             {
-                return;
+                // Complete admission before the journal starts its first mutation.
+                return ReignActionResult.ValidationFailed(ex.Message);
             }
+        }
 
+        private static ReignActionResult TradeResult(LegacyTradeReceipt receipt)
+        {
+            if (receipt.State == LegacyTradeJournal.Applied)
+            {
+                var result = ReignActionResult.Done(receipt.Result.Value<string>("message"));
+                result.Effects.AddRange(receipt.Result["effects"].ToObject<List<Dictionary<string, string>>>());
+                result.ChangedEntities.AddRange(receipt.Result["changedEntities"].ToObject<List<Dictionary<string, string>>>());
+                result.Diagnostics.AddRange(receipt.Result["diagnostics"].ToObject<List<Dictionary<string, string>>>());
+                return result;
+            }
+            if (receipt.State == LegacyTradeJournal.Restored)
+                return ReignActionResult.FailTerminal("Trade failed and the prior holdings were restored. " + receipt.Message,
+                    "trade_rolled_back", "state_verification");
+
+            return ReignActionResult.FailTerminal("Trade requires recovery. Do not repeat this exchange. " + receipt.Message,
+                "trade_recovery_required", "recovery_required")
+                .WithDiagnostic("attemptedLegs", receipt.AttemptedLegs.ToString(CultureInfo.InvariantCulture))
+                .WithDiagnostic("tradeLegs", receipt.Legs?.ToString(Formatting.None))
+                .WithDiagnostic("unresolvedHoldings", receipt.Unresolved?.ToString(Formatting.None));
+        }
+
+        private static void AddGoldLeg(ReignWorldActionRecord action, JObject terms, ReignActionResult result, List<LegacyTradeLeg> legs)
+        {
+            int amount = ReignValueService.ReadIntTerm(terms, "gold",
+                ReignValueService.ReadIntTerm(terms, "GoldAmount", ReignValueService.ReadIntTerm(terms, "goldAmount", 0)));
+            if (amount <= 0) return;
+            Hero from = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "goldFromHeroStringId",
+                ReignValueService.ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId)));
+            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "goldToHeroStringId",
+                ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId)));
+            if (from == null || to == null || from == to)
+                throw new InvalidOperationException("Trade payment requires two distinct available heroes.");
+
+            LegacyTradeBalance Balance(Hero hero) => new LegacyTradeBalance(Holding("gold", hero.StringId),
+                () => hero.Gold, gold => hero.ChangeHeroGold(gold - hero.Gold));
+            legs.Add(new LegacyTradeLeg(Balance(from), Balance(to), amount,
+                () => GiveGoldAction.ApplyBetweenCharacters(from, to, amount, false)));
             result.WithEffect("gold_transfer", "hero", to.StringId, to.Name.ToString(), "from=" + from.StringId + ";amount=" + amount)
                 .WithChangedEntity("hero", from.StringId, from.Name.ToString(), "gold_changed")
                 .WithChangedEntity("hero", to.StringId, to.Name.ToString(), "gold_changed");
         }
 
-        private static void ApplyItem(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
+        private static string Holding(params string[] identity)
+            => new JArray(identity).ToString(Formatting.None);
+
+        private static void AddItemLeg(ReignValueService.TradeItemTransfer transfer,
+            ReignActionResult result, List<LegacyTradeLeg> legs)
         {
-            string itemId = ReignValueService.ReadStringTerm(terms, "itemId", ReignValueService.ReadStringTerm(terms, "item", string.Empty));
-            if (string.IsNullOrWhiteSpace(itemId))
+            Hero from = transfer.From;
+            MobileParty source = transfer.Source;
+            MobileParty destination = transfer.Destination;
+            ItemRoster sourceRoster = source.ItemRoster;
+            ItemRoster destinationRoster = destination.ItemRoster;
+            EquipmentElement element = transfer.Element;
+            ItemObject item = element.Item;
+            LegacyTradeBalance receiver = ItemBalance(destination, destinationRoster, element);
+            int amount = transfer.Amount;
+            string flow = "from=" + from.StringId + ";to=" + transfer.To.StringId + ";amount=" + amount;
+            Equipment equipment = transfer.Equipment;
+            if (equipment != null)
             {
-                return;
-            }
-
-            Hero from = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "itemFromHeroStringId", ReignValueService.ReadStringTerm(terms, "assetFromHeroStringId", ReignValueService.ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId))));
-            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "itemToHeroStringId", ReignValueService.ReadStringTerm(terms, "assetToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))));
-            MobileParty fromParty = ReignValueService.PartyForInventory(from);
-            MobileParty toParty = ReignValueService.PartyForInventory(to);
-            ItemObject item = ReignObjectResolver.FindItem(itemId);
-            int amount = ReignValueService.ReadIntTerm(terms, "amount", ReignValueService.ReadIntTerm(terms, "Amount", 1));
-            if (from == null || to == null || fromParty == null || toParty == null || item == null || amount <= 0)
-            {
-                return;
-            }
-
-            int available = fromParty.ItemRoster.GetItemNumber(item);
-            if (available >= amount)
-            {
-                int toBefore = toParty.ItemRoster.GetItemNumber(item);
-                fromParty.ItemRoster.AddToCounts(item, -amount);
-                toParty.ItemRoster.AddToCounts(item, amount);
-                if (fromParty.ItemRoster.GetItemNumber(item) != available - amount
-                    || toParty.ItemRoster.GetItemNumber(item) != toBefore + amount)
+                EquipmentIndex slot = transfer.Slot;
+                string set = transfer.EquipmentSet;
+                int ReadSlot()
                 {
-                    return;
+                    Equipment currentSet = set == "battle" ? from.BattleEquipment : from.CivilianEquipment;
+                    if (!ReferenceEquals(currentSet, equipment))
+                        throw new InvalidOperationException("The agreed equipment set was replaced.");
+                    EquipmentElement current = equipment[slot];
+                    if (current.IsEmpty) return 0;
+                    if (current.Equals(element)) return 1;
+                    throw new InvalidOperationException("The native equipment slot contains " + current.Item.StringId
+                        + " (modifier: " + Variant(current) + ").");
                 }
 
-                result.WithEffect("item_transfer", "item", item.StringId, item.Name.ToString(), "from=" + from.StringId + ";to=" + to.StringId + ";amount=" + amount + ";source=inventory")
-                    .WithChangedEntity("party", fromParty.StringId, PartyName(fromParty), "items_changed")
-                    .WithChangedEntity("party", toParty.StringId, PartyName(toParty), "items_changed");
-                return;
-            }
-
-            if (amount == 1 && ReignObjectResolver.TryFindEquippedItem(
-                from,
-                itemId,
-                ReignValueService.ReadStringTerm(terms, "sourceEquipmentSlot", string.Empty),
-                ReignValueService.ReadStringTerm(terms, "sourceEquipmentSet", string.Empty),
-                out Equipment equipment,
-                out EquipmentIndex slot,
-                out EquipmentElement equippedElement,
-                out string sourceSet))
-            {
-                int toBefore = toParty.ItemRoster.GetItemNumber(equippedElement.Item);
-                toParty.ItemRoster.AddToCounts(equippedElement, 1);
-                equipment[slot].Clear();
-                if (!equipment[slot].IsEmpty || toParty.ItemRoster.GetItemNumber(equippedElement.Item) != toBefore + 1)
+                string variant = Variant(element);
+                var equipped = new LegacyTradeBalance(Holding("equipment", from.StringId, set, slot.ToString(), item.StringId, variant),
+                    ReadSlot, value => equipment[slot] = value == 1 ? element : EquipmentElement.Invalid);
+                legs.Add(new LegacyTradeLeg(equipped, receiver, 1, () =>
                 {
-                    return;
-                }
-
-                result.WithEffect("equipped_item_transfer", "item", equippedElement.Item.StringId, equippedElement.Item.Name.ToString(), "from=" + from.StringId + ";to=" + to.StringId + ";amount=1;source=" + sourceSet + ";slot=" + slot)
+                    int before = receiver.Read();
+                    destinationRoster.AddToCounts(element, 1);
+                    if (receiver.Read() != before + 1 || ReadSlot() != 1)
+                        throw new InvalidOperationException("The equipment transfer changed before its slot could be cleared.");
+                    equipment[slot] = EquipmentElement.Invalid;
+                }));
+                result.WithEffect("equipped_item_transfer", "item", item.StringId, item.Name.ToString(),
+                    flow + ";source=" + set + ";slot=" + slot + ";variant=" + variant + ";toParty=" + destination.StringId)
                     .WithChangedEntity("hero", from.StringId, from.Name.ToString(), "equipment_changed")
-                    .WithChangedEntity("party", toParty.StringId, PartyName(toParty), "items_changed");
+                    .WithChangedEntity("party", destination.StringId, PartyName(destination), "items_changed");
+                return;
             }
+
+            LegacyTradeBalance inventory = ItemBalance(source, sourceRoster, element);
+            legs.Add(new LegacyTradeLeg(inventory, receiver, amount, () =>
+            {
+                int sourceBefore = inventory.Read();
+                int receiverBefore = receiver.Read();
+                sourceRoster.AddToCounts(element, -amount);
+                if (inventory.Read() != sourceBefore - amount || receiver.Read() != receiverBefore)
+                    throw new InvalidOperationException("The item transfer changed before its destination could be credited.");
+                destinationRoster.AddToCounts(element, amount);
+            }));
+            result.WithEffect("item_transfer", "item", item.StringId, item.Name.ToString(),
+                flow + ";source=inventory;variant=" + Variant(element)
+                    + ";fromParty=" + source.StringId + ";toParty=" + destination.StringId)
+                .WithChangedEntity("party", source.StringId, PartyName(source), "items_changed")
+                .WithChangedEntity("party", destination.StringId, PartyName(destination), "items_changed");
         }
 
-        private static void ApplyItemList(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
+        private static string Variant(EquipmentElement element) => element.ItemModifier?.StringId ?? string.Empty;
+
+        private static LegacyTradeBalance ItemBalance(MobileParty party, ItemRoster roster, EquipmentElement element)
         {
-            foreach (JObject itemTerm in ReignValueService.ReadItemTermObjects(terms))
+            int Count()
             {
-                string itemId = ReignValueService.ReadStringTerm(itemTerm, "itemId", ReignValueService.ReadStringTerm(itemTerm, "item", string.Empty));
-                if (string.IsNullOrWhiteSpace(itemId))
-                {
-                    continue;
-                }
-
-                Hero from = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(itemTerm, "fromHeroStringId",
-                    ReignValueService.ReadStringTerm(itemTerm, "itemFromHeroStringId",
-                        ReignValueService.ReadStringTerm(terms, "itemFromHeroStringId",
-                            ReignValueService.ReadStringTerm(terms, "assetFromHeroStringId",
-                                ReignValueService.ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId))))));
-                Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(itemTerm, "toHeroStringId",
-                    ReignValueService.ReadStringTerm(itemTerm, "itemToHeroStringId",
-                        ReignValueService.ReadStringTerm(terms, "itemToHeroStringId",
-                            ReignValueService.ReadStringTerm(terms, "assetToHeroStringId",
-                                ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))))));
-                MobileParty fromParty = ReignValueService.PartyForInventory(from);
-                MobileParty toParty = ReignValueService.PartyForInventory(to);
-                ItemObject item = ReignObjectResolver.FindItem(itemId);
-                int amount = ReignValueService.ReadIntTerm(itemTerm, "amount", ReignValueService.ReadIntTerm(itemTerm, "Amount", 1));
-                if (from == null || to == null || fromParty == null || toParty == null || item == null || amount <= 0)
-                {
-                    continue;
-                }
-
-                int available = fromParty.ItemRoster.GetItemNumber(item);
-                if (available >= amount)
-                {
-                    int toBefore = toParty.ItemRoster.GetItemNumber(item);
-                    fromParty.ItemRoster.AddToCounts(item, -amount);
-                    toParty.ItemRoster.AddToCounts(item, amount);
-                    if (fromParty.ItemRoster.GetItemNumber(item) != available - amount
-                        || toParty.ItemRoster.GetItemNumber(item) != toBefore + amount)
-                    {
-                        continue;
-                    }
-
-                    result.WithEffect("item_transfer", "item", item.StringId, item.Name.ToString(), "from=" + from.StringId + ";to=" + to.StringId + ";amount=" + amount + ";source=inventory")
-                        .WithChangedEntity("party", fromParty.StringId, PartyName(fromParty), "items_changed")
-                        .WithChangedEntity("party", toParty.StringId, PartyName(toParty), "items_changed");
-                    continue;
-                }
-
-                if (amount == 1 && ReignObjectResolver.TryFindEquippedItem(
-                    from,
-                    itemId,
-                    ReignValueService.ReadStringTerm(itemTerm, "sourceEquipmentSlot", string.Empty),
-                    ReignValueService.ReadStringTerm(itemTerm, "sourceEquipmentSet", string.Empty),
-                    out Equipment equipment,
-                    out EquipmentIndex slot,
-                    out EquipmentElement equippedElement,
-                    out string sourceSet))
-                {
-                    int toBefore = toParty.ItemRoster.GetItemNumber(equippedElement.Item);
-                    toParty.ItemRoster.AddToCounts(equippedElement, 1);
-                    equipment[slot].Clear();
-                    if (!equipment[slot].IsEmpty || toParty.ItemRoster.GetItemNumber(equippedElement.Item) != toBefore + 1)
-                    {
-                        continue;
-                    }
-
-                    result.WithEffect("equipped_item_transfer", "item", equippedElement.Item.StringId, equippedElement.Item.Name.ToString(), "from=" + from.StringId + ";to=" + to.StringId + ";amount=1;source=" + sourceSet + ";slot=" + slot)
-                        .WithChangedEntity("hero", from.StringId, from.Name.ToString(), "equipment_changed")
-                        .WithChangedEntity("party", toParty.StringId, PartyName(toParty), "items_changed");
-                }
-            }
-        }
-
-        private static void ApplySettlements(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
-        {
-            List<string> settlementIds = ReignValueService.ReadStringListTerm(terms, "settlementIds");
-            if (!string.IsNullOrWhiteSpace(action.TargetSettlementStringId) && !settlementIds.Contains(action.TargetSettlementStringId))
-            {
-                settlementIds.Insert(0, action.TargetSettlementStringId);
+                if (!ReferenceEquals(party.ItemRoster, roster))
+                    throw new InvalidOperationException("The agreed party inventory was replaced.");
+                return ReignValueService.CountTradeStack(roster, element);
             }
 
-            string termSettlement = ReignValueService.ReadStringTerm(terms, "targetSettlementStringId", string.Empty);
-            if (!string.IsNullOrWhiteSpace(termSettlement) && !settlementIds.Contains(termSettlement))
-            {
-                settlementIds.Add(termSettlement);
-            }
-
-            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "settlementToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))) ?? Hero.MainHero;
-            foreach (string settlementId in settlementIds.Distinct())
-            {
-                Settlement settlement = ReignObjectResolver.FindSettlement(settlementId);
-                if (settlement == null || !settlement.IsFortification || to == null)
-                {
-                    continue;
-                }
-
-                string oldKingdom = settlement.MapFaction?.StringId ?? string.Empty;
-                ChangeOwnerOfSettlementAction.ApplyByGift(settlement, to);
-                if (settlement.OwnerClan != to.Clan && settlement.MapFaction != to.MapFaction)
-                {
-                    continue;
-                }
-
-                result.WithEffect("settlement_transfer", "settlement", settlement.StringId, settlement.Name.ToString(), "fromKingdom=" + oldKingdom + ";toHero=" + to.StringId)
-                    .WithChangedEntity("settlement", settlement.StringId, settlement.Name.ToString(), "owner_changed");
-            }
-        }
-
-        private static void ApplyWorkshop(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
-        {
-            string workshopId = ReignValueService.ReadStringTerm(terms, "workshopId", ReignValueService.ReadStringTerm(terms, "workshop", string.Empty));
-            if (string.IsNullOrWhiteSpace(workshopId))
-            {
-                return;
-            }
-
-            Workshop workshop = ReignObjectResolver.FindWorkshop(workshopId);
-            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "workshopToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))) ?? Hero.MainHero;
-            if (workshop == null || workshop.Owner == null || workshop.WorkshopType == null || to == null)
-            {
-                return;
-            }
-
-            Hero oldOwner = workshop.Owner;
-            ChangeOwnerOfWorkshopAction.ApplyByWar(workshop, to, workshop.WorkshopType);
-            if (workshop.Owner != to)
-            {
-                return;
-            }
-
-            result.WithEffect("workshop_transfer", "workshop", ReignObjectResolver.WorkshopId(workshop), workshop.Name.ToString(), "from=" + (oldOwner?.StringId ?? string.Empty) + ";to=" + to.StringId)
-                .WithChangedEntity("hero", to.StringId, to.Name.ToString(), "workshop_received");
-        }
-
-        private static void ApplyPrisoner(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
-        {
-            string prisonerId = ReignValueService.ReadStringTerm(terms, "prisonerHeroStringId", ReignValueService.ReadStringTerm(terms, "prisonerHero", string.Empty));
-            if (string.IsNullOrWhiteSpace(prisonerId))
-            {
-                return;
-            }
-
-            Hero prisoner = ReignObjectResolver.FindHero(prisonerId);
-            Hero facilitator = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "prisonerToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))) ?? Hero.MainHero;
-            if (prisoner == null || !prisoner.IsPrisoner || facilitator == null)
-            {
-                return;
-            }
-
-            EndCaptivityAction.ApplyByReleasedByChoice(prisoner, facilitator);
-            if (prisoner.IsPrisoner)
-            {
-                return;
-            }
-
-            result.WithEffect("prisoner_release", "hero", prisoner.StringId, prisoner.Name.ToString(), "facilitator=" + facilitator.StringId)
-                .WithChangedEntity("hero", prisoner.StringId, prisoner.Name.ToString(), "released_from_captivity");
-        }
-
-        private static void ApplyShips(ReignWorldActionRecord action, JObject terms, ReignActionResult result)
-        {
-            string assetText = string.Join(" ", new[]
-            {
-                ReignValueService.ReadStringTerm(terms, "assetClass", string.Empty),
-                ReignValueService.ReadStringTerm(terms, "asset", string.Empty),
-                ReignValueService.ReadStringTerm(terms, "assetName", string.Empty),
-                ReignValueService.ReadStringTerm(terms, "packageText", string.Empty)
-            }).ToLowerInvariant();
-            bool shipTrade = assetText.Contains("ship") || assetText.Contains("fleet") || assetText.Contains("vessel") || assetText.Contains("boat") || assetText.Contains("naval") || ReignValueService.ReadIntTerm(terms, "shipCount", 0) > 0;
-            if (!shipTrade)
-            {
-                return;
-            }
-
-            Hero from = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "assetFromHeroStringId", ReignValueService.ReadStringTerm(terms, "fromHeroStringId", action.ActorHeroStringId)));
-            Hero to = ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms, "assetToHeroStringId", ReignValueService.ReadStringTerm(terms, "toHeroStringId", action.TargetHeroStringId))) ?? Hero.MainHero;
-            Kingdom actorKingdom = ReignObjectResolver.FindKingdom(action.ActorKingdomStringId);
-            Kingdom targetKingdom = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId);
-            MobileParty sourceParty = ReignValueService.ResolveShipParty(from, actorKingdom ?? targetKingdom);
-            MobileParty destinationParty = ReignValueService.ResolveShipParty(to, to?.Clan?.Kingdom ?? targetKingdom ?? actorKingdom);
-            if (sourceParty?.Party == null || destinationParty?.Party == null)
-            {
-                return;
-            }
-
-            List<Ship> ships = sourceParty.Ships?
-                .Where(x => x != null && (!x.IsUsedByQuest || ReignValueService.ReadBoolTerm(terms, "includeQuestShips", false)))
-                .ToList() ?? new List<Ship>();
-            int requested = ReignValueService.ReadIntTerm(terms, "shipCount", ReignValueService.ReadIntTerm(terms, "amount", ReignValueService.ReadIntTerm(terms, "Amount", 0)));
-            bool all = ReignValueService.ReadBoolTerm(terms, "allMatchingAssets", requested <= 0);
-            int count = all || requested <= 0 ? ships.Count : Math.Min(requested, ships.Count);
-            foreach (Ship ship in ships.Take(count).ToList())
-            {
-                ChangeShipOwnerAction.ApplyByTransferring(destinationParty.Party, ship);
-                if (!(destinationParty.Ships?.Contains(ship) ?? false) || (sourceParty.Ships?.Contains(ship) ?? false))
-                {
-                    continue;
-                }
-
-                string shipId = ship.ShipHull?.StringId ?? string.Empty;
-                string shipName = ship.Name?.ToString() ?? shipId;
-                result.WithEffect("ship_transfer", "ship", shipId, shipName, "fromParty=" + (sourceParty.StringId ?? string.Empty) + ";toParty=" + (destinationParty.StringId ?? string.Empty))
-                    .WithChangedEntity("ship", shipId, shipName, "owner_changed");
-            }
+            return new LegacyTradeBalance(Holding("inventory", party.StringId, element.Item.StringId, Variant(element)),
+                Count, value => roster.AddToCounts(element, value - Count()));
         }
 
         private static string PartyName(MobileParty party)

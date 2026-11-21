@@ -1135,7 +1135,7 @@ Protected prisoners from the player's clan or own kingdom cannot be released by 
 
 ## Rebellion and civil war
 
-Each week, every eligible free, living, non-mercenary NPC vassal clan leader with relation below **-20** to the ruler receives an independent d100 roll. A result of **1–5** begins a rebellion: a 5% chance per eligible leader. Only one rebellion can exist in a kingdom. If several qualify, the lowest ruler relation wins, then clan ID breaks a tie. A resolved kingdom has a **63-day cooldown**.
+Each week, every eligible free, living, non-mercenary NPC vassal clan leader with an effective attitude of **−35 or lower** toward the ruler receives an independent d100 roll. The ruler can be the player or an NPC. A result of **1–5** triggers a rebellion, a 5% chance per eligible leader. Only one rebellion can exist in a kingdom. If several rolls succeed, the lowest ruler attitude wins, then clan ID breaks a tie. A resolved kingdom has a **63-day cooldown**.
 
 Other vassals choose the rebel side when their relation to the rebel leader is greater than their relation to the ruler. Sides are then fixed; they do not oscillate every tick.
 
@@ -1714,7 +1714,7 @@ This chapter collects Reign's most consequential numeric rules in one place for 
 | Political-pressure daily incident roll | 43% |
 | Pressure action eligibility | magnitude at least 10 |
 | Pressure action chance | 0.5 × magnitude, cap 50% |
-| Rebellion trigger | weekly 5% per eligible leader below -20 relation |
+| Rebellion trigger | weekly 5% per eligible NPC vassal leader at −35 effective attitude or lower toward the ruler |
 | Post-rebellion cooldown | 63 days |
 | Rebellion summons | 7 days |
 | War Council battle history | newest 100, last 30 days |

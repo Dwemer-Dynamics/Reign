@@ -67,6 +67,7 @@ namespace ReignBeta.Platform.Campaign
 
         public static ReignCampaignPreparationCampaignBehavior Instance => ReignServices.CampaignPreparation;
         internal bool IsSealedForCurrentCampaign => _sealedForCurrentCampaign;
+        internal bool? LoadedCalendarPrepared { get; private set; }
 
         public ReignCampaignPreparationCampaignBehavior()
         {
@@ -87,7 +88,9 @@ namespace ReignBeta.Platform.Campaign
             dataStore.SyncData("_reignInitialization_narrativeVersion", ref _narrativeVersion);
             dataStore.SyncData("_reignInitialization_campaignId", ref _sealedCampaignId);
             dataStore.SyncData("_reignInitialization_timelineId", ref _sealedTimelineId);
-            dataStore.SyncData("_reignInitialization_completedStageMask", ref _completedStageMask);
+            bool hasStages = dataStore.SyncData("_reignInitialization_completedStageMask", ref _completedStageMask);
+            if (dataStore.IsLoading && (hasStages || _sealVersion > 0))
+                LoadedCalendarPrepared = _sealVersion > 0 || (_completedStageMask & (int)ReignInitializationStageMask.NativeFoundations) != 0;
             dataStore.SyncData("_reignInitialization_historySequence", ref _sealedHistorySequence);
             dataStore.SyncData("_reignInitialization_autonomousWorldOriginDay",
                 ref _autonomousWorldOriginDay);
