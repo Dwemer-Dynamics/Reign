@@ -418,7 +418,10 @@ public sealed class CourtLifeHarnessContractTests
         Assert.DoesNotContain("[\"publicReason\"] = matter.Summary", decisions, StringComparison.Ordinal);
         Assert.Contains("sameTerms ? previousTerms.Value<string>(\"promise\")", decisions, StringComparison.Ordinal);
         Assert.Contains("if (!replayLegacy)", decisions, StringComparison.Ordinal);
-        Assert.Contains("savedReply?.Value<string>(\"status\") == \"model_output_unusable\"", decisions, StringComparison.Ordinal);
+        Assert.Contains("savedReply.Value<string>(\"status\") == \"model_output_unusable\"", decisions, StringComparison.Ordinal);
+        Assert.Contains("knownReply && JToken.DeepEquals(sent, candidate)", decisions, StringComparison.Ordinal);
+        Assert.Contains("ParseObject(savedReply.Value<string>(\"exact_terms_json\"))", decisions, StringComparison.Ordinal);
+        Assert.Contains("data[\"sentReferralCandidate\"] = candidate.DeepClone()", decisions, StringComparison.Ordinal);
     }
 
     [Fact]

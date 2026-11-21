@@ -382,20 +382,21 @@ namespace ReignBeta.Court.Campaign
             }
             candidate["actorKingdomStringId"] = candidate["actorKingdomStringId"] ?? candidate["actorKingdomId"];
             candidate["targetKingdomStringId"] = candidate["targetKingdomStringId"] ?? candidate["targetKingdomId"];
-            // A previously sent legacy candidate keeps its exact ledger ID on replay.
-            bool replayLegacy = previous != null && previous["courtMatterId"] == null
-                && !string.IsNullOrWhiteSpace(data.Value<string>("referralId"))
-                && JToken.DeepEquals(previous, candidate);
+            JObject savedReply = data["reply"] as JObject;
+            bool knownReply = MatchesInternationalReferral(matter, data, savedReply);
+            // Offer revisions can update candidate. Keep the sent body as the proof of replay.
+            JObject sent = data["sentReferralCandidate"] as JObject
+                ?? (knownReply ? ParseObject(savedReply.Value<string>("exact_terms_json")) : null);
+            bool replayLegacy = sent?.HasValues == true && sent["courtMatterId"] == null
+                && JToken.DeepEquals(sent, candidate);
             if (!replayLegacy)
             {
                 candidate["courtMatterId"] = matter.MatterId;
                 candidate["courtRulerId"] = data.Value<string>("foreignRulerId");
                 candidate["courtOptionId"] = intended.OptionId;
             }
-            JObject savedReply = data["reply"] as JObject;
-            if (previous != null && JToken.DeepEquals(previous, candidate) && data.Value<bool?>("replyPromoted") == true
-                && savedReply?.Value<string>("status") == "model_output_unusable"
-                && MatchesInternationalReferral(matter, data, savedReply))
+            if (knownReply && JToken.DeepEquals(sent, candidate) && data.Value<bool?>("replyPromoted") == true
+                && savedReply.Value<string>("status") == "model_output_unusable")
             {
                 summary = "The sovereign's decision was unavailable. Review materially revised terms or leave the matter pending.";
                 return false;
@@ -424,6 +425,7 @@ namespace ReignBeta.Court.Campaign
                         data["referralDueDay"] = response.Raw.Value<double?>("dueDay");
                         data["replyPromoted"] = false;
                         data["candidate"] = candidate;
+                        data["sentReferralCandidate"] = candidate.DeepClone();
                     }
                     else { matter.State = ReignCourtLifeMatterState.Pending; data["referralError"] = response.Error; }
                     matter.PayloadJson = data.ToString(Formatting.None);

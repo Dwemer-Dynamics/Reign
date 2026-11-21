@@ -589,7 +589,7 @@ namespace ReignBeta.Court.Campaign
                 return false;
             string termsHash = data.Value<string>("referralTermsHash");
             if (!string.IsNullOrWhiteSpace(termsHash)) return reply.Value<string>("terms_hash") == termsHash;
-            if (!(data["candidate"] is JObject candidate)) return false;
+            if (!((data["sentReferralCandidate"] ?? data["candidate"]) is JObject candidate)) return false;
             if (JToken.DeepEquals(candidate, ParseObject(reply.Value<string>("exact_terms_json")))) return true;
 
             // Legacy promotion replaced candidate with the counter. The exact saved
