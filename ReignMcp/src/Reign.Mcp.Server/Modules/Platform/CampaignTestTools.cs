@@ -972,29 +972,11 @@ public sealed class CampaignTestService
             throw new InvalidOperationException("The native source save is missing.");
 
         var receipt = Find(state, destination);
-        ApiEnvelope inventory = await _api.GetAsync("/api/save-sync/status",
-            cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (!inventory.Ok || inventory.Data is not { ValueKind: JsonValueKind.Object } root
-            || !IsTrue(root, "enabled") || !root.TryGetProperty("campaigns", out var campaigns)
-            || campaigns.ValueKind != JsonValueKind.Array)
-            throw new InvalidOperationException("Save Sync could not prove checkpoint destination occupancy.");
-
-        bool retained = false;
-        int count = 0;
-        foreach (JsonElement campaign in campaigns.EnumerateArray())
-        {
-            bool enrolled = SameName(Text(campaign, "campaignId"), state.CampaignId);
-            JsonElement rows = CompleteLedgerPoints(campaign);
-            if (enrolled) count = ExactCount(campaign, "uniqueStateCount");
-            foreach (JsonElement point in rows.EnumerateArray())
-            {
-                if (!SameName(NativeSlot(Text(point, "nativeSaveName")), destination)) continue;
-                if (enrolled && receipt is not null && MatchesPoint(point, receipt))
-                    retained = true;
-                else
-                    RequireVacant(destination, nativeHash: null, registered: true);
-            }
-        }
+        var (point, count) = await ReadCheckpointSlotAsync(state.CampaignId, destination, cancellationToken)
+            .ConfigureAwait(false);
+        bool retained = point.HasValue && receipt is not null && MatchesPoint(point.Value, receipt);
+        if (point.HasValue && !retained)
+            RequireVacant(destination, nativeHash: null, registered: true);
 
         string? destinationHash = NativeHash(destination);
         if (receipt is null)
@@ -1087,25 +1069,35 @@ public sealed class CampaignTestService
     private async Task RequireRegisteredPointAsync(CampaignTestState state,
         CampaignCheckpointReceipt receipt, CancellationToken cancellationToken)
     {
-        ApiEnvelope envelope = await _api.GetAsync("/api/save-sync/status",
-            new Dictionary<string, string?> { ["campaignId"] = state.CampaignId },
-            cancellationToken).ConfigureAwait(false);
-        if (!envelope.Ok || envelope.Data is not { ValueKind: JsonValueKind.Object } root
-            || !SameName(Text(root, "campaignId"), state.CampaignId)
-            || !root.TryGetProperty("saveSync", out var ledger) || ledger.ValueKind != JsonValueKind.Object
-            || !IsTrue(ledger, "enabled") || !ledger.TryGetProperty("points", out var points)
-            || points.ValueKind != JsonValueKind.Array
-            || !points.EnumerateArray().Any(point => MatchesPoint(point, receipt)))
+        var (point, _) = await ReadCheckpointSlotAsync(state.CampaignId, receipt.Attempt.SaveName, cancellationToken)
+            .ConfigureAwait(false);
+        if (!point.HasValue || !MatchesPoint(point.Value, receipt))
             throw new InvalidOperationException("Save Sync did not confirm the exact available finalized checkpoint point.");
     }
 
-    private static JsonElement CompleteLedgerPoints(JsonElement ledger)
+    private async Task<(JsonElement? Point, int Count)> ReadCheckpointSlotAsync(
+        string campaignId, string destination, CancellationToken cancellationToken)
     {
-        if (ledger.ValueKind != JsonValueKind.Object || !ledger.TryGetProperty("points", out var points) || points.ValueKind != JsonValueKind.Array
-            || ExactCount(ledger, "storedPointCount") != points.GetArrayLength()
-            || points.EnumerateArray().Any(point => point.ValueKind != JsonValueKind.Object))
-            throw new InvalidOperationException("Save Sync returned an incomplete checkpoint inventory.");
-        return points;
+        ApiEnvelope envelope = await _api.GetAsync("/api/save-sync/status",
+            new Dictionary<string, string?> { ["campaignId"] = campaignId, ["checkpointSlot"] = destination },
+            cancellationToken).ConfigureAwait(false);
+        if (!envelope.Ok || envelope.Data is not { ValueKind: JsonValueKind.Object } root
+            || !IsTrue(root, "enabled") || !SameName(Text(root, "campaignId"), campaignId)
+            || !SameName(Text(root, "checkpointSlot"), destination)
+            || !root.TryGetProperty("foreignRegistration", out var foreign)
+            || foreign.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw new InvalidOperationException("Save Sync could not prove checkpoint destination occupancy.");
+
+        int count = ExactCount(root, "uniqueStateCount");
+        int registrations = ExactCount(root, "registrationCount");
+        if (foreign.GetBoolean() || registrations > 1)
+            RequireVacant(destination, nativeHash: null, registered: true);
+        if (registrations == 0)
+            return (null, count);
+        if (!root.TryGetProperty("point", out var point) || point.ValueKind != JsonValueKind.Object
+            || !SameName(NativeSlot(Text(point, "nativeSaveName")), destination))
+            throw new InvalidOperationException("Save Sync did not return the registration for the exact checkpoint slot.");
+        return (point, count);
     }
 
     private static int ExactCount(JsonElement item, string key)

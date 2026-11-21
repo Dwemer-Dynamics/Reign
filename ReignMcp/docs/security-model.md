@@ -442,6 +442,8 @@ Checkpoint restoration is destructive only to unsaved transient state:
 The guarded campaign-test service requires the protected baseline to differ
 from every checkpoint destination under case-insensitive comparison. New
 destinations must be vacant in the native save directory and Save Sync inventory.
+Save Sync checks the exact generated slot across campaign ledgers and reports
+foreign occupancy without returning details of the foreign campaign.
 The service durably journals an attempt before dispatch. Native rechecks the
 source, game instance and destination before SaveAs. The completed attempt binds
 the native file SHA-256 and a new finalized, available Save Sync point to the
