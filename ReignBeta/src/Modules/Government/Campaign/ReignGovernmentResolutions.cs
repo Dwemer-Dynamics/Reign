@@ -695,6 +695,7 @@ namespace ReignBeta.Government.Campaign
                 ?? Enumerable.Empty<ReignSpymasterMission>();
             ReignSpymasterMission completed = missions.Where(x => x != null
                     && x.State == ReignSpymasterMissionState.Succeeded
+                    && x.AgreementEffectState == "completed"
                     && x.ResolvedDay + 0.01f >= record.AcceptedDay
                     && (string.IsNullOrWhiteSpace(x.SponsorKingdomStringId)
                         || Same(x.SponsorKingdomStringId, kingdom.StringId))
