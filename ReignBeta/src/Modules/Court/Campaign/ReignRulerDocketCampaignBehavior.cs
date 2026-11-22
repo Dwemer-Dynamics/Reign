@@ -149,21 +149,19 @@ namespace ReignBeta.Court.Campaign
         {
             try
             {
-                string json = _rulerDocketStateChunks != null && _rulerDocketStateChunks.Count > 0
-                    ? ReignSavePayloadCodec.Decode(_rulerDocketStateChunks)
-                    : _rulerDocketStateJson;
-                _rulerDocketState = string.IsNullOrWhiteSpace(json)
-                    ? new ReignRulerDocketState()
-                    : JsonConvert.DeserializeObject<ReignRulerDocketState>(json)
-                      ?? new ReignRulerDocketState();
+                ReignRulerDocketState state = ReignSavePayloadCodec.DecodeAuthoritativeState(
+                    _rulerDocketStateChunks, _rulerDocketStateJson, JsonConvert.DeserializeObject<ReignRulerDocketState>,
+                    () => new ReignRulerDocketState());
+                state.Normalize();
+                _rulerDocketState = state;
             }
             catch (Exception ex)
             {
-                ReignLog.Warn("Ruler docket save state could not be restored: " + ex.Message);
-                _rulerDocketState = new ReignRulerDocketState();
+                const string message = "Ruler docket save state could not be restored safely. Load a verified backup.";
+                ReignLog.Warn(message + " " + ex.GetType().Name);
+                throw new InvalidOperationException(message, ex);
             }
 
-            EnsureRulerDocketState();
             MigrateLegacyDocketOnce();
             CollapseDuplicatePendingPetitioners(CurrentDay());
         }

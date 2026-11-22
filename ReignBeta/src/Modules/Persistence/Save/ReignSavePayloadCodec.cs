@@ -49,6 +49,23 @@ namespace ReignBeta.Persistence.Save
             return DecodeEnvelope(envelope.ToString());
         }
 
+#nullable enable
+        public static T DecodeAuthoritativeState<T>(List<string>? chunks, string? legacyJson,
+            Func<string, T?> deserialize, Func<T> emptyState) where T : class
+        {
+            // A present chunked ledger takes precedence over the old field, even when it cannot be read.
+            string json;
+            if (chunks is { Count: > 0 })
+                json = Decode(chunks);
+            else if (legacyJson == null || string.IsNullOrWhiteSpace(legacyJson))
+                return emptyState();
+            else
+                json = legacyJson;
+
+            return deserialize(json) ?? throw new InvalidDataException("A present Reign authority ledger has no state.");
+        }
+#nullable restore
+
         // One-time recovery for legacy unchunked entries that Bannerlord can read but
         // that exceed our smaller per-chunk limit. New saves always use Encode chunks.
         public static string DecodeLegacyArchiveEntry(string envelope)

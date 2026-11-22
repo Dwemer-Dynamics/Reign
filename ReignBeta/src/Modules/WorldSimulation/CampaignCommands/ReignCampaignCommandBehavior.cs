@@ -83,20 +83,18 @@ namespace ReignBeta.WorldSimulation.CampaignCommands
             {
                 try
                 {
-                    string json = _stateChunks != null && _stateChunks.Count > 0
-                        ? ReignSavePayloadCodec.Decode(_stateChunks)
-                        : _legacyState;
-                    _orders = string.IsNullOrWhiteSpace(json)
-                        ? new List<ReignCampaignOrderRecord>()
-                        : JsonConvert.DeserializeObject<List<ReignCampaignOrderRecord>>(json)
-                            ?? new List<ReignCampaignOrderRecord>();
-                    foreach (ReignCampaignOrderRecord order in _orders.Where(x => x != null))
+                    var orders = ReignSavePayloadCodec.DecodeAuthoritativeState(
+                        _stateChunks, _legacyState, JsonConvert.DeserializeObject<List<ReignCampaignOrderRecord>>,
+                        () => new List<ReignCampaignOrderRecord>());
+                    foreach (ReignCampaignOrderRecord order in orders.Where(x => x != null))
                         EnsurePlan(order);
+                    _orders = orders;
                 }
                 catch (Exception ex)
                 {
-                    _orders = new List<ReignCampaignOrderRecord>();
-                    ReignLog.Warn("Campaign command save state could not be restored: " + ex.Message);
+                    const string message = "Campaign command save state could not be restored safely. Load a verified backup.";
+                    ReignLog.Warn(message + " " + ex.GetType().Name);
+                    throw new InvalidOperationException(message, ex);
                 }
             }
         }
