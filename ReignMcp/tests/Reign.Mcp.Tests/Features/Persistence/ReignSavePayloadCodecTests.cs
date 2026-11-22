@@ -274,9 +274,16 @@ public sealed class ReignSavePayloadCodecTests
             StringComparison.Ordinal);
         Assert.Contains("_rulerDocketStateChunks = ReignSavePayloadCodec.Encode(json);", docketBehavior,
             StringComparison.Ordinal);
-        Assert.Contains("ReignSavePayloadCodec.Decode(_rulerDocketStateChunks)", docketBehavior,
+        Assert.Contains("ReignSavePayloadCodec.DecodeAuthoritativeState(", docketBehavior,
             StringComparison.Ordinal);
-        Assert.Contains(": _rulerDocketStateJson;", docketBehavior, StringComparison.Ordinal);
+        Assert.Contains("_rulerDocketStateChunks, _rulerDocketStateJson, JsonConvert.DeserializeObject<ReignRulerDocketState>",
+            docketBehavior, StringComparison.Ordinal);
+
+        var restored = ReignSavePayloadCodec.DecodeAuthoritativeState<Dictionary<string, int>>(
+            new List<string>(), "{\"Version\":3}",
+            Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>,
+            () => new Dictionary<string, int>());
+        Assert.Equal(3, restored["Version"]);
         Assert.Contains("_reignCourt_rulerDocketStateChunks", courtBehavior, StringComparison.Ordinal);
         Assert.DoesNotContain("_rulerDocketStateJson = JsonConvert.SerializeObject", docketBehavior,
             StringComparison.Ordinal);
