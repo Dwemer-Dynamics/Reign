@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -763,15 +765,72 @@ namespace ReignBeta.Court.Campaign
             return recordId;
         }
 
+        internal ReignNobleDocketMatter ResolveNobleJudgmentHistory(ReignDocketHistoryRecord history)
+        {
+            if (history?.Type != "noble_matter" || history.Outcome != "judgment"
+                || string.IsNullOrWhiteSpace(history.RecordId)
+                || !TryResolveCurrentNobleJudgment(history.PetitionId, out ReignNobleDocketMatter matter, out _)
+                || history.ReignId != matter.ReignId
+                || !EnsureRulerDocketState().History.Any(x => ReferenceEquals(x, history)))
+                return null;
+            return matter;
+        }
+
+        private bool TryResolveCurrentNobleJudgment(string matterId, out ReignNobleDocketMatter matter, out string receipt)
+        {
+            matter = null;
+            Settlement capital = FindCurrentCapital();
+            if (!ReferenceEquals(Instance, this) || TaleWorlds.CampaignSystem.Campaign.Current == null
+                || ReignSaveSyncCoordinator.IsAlignmentPending || !HasRoyalCommandAccess
+                || _session.State == ReignCourtSessionState.Interrupted
+                || capital == null || _session.HostSettlementStringId != capital.StringId
+                || CurrentSettlement() != capital || !TryResolveAuthority(capital, out _, out _))
+            { receipt = "Noble judgments may be changed only while holding Court in the current capital."; return false; }
+
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId;
+            if (string.IsNullOrWhiteSpace(campaign) || string.IsNullOrWhiteSpace(timeline)
+                || _session.CampaignId != campaign || _session.TimelineId != timeline
+                || string.IsNullOrWhiteSpace(matterId))
+            { receipt = "This judgment does not belong to the current Court campaign and timeline."; return false; }
+
+            var matching = EnsureRulerDocketState().NobleMatters
+                .Where(x => x?.MatterId == matterId && x.CampaignId == campaign && x.TimelineId == timeline)
+                .Take(2).ToList();
+            if (matching.Count != 1 || matching[0].ReignId != CurrentReignId())
+            { receipt = "This judgment does not belong to the current reign."; return false; }
+            var judgment = matching[0];
+            if (judgment.State != ReignNobleMatterState.Ruled
+                && judgment.State != ReignNobleMatterState.Acquitted
+                && judgment.State != ReignNobleMatterState.Convicted)
+            { receipt = "Only a completed noble judgment may be changed."; return false; }
+
+            matter = judgment;
+            receipt = string.Empty;
+            return true;
+        }
+
+        internal Hero ResolveHeldNobleJudgmentPrisoner(ReignNobleDocketMatter matter)
+        {
+            ReignCourtCustodyHold hold = matter?.CustodyHold;
+            if (hold?.Active != true || hold.Executed || hold.ReleasedByReversal
+                || string.IsNullOrWhiteSpace(hold.PrisonerHeroId) || hold.PrisonerHeroId != matter.ConvictedHeroId
+                || string.IsNullOrWhiteSpace(hold.CapitalSettlementId))
+                return null;
+
+            Settlement prison = Settlement.Find(hold.CapitalSettlementId);
+            Kingdom kingdom = Clan.PlayerClan?.Kingdom;
+            Hero prisoner = FindHero(hold.PrisonerHeroId);
+            return prison?.Party != null && kingdom != null && prison.OwnerClan?.Kingdom == kingdom
+                && prisoner?.IsAlive == true && prisoner.IsPrisoner
+                && ReferenceEquals(prisoner.PartyBelongedToAsPrisoner, prison.Party) ? prisoner : null;
+        }
+
         public bool TryExecuteMurderSentence(string matterId, out string receipt)
         {
-            receipt = string.Empty;
-            ReignNobleDocketMatter matter = EnsureRulerDocketState().NobleMatters
-                .FirstOrDefault(x => x?.MatterId == matterId);
-            Hero convicted = FindHero(matter?.ConvictedHeroId);
-            if (matter == null || !matter.IsMurder || matter.State != ReignNobleMatterState.Convicted
-                || matter.Irreversible || matter.CustodyHold?.Active != true || convicted == null
-                || !convicted.IsAlive || !convicted.IsPrisoner)
+            if (!TryResolveCurrentNobleJudgment(matterId, out ReignNobleDocketMatter matter, out receipt)) return false;
+            Hero convicted = ResolveHeldNobleJudgmentPrisoner(matter);
+            if (!matter.IsMurder || matter.State != ReignNobleMatterState.Convicted || matter.Irreversible || convicted == null)
             { receipt = "Only a living murderer held under this judgment may be executed."; return false; }
             Dictionary<string, int> rulerRelations = Hero.AllAliveHeroes.Where(x => x != null
                     && x != Hero.MainHero && !string.IsNullOrWhiteSpace(x.StringId))
@@ -797,23 +856,19 @@ namespace ReignBeta.Court.Campaign
 
         public bool TryReverseNobleJudgment(string matterId, out string receipt)
         {
-            receipt = string.Empty;
-            ReignNobleDocketMatter matter = EnsureRulerDocketState().NobleMatters
-                .FirstOrDefault(x => x?.MatterId == matterId);
-            if (matter == null || (matter.State != ReignNobleMatterState.Ruled
-                && matter.State != ReignNobleMatterState.Acquitted
-                && matter.State != ReignNobleMatterState.Convicted))
-            { receipt = "Only a completed noble judgment may be reversed."; return false; }
+            if (!TryResolveCurrentNobleJudgment(matterId, out ReignNobleDocketMatter matter, out receipt)) return false;
             if (matter.Irreversible || matter.CustodyHold?.Executed == true)
             { receipt = "This judgment includes an irreversible death and cannot be reversed."; return false; }
 
             if (matter.CustodyHold?.Active == true)
             {
-                Hero prisoner = FindHero(matter.CustodyHold.PrisonerHeroId);
-                if (prisoner != null && prisoner.IsPrisoner)
+                Hero prisoner = ResolveHeldNobleJudgmentPrisoner(matter);
+                if (prisoner != null)
+                {
                     EndCaptivityAction.ApplyByReleasedByChoice(prisoner, Hero.MainHero);
+                    matter.CustodyHold.ReleasedByReversal = !prisoner.IsPrisoner;
+                }
                 matter.CustodyHold.Active = false;
-                matter.CustodyHold.ReleasedByReversal = true;
             }
             ReverseNobleTags(matter);
             ReverseNobleRelations(matter);

@@ -51,32 +51,29 @@ namespace ReignBeta.Court.UI
             }
             if (card.Payload is ReignDocketHistoryRecord docketHistory)
             {
-                ReignNobleDocketMatter noble = _court.DocketNobleMatters.FirstOrDefault(x =>
-                    x.MatterId == docketHistory.PetitionId);
+                ReignNobleDocketMatter noble = _court.ResolveNobleJudgmentHistory(docketHistory);
                 if (noble == null) return;
-                bool mayReverse = !noble.Irreversible && (noble.State == ReignNobleMatterState.Ruled
-                    || noble.State == ReignNobleMatterState.Acquitted
-                    || noble.State == ReignNobleMatterState.Convicted);
+                var fence = ReignServerClient.RequestFence.Capture();
+                CourtSession session = _court.Session;
+                long viewRevision = _audienceViewRevision;
+                bool OwnsJudgment() => !_finalized && DetailVisible && viewRevision == _audienceViewRevision
+                    && ReferenceEquals(_selectedCard, card) && ReferenceEquals(_court.Session, session)
+                    && fence.IsCurrent() && ReferenceEquals(_court.ResolveNobleJudgmentHistory(docketHistory), noble);
+
+                bool mayReverse = !noble.Irreversible && noble.CustodyHold?.Executed != true;
                 Actions.Add(new ReignCourtActionVM("REVERSE JUDGMENT",
                     noble.Irreversible
                         ? "An execution or other irreversible death prevents reversal."
                         : "Append a formal reversal, compensate safe relation/reputation effects, and accept a credibility cost. Native family, gold, and death effects are not rewound.",
                     mayReverse, mayReverse ? string.Empty : "This judgment cannot be reversed.",
-                    () => ConfirmNobleReversal(noble)));
+                    () => ConfirmNobleReversal(noble, OwnsJudgment)));
                 if (noble.IsMurder && noble.State == ReignNobleMatterState.Convicted)
+                {
+                    bool mayExecute = !noble.Irreversible && _court.ResolveHeldNobleJudgmentPrisoner(noble) != null;
                     Actions.Add(new ReignCourtActionVM("EXECUTE CONVICTED PRISONER",
                         "Irreversibly execute the living prisoner. Native execution consequences remain; only automatic ruler-relation losses are suppressed.",
-                        noble.CustodyHold?.Active == true && !noble.Irreversible,
-                        noble.Irreversible ? "The sentence has already been carried out." : string.Empty,
-                        () => ConfirmMurderExecution(noble)));
-                foreach (ReignNobleMatterParticipant participant in noble.Participants.Take(4))
-                {
-                    ReignNobleMatterParticipant selected = participant;
-                    Hero courtStayHero = FindHero(selected.HeroId);
-                    if (courtStayHero == null || courtStayHero.IsPrisoner) continue;
-                    Actions.Add(new ReignCourtActionVM("KEEP " + selected.HeroName.ToUpperInvariant() + " AT COURT",
-                        "Bring this participant physically to the capital until the next morning, then release ordinary native/Reign AI without restoring a stale map position.",
-                        true, string.Empty, () => RequestNobleCourtStay(noble, selected)));
+                        mayExecute, mayExecute ? string.Empty : "The prisoner is no longer held under this sentence.",
+                        () => ConfirmMurderExecution(noble, OwnsJudgment)));
                 }
                 return;
             }
