@@ -264,6 +264,8 @@ namespace ReignBeta.Court.Campaign
 
         internal void ResolveSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
         {
+            if (mission.State != ReignSpymasterMissionState.Active) return;
+
             float outcomeRoll;
             if (!ReignTestHarness.Current.Spymaster.TryTakeMissionOutcome(mission.MissionId, out outcomeRoll))
                 outcomeRoll = NextSpymasterRoll("mission_outcome");
@@ -274,8 +276,19 @@ namespace ReignBeta.Court.Campaign
             {
                 mission.State = ReignSpymasterMissionState.Succeeded;
                 mission.AgreementEffectState = "applying";
-                ResolveSuccessfulSpymasterMission(mission, spymaster, day);
-                if (mission.AgreementEffectState == "applying") mission.AgreementEffectState = "completed";
+                try
+                {
+                    ResolveSuccessfulSpymasterMission(mission, spymaster, day);
+                }
+                catch (Exception ex)
+                {
+                    if (mission.AgreementEffectState == "applying")
+                    {
+                        mission.AgreementEffectState = "recovery_required";
+                        mission.ResultSummary = "The field operation succeeded, but its effect could not be confirmed.";
+                    }
+                    ReignLog.Exception("Resolving Spymaster operation " + mission.MissionId, ex);
+                }
                 ReignTestHarness.Current.Spymaster.DiscardMissionConsequence(mission.MissionId);
             }
             else
@@ -310,28 +323,48 @@ namespace ReignBeta.Court.Campaign
                     mission.ResultSummary = snapshot == null
                         ? "The agents returned, but the settlement no longer exists."
                         : BuildSettlementReport(snapshot);
+                    mission.AgreementEffectState = snapshot == null ? "no_effect" : "completed";
                     break;
                 case "person_skills":
                 case "person_relationships":
                 case "person_rumors":
                     Hero person = FindHero(mission.TargetStringId);
+                    if (person?.IsAlive != true || !person.IsActive)
+                    {
+                        mission.ResultSummary = "The subject could not be located.";
+                        mission.AgreementEffectState = "no_effect";
+                        break;
+                    }
                     mission.ResultSummary = BuildPersonReport(person, mission.MissionType);
-                    mission.ReportJson = JsonConvert.SerializeObject(new { heroId = person?.StringId, report = mission.ResultSummary });
-                    if (mission.MissionType == "person_rumors" && person != null)
+                    mission.ReportJson = JsonConvert.SerializeObject(new { heroId = person.StringId, report = mission.ResultSummary });
+                    if (mission.MissionType == "person_rumors")
+                    {
+                        mission.AgreementEffectState = "pending";
                         _ = EnrichSocialReportAsync(mission, person);
+                    }
+                    else
+                        mission.AgreementEffectState = "completed";
                     break;
                 case "counterintelligence":
                     int exposed = ExposeForeignAgentNetwork(day);
                     mission.ResultSummary = exposed == 0
-                        ? "No foreign network was exposed; defensive watchers have been reinforced."
+                        ? "The network completed its sweep. No foreign network was exposed."
                         : exposed + " foreign agent" + (exposed == 1 ? " was" : "s were") + " exposed and neutralized.";
+                    mission.AgreementEffectState = "completed";
                     break;
                 case "disrupt_food":
                 case "disrupt_construction":
                 case "disrupt_security":
                 case "disrupt_loyalty":
+                    if (FindSettlement(mission.TargetStringId)?.Town == null)
+                    {
+                        mission.ResultSummary = "The network could no longer reach the target settlement.";
+                        mission.AgreementEffectState = "no_effect";
+                        break;
+                    }
                     ReignSpymasterEffectSpec effect = ReignSpymasterCore.Effect(mission.MissionType);
                     AddSettlementEffect(mission, day, effect.EffectType, (float)effect.Magnitude, (float)effect.DurationDays);
+                    mission.AgreementEffectState = "completed";
                     break;
                 case "assassinate_governor":
                     ResolveAssassination(mission, FindSettlement(mission.TargetStringId)?.Town?.Governor);
@@ -339,19 +372,25 @@ namespace ReignBeta.Court.Campaign
                 case "assassinate_person":
                     ResolveAssassination(mission, FindHero(mission.TargetStringId));
                     break;
+                case "mitigate_own_rumor":
+                case "mitigate_own_reputation":
+                case "mitigate_target_rumor":
+                case "mitigate_target_reputation":
+                    mission.ResultSummary = "The field operation succeeded. The social record is awaiting confirmation.";
+                    mission.AgreementEffectState = "pending";
+                    _ = ConfirmSpymasterMitigationAsync(mission, readReceipt: false);
+                    break;
+                case "fabricate_positive":
+                case "fabricate_moderate":
+                case "fabricate_severe":
+                    mission.ResultSummary = "The field operation succeeded. The social record is awaiting confirmation.";
+                    mission.AgreementEffectState = "pending";
+                    _ = ApplySocialOperationAndRecordAsync(mission);
+                    ApplyPositiveSocialRelation(mission);
+                    break;
                 default:
-                    mission.ResultSummary = "The assigned operation was completed successfully.";
-                    if (IsSpymasterMitigation(mission))
-                    {
-                        mission.ResultSummary = "The field operation succeeded. The social record is awaiting confirmation.";
-                        mission.AgreementEffectState = "pending";
-                        _ = ConfirmSpymasterMitigationAsync(mission, readReceipt: false);
-                    }
-                    else if (mission.MissionType.StartsWith("fabricate_", StringComparison.OrdinalIgnoreCase))
-                    {
-                        _ = ApplySocialOperationAndRecordAsync(mission);
-                        ApplyPositiveSocialRelation(mission);
-                    }
+                    mission.ResultSummary = "The network could not carry out this operation.";
+                    mission.AgreementEffectState = "no_effect";
                     break;
             }
         }
@@ -374,25 +413,40 @@ namespace ReignBeta.Court.Campaign
 
         internal void ResolveAssassination(ReignSpymasterMission mission, Hero victim)
         {
-            if (victim == null || !victim.IsAlive)
+            if (victim == null || !victim.IsAlive || victim == Hero.MainHero)
             {
                 mission.ResultSummary = "The target was already unavailable before the assassins arrived.";
+                mission.AgreementEffectState = "no_effect";
                 return;
             }
             if (victim.IsNotable && victim.Issue != null)
             {
                 mission.ResultSummary = "The attempt was abandoned because the target became essential to an active issue.";
+                mission.AgreementEffectState = "no_effect";
                 return;
             }
             if (!victim.CanDie(KillCharacterAction.KillCharacterActionDetail.Murdered))
             {
                 mission.ResultSummary = "The attempt reached the target, but campaign protections prevented the death.";
+                mission.AgreementEffectState = "no_effect";
                 return;
             }
             if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+            {
                 ReignTestHarness.Current.Spymaster.RecordNativeIntent("assassination", new JObject { ["victimHeroId"] = victim.StringId, ["missionId"] = mission.MissionId });
-            else KillCharacterAction.ApplyByMurder(victim, null, true);
+                mission.ResultSummary = "The fixture recorded the attempt without applying its native effect.";
+                mission.AgreementEffectState = "no_effect";
+                return;
+            }
+            KillCharacterAction.ApplyByMurder(victim, null, true);
+            if (victim.IsAlive)
+            {
+                mission.ResultSummary = "The attempt reached the target, but the campaign did not confirm the death.";
+                mission.AgreementEffectState = "recovery_required";
+                return;
+            }
             mission.ResultSummary = victim.Name + " was assassinated. Native clan and kingdom succession has begun.";
+            mission.AgreementEffectState = "completed";
         }
 
         internal void ApplyFailedMissionConsequences(ReignSpymasterMission mission, Hero spymaster)
