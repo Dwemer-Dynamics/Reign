@@ -438,7 +438,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private void OnTournamentStarted(Town town) => Emit("tournament_started", "started", "A tournament began at " + Name(town?.Settlement) + ".", "tournament_" + town?.StringId + "_" + CurrentDay().ToString("0.000"), town?.Settlement, new JArray(Entity(town?.Settlement, "tournament location")), true, "ordinary");
         private void OnTournamentFinished(CharacterObject winner, TaleWorlds.Library.MBReadOnlyList<CharacterObject> participants, Town town, ItemObject prize)
         {
-            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(town, winner);
+            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(participants);
             JArray entities = new JArray(Entity(winner?.HeroObject, "tournament winner actor"), Entity(town?.Settlement, "tournament location"));
             foreach (CharacterObject participant in participants ?? new TaleWorlds.Library.MBReadOnlyList<CharacterObject>(new List<CharacterObject>()))
                 if (participant?.HeroObject != null && participant != winner)

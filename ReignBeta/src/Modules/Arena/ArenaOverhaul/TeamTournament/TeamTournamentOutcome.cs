@@ -4,40 +4,52 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using TaleWorlds.Library;
 
 namespace ArenaOverhaul.TeamTournament
 {
     /// <summary>Result metadata missing from Bannerlord's single-winner tournament event.</summary>
     public sealed class TeamTournamentOutcome
     {
-        private static TeamTournamentOutcome? _latest;
-        private readonly string _townId;
-        private readonly string _winnerId;
-        private readonly float _day;
+        [ThreadStatic] private static TeamTournamentOutcome? _dispatchOutcome;
+        private readonly Campaign _campaign;
+        private readonly MBReadOnlyList<CharacterObject> _participants;
 
-        private TeamTournamentOutcome(Town town, CharacterObject winner, IEnumerable<CharacterObject> teammates)
+        private TeamTournamentOutcome(Campaign campaign, MBReadOnlyList<CharacterObject> participants,
+            IEnumerable<CharacterObject> teammates)
         {
-            _townId = town.StringId;
-            _winnerId = winner.StringId;
-            _day = (float)CampaignTime.Now.ToDays;
+            _campaign = campaign;
+            _participants = participants;
             WinningTeam = teammates.Where(x => x != null).GroupBy(x => x.StringId).Select(x => x.First()).ToArray();
         }
 
         public IReadOnlyList<CharacterObject> WinningTeam { get; }
 
-        public static void Capture(Town town, CharacterObject? winner, IEnumerable<CharacterObject>? teammates)
+        internal static void PublishFinishedEvent(Campaign? campaign, CharacterObject? winner,
+            List<CharacterObject> participants, Town? town, ItemObject prize, IEnumerable<CharacterObject>? teammates)
         {
-            _latest = town == null || winner == null || teammates == null
-                ? null : new TeamTournamentOutcome(town, winner, teammates);
+            // The native dispatcher forwards this exact roster object to each synchronous listener.
+            var eventParticipants = new MBReadOnlyList<CharacterObject>(participants);
+            var previous = _dispatchOutcome;
+            _dispatchOutcome = campaign != null && ReferenceEquals(campaign, Campaign.Current)
+                && town != null && winner != null && teammates != null
+                ? new TeamTournamentOutcome(campaign, eventParticipants, teammates)
+                : null;
+            try
+            {
+                CampaignEventDispatcher.Instance.OnTournamentFinished(winner, eventParticipants, town, prize);
+            }
+            finally
+            {
+                _dispatchOutcome = previous;
+            }
         }
 
-        public static TeamTournamentOutcome? ForFinishedEvent(Town town, CharacterObject winner)
+        public static TeamTournamentOutcome? ForFinishedEvent(MBReadOnlyList<CharacterObject> participants)
         {
-            TeamTournamentOutcome? outcome = _latest;
-            if (outcome == null || town == null || winner == null) return null;
-            return string.Equals(outcome._townId, town.StringId, StringComparison.Ordinal)
-                && string.Equals(outcome._winnerId, winner.StringId, StringComparison.Ordinal)
-                && Math.Abs((float)CampaignTime.Now.ToDays - outcome._day) < 0.001f ? outcome : null;
+            var outcome = _dispatchOutcome;
+            return outcome != null && ReferenceEquals(outcome._campaign, Campaign.Current)
+                && ReferenceEquals(outcome._participants, participants) ? outcome : null;
         }
     }
 }
