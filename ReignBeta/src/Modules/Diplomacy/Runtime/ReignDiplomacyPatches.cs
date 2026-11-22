@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Linq;
 using HarmonyLib;
+using ReignBeta.Diplomacy.Campaign;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Election;
@@ -120,12 +121,16 @@ namespace ReignBeta.Diplomacy.Runtime
 
         private static bool BlockAutonomousProposal(ref KingdomDecision __result)
         {
+            if (!ReignWorldDiplomacyCampaignBehavior.IsEnabled()) return true;
+
             __result = null;
             return false;
         }
 
         public static int CancelUnresolvedNpcDiplomacy()
         {
+            if (!ReignWorldDiplomacyCampaignBehavior.IsEnabled()) return 0;
+
             int removed = 0;
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             foreach (Kingdom kingdom in Kingdom.All)

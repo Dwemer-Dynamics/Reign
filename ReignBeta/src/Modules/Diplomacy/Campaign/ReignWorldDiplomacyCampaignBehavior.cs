@@ -702,7 +702,7 @@ namespace ReignBeta.Diplomacy.Campaign
             return topName.IndexOf("Map", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static bool IsEnabled()
+        internal static bool IsEnabled()
         {
             ReignBetaSettings settings = ReignBetaSettings.Instance;
             return (settings == null || settings.Enabled)
