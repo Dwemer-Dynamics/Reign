@@ -20,7 +20,6 @@ internal sealed class BridgeCommandDispatcher
     private readonly string _sessionId;
     private readonly Dictionary<string, IdempotencyEntry> _idempotency =
         new Dictionary<string, IdempotencyEntry>(StringComparer.Ordinal);
-    private readonly IdempotencyRegistry _idempotencyKeys = new IdempotencyRegistry();
     private long _changeCounter;
 
     internal BridgeCommandDispatcher(EditorBridgeController controller, string sessionId)
@@ -70,29 +69,36 @@ internal sealed class BridgeCommandDispatcher
 
     private BridgeResponse HandleWrite(BridgeRequest request)
     {
-        var guardFailure = ValidateWriteGuard(request);
-        if (guardFailure is not null)
+        var context = CreateWriteSafetyContext();
+        var scopeRejection = WriteSafetyValidator.ValidateReplayScope(request, context);
+        if (scopeRejection is not null)
         {
-            return guardFailure;
+            return Reject(request, scopeRejection.Code, scopeRejection.Message);
         }
 
         var fingerprint = CreateIdempotencyFingerprint(request);
-        var idempotencyCheck = _idempotencyKeys.Check(request.IdempotencyKey, fingerprint);
-        if (idempotencyCheck == IdempotencyCheck.Conflict)
+        if (_idempotency.TryGetValue(request.IdempotencyKey, out var previous))
         {
-            return Reject(
-                request,
-                "idempotency_conflict",
-                "The idempotency key was already used for a different request.");
-        }
+            if (!string.Equals(previous.Fingerprint, fingerprint, StringComparison.Ordinal))
+            {
+                return Reject(
+                    request,
+                    "idempotency_conflict",
+                    "The idempotency key was already used for a different request.");
+            }
 
-        if (idempotencyCheck == IdempotencyCheck.Replay &&
-            _idempotency.TryGetValue(request.IdempotencyKey, out var previous))
-        {
             var replay = CloneResponse(previous.Response);
             replay.RequestId = request.RequestId;
             replay.Warnings.Add("This is an idempotent replay; the command was not executed again.");
             return replay;
+        }
+
+        // Replays retain their original request revision. Only a fresh mutation
+        // needs the current revision before it can perform an editor command.
+        var writeRejection = WriteSafetyValidator.Validate(request, context);
+        if (writeRejection is not null)
+        {
+            return Reject(request, writeRejection.Code, writeRejection.Message);
         }
 
         BridgeResponse response;
@@ -114,28 +120,24 @@ internal sealed class BridgeCommandDispatcher
 
         if (response.Ok)
         {
-            _idempotencyKeys.Commit(request.IdempotencyKey, fingerprint);
             _idempotency[request.IdempotencyKey] = new IdempotencyEntry(fingerprint, CloneResponse(response));
         }
 
         return response;
     }
 
-    private BridgeResponse? ValidateWriteGuard(BridgeRequest request)
+    private WriteSafetyContext CreateWriteSafetyContext()
     {
-        var rejection = WriteSafetyValidator.Validate(
-            request,
-            new WriteSafetyContext
-            {
-                BridgeEnabled = _controller.BridgeEnabled,
-                ReadOnly = _controller.ReadOnly,
-                SafeWritesArmed = _controller.SafeWritesArmed,
-                ConfiguredTargetModule = _controller.TargetModuleId ?? string.Empty,
-                ConfiguredDisposableScene = _controller.DisposableSceneName ?? string.Empty,
-                CurrentScene = _controller.Scene?.GetName() ?? string.Empty,
-                CurrentRevision = CurrentRevision
-            });
-        return rejection is null ? null : Reject(request, rejection.Code, rejection.Message);
+        return new WriteSafetyContext
+        {
+            BridgeEnabled = _controller.BridgeEnabled,
+            ReadOnly = _controller.ReadOnly,
+            SafeWritesArmed = _controller.SafeWritesArmed,
+            ConfiguredTargetModule = _controller.TargetModuleId ?? string.Empty,
+            ConfiguredDisposableScene = _controller.DisposableSceneName ?? string.Empty,
+            CurrentScene = _controller.Scene?.GetName() ?? string.Empty,
+            CurrentRevision = CurrentRevision
+        };
     }
 
     private BridgeResponse InspectScene(BridgeRequest request)
@@ -548,7 +550,7 @@ internal sealed class BridgeCommandDispatcher
 
     private static string CreateIdempotencyFingerprint(BridgeRequest request)
     {
-        return string.Join("|", new[]
+        return BridgeJson.Serialize(new[]
         {
             request.Command,
             request.TargetModule,

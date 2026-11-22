@@ -41,6 +41,43 @@ public sealed class WriteSafetyTests
         Assert.Null(rejection);
     }
 
+    [Fact]
+    public void ReplayScopeDoesNotRejectTheRevisionOfTheOriginalWrite()
+    {
+        var request = CreateRequest();
+        request.ExpectedSceneRevision = "session:4";
+        var context = CreateContext(safeWritesArmed: true);
+
+        Assert.Null(WriteSafetyValidator.ValidateReplayScope(request, context));
+        var rejection = WriteSafetyValidator.Validate(request, context);
+        Assert.NotNull(rejection);
+        Assert.Equal("stale_scene_revision", rejection.Code);
+    }
+
+    [Fact]
+    public void ReplayScopeStillRequiresArmingCurrentSceneAndValidKey()
+    {
+        var request = CreateRequest();
+        request.ExpectedSceneRevision = "session:4";
+        var context = CreateContext(safeWritesArmed: false);
+
+        var rejection = WriteSafetyValidator.ValidateReplayScope(request, context);
+        Assert.NotNull(rejection);
+        Assert.Equal("writes_disarmed", rejection.Code);
+
+        context.SafeWritesArmed = true;
+        context.CurrentScene = "another_scene";
+        rejection = WriteSafetyValidator.ValidateReplayScope(request, context);
+        Assert.NotNull(rejection);
+        Assert.Equal("invalid_target_scene", rejection.Code);
+
+        context.CurrentScene = request.Scene;
+        request.IdempotencyKey = "";
+        rejection = WriteSafetyValidator.ValidateReplayScope(request, context);
+        Assert.NotNull(rejection);
+        Assert.Equal("invalid_idempotency_key", rejection.Code);
+    }
+
     private static BridgeRequest CreateRequest()
     {
         return new BridgeRequest
