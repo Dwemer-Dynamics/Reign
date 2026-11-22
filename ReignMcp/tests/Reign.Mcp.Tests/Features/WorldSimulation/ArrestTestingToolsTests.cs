@@ -146,6 +146,32 @@ public sealed class ArrestTestingToolsTests
     }
 
     [Fact]
+    public void Explicit_arrest_case_is_bound_to_the_action_target_before_legacy_fallback()
+    {
+        var workspace = TestOptions.FindWorkspace();
+        string behavior = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(workspace, "ReignBeta"),
+            "ReignArrestCampaignBehavior.cs",
+            "/src/Modules/WorldSimulation/Arrests/"));
+
+        int resolverStart = behavior.IndexOf("private ReignArrestCase ResolveActionCase", StringComparison.Ordinal);
+        int resolverEnd = behavior.IndexOf("private static void AddHistory", resolverStart, StringComparison.Ordinal);
+        string resolver = behavior[resolverStart..resolverEnd];
+        int exactCaseStart = resolver.IndexOf("if (!string.IsNullOrWhiteSpace(id))", StringComparison.Ordinal);
+        int legacyStart = resolver.IndexOf("return ActiveCaseFor(accused)", StringComparison.Ordinal);
+        string exactCase = resolver[exactCaseStart..legacyStart];
+        Assert.Contains("ReignArrestCase item = FindCase(id);", exactCase, StringComparison.Ordinal);
+        Assert.Contains("item.AccusedHeroStringId, accused.StringId", exactCase, StringComparison.Ordinal);
+        Assert.Contains("? item : null;", exactCase, StringComparison.Ordinal);
+
+        int releaseStart = behavior.IndexOf("public ReignActionResult ReleaseArrested", StringComparison.Ordinal);
+        int releaseEnd = behavior.IndexOf("public ReignActionResult AttackTargetParty", releaseStart, StringComparison.Ordinal);
+        string release = behavior[releaseStart..releaseEnd];
+        Assert.Contains("ResolveActionCase(action, accused, includeClosedAccusation: true);", release, StringComparison.Ordinal);
+        Assert.DoesNotContain("?? _cases", release, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Conversation_router_contains_negative_and_hypothetical_guards()
     {
         var workspace = TestOptions.FindWorkspace();

@@ -226,10 +226,7 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         public ReignActionResult ReleaseArrested(ReignWorldActionRecord action, Hero accused, bool rescind)
         {
-            ReignArrestCase item = ResolveActionCase(action, accused)
-                ?? _cases.LastOrDefault(candidate => candidate.AccusationActive
-                    && string.Equals(candidate.AccusedHeroStringId, accused?.StringId,
-                        StringComparison.OrdinalIgnoreCase));
+            ReignArrestCase item = ResolveActionCase(action, accused, includeClosedAccusation: true);
             if (item == null || accused == null)
                 return ReignActionResult.ValidationFailed("No arrest case was found for this character.");
 
@@ -777,10 +774,23 @@ namespace ReignBeta.WorldSimulation.Arrests
             return party.IsMobile && party.MobileParty == MobileParty.MainParty;
         }
 
-        private ReignArrestCase ResolveActionCase(ReignWorldActionRecord action, Hero accused)
+        private ReignArrestCase ResolveActionCase(ReignWorldActionRecord action, Hero accused,
+            bool includeClosedAccusation = false)
         {
+            if (accused == null) return null;
+
             string id = ReadString(ParseTerms(action?.TermsJson), "caseId", string.Empty);
-            return !string.IsNullOrWhiteSpace(id) ? FindCase(id) : ActiveCaseFor(accused);
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                ReignArrestCase item = FindCase(id);
+                return item != null && string.Equals(item.AccusedHeroStringId, accused.StringId,
+                    StringComparison.OrdinalIgnoreCase) ? item : null;
+            }
+
+            return ActiveCaseFor(accused) ?? (includeClosedAccusation
+                ? _cases.LastOrDefault(item => item.AccusationActive
+                    && string.Equals(item.AccusedHeroStringId, accused.StringId, StringComparison.OrdinalIgnoreCase))
+                : null);
         }
 
         private static void AddHistory(ReignArrestCase item, string phase, string summary)
