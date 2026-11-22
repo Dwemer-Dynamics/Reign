@@ -10,6 +10,7 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
 using EngineTexture = TaleWorlds.Engine.Texture;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using TwoDimensionTexture = TaleWorlds.TwoDimension.Texture;
 using ReignBeta.Platform.Integration;
 
@@ -25,6 +26,10 @@ namespace ReignBeta.UI
         private const string CategoryPrefix = "ui_reignbeta_";
         private static readonly object Sync = new object();
         private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(2);
+        private static readonly TimeSpan HealthyInspectionInterval = TimeSpan.FromMilliseconds(500);
+        private static readonly Stopwatch InspectionClock = Stopwatch.StartNew();
+        private static SpriteData _healthySpriteData;
+        private static TimeSpan _nextHealthyInspection;
         private static DateTime _nextRetryUtc;
         private static string _moduleRoot;
         private static string _lastFailure;
@@ -41,6 +46,12 @@ namespace ReignBeta.UI
                 try
                 {
                     SpriteData spriteData = UIResourceManager.SpriteData;
+                    // Recheck a replaced resource set immediately. Periodic checks
+                    // still catch an unloaded category inside the same SpriteData.
+                    if (!force && spriteData != null && ReferenceEquals(spriteData, _healthySpriteData)
+                        && InspectionClock.Elapsed < _nextHealthyInspection) return;
+
+                    _healthySpriteData = null;
                     if (spriteData == null) return;
 
                     List<SpriteCategory> categories = spriteData.SpriteCategories.Values
@@ -48,7 +59,11 @@ namespace ReignBeta.UI
                         .OrderBy(category => category.Name, StringComparer.Ordinal)
                         .ToList();
                     if (categories.Count == 0) return;
-                    if (!force && categories.All(IsReady)) return;
+                    if (!force && categories.All(IsReady))
+                    {
+                        RecordHealthyInspection(spriteData);
+                        return;
+                    }
 
                     string moduleRoot = GetModuleRoot();
                     if (string.IsNullOrWhiteSpace(moduleRoot))
@@ -92,6 +107,7 @@ namespace ReignBeta.UI
 
                     _lastFailure = null;
                     _nextRetryUtc = DateTime.MinValue;
+                    RecordHealthyInspection(spriteData);
                 }
                 catch (Exception ex)
                 {
@@ -170,6 +186,12 @@ namespace ReignBeta.UI
                     return false;
                 }
             }
+        }
+
+        private static void RecordHealthyInspection(SpriteData spriteData)
+        {
+            _healthySpriteData = spriteData;
+            _nextHealthyInspection = InspectionClock.Elapsed + HealthyInspectionInterval;
         }
 
         private static bool IsReady(SpriteCategory category)
@@ -306,6 +328,7 @@ namespace ReignBeta.UI
 
         private static void Fail(string message)
         {
+            _healthySpriteData = null;
             _nextRetryUtc = DateTime.UtcNow + RetryDelay;
             if (string.Equals(_lastFailure, message, StringComparison.Ordinal)) return;
             _lastFailure = message;
