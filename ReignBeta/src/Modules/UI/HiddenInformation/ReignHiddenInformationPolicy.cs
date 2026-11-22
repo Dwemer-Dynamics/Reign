@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.Items;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
+using TaleWorlds.Localization;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 
@@ -84,68 +85,31 @@ namespace ReignBeta.UI.HiddenInformation
             AssociateSkillTree(root, hero, visited, 0);
         }
 
-        public static void MaskRelationshipProperties(IEnumerable<TooltipProperty> properties)
+        public static void MaskHeroTooltipRelationships(IEnumerable<TooltipProperty> properties)
         {
             if (properties == null)
             {
                 return;
             }
 
+            // Match the native tooltip's formatting without changing the global LEFT variable.
+            string relationLabel = null;
+            if (GameTexts.TryGetText("str_tooltip_label_relation", out TextObject relationText) &&
+                GameTexts.TryGetText("str_LEFT_ONLY", out TextObject labelFormat))
+            {
+                relationLabel = labelFormat.SetTextVariable("LEFT", relationText).ToStringWithoutClear();
+            }
+
             foreach (TooltipProperty property in properties)
             {
-                if (property == null)
-                {
-                    continue;
-                }
-
-                string definition = (property.DefinitionLabel ?? string.Empty).Trim().TrimEnd(':').Trim();
-                bool relation = definition.IndexOf("relation", StringComparison.CurrentCultureIgnoreCase) >= 0
-                    || definition.IndexOf("opinion", StringComparison.CurrentCultureIgnoreCase) >= 0;
-                if (relation)
+                string definition = property?.DefinitionLabel;
+                // The separate development-mode row uses this exact untranslated native label.
+                if (string.Equals(definition, "DEBUG King Relation", StringComparison.Ordinal) ||
+                    (!string.IsNullOrEmpty(relationLabel) && string.Equals(definition, relationLabel, StringComparison.Ordinal)))
                 {
                     property.ValueLabel = string.Empty;
                 }
             }
-        }
-
-        public static bool TryResolveHero(object value, out Hero hero)
-        {
-            hero = value as Hero;
-            if (hero != null)
-            {
-                return true;
-            }
-
-            CharacterObject character = value as CharacterObject;
-            if (character != null)
-            {
-                hero = character.HeroObject;
-                return hero != null;
-            }
-
-            if (value == null)
-            {
-                return false;
-            }
-
-            foreach (string propertyName in new[] { "Hero", "OwnerHero", "Character", "Owner", "HeroData" })
-            {
-                try
-                {
-                    object candidate = value.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(value, null)
-                        ?? value.GetType().GetField(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(value);
-                    if (candidate != null && !ReferenceEquals(candidate, value) && TryResolveHero(candidate, out hero))
-                    {
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogOnce("resolve:" + value.GetType().FullName + ":" + propertyName, ex);
-                }
-            }
-
-            return false;
         }
 
         public static void LogOnce(string key, Exception exception)

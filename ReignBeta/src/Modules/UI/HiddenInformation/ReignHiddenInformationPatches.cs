@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
@@ -27,12 +25,6 @@ namespace ReignBeta.UI.HiddenInformation
     {
         private const string HarmonyId = "com.bannerlordreign.reignbeta.hidden_information";
         private static Harmony _harmony;
-        private static readonly HashSet<string> OptionalPatchKeys = new HashSet<string>(StringComparer.Ordinal);
-        private static readonly List<OptionalPresentationPatch> OptionalPatches = new List<OptionalPresentationPatch>
-        {
-            new OptionalPresentationPatch("SandBox.ViewModelCollection", "SandBox.ViewModelCollection.SPOrderOfBattleVM", "GetAgentTooltip", nameof(DynamicTooltipResultPostfix)),
-            new OptionalPresentationPatch("NavalDLC.ViewModelCollection", "NavalDLC.ViewModelCollection.NavalOrderOfBattleHeroItemVM", "GetTooltip", nameof(DynamicTooltipResultPostfix))
-        };
 
         public static void Apply()
         {
@@ -44,14 +36,12 @@ namespace ReignBeta.UI.HiddenInformation
             _harmony = new Harmony(HarmonyId);
             try
             {
-                AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoaded;
                 Patch(
                     AccessTools.Method(typeof(GameTexts), nameof(GameTexts.FindText),
                         new[] { typeof(string), typeof(string) }),
                     prefix: nameof(PartyMoraleGameTextPrefix));
                 Patch(AccessTools.Method(typeof(HeroVM), nameof(HeroVM.GetRelation)), postfix: nameof(HeroRelationPostfix));
                 Patch(AccessTools.Method(typeof(TooltipRefresherCollection), nameof(TooltipRefresherCollection.RefreshHeroTooltip)), postfix: nameof(RefreshHeroTooltipPostfix));
-                Patch(AccessTools.Method(typeof(TooltipRefresherCollection), nameof(TooltipRefresherCollection.RefreshCharacterTooltip)), postfix: nameof(RefreshCharacterTooltipPostfix));
                 Patch(AccessTools.Method(typeof(EncyclopediaHeroPageVM), nameof(EncyclopediaHeroPageVM.Refresh)), postfix: nameof(EncyclopediaHeroRefreshPostfix));
                 Patch(AccessTools.Method(typeof(ClanLordItemVM), nameof(ClanLordItemVM.UpdateProperties)), postfix: nameof(ClanLordRefreshPostfix));
                 Patch(AccessTools.Method(typeof(MarriageOfferPopupHeroVM), nameof(MarriageOfferPopupHeroVM.RefreshValues)), postfix: nameof(MarriageHeroRefreshPostfix));
@@ -63,18 +53,12 @@ namespace ReignBeta.UI.HiddenInformation
 
                 PatchAllConstructors(typeof(RecruitVolunteerOwnerVM), nameof(RecruitOwnerConstructedPostfix));
                 PatchRelationComparer();
-                foreach (OptionalPresentationPatch optionalPatch in OptionalPatches)
-                {
-                    TryPatchOptionalPresentation(optionalPatch, null);
-                }
-                PatchClanCardPropertyConstructors();
 
                 ReignLog.Info("Character relationship presentation firewall loaded; native character skill presentation retained.");
             }
             catch (Exception ex)
             {
                 _harmony.UnpatchAll(HarmonyId);
-                AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoaded;
                 _harmony = null;
                 ReignLog.Warn("Hidden-information patches failed: " + ex);
             }
@@ -82,10 +66,8 @@ namespace ReignBeta.UI.HiddenInformation
 
         public static void Unapply()
         {
-            AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoaded;
             _harmony?.UnpatchAll(HarmonyId);
             _harmony = null;
-            OptionalPatchKeys.Clear();
         }
 
         private static bool PartyMoraleGameTextPrefix(string id, string variation, ref TextObject __result)
@@ -135,19 +117,10 @@ namespace ReignBeta.UI.HiddenInformation
         private static void RefreshHeroTooltipPostfix(PropertyBasedTooltipVM propertyBasedTooltipVM, object[] args)
         {
             Hero hero = args != null && args.Length > 0 ? args[0] as Hero : null;
-            if (ReignHiddenInformationPolicy.ShouldMask(hero))
+            if (propertyBasedTooltipVM != null && ReignHiddenInformationPolicy.ShouldMask(hero))
             {
                 propertyBasedTooltipVM.Mode = 1;
-                ReignHiddenInformationPolicy.MaskRelationshipProperties(propertyBasedTooltipVM?.TooltipPropertyList);
-            }
-        }
-
-        private static void RefreshCharacterTooltipPostfix(PropertyBasedTooltipVM propertyBasedTooltipVM, object[] args)
-        {
-            CharacterObject character = args != null && args.Length > 0 ? args[0] as CharacterObject : null;
-            if (ReignHiddenInformationPolicy.ShouldMask(character))
-            {
-                ReignHiddenInformationPolicy.MaskRelationshipProperties(propertyBasedTooltipVM?.TooltipPropertyList);
+                ReignHiddenInformationPolicy.MaskHeroTooltipRelationships(propertyBasedTooltipVM.TooltipPropertyList);
             }
         }
 
@@ -162,11 +135,16 @@ namespace ReignBeta.UI.HiddenInformation
             {
                 return;
             }
-            foreach (StringPairItemVM item in __instance.Stats ?? new MBBindingList<StringPairItemVM>())
+            if (__instance.Stats != null && GameTexts.TryGetText("str_enc_sf_relation", out TextObject relationText))
             {
-                if ((item?.Definition ?? string.Empty).IndexOf("relation", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                string relationLabel = relationText.ToStringWithoutClear();
+                foreach (StringPairItemVM item in __instance.Stats)
                 {
-                    item.Value = string.Empty;
+                    if (!string.IsNullOrEmpty(relationLabel) &&
+                        string.Equals(item?.Definition, relationLabel, StringComparison.Ordinal))
+                    {
+                        item.Value = string.Empty;
+                    }
                 }
             }
             ClearRelationshipList(__instance.Allies);
@@ -262,49 +240,6 @@ namespace ReignBeta.UI.HiddenInformation
             __instance.RelationText = string.Empty;
         }
 
-        private static void DynamicTooltipResultPostfix(object[] __args, object __result)
-        {
-            Hero hero = null;
-            if (__args != null)
-            {
-                foreach (object argument in __args)
-                {
-                    if (ReignHiddenInformationPolicy.TryResolveHero(argument, out hero))
-                    {
-                        break;
-                    }
-                    object character = argument?.GetType().GetProperty("Character", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(argument, null);
-                    if (ReignHiddenInformationPolicy.TryResolveHero(character, out hero))
-                    {
-                        break;
-                    }
-                }
-            }
-            if (ReignHiddenInformationPolicy.ShouldMask(hero))
-            {
-                ReignHiddenInformationPolicy.MaskRelationshipProperties((__result as IEnumerable)?.Cast<object>().OfType<TooltipProperty>());
-            }
-        }
-
-        private static void ClanCardPropertyConstructedPostfix(object __instance)
-        {
-            if (__instance == null)
-            {
-                return;
-            }
-            PropertyInfo titleProperty = __instance.GetType().GetProperty("Title") ?? __instance.GetType().GetProperty("Definition");
-            PropertyInfo valueProperty = __instance.GetType().GetProperty("Value");
-            string title = titleProperty?.GetValue(__instance, null)?.ToString() ?? string.Empty;
-            if (valueProperty?.CanWrite != true)
-            {
-                return;
-            }
-            if (title.IndexOf("relation", StringComparison.CurrentCultureIgnoreCase) >= 0)
-            {
-                valueProperty.SetValue(__instance, string.Empty, null);
-            }
-        }
-
         private static bool RelationComparerPrefix(HeroVM x, HeroVM y, ref int __result)
         {
             if (ReignHiddenInformationPolicy.IsCheatRevealEnabled)
@@ -327,80 +262,6 @@ namespace ReignBeta.UI.HiddenInformation
             if (compare != null)
             {
                 Patch(compare, prefix: nameof(RelationComparerPrefix));
-            }
-        }
-
-        private static void OnAssemblyLoaded(object sender, AssemblyLoadEventArgs args)
-        {
-            if (_harmony == null || args?.LoadedAssembly == null)
-            {
-                return;
-            }
-            foreach (OptionalPresentationPatch optionalPatch in OptionalPatches.Where(spec =>
-                string.Equals(spec.AssemblyName, args.LoadedAssembly.GetName().Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                TryPatchOptionalPresentation(optionalPatch, args.LoadedAssembly);
-            }
-        }
-
-        private static void TryPatchOptionalPresentation(OptionalPresentationPatch spec, Assembly loadedAssembly)
-        {
-            string key = spec.TypeName + "." + spec.MethodName;
-            if (OptionalPatchKeys.Contains(key))
-            {
-                return;
-            }
-            try
-            {
-                Assembly assembly = loadedAssembly ?? AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(candidate => string.Equals(candidate.GetName().Name, spec.AssemblyName, StringComparison.OrdinalIgnoreCase));
-                if (assembly == null)
-                {
-                    try { assembly = Assembly.Load(spec.AssemblyName); }
-                    catch { return; }
-                    if (OptionalPatchKeys.Contains(key)) return;
-                }
-                Type type = assembly.GetType(spec.TypeName, false);
-                MethodInfo method = type?.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .FirstOrDefault(candidate => string.Equals(candidate.Name, spec.MethodName, StringComparison.Ordinal));
-                if (method == null) return;
-                Patch(method, postfix: spec.Postfix);
-                OptionalPatchKeys.Add(key);
-            }
-            catch (Exception ex)
-            {
-                ReignHiddenInformationPolicy.LogOnce("optional-patch:" + key, ex);
-            }
-        }
-
-        private sealed class OptionalPresentationPatch
-        {
-            public OptionalPresentationPatch(string assemblyName, string typeName, string methodName, string postfix)
-            {
-                AssemblyName = assemblyName;
-                TypeName = typeName;
-                MethodName = methodName;
-                Postfix = postfix;
-            }
-
-            public string AssemblyName { get; }
-            public string TypeName { get; }
-            public string MethodName { get; }
-            public string Postfix { get; }
-        }
-
-        private static void PatchClanCardPropertyConstructors()
-        {
-            Type propertyType = typeof(ClanLordItemVM).Assembly.GetType(
-                "TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.ClanCardSelectionItemPropertyInfo",
-                false);
-            if (propertyType == null)
-            {
-                return;
-            }
-            foreach (ConstructorInfo constructor in propertyType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                Patch(constructor, postfix: nameof(ClanCardPropertyConstructedPostfix));
             }
         }
     }
