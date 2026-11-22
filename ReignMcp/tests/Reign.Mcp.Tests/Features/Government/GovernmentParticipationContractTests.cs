@@ -171,6 +171,38 @@ public sealed class GovernmentParticipationContractTests
     }
 
     [Fact]
+    public void HearingReplyBelongsToTheOriginalViewAndComposerRevision()
+    {
+        string directory = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta/src/Modules/Government/UI/ViewModels");
+        string screen = File.ReadAllText(Path.Combine(directory, "ReignGovernmentScreenVM.cs"));
+        int send = screen.IndexOf("private async Task SpeakAsync()", StringComparison.Ordinal);
+        int next = screen.IndexOf("public void ExecuteHoldMeeting()", StringComparison.Ordinal);
+        Assert.True(send >= 0 && next > send);
+        string speech = screen[send..next];
+
+        int submit = speech.IndexOf("SubmitHearingMessageAsync(id, text)", StringComparison.Ordinal);
+        int release = speech.IndexOf("_sending = false;", StringComparison.Ordinal);
+        int business = speech.IndexOf("bool sameBusiness = id == _selected?.BusinessId;", StringComparison.Ordinal);
+        int owner = speech.IndexOf("viewRevision != _hearingViewRevision || !sameBusiness", StringComparison.Ordinal);
+        int draftOwner = speech.IndexOf("composerRevision == _composerRevision", StringComparison.Ordinal);
+        int clear = speech.IndexOf("ComposerText = string.Empty;", StringComparison.Ordinal);
+        int present = speech.IndexOf("RefreshAll(response?", StringComparison.Ordinal);
+        Assert.True(submit >= 0 && submit < release && release < business && business < draftOwner
+            && draftOwner < clear && clear < owner && owner < present);
+        Assert.Contains("if (sameBusiness && response?.Value<bool>(\"ok\") == true && composerRevision == _composerRevision)",
+            speech, StringComparison.Ordinal);
+        Assert.Contains("if (_finalized) return;", speech, StringComparison.Ordinal);
+        Assert.Contains("long viewRevision = _hearingViewRevision;", speech, StringComparison.Ordinal);
+        Assert.Contains("long composerRevision = _composerRevision;", speech, StringComparison.Ordinal);
+        Assert.Contains("if (_composer == text) return;", screen, StringComparison.Ordinal);
+        Assert.Contains("_composerRevision++;", screen, StringComparison.Ordinal);
+        Assert.Contains("if (_view == view) return;", screen, StringComparison.Ordinal);
+        Assert.Contains("if (_selected?.BusinessId != business?.BusinessId) _hearingViewRevision++;", screen, StringComparison.Ordinal);
+        Assert.Contains("SetView(\"policy\");",
+            File.ReadAllText(Path.Combine(directory, "ReignGovernmentParticipationVM.cs")), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void DecisionArchiveBindsRecordedStateAndCannotShowDeclarationsForAnUnvotedClosure()
     {
         string root = TestOptions.FindWorkspace();

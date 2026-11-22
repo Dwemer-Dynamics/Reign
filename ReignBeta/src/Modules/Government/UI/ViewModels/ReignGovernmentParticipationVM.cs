@@ -52,7 +52,7 @@ namespace ReignBeta.Government.UI
         {
             _participationMode = mode; _participationHeading = heading; _participationExplanation = explanation;
             _participationListHeading = listHeading; _participationPrimary = primary; _participationAction = action;
-            PolicyChoices.Clear(); _policyListRevision++; _view = "policy";
+            PolicyChoices.Clear(); _policyListRevision++; SetView("policy");
         }
         private void ParticipationChoice(string id, string title, string detail, Action<string> choose = null, bool enabled = true)
         {
