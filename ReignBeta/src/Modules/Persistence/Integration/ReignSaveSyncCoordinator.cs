@@ -158,6 +158,8 @@ namespace ReignBeta.Persistence.Integration
             // across retries so the server can replay the completed receipt
             // instead of performing the destructive rollback a second time.
             loadPayload["loadSessionId"] = Guid.NewGuid().ToString("N");
+            if (ExactString(loadPayload, "savePointKind") == "native_save")
+                loadPayload["skipCleanLoadComparison"] = true;
             // Game thread: capture the reset owner now; weak so a superseded
             // Campaign stays collectible during retries.
             WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign =
