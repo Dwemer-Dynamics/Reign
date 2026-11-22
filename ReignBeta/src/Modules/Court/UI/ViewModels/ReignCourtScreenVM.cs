@@ -27,6 +27,7 @@ namespace ReignBeta.Court.UI
 {
     public sealed partial class ReignCourtScreenVM : ViewModel
     {
+        private const string OpeningAudienceStatus = "Opening the audience...";
         private readonly ReignCourtCampaignBehavior _court;
         private readonly Action _close;
         private string _activeTabId = "court";
@@ -50,6 +51,10 @@ namespace ReignBeta.Court.UI
         private string _audienceEmotion = string.Empty;
         private string _audienceInput = string.Empty;
         private CourtMatter _audienceMatter;
+        private Hero _audienceHero;
+        private long _audienceViewRevision;
+        // The sending view stays busy until its reply is applied on the main thread.
+        private long? _sendingAudienceRevision;
         private ReignCourtCardVM _selectedCard;
         private string _playerBannerId = string.Empty;
         private string _playerBannerArgs = string.Empty;
@@ -73,6 +78,7 @@ namespace ReignBeta.Court.UI
             TabRows = new MBBindingList<ReignCourtCardVM>();
             Actions = new MBBindingList<ReignCourtActionVM>();
             _court.StateChanged += OnCourtStateChanged;
+            _court.AudienceReplyPendingChanged += OnAudienceReplyPendingChanged;
             BuildTabs();
             RefreshAll();
         }
@@ -390,23 +396,46 @@ namespace ReignBeta.Court.UI
 
         public void ExecuteEndAudience()
         {
-            AudienceVisible = false;
-            _court.EndAudience(_audienceMatter);
-            _audienceMatter = null;
+            CourtMatter matter = _audienceMatter;
+            HideAudience();
+            if (matter != null) _court.EndAudience(matter);
         }
 
         public async void ExecuteSendAudience()
         {
+            CourtMatter matter = _audienceMatter;
+            CourtSession session = _court.Session;
+            Hero speaker = _audienceHero;
             string text = (AudienceInput ?? string.Empty).Trim();
-            Hero speaker = _selectedCard?.Hero;
-            if (AudienceBusy || string.IsNullOrWhiteSpace(text) || _audienceMatter == null || speaker == null) return;
-            AudienceBusy = true;
+            if (_finalized || !AudienceVisible || AudienceBusy || matter == null || speaker == null
+                || string.IsNullOrWhiteSpace(text)) return;
+
+            long viewRevision = _audienceViewRevision;
+            _sendingAudienceRevision = viewRevision;
+            RefreshAudienceBusy();
             AudienceInput = string.Empty;
             AudienceText = AudienceText + "\n\n" + PlayerName + ": " + text;
-            ReignCourtDialogueReply reply = await _court.RespondToAudienceAsync(_audienceMatter, speaker, text);
+
+            ReignCourtDialogueReply reply;
+            try
+            {
+                reply = await _court.RespondToAudienceAsync(matter, speaker, text).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Court audience response failed: " + ex.Message);
+                reply = new ReignCourtDialogueReply { Error = "The audience response failed." };
+            }
+
             await ReignMainThread.InvokeAsync(() =>
             {
-                AudienceBusy = false;
+                if (_sendingAudienceRevision == viewRevision) _sendingAudienceRevision = null;
+                if (_finalized) return;
+                RefreshAudienceBusy();
+                if (viewRevision != _audienceViewRevision || session != _court.Session
+                    || !AudienceVisible || matter != _audienceMatter || matter.IsTerminal)
+                    return;
+
                 if (!reply.Ok)
                 {
                     StatusText = string.IsNullOrWhiteSpace(reply.Error) ? "The audience response failed." : reply.Error;
@@ -414,17 +443,39 @@ namespace ReignBeta.Court.UI
                 }
                 AudienceEmotion = string.IsNullOrWhiteSpace(reply.Emotion) ? "measured" : reply.Emotion;
                 AudienceText = AudienceText + "\n\n" + speaker.Name + ": " + reply.Text;
-                _audienceMatter.State = ReignCourtMatterState.AwaitingDecision;
-                if (reply.Revision > 0) _audienceMatter.Revision = reply.Revision;
+                matter.State = ReignCourtMatterState.AwaitingDecision;
+                matter.Revision = Math.Max(matter.Revision, reply.Revision);
                 StatusText = "The audience is awaiting your coded decision; dialogue cannot apply mechanical effects.";
                 RefreshAll();
-            });
+            }).ConfigureAwait(false);
+        }
+
+        private void HideAudience()
+        {
+            _audienceViewRevision++;
+            _audienceMatter = null;
+            _audienceHero = null;
+            AudienceVisible = false;
+            if (StatusText == OpeningAudienceStatus) StatusText = string.Empty;
+            RefreshAudienceBusy();
+        }
+
+        private void OnAudienceReplyPendingChanged(string matterId)
+        {
+            if (_audienceMatter?.MatterId == matterId) RefreshAudienceBusy();
+        }
+
+        private void RefreshAudienceBusy()
+        {
+            AudienceBusy = AudienceVisible && (_sendingAudienceRevision == _audienceViewRevision
+                || (_audienceMatter != null && _court.IsAudienceReplyPending(_audienceMatter.MatterId)));
         }
 
         public override void OnFinalize()
         {
             _finalized = true;
             _court.StateChanged -= OnCourtStateChanged;
+            _court.AudienceReplyPendingChanged -= OnAudienceReplyPendingChanged;
             base.OnFinalize();
         }
 
@@ -463,7 +514,7 @@ namespace ReignBeta.Court.UI
             HomeVisible = tab.Id == "court";
             TabContentVisible = !HomeVisible;
             DetailVisible = false;
-            AudienceVisible = false;
+            HideAudience();
             Actions.Clear();
             ScreenTitle = tab.Label;
             ScreenSubtitle = BuildTabSubtitle(tab.Id);
@@ -513,7 +564,7 @@ namespace ReignBeta.Court.UI
             HomeVisible = false;
             TabContentVisible = true;
             DetailVisible = true;
-            AudienceVisible = false;
+            HideAudience();
             ScreenTitle = tab?.Label ?? "COURT";
             ScreenSubtitle = BuildTabSubtitle(card.TabId);
             BuildTabRows(card.TabId);
@@ -862,19 +913,32 @@ namespace ReignBeta.Court.UI
 
         private async void BeginAudience(CourtMatter matter, Hero speaker)
         {
-            StatusText = "Opening the audience...";
-            string error = await _court.BeginAudienceAsync(matter);
-            if (!string.IsNullOrWhiteSpace(error))
+            if (_finalized) return;
+            CourtSession session = _court.Session;
+            long viewRevision = ++_audienceViewRevision;
+            StatusText = OpeningAudienceStatus;
+            // A reopened view can show the pending turn without starting the same server matter again.
+            string error = _court.IsAudienceReplyPending(matter.MatterId)
+                ? string.Empty
+                : await _court.BeginAudienceAsync(matter).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() =>
             {
-                StatusText = error;
-                return;
-            }
-            _audienceMatter = matter;
-            AudienceSpeaker = speaker?.Name?.ToString() ?? "Petitioner";
-            AudienceEmotion = "awaiting your words";
-            AudienceText = matter.Summary;
-            AudienceInput = string.Empty;
-            AudienceVisible = true;
+                if (_finalized || viewRevision != _audienceViewRevision || session != _court.Session) return;
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    StatusText = error;
+                    return;
+                }
+                _audienceMatter = matter;
+                _audienceHero = speaker;
+                AudienceSpeaker = speaker?.Name?.ToString() ?? "Petitioner";
+                AudienceEmotion = "awaiting your words";
+                AudienceText = matter.Summary;
+                AudienceInput = string.Empty;
+                AudienceVisible = true;
+                if (StatusText == OpeningAudienceStatus) StatusText = string.Empty;
+                RefreshAudienceBusy();
+            }).ConfigureAwait(false);
         }
 
         private void ConfirmMatterDecision(CourtMatter matter, JObject option)
@@ -995,7 +1059,11 @@ namespace ReignBeta.Court.UI
             else if (!_court.ServerAvailable) StatusText = _court.ServerStatus;
         }
 
-        private void OnCourtStateChanged() { RefreshAll(); }
+        private void OnCourtStateChanged()
+        {
+            RefreshAudienceBusy();
+            RefreshAll();
+        }
 
         private void ShowMatterDecision(CourtMatter matter)
         {

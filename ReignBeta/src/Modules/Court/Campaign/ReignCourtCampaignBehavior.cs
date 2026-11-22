@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,7 +65,10 @@ namespace ReignBeta.Court.Campaign
         private bool _serverSessionOpened;
         private float _lastServerTickDay = -1000f;
         internal bool _serverRequestInFlight;
-        private readonly Dictionary<string, long> _serverMatterRevisions = new Dictionary<string, long>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, long> _serverMatterRevisions = new ConcurrentDictionary<string, long>(StringComparer.Ordinal);
+        // Admission and removal run on the main thread and outlive any individual Court screen.
+        private readonly HashSet<(string CampaignId, string TimelineId, string MatterId)> _audienceRepliesInFlight
+            = new HashSet<(string, string, string)>();
         private bool _serverAvailable;
         private string _serverStatus = "Court server has not connected.";
         private int _advanceToDocketDay = -1;
@@ -145,6 +149,7 @@ namespace ReignBeta.Court.Campaign
         public ReignSpymasterState SpymasterState => EnsureSpymasterState();
 
         public event Action StateChanged;
+        internal event Action<string> AudienceReplyPendingChanged;
         // Lets harness controls raise the event; C# allows raising a field-like event only inside its type.
         internal void RaiseStateChanged() => StateChanged?.Invoke();
 
@@ -500,17 +505,50 @@ namespace ReignBeta.Court.Campaign
         {
             if (!_serverAvailable || !_serverSessionOpened)
                 return new ReignCourtDialogueReply { Error = MutationUnavailable() };
-            if (matter == null || matter.IsTerminal)
+            CourtSession session = _session;
+            if (session == null || matter == null || matter.IsTerminal || string.IsNullOrWhiteSpace(matter.MatterId))
                 return new ReignCourtDialogueReply { Error = "The audience matter is no longer available." };
-            long revision = _serverMatterRevisions.TryGetValue(matter.MatterId, out long known) ? known : matter.Revision;
-            string commandId = string.IsNullOrWhiteSpace(correlationId)
-                ? "court_respond_" + Guid.NewGuid().ToString("N")
-                : correlationId;
-            ReignCourtDialogueReply reply = await ReignCourtDialogueClient.RequestCourtMatterResponseAsync(matter, speaker, playerText,
-                revision, commandId).ConfigureAwait(false);
-            if (reply.Ok && reply.Revision > 0) _serverMatterRevisions[matter.MatterId] = reply.Revision;
-            return reply;
+            string matterId = matter.MatterId;
+            var pendingKey = (session.CampaignId, session.TimelineId, MatterId: matterId);
+            if (!await ReignMainThread.InvokeAsync(() => _audienceRepliesInFlight.Add(pendingKey)).ConfigureAwait(false))
+                return new ReignCourtDialogueReply { Error = "A reply is already pending for this audience." };
+
+            try
+            {
+                Task<ReignCourtDialogueReply> request = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (_session != session || !_serverSessionOpened || matter.IsTerminal) return null;
+                    AudienceReplyPendingChanged?.Invoke(matterId);
+                    long revision = _serverMatterRevisions.TryGetValue(matterId, out long known) ? known : matter.Revision;
+                    string commandId = string.IsNullOrWhiteSpace(correlationId)
+                        ? "court_respond_" + Guid.NewGuid().ToString("N")
+                        : correlationId;
+                    return ReignCourtDialogueClient.RequestCourtMatterResponseAsync(matter, speaker, playerText, revision, commandId);
+                }).ConfigureAwait(false);
+                if (request == null)
+                    return new ReignCourtDialogueReply { Error = "The audience matter is no longer available." };
+
+                ReignCourtDialogueReply reply = await request.ConfigureAwait(false);
+                if (reply.Ok && reply.Revision > 0)
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (_session?.CampaignId == pendingKey.CampaignId && _session?.TimelineId == pendingKey.TimelineId)
+                            _serverMatterRevisions.AddOrUpdate(matterId, reply.Revision, (_, current) => Math.Max(current, reply.Revision));
+                    }).ConfigureAwait(false);
+                return reply;
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    _audienceRepliesInFlight.Remove(pendingKey);
+                    AudienceReplyPendingChanged?.Invoke(matterId);
+                }).ConfigureAwait(false);
+            }
         }
+
+        internal bool IsAudienceReplyPending(string matterId) =>
+            _session != null && _audienceRepliesInFlight.Contains((_session.CampaignId, _session.TimelineId, matterId));
 
         public void EndAudience(CourtMatter matter)
         {
@@ -583,7 +621,7 @@ namespace ReignBeta.Court.Campaign
             _agenda.RemoveAll(item =>
                 item != null
                 && string.Equals(item.MatterId, matter.MatterId, StringComparison.OrdinalIgnoreCase));
-            _serverMatterRevisions.Remove(matter.MatterId);
+            _serverMatterRevisions.TryRemove(matter.MatterId, out _);
             _matters.RemoveAll(candidate =>
                 candidate != null
                 && string.Equals(candidate.MatterId, matter.MatterId, StringComparison.OrdinalIgnoreCase));
