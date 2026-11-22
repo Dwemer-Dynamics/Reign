@@ -725,11 +725,25 @@ namespace ReignBeta.Court.Campaign
 
         private float GetSettlementEffect(Town town, string type)
         {
-            if (town?.Settlement == null) return 0f;
+            var settlement = town?.Settlement;
+            var effects = _spymasterState?.Effects;
+            if (settlement == null || effects == null) return 0f;
+
+            // State normalization only removes null effects, preserving their order and duplicates.
             float day = CurrentDayFloat();
-            float total = EnsureSpymasterState().Effects.Where(x => x.EndDay > day
-                && string.Equals(x.SettlementStringId, town.Settlement.StringId, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(x.EffectType, type, StringComparison.OrdinalIgnoreCase)).Sum(x => x.Magnitude);
+            string settlementId = settlement.StringId;
+            double accumulated = 0d;
+            foreach (ReignSpymasterSettlementEffect effect in effects)
+            {
+                if (effect != null && effect.EndDay > day
+                    && string.Equals(effect.SettlementStringId, settlementId, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(effect.EffectType, type, StringComparison.OrdinalIgnoreCase))
+                {
+                    accumulated += effect.Magnitude;
+                }
+            }
+
+            float total = (float)accumulated;
             return string.Equals(type, "food", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(type, "construction", StringComparison.OrdinalIgnoreCase)
                 ? Math.Max(-0.90f, Math.Min(0f, total))
