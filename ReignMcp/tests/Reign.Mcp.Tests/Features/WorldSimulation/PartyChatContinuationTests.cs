@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Persistence.Save;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;
 

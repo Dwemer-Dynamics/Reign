@@ -4,18 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
         private static async Task<LiveCommandResult> ExecuteCourtLifeTestAsync(JObject command,
             ReignCourtCampaignBehavior court, string runId, string phase)
         {
-            JObject gate = await ReignMainThread.InvokeAsync(() => court.RunRulerDocketTestProfile(runId,
+            JObject gate = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunRulerDocketTestProfile(court, runId,
                 "court_life_check", command, GameInstanceId)).ConfigureAwait(false);
             if (gate.Value<bool?>("ok") != true) return LiveCommandResult.Failed("The disposable native-save gate failed.", gate);
             bool bindExisting = !string.IsNullOrEmpty(command.Value<string>("courtLifeExistingMatterId"));
@@ -38,7 +39,7 @@ namespace ReignBeta.Campaign
             string expectedId = string.Empty;
             if (conversational || phase == "court_life_snapshot")
             {
-                expectedId = await ReignMainThread.InvokeAsync(() => court.FindCourtLifeTestMatter(runId)?.MatterId ?? "").ConfigureAwait(false);
+                expectedId = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.FindCourtLifeTestMatter(court, runId)?.MatterId ?? "").ConfigureAwait(false);
                 string actualId = await ReignMainThread.InvokeAsync(() => ReignCourtPetitionScreenManager.AutomationCourtLifeMatterId).ConfigureAwait(false);
                 if (expectedId.Length == 0 || actualId != expectedId)
                     return LiveCommandResult.Failed("The visible production audience is not the exact fixture matter.");
@@ -48,7 +49,7 @@ namespace ReignBeta.Campaign
             {
                 bool alreadyResolved = await ReignMainThread.InvokeAsync(() =>
                 {
-                    ReignCourtLifeMatter matter = court.FindCourtLifeTestMatter(runId);
+                    ReignCourtLifeMatter matter = ReignCourtTestControls.FindCourtLifeTestMatter(court, runId);
                     return matter == null || !matter.IsPending || matter.EffectsCommitted;
                 }).ConfigureAwait(false);
                 if (alreadyResolved)
@@ -59,7 +60,7 @@ namespace ReignBeta.Campaign
                 {
                     string recoveryError = await ReignMainThread.InvokeAsync(() =>
                     {
-                        ReignCourtLifeMatter matter = court.FindCourtLifeTestMatter(runId);
+                        ReignCourtLifeMatter matter = ReignCourtTestControls.FindCourtLifeTestMatter(court, runId);
                         if (matter == null || !matter.IsPending || matter.EffectsCommitted)
                             return "The exact pending fixture matter is no longer available.";
                         if (ReignCourtPetitionScreenManager.AutomationCourtLifeMatterId != matter.MatterId)
@@ -93,7 +94,7 @@ namespace ReignBeta.Campaign
                 if (phase == "court_life_converse")
                 {
                     string text = command.Value<string>("rulerQuestion") ?? "Tell me what brings you to court and what you have in mind.";
-                    int before = await ReignMainThread.InvokeAsync(() => court.FindCourtLifeTestMatter(runId).CompletedPlayerTurnIds.Count).ConfigureAwait(false);
+                    int before = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.FindCourtLifeTestMatter(court, runId).CompletedPlayerTurnIds.Count).ConfigureAwait(false);
                     bool sent = await ReignMainThread.InvokeAsync(() => ReignCourtPetitionScreenManager.TryExecuteAutomationAction("send", text, out _)).ConfigureAwait(false);
                     if (!sent) return LiveCommandResult.Failed("The production input and send control did not accept the ruler's words.");
                     bool replied = false;
@@ -104,11 +105,11 @@ namespace ReignBeta.Campaign
                             && ReignCourtPetitionScreenManager.AutomationNaturalConversationComplete
                             && ReignCourtPetitionScreenManager.AutomationProviderBackedPhaseComplete("conversation")
                             && ReignCourtPetitionScreenManager.AutomationHasPersistedPlayerLine(text)
-                            && court.FindCourtLifeTestMatter(runId).CompletedPlayerTurnIds.Count == before + 1).ConfigureAwait(false);
+                            && ReignCourtTestControls.FindCourtLifeTestMatter(court, runId).CompletedPlayerTurnIds.Count == before + 1).ConfigureAwait(false);
                         if (replied) break;
                         await Task.Delay(250).ConfigureAwait(false);
                     }
-                    JObject result = await ReignMainThread.InvokeAsync(() => court.RunRulerDocketTestProfile(runId,
+                    JObject result = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunRulerDocketTestProfile(court, runId,
                         "court_life_observe", command, GameInstanceId)).ConfigureAwait(false);
                     result["phase"] = phase; result["naturalConversationProved"] = replied;
                     result["providerBackedOpeningProved"] = true; result["providerBackedConversationProved"] = replied;
@@ -119,7 +120,7 @@ namespace ReignBeta.Campaign
                         : LiveCommandResult.Failed("The exact natural turn did not meet its persisted provider-backed evidence gate.", result);
                 }
             }
-            JObject evidence = await ReignMainThread.InvokeAsync(() => court.RunRulerDocketTestProfile(runId,
+            JObject evidence = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunRulerDocketTestProfile(court, runId,
                 phase, command, GameInstanceId)).ConfigureAwait(false);
             evidence["technicalAudienceRecovered"] = recoveredTechnicalAudience;
             return evidence.Value<bool?>("ok") == true ? LiveCommandResult.Completed("The court-life acceptance phase completed.", evidence)

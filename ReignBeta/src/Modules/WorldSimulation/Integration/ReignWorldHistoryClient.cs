@@ -10,13 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignWorldHistoryClient
     {
         internal static async Task<JObject> OpenWorldHistoryTimelineAsync(string timelineId, long savedSequence, string savedHeadEventId, float completeFromDay)
         {
@@ -39,10 +41,20 @@ namespace ReignBeta.Integration
             }).ConfigureAwait(false);
         }
 
-        internal static async Task<JObject> CheckWorldHistoryLieAsync(string claim, Hero claimant, Hero target, float worldDay, string timelineId, string mode)
+        internal static async Task<JObject> CheckWorldHistoryLieAsync(string claim, Hero claimant, Hero target,
+            float worldDay, string timelineId, string mode, string acceptedUnitId = null, Func<bool> requestOwner = null)
         {
             JObject payload = await ReignMainThread.InvokeAsync(() =>
             {
+                EnsureRequestOwner(requestOwner, "historical claim payload capture");
+                if (!string.IsNullOrWhiteSpace(acceptedUnitId))
+                    return new JObject
+                    {
+                        ["campaignId"] = GetCampaignId(), ["timelineId"] = timelineId ?? "main",
+                        ["claimantId"] = claimant?.StringId ?? string.Empty, ["targetId"] = target?.StringId ?? string.Empty,
+                        ["mode"] = mode ?? string.Empty, ["acceptedUnitId"] = acceptedUnitId
+                    };
+
                 var claimantSettlement = claimant?.CurrentSettlement;
                 var targetSettlement = target?.CurrentSettlement;
                 return new JObject
@@ -74,7 +86,7 @@ namespace ReignBeta.Integration
                     }
                 };
             }).ConfigureAwait(false);
-            return await PostJsonAsync("/world-history/lie-check", payload).ConfigureAwait(false);
+            return await PostOwnedJsonAsync("/world-history/lie-check", payload, requestOwner).ConfigureAwait(false);
         }
 
         internal static async Task<JObject> IngestWorldHistoryBatchAsync(string campaignId, string timelineId, float completeFromDay, JArray events, string generation, long epoch)
@@ -220,7 +232,7 @@ namespace ReignBeta.Integration
             float completeFrom;
             long epoch;
             lock (StateLock) { timeline = _timelineId; campaign = _campaignId; completeFrom = _completeFromDay;
-                epoch = _epoch; generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty; }
+                epoch = _epoch; generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty; }
             string path = PendingPath(timeline, campaign);
             // Recover relevant durable outbox entries without making the next
             // reply wait for unrelated world traffic or the normal upload cadence.
@@ -247,7 +259,7 @@ namespace ReignBeta.Integration
                 .ThenByDescending(e => e.Value<long?>("sequence") ?? 0).Take(256).OrderBy(e => e.Value<long?>("sequence") ?? 0).ToList();
             var ids = new JArray(pending.Select(e => e.Value<string>("eventId")));
             if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount };
-            var upload = ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
+            var upload = ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
             if (await Task.WhenAny(upload, Task.Delay(4000)).ConfigureAwait(false) != upload)
             {
                 // Observe any late failure; the durable outbox owns retry.
@@ -556,7 +568,7 @@ namespace ReignBeta.Integration
                         timeline = _timelineId;
                         campaign = _campaignId;
                         epoch = _epoch;
-                        generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+                        generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
                         completeFrom = _completeFromDay;
                     }
                     string path = PendingPath(timeline, campaign);
@@ -631,7 +643,7 @@ namespace ReignBeta.Integration
                     {
                         Stopwatch uploadTimer = Stopwatch.StartNew();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
-                        JObject response = await ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
+                        JObject response = await ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
                         uploadTimer.Stop();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
                         if (response?.Value<bool?>("ok") != true)

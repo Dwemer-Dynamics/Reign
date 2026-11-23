@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Economy;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // No game, server, clock, random or provider dependencies. Native adapters own mutations.
     internal static class ReignWarEconomyPolicy

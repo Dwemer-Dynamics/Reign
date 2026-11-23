@@ -4,12 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -23,7 +27,7 @@ namespace ReignBeta.Campaign
             IList<Hero> resolvedHeroes)
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (court == null)
                 return "The production court controller is unavailable.";
             bool createTestEvent =
@@ -136,7 +140,7 @@ namespace ReignBeta.Campaign
             string correlation)
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (court == null)
                 return LiveCommandResult.Failed(
                     "The production court controller is unavailable.");
@@ -170,7 +174,7 @@ namespace ReignBeta.Campaign
         private static void EndCourtAudience()
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             court?.EndAudience(_courtMatter);
             if (_courtMatterIsDisposable)
                 court?.RemoveLiveTestMatter(_courtMatter);
@@ -181,7 +185,7 @@ namespace ReignBeta.Campaign
         private static void ResetCourtSession()
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (_courtMatterIsDisposable && _courtMatter != null)
                 court?.RemoveLiveTestMatter(_courtMatter);
             if (_courtSessionWasOpenedForTest)

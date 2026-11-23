@@ -1,8 +1,6 @@
 using System;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +9,13 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     public static class ReignIndividualChatScreenManager
     {
@@ -114,7 +117,7 @@ namespace ReignBeta.UI
                 // Only the active controller can issue a handoff. The next chat
                 // remains a fresh conversation unless the player explicitly resumes.
                 var previous = _dataSource;
-                var owner = ReignIndividualConversationBehavior.Instance;
+                var owner = ReignServices.IndividualConversation;
                 if (previous != null && !previous.IsCalibrationMode && string.IsNullOrEmpty(_officialPostingId))
                 {
                     _ = RetainAfterTransitionAsync(previous, owner);
@@ -231,7 +234,7 @@ namespace ReignBeta.UI
                 _officialPostingId = conversationContext?.Value<string>("postingId") ?? string.Empty;
                 _dataSource = new ReignIndividualChatScreenVM(
                     hero, Close, OpenPortraitRequestOverlay, true, conversationContext, calibrationMode);
-                if (!calibrationMode) ReignIndividualConversationBehavior.Instance?.BeginConversation(_dataSource.ConversationGeneration);
+                if (!calibrationMode) ReignServices.IndividualConversation?.BeginConversation(_dataSource.ConversationGeneration);
                 _gauntletLayer = new GauntletLayer("ReignIndividualChatScreen", ModalInputLayerOrder, true);
                 _gauntletLayer.LoadMovie("ReignIndividualChatScreen", _dataSource);
                 _gauntletLayer.IsFocusLayer = true;
@@ -287,7 +290,7 @@ namespace ReignBeta.UI
         private static void Close(bool invokeReturnCallback, string reason = "closed_by_player", bool retainContinuation = false)
         {
             if (!retainContinuation && _dataSource?.IsCalibrationMode != true)
-                ReignIndividualConversationBehavior.Instance?.EndConversation();
+                ReignServices.IndividualConversation?.EndConversation();
             _dataSource?.SetFinalizationReason(reason);
             _openOutfitWhenReady = false;
             Action returnCallback = invokeReturnCallback ? _returnCallback : null;

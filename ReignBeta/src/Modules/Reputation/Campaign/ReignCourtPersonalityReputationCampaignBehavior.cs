@@ -5,25 +5,28 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     public sealed class ReignCourtPersonalityReputationCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignCourtPersonalityReputationCampaignBehavior Instance { get; private set; }
+        public static ReignCourtPersonalityReputationCampaignBehavior Instance => ReignServices.CourtPersonalityReputation;
         private string _stateJson = string.Empty;
         private List<string> _stateChunks = new List<string>();
         private JObject _state = NewState();
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.CourtPersonalityReputation = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.DailyTickHeroEvent.AddNonSerializedListener(this, OnDailyTickHero);
@@ -275,7 +278,7 @@ namespace ReignBeta.Campaign
             JObject resetRecord = ProcessNpcRulerFavoringPair(
                 records, ruler, favorite, location, day - 1d);
             int resetCount = resetRecord.Value<int?>("consecutiveDays") ?? -1;
-            long beforeDayTenSequence = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L;
+            long beforeDayTenSequence = ReignServices.WorldHistory?.Sequence ?? 0L;
 
             records[key] = new JObject
             {
@@ -286,10 +289,10 @@ namespace ReignBeta.Campaign
             JObject dayTenRecord = ProcessNpcRulerFavoringPair(
                 records, ruler, favorite, location, day - 1d);
             int dayTenCount = dayTenRecord.Value<int?>("consecutiveDays") ?? -1;
-            long dayTenSequence = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L;
+            long dayTenSequence = ReignServices.WorldHistory?.Sequence ?? 0L;
             JObject finalRecord = ProcessNpcRulerFavoringPair(
                 records, ruler, favorite, location, day, key, runId);
-            long finalSequence = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L;
+            long finalSequence = ReignServices.WorldHistory?.Sequence ?? 0L;
             string sourceKey = "ruler_favoring_presence|" + ruler.StringId + "|"
                 + favorite.StringId + "|" + day.ToString("0");
             evidence = new JObject
@@ -307,7 +310,7 @@ namespace ReignBeta.Campaign
                 ["sourceKey"] = sourceKey, ["worldHistorySequence"] = finalSequence,
                 ["dayElevenQueuedExactEvent"] = finalSequence > dayTenSequence
             };
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+            ReignTestHarness.Current.RecordSocialBalanceOverride(
                 "npc_ruler_favoring_presence_forced", new JObject(evidence));
             return resetCount == 1 && dayTenCount == 10
                 && dayTenSequence == beforeDayTenSequence && finalSequence > dayTenSequence;
@@ -455,7 +458,7 @@ namespace ReignBeta.Campaign
             string description = current == 1
                 ? "Their dynasty is supported by one living and publicly acknowledged child."
                 : "Their dynasty is supported by " + current + " living and publicly acknowledged children.";
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordDynamicSocialReputation(
+            ReignServices.WorldHistory?.RecordDynamicSocialReputation(
                 hero, "dynasty_secure", current > 0, Math.Min(50, current),
                 "court_dynasty|" + hero.StringId + "|" + day.ToString("0") + "|" + current,
                 current > 0
@@ -506,7 +509,7 @@ namespace ReignBeta.Campaign
                 property.Remove();
             }
 
-            ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+            ReignFamilyCampaignBehavior family = ReignServices.Family;
             if (family == null) return;
             foreach (Hero parent in Hero.AllAliveHeroes.Where(hero => IsEligibleNoble(hero)
                 || hero == Hero.MainHero && IsEligibleFavoringAdult(hero)))
@@ -556,7 +559,7 @@ namespace ReignBeta.Campaign
         {
             if (subject == null) return;
             double day = Math.Floor(CurrentDay());
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialRumorCorrection(
+            ReignServices.WorldHistory?.RecordSocialRumorCorrection(
                 subject, "infertile",
                 "court_fertility_correction|" + subject.StringId + "|" + source + "|" + day.ToString("0"),
                 subject.Name + "'s pregnancy or childbirth contradicted active claims of infertility.",
@@ -629,7 +632,7 @@ namespace ReignBeta.Campaign
 
         private static IReadOnlyList<Hero> LivingAcknowledgedChildren(Hero parent)
         {
-            ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+            ReignFamilyCampaignBehavior family = ReignServices.Family;
             return family != null
                 ? family.LivingPubliclyAcknowledgedChildren(parent)
                 : (parent?.Children ?? new List<Hero>()).Where(child => child != null && child.IsAlive).ToList();
@@ -674,7 +677,7 @@ namespace ReignBeta.Campaign
         {
             evidence = new JObject();
             error = string.Empty;
-            ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+            ReignFamilyCampaignBehavior family = ReignServices.Family;
             if (family == null || !IsEligibleNoble(parent))
             {
                 error = "A living adult noble parent and the Reign family behavior are required.";
@@ -713,7 +716,7 @@ namespace ReignBeta.Campaign
             bool forceExposure = false,
             bool forcePromotion = false)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+            ReignServices.WorldHistory?.RecordSocialOutcome(
                 archetype, subject, role, source, summary, evidence, null,
                 forceExposure, forcePromotion);
         }

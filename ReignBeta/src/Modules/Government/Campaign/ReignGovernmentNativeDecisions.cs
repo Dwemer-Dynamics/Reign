@@ -6,19 +6,19 @@ using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.GameComponents;
+using ReignBeta.Government.Domain;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
         private string _capturingCounterpartOfBusinessId;
-        private readonly Dictionary<KingdomDecision, string> _nativeDecisionPressureIds = new Dictionary<KingdomDecision, string>();
         internal static readonly IReadOnlyDictionary<string, string> NativeBusinessKinds = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["KingdomPolicyDecision"] = "policy", ["DeclareWarDecision"] = "war", ["MakePeaceKingdomDecision"] = "peace",
@@ -129,7 +129,7 @@ namespace ReignBeta.Government
             return true;
         }
 
-        private void OnNativeKingdomDecisionAdded(KingdomDecision decision, bool isPlayerDecision)
+        internal void OnNativeKingdomDecisionAdded(KingdomDecision decision, bool isPlayerDecision)
         {
             // NPC AddDecision starts its election immediately AFTER this event. Removing a decision here
             // cannot cancel that call stack. Never create a second executable hearing from this notification.
@@ -137,7 +137,7 @@ namespace ReignBeta.Government
                 ReignLog.Warn("Native Government decision passed through AddDecision: " + decision.GetType().Name
                     + "; kingdom=" + decision.Kingdom?.StringId + "; Reign did not capture the late event.");
         }
-        private void MigrateNativeGovernmentBusiness()
+        internal void MigrateNativeGovernmentBusiness()
         {
             foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)
                 && !string.IsNullOrEmpty(x.NativeDecisionType)).ToList())
@@ -361,7 +361,7 @@ namespace ReignBeta.Government
             ReignLog.Warn("Government hearing held: " + record.BusinessId + "; " + reason);
         }
 
-        private static string NativeSettlementOwnerClanId(KingdomDecision decision) =>
+        internal static string NativeSettlementOwnerClanId(KingdomDecision decision) =>
             (decision as SettlementClaimantDecision)?.Settlement?.OwnerClan?.StringId
             ?? (decision as SettlementClaimantPreliminaryDecision)?.Settlement?.OwnerClan?.StringId ?? string.Empty;
         private static JObject NativeOption(DecisionOutcome outcome, int index)

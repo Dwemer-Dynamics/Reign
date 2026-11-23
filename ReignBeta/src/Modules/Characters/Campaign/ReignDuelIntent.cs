@@ -1,7 +1,7 @@
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.MountAndBlade;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignDuelIntent
     {
@@ -26,7 +26,7 @@ namespace ReignBeta.Campaign
 
         public Hero OpponentHero
         {
-            get { return World.ReignObjectResolver.FindHero(OpponentHeroStringId); }
+            get { return WorldSimulation.World.ReignObjectResolver.FindHero(OpponentHeroStringId); }
         }
     }
 }

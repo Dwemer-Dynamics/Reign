@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
-using ReignBeta.Integration;
 using ReignBeta.PartyAgency;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -10,8 +9,13 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed partial class ReignEncounteredResidentsCampaignBehavior
     {
@@ -60,7 +64,7 @@ namespace ReignBeta.Campaign
                     () => hero.SetNewOccupation(Occupation.Wanderer));
                 if (hero.PartyBelongedTo != party)
                     throw new InvalidOperationException("Native companion registration changed the resident's party.");
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.CompleteResidentRecruitment(hero);
+                ReignServices.TemporaryPartyGuest?.CompleteResidentRecruitment(hero);
                 DetachDepartingRole(hero);
                 resident.Recruited = true;
                 return true;
@@ -121,7 +125,7 @@ namespace ReignBeta.Campaign
             reason = string.Empty;
             // Only the guest path may admit a captive, and native custody remains authoritative.
             bool releasablePrisoner = releaseIntoGuestService
-                && ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero);
+                && ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero);
             var resident = Find(hero);
             if (resident == null || hero?.IsNotable == true)
             {
@@ -129,7 +133,7 @@ namespace ReignBeta.Campaign
                 bool present = hero != null && (CharacterObject.OneToOneConversationCharacter?.HeroObject == hero
                     || MobileParty.MainParty != null && hero.PartyBelongedTo == MobileParty.MainParty
                     || here != null && hero.CurrentSettlement == here || releasablePrisoner);
-                var house = ReignTavernHouseCampaignBehavior.Instance;
+                var house = ReignServices.TavernHouse;
                 if (hero == null || hero == Hero.MainHero || !hero.IsAlive || hero.IsChild || hero.IsPrisoner && !releasablePrisoner
                     || hero.IsLord || hero.Clan != null || hero.CompanionOf != null || !present
                     || !hero.HasMet && CharacterObject.OneToOneConversationCharacter?.HeroObject != hero)
@@ -152,7 +156,7 @@ namespace ReignBeta.Campaign
 
         private static Settlement CivilianHome(Hero hero)
         {
-            var person = ReignTavernHouseCampaignBehavior.Instance?.GetPerson(hero);
+            var person = ReignServices.TavernHouse?.GetPerson(hero);
             return (person == null ? null : Settlement.Find(person.TownId)) ?? hero?.HomeSettlement ?? hero?.CurrentSettlement;
         }
 
@@ -187,7 +191,7 @@ namespace ReignBeta.Campaign
             reason = string.Empty;
             JObject terms = ResidentTerms(action);
             Hero actor = Hero.Find(action.ActorHeroStringId);
-            var house = ReignTavernHouseCampaignBehavior.Instance;
+            var house = ReignServices.TavernHouse;
             if (action.Type == ReignWorldActionType.RegularRecruitEncounteredResident && house?.GetPerson(actor) != null && Find(actor) == null)
             {
                 if (terms.Value<string>("agreementKind") != "permanent" || terms["agreedGold"]?.Type != JTokenType.Integer
@@ -245,20 +249,20 @@ namespace ReignBeta.Campaign
                 reason = "Your clan has reached its native companion limit.";
             else if (!string.IsNullOrEmpty(recruit?.RecruitmentReceipt) && recruit.RecruitmentReceipt != action.ActionId)
                 reason = "This resident already has a recruitment transaction in progress.";
-            else if (ReignGoldTransferService.Instance == null)
+            else if (ReignServices.GoldTransferService == null)
                 reason = "The payment receipt service is unavailable.";
             else if (recruit?.RecruitmentReceipt == action.ActionId && recruit.RecruitmentGold != terms.Value<int>("agreedGold"))
                 reason = "The recruitment price changed during execution.";
-            else if (recruit?.RecruitmentGoldPaid != true && !ReignGoldTransferService.Instance.HasReceipt(action.ActionId + ":payment")
+            else if (recruit?.RecruitmentGoldPaid != true && !ReignServices.GoldTransferService.HasReceipt(action.ActionId + ":payment")
                 && Hero.MainHero.Gold < Math.Max(0, terms.Value<int>("agreedGold") - Math.Max(recruit?.RecruitmentCredit ?? 0,
-                    ReignGoldTransferService.Instance.Credit(actor, AgreementId(actor)))))
+                    ReignServices.GoldTransferService.Credit(actor, AgreementId(actor)))))
                 reason = "You do not have the agreed recruitment payment.";
             return reason.Length == 0;
         }
 
         internal ReignActionResult ExecuteResidentAction(ReignWorldActionRecord action)
         {
-            var payment = ReignGoldTransferService.Instance;
+            var payment = ReignServices.GoldTransferService;
             var dependencies = ResidentTerms(action)["paymentDependencies"] as JArray;
             if (dependencies != null && dependencies.Count > 0)
             {
@@ -268,7 +272,7 @@ namespace ReignBeta.Campaign
                     string status = payment.ReceiptStatus(id);
                     if (status == "pending")
                     {
-                        var prior = ReignAICampaignBehavior.Instance?.GetLastActionResult(id);
+                        var prior = ReignServices.AI?.GetLastActionResult(id);
                         if (prior != null && !prior.Success) return ReignActionResult.ValidationFailed("The required advance failed: " + prior.Message);
                         return ReignActionResult.Progress("Recruitment is waiting for the advance's native result.");
                     }
@@ -292,7 +296,7 @@ namespace ReignBeta.Campaign
                         "sourceParty=" + resident.SourcePartyId + ";troop=" + resident.ManpowerTemplateId + ";removed=1");
             }
             Hero hero = Hero.Find(action.ActorHeroStringId);
-            var house = ReignTavernHouseCampaignBehavior.Instance;
+            var house = ReignServices.TavernHouse;
             if (house?.GetPerson(hero) != null && Find(hero) == null)
             {
                 if (house.TryRecruit(hero, terms.Value<int>("agreedGold"), action.ActionId,
@@ -332,7 +336,7 @@ namespace ReignBeta.Campaign
                 if (hero.CompanionOf != Clan.PlayerClan || hero.PartyBelongedTo != MobileParty.MainParty)
                     return ReignActionResult.Progress("Payment is recorded; native companion/party transfer is incomplete and will resume without another charge.");
                 hero.SetNewOccupation(Occupation.Wanderer);
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.CompleteResidentRecruitment(hero);
+                ReignServices.TemporaryPartyGuest?.CompleteResidentRecruitment(hero);
                 DetachDepartingRole(hero);
                 record.Recruited = true;
             }

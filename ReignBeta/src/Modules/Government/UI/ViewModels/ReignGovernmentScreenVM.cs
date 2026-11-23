@@ -6,15 +6,16 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Government;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Domain;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Government.UI
 {
     /// <summary>Public hearing projection. Private scores and current relationships never enter this VM.</summary>
     public sealed partial class ReignGovernmentScreenVM : ViewModel
@@ -26,6 +27,7 @@ namespace ReignBeta.UI.ViewModels
         private ReignGovernmentBusinessRecord _selected;
         private string _view = "agenda", _status = string.Empty, _composer = string.Empty, _hearingBusinessId = string.Empty;
         private bool _sending, _finalized, _refreshPending;
+        private long _hearingViewRevision, _composerRevision;
         private bool _showProposalTerms, _showOwnPosition;
         private int _memberListRevision, _policyListRevision;
         private int _level;
@@ -83,7 +85,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string KingdomBannerId => _kingdomBanner?.Id ?? string.Empty;
         [DataSourceProperty] public string KingdomBannerArgs => _kingdomBanner?.AdditionalArgs ?? string.Empty;
         [DataSourceProperty] public string KingdomBannerProvider => _kingdomBanner?.TextureProviderName ?? string.Empty;
-        [DataSourceProperty] public string GovernmentSceneId => ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildCourtPetitionReferenceImageId(_kingdom?.Culture?.StringId);
+        [DataSourceProperty] public string GovernmentSceneId => ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildCourtPetitionReferenceImageId(_kingdom?.Culture?.StringId);
         [DataSourceProperty] public ReignGovernmentPersonVM Petitioner { get; private set; }
         [DataSourceProperty] public ReignGovernmentPersonVM Sponsor { get; private set; }
         [DataSourceProperty] public bool HasPetitioner => !string.IsNullOrWhiteSpace(_selected?.PetitionerHeroStringId);
@@ -241,7 +243,20 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public int NewsCount => NewsEditions.Count;
         [DataSourceProperty] public int ProposalSlotCount => ProposalSlots.Count;
         [DataSourceProperty] public string StatusText { get => _status; private set { _status = value ?? string.Empty; OnPropertyChangedWithValue(_status); } }
-        [DataSourceProperty] public string ComposerText { get => _composer; set { _composer = value ?? string.Empty; OnPropertyChangedWithValue(_composer); OnPropertyChanged(nameof(CanSpeak)); } }
+        [DataSourceProperty]
+        public string ComposerText
+        {
+            get => _composer;
+            set
+            {
+                string text = value ?? string.Empty;
+                if (_composer == text) return;
+                _composer = text;
+                _composerRevision++;
+                OnPropertyChangedWithValue(_composer);
+                OnPropertyChanged(nameof(CanSpeak));
+            }
+        }
         [DataSourceProperty] public bool HasMatter => _selected != null;
         [DataSourceProperty] public bool HasOutcome => !string.IsNullOrWhiteSpace(OutcomeText);
         [DataSourceProperty] public bool HasParticipants => Participants.Count > 0;
@@ -271,8 +286,10 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteClose() => _close?.Invoke();
         public void ExecuteBusinessTab()
         {
-            _pendingOptionId = null; _view = "agenda";
-            _selected = BusinessItems.FirstOrDefault(x => x.Record.BusinessId == _hearingBusinessId)?.Record ?? BusinessItems.FirstOrDefault()?.Record;
+            _pendingOptionId = null;
+            SetView("agenda");
+            SetSelectedBusiness(BusinessItems.FirstOrDefault(x => x.Record.BusinessId == _hearingBusinessId)?.Record
+                ?? BusinessItems.FirstOrDefault()?.Record);
             RefreshDetails(); RaiseAll();
         }
         public void ExecuteHearingTab()
@@ -280,20 +297,20 @@ namespace ReignBeta.UI.ViewModels
             var hearing = BusinessItems.FirstOrDefault(x => x.Record.BusinessId == _hearingBusinessId)?.Record ?? BusinessItems.FirstOrDefault()?.Record;
             bool returning = CanReturnToHearing && hearing?.BusinessId == _ownPositionHearingId;
             if (!returning) _pendingOptionId = null;
-            _view = "hearing"; _selected = hearing; RefreshDetails(); RaiseAll();
+            SetView("hearing"); SetSelectedBusiness(hearing); RefreshDetails(); RaiseAll();
         }
         public void ExecuteMembersTab() => ChangeView("members");
-        public void ExecuteArchiveTab() { _pendingOptionId = null; _view = "archive"; _recordsView = "decisions"; _selected = ArchiveItems.FirstOrDefault()?.Record; RefreshDetails(); RaiseAll(); }
+        public void ExecuteArchiveTab() { _pendingOptionId = null; SetView("archive"); _recordsView = "decisions"; SetSelectedBusiness(ArchiveItems.FirstOrDefault()?.Record); RefreshDetails(); RaiseAll(); }
         public void ExecuteDecisionsTab() { _recordsView = "decisions"; RaiseAll(); }
         public void ExecuteLawsTab() { _recordsView = "laws"; RaiseAll(); }
-        public void ExecuteObligationsTab() { _view = "archive"; _recordsView = "obligations"; RaiseAll(); }
-        public void ExecuteNewsTab() { _view = "archive"; _recordsView = "news"; RaiseAll(); }
+        public void ExecuteObligationsTab() { SetView("archive"); _recordsView = "obligations"; RaiseAll(); }
+        public void ExecuteNewsTab() { SetView("archive"); _recordsView = "news"; RaiseAll(); }
         public void ExecuteProposalTerms() { _showOwnPosition = false; _showProposalTerms = true; RaiseAll(); }
         public void ExecutePublicDiscussion() { _showOwnPosition = false; _showProposalTerms = false; RaiseAll(); }
         public void ExecuteOwnPosition()
         {
             if (IsHearingView) _ownPositionHearingId = _selected?.BusinessId;
-            _showOwnPosition = true; _view = "agenda"; RaiseAll();
+            _showOwnPosition = true; SetView("agenda"); RaiseAll();
         }
         public void ExecuteForMembers() => ShowPositionMembers("For");
         public void ExecuteAgainstMembers() => ShowPositionMembers("Against");
@@ -303,7 +320,7 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteNextMatter()
         {
             var all = BusinessItems.Concat(ArchiveItems).ToList(); if (all.Count == 0) return;
-            int index = all.FindIndex(x => x.Record == _selected); _pendingOptionId = null; _selected = all[(index + 1) % all.Count].Record; RefreshDetails(); RaiseAll();
+            int index = all.FindIndex(x => x.Record == _selected); _pendingOptionId = null; SetSelectedBusiness(all[(index + 1) % all.Count].Record); RefreshDetails(); RaiseAll();
         }
         public void ExecuteLocateMember()
         {
@@ -312,7 +329,20 @@ namespace ReignBeta.UI.ViewModels
         }
         public void ExecuteAuthorityTab() => ChangeView("authority");
         public void ExecuteNewPolicy() => ShowPrepareProposal();
-        private void ChangeView(string view) { _view = view; RaiseAll(); }
+        private void ChangeView(string view) { SetView(view); RaiseAll(); }
+
+        private void SetView(string view)
+        {
+            if (_view == view) return;
+            _view = view;
+            _hearingViewRevision++;
+        }
+
+        private void SetSelectedBusiness(ReignGovernmentBusinessRecord business)
+        {
+            if (_selected?.BusinessId != business?.BusinessId) _hearingViewRevision++;
+            _selected = business;
+        }
         public void ExecuteCallVote()
         {
             if (!CanCallVote) return;
@@ -346,7 +376,11 @@ namespace ReignBeta.UI.ViewModels
         }
         private void SelectBusiness(ReignGovernmentBusinessCardVM card)
         {
-            _pendingOptionId = null; _selected = card.Record; _hearingBusinessId = card.Record.BusinessId; _view = GovernmentBusinessRules.IsClosed(card.Record.Status) ? "archive" : card.Record.Status == "hearing" ? "hearing" : "agenda"; RefreshDetails(); RaiseAll();
+            _pendingOptionId = null;
+            SetSelectedBusiness(card.Record);
+            _hearingBusinessId = card.Record.BusinessId;
+            SetView(GovernmentBusinessRules.IsClosed(card.Record.Status) ? "archive" : card.Record.Status == "hearing" ? "hearing" : "agenda");
+            RefreshDetails(); RaiseAll();
         }
         public void ExecuteSpeak() { if (CanSpeak) _ = SpeakAsync(); }
         internal bool TryComposeHearing(string businessId, string message)
@@ -358,17 +392,40 @@ namespace ReignBeta.UI.ViewModels
         }
         private async Task SpeakAsync()
         {
-            string id = _selected.BusinessId, text = ComposerText.Trim(); _sending = true; RaiseAll();
+            string id = _selected.BusinessId;
+            string text = ComposerText.Trim();
+            long viewRevision = _hearingViewRevision;
+            long composerRevision = _composerRevision;
+            _sending = true;
+            RaiseAll();
+
+            JObject response;
             try
             {
-                JObject response = await _behavior.SubmitHearingMessageAsync(id, text).ConfigureAwait(false);
-                await ReignMainThread.InvokeAsync(() => { if (_finalized) return; _sending = false; if (response?.Value<bool>("ok") == true) ComposerText = string.Empty; RefreshAll(response?.Value<string>("message") ?? response?.Value<string>("error") ?? "The public record has been updated."); }).ConfigureAwait(false);
+                response = await _behavior.SubmitHearingMessageAsync(id, text).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Government hearing message failed: " + ex.Message);
-                await ReignMainThread.InvokeAsync(() => { if (_finalized) return; _sending = false; StatusText = "The speaker could not respond. Your message remains available to retry."; RaiseAll(); }).ConfigureAwait(false);
+                response = new JObject { ["error"] = "The speaker could not respond. Your message remains available to retry." };
             }
+
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                _sending = false;
+                if (_finalized) return;
+                bool sameBusiness = id == _selected?.BusinessId;
+                if (sameBusiness && response?.Value<bool>("ok") == true && composerRevision == _composerRevision)
+                    ComposerText = string.Empty;
+
+                if (viewRevision != _hearingViewRevision || !sameBusiness)
+                {
+                    RaiseAll();
+                    return;
+                }
+                RefreshAll(response?.Value<string>("message") ?? response?.Value<string>("error")
+                    ?? "The public record has been updated.");
+            }).ConfigureAwait(false);
         }
         public void ExecuteHoldMeeting()
         {
@@ -412,8 +469,8 @@ namespace ReignBeta.UI.ViewModels
                 .OrderByDescending(x => x.ResolvedDay >= 0 ? x.ResolvedDay : x.CreatedDay).ThenByDescending(x => x.CreatedDay))
                 ArchiveItems.Add(new ReignGovernmentBusinessCardVM(record, SelectBusiness, _behavior.DocketLabel(record.BusinessId)));
             var selectionItems = _view == "archive" ? ArchiveItems.AsEnumerable() : BusinessItems.Concat(ArchiveItems);
-            _selected = selectionItems.FirstOrDefault(x => x.Record.BusinessId == selectedId)?.Record
-                ?? (_view == "archive" ? ArchiveItems.FirstOrDefault()?.Record : BusinessItems.FirstOrDefault()?.Record);
+            SetSelectedBusiness(selectionItems.FirstOrDefault(x => x.Record.BusinessId == selectedId)?.Record
+                ?? (_view == "archive" ? ArchiveItems.FirstOrDefault()?.Record : BusinessItems.FirstOrDefault()?.Record));
             Obligations.Clear();
             foreach (var resolution in _behavior.Resolutions.Where(x => x.KingdomStringId == _kingdom.StringId && x.Status == "active"))
                 Obligations.Add(new ReignGovernmentObligationVM(resolution, () => { if (!IsInteractive) return; _behavior.ContributeGoods(resolution.ResolutionId, int.MaxValue, out string result); RefreshAll(result); }, IsInteractive));

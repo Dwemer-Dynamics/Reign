@@ -8,13 +8,16 @@ using Reign.Core.Contracts.Government;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Government.Domain;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
         private string _executingSeasonalBusinessId;
-        private void ImportSeasonalBusiness()
+        internal void ImportSeasonalBusiness()
         {
             foreach (var existing in _business) NormalizeBusinessPublicText(existing);
             foreach (var resolution in _resolutions.Where(x => x.Status == "debate" || x.Status == "proposed").ToList())
@@ -41,7 +44,7 @@ namespace ReignBeta.Government
                 InitializeBusinessSchedule(record);
             }
         }
-        private static bool IsPrivateRelationProgress(ReignGovernmentResolutionAction action) =>
+        internal static bool IsPrivateRelationProgress(ReignGovernmentResolutionAction action) =>
             action == ReignGovernmentResolutionAction.ImproveClanRelation || action == ReignGovernmentResolutionAction.ImproveForeignRelation;
 
         public JArray GetPublicBusinessOptions(ReignGovernmentBusinessRecord record)
@@ -119,7 +122,7 @@ namespace ReignBeta.Government
             return GovernmentBusinessRules.PublicText(string.Join(" ", details));
         }
 
-        private static string SeasonalRequirementDescription(ReignGovernmentResolutionRoute route, ReignGovernmentResolutionScale scale)
+        internal static string SeasonalRequirementDescription(ReignGovernmentResolutionRoute route, ReignGovernmentResolutionScale scale)
         {
             if (IsPrivateRelationProgress(route.Action))
                 return "Completion is verified privately; deadline: " + route.DeadlineDays + " days after acceptance.";
@@ -347,7 +350,7 @@ namespace ReignBeta.Government
         private void ObserveGovernmentActionQueue(ReignGovernmentBusinessRecord record)
         {
             if (record.Kind != "world_action" || GovernmentBusinessRules.IsClosed(record.Status)) return;
-            var queue = ReignBeta.Campaign.ReignAICampaignBehavior.Instance;
+            var queue = ReignServices.AI;
             if (queue == null) return;
             var action = queue.Actions.FirstOrDefault(x => Same(x.ActionId, record.ActionCorrelationId));
             if (action == null)

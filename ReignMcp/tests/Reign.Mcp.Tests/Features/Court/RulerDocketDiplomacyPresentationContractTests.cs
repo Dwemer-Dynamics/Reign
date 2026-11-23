@@ -9,8 +9,8 @@ public sealed class RulerDocketDiplomacyPresentationContractTests
         string source = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Diplomacy", "Campaign", "ReignWorldDiplomacyCampaignBehavior.cs"));
 
-        Assert.Contains("ReignNewsCampaignBehavior.Instance?.ForeignRuling(notice)", source, StringComparison.Ordinal);
-        Assert.Contains("ReignNewsCampaignBehavior.Instance?.ClanRuling(notice)", source, StringComparison.Ordinal);
+        Assert.Contains("ReignServices.News?.ForeignRuling(notice)", source, StringComparison.Ordinal);
+        Assert.Contains("ReignServices.News?.ClanRuling(notice)", source, StringComparison.Ordinal);
         string news = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "WorldSimulation", "News", "ReignNewsNativeNotices.cs"));
         Assert.Contains("ReignNewsCopy.ClanRuling", news, StringComparison.Ordinal);

@@ -5,15 +5,16 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
@@ -133,7 +134,7 @@ namespace ReignBeta.Campaign
         internal void ReconcileMeetingAgreements()
         {
             foreach (var journey in _meetingTravel.Values.Where(j => j.ControlAgreementId.Length > 0 && _acceptedOperations.Contains(j.ControlOperationId)))
-                ReignAgreementBehavior.Instance?.RetireMeetingAgreement(journey.AgreementId, journey.ControlAgreementId, journey.Meeting.Id, journey.Meeting.Revision);
+                ReignServices.Agreement?.RetireMeetingAgreement(journey.AgreementId, journey.ControlAgreementId, journey.Meeting.Id, journey.Meeting.Revision);
         }
         private void HoldMeetingHero(Hero hero, string destination)
         {

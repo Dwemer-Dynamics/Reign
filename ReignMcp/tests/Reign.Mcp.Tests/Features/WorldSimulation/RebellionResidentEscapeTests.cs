@@ -1,4 +1,4 @@
-using EscapePolicy = ReignBeta.Campaign.ReignRebellionResidentEscape;
+using EscapePolicy = ReignBeta.Rebellion.Campaign.ReignRebellionResidentEscape;
 
 namespace Reign.Mcp.Tests;
 
@@ -171,7 +171,7 @@ public sealed class RebellionResidentEscapeTests
     public void Native_outbreak_evacuation_precedes_any_faction_change_or_war_callback()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+        string source = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRebellionCampaignBehavior.cs", "/src/Modules/Rebellion/Campaign/"));
         string start = source[source.IndexOf("private void StartCivilWar", StringComparison.Ordinal)..];
         start = start[..start.IndexOf("private bool EvacuateResidentsBeforeOutbreak", StringComparison.Ordinal)];

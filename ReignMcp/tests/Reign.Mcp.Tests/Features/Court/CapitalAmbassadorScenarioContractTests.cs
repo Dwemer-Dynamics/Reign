@@ -43,12 +43,12 @@ public sealed class CapitalAmbassadorScenarioContractTests
     public void ServerAndGameAdaptersUseExplicitProductionBoundaries()
     {
         string root = TestOptions.FindWorkspace();
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"capital_ambassador_test\"", liveServer, StringComparison.Ordinal);
         Assert.Contains("\"ambassador_official\"", liveServer, StringComparison.Ordinal);
 
-        string program = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
-        Assert.Contains("/court/foreign-ambassadors/test", program, StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoute(TestSourceLocator.ServerRouterText(root), "/court/foreign-ambassadors/test"),
+            "The server does not declare /court/foreign-ambassadors/test.");
         string serverMatrix = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "CapitalAmbassadorTestSystem.cs", "/src/"));
         Assert.Contains("run Reign capital ambassador server matrix", serverMatrix, StringComparison.Ordinal);
         Assert.Contains("cleanup", serverMatrix, StringComparison.OrdinalIgnoreCase);
@@ -78,12 +78,12 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("Reload the exact verified disposable baseline", fixture, StringComparison.Ordinal);
         Assert.DoesNotContain("DeclareWarAction.Apply", fixture, StringComparison.Ordinal);
 
-        string host = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
+        string host = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
         Assert.Contains("TryBuildOfficialAmbassadorContext", host, StringComparison.Ordinal);
         Assert.Contains("ambassador_official", host, StringComparison.Ordinal);
         string ui = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));
         Assert.Contains("ReignAmbassadorScreenManager.TryExecuteAutomationAction", ui, StringComparison.Ordinal);
-        string liveTest = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string liveTest = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         Assert.Contains("[\"value\"] = Value(args, \"--value\", \"\")", liveTest, StringComparison.Ordinal);
         Assert.Contains("ambassador|economic-report|spymaster|war-council", liveTest, StringComparison.Ordinal);
     }

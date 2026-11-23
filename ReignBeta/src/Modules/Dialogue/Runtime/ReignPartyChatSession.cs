@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Locations;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Dialogue.Runtime
 {
     public sealed class ReignPartyChatSession
     {
@@ -149,7 +151,7 @@ namespace ReignBeta.Runtime
             }
 
             if (settlement != null && !settlement.IsUnderSiege)
-                foreach (Hero resident in ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ResidentsAt(settlement) ?? new List<Hero>())
+                foreach (Hero resident in ReignServices.EncounteredResidents?.ResidentsAt(settlement) ?? new List<Hero>())
                     if (seen.Add(resident.StringId)) result.Add(resident);
 
             List<Hero> ordered = result

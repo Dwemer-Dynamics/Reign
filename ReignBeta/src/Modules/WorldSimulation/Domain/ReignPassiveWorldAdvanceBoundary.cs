@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Domain
 {
     // Process-local ownership only. This never changes a campaign or grants a test lease.
     internal sealed class ReignPassiveWorldAdvanceBoundary

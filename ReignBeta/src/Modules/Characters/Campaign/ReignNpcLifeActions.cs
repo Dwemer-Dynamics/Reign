@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
         internal bool CanBuildLifeAction(string action, Hero actor, Hero counterpart) => actor != null && actor != Hero.MainHero
             && (MeetingControl(action) ? MeetingOptions(actor.StringId).Count > 0
-                : action == "npc_life.summon_meeting" && ReignServerClient.NpcLivesOptions.Allows("meeting")
+                : action == "npc_life.summon_meeting" && ReignNpcLivesClient.NpcLivesOptions.Allows("meeting")
                 && (actor.Clan?.Leader == actor || actor.Clan?.Kingdom?.Leader == actor) && TogetherForMeeting(actor, counterpart));
         private static bool HasMeetingAuthority(Hero issuer, Hero target) => issuer != null && target != null && issuer != target
             && (issuer.Clan?.Leader == issuer && target.Clan == issuer.Clan
@@ -62,7 +65,7 @@ namespace ReignBeta.Campaign
                     if (!NpcLivesPolicy.Finite(speed) || speed <= 0) speed = 4d;
                     normal = (FieldMeetingPoint(destination, out var point) ? origin.Distance(point) : origin.Distance(place.GatePosition)) / (speed * 24d);
                 }
-                clause.Arguments["arrivalDays"] = NpcLivesPolicy.SummonsArrivalDelay(normal, ReignServerClient.NpcLivesOptions).ToString("R", CultureInfo.InvariantCulture);
+                clause.Arguments["arrivalDays"] = NpcLivesPolicy.SummonsArrivalDelay(normal, ReignNpcLivesClient.NpcLivesOptions).ToString("R", CultureInfo.InvariantCulture);
             }
         }
         internal IReadOnlyList<string> CheckLifeAction(ActionAgreement a, ActionClause c)
@@ -84,7 +87,7 @@ namespace ReignBeta.Campaign
             {
                 // Hide the builder and reject unsigned/stale proposals consistently.
                 // A settings change must still honor previously accepted exact terms.
-                if (!MeetingFeatureAllows(ReignServerClient.NpcLivesOptions.Allows("meeting"), a))
+                if (!MeetingFeatureAllows(ReignNpcLivesClient.NpcLivesOptions.Allows("meeting"), a))
                     errors.Add("New summoned meetings are disabled.");
                 Hero issuer = ReignActionService.HeroById(c.ActorId), target = ReignActionService.HeroById(ReignActionService.Arg(c, "targetHeroId"));
                 Settlement destination = Settlement.Find(ReignActionService.Arg(c, "destinationId"));
@@ -117,7 +120,7 @@ namespace ReignBeta.Campaign
                 {
                     var story = State.Stories.FirstOrDefault(s => s.Id == id && s.HeroId == c.ActorId && s.Status == "invited");
                     if (story == null || story.Revision != revision) errors.Add("The personal-story offer has changed.");
-                    if (story != null && !ReignServerClient.NpcLivesOptions.Allows(story.Definition.Category)) errors.Add("New personal stories of this kind are disabled.");
+                    if (story != null && !ReignNpcLivesClient.NpcLivesOptions.Allows(story.Definition.Category)) errors.Add("New personal stories of this kind are disabled.");
                 }
                 else if (c.ActionId == "npc_life.personal_leave")
                 {
@@ -182,9 +185,9 @@ namespace ReignBeta.Campaign
         internal async Task PrepareLifeConversationAsync(Hero hero, string session, JObject context)
         {
             JObject p = null; TaleWorlds.CampaignSystem.Campaign owner = null; int epoch = 0;
-            await ReignMainThread.InvokeAsync(() => { p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            await ReignMainThread.InvokeAsync(() => { p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 owner = TaleWorlds.CampaignSystem.Campaign.Current; epoch = _epoch; }).ConfigureAwait(false);
-            var response = await ReignServerClient.NpcLivesRequestAsync("state", p).ConfigureAwait(false);
+            var response = await ReignNpcLivesClient.NpcLivesRequestAsync("state", p).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() => {
                 if (!Current(owner, epoch) || response.Value<bool?>("ok") != true) return;
                 var snapshot = response["state"]?.ToObject<NpcLivesState>();
@@ -205,7 +208,7 @@ namespace ReignBeta.Campaign
                     ConversationId = ReignActionConversationPolicy.ConversationContextId(_campaign, _timeline, hero.StringId),
                     ProposerId = hero.StringId, Origin = ActionOrigin.Conversation, CreatedDay = CampaignTime.Now.ToDays,
                     ExpiresDay = 0, Clauses = new List<ActionClause> { clause } };
-                ReignAgreementBehavior.Instance?.RegisterNpcLifeOffer(offer);
+                ReignServices.Agreement?.RegisterNpcLifeOffer(offer);
                 context["npcLifeRequestId"] = id; context["npcLivesRevision"] = revision;
                 if (story != null) context["npcStoryId"] = story.Id;
             }).ConfigureAwait(false);
@@ -219,7 +222,7 @@ namespace ReignBeta.Campaign
         {
             string id = ReignActionService.Arg(c, "matterId");
             string proposal = State.Stories.FirstOrDefault(s => s.Id == id)?.ProposalId ?? State.Leaves.FirstOrDefault(l => l.Id == id)?.ProposalId ?? "";
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             p["id"] = id; p["heroId"] = c.ActorId; p["revision"] = (int)LifeNumber(c, "revision", -1); p["choice"] = choice;
             p["proposalId"] = proposal; p["agreementHash"] = a.TermsHash(); p["waitDays"] = LifeNumber(c, "waitDays", 0);
             p["awayDays"] = LifeNumber(c, "awayDays", 5);

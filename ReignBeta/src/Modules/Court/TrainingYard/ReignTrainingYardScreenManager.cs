@@ -1,6 +1,5 @@
 #if !REIGN_EXCLUDE_COURT
 using System;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
@@ -11,8 +10,10 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.TrainingYard
 {
     public static class ReignTrainingYardScreenManager
     {

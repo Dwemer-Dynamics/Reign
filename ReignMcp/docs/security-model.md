@@ -180,6 +180,8 @@ The rebellion declaration exception authorizes only one immediate `start_ruling_
 
 Diagnostic credential redaction (2026-09-28) recognizes provider-qualified API-key, access/refresh-token, client-secret and password field names case-insensitively, including nested objects/arrays and underscore/hyphen variants. MCP also masks labeled credentials and recognizable provider-key values in text. Server operational logs redact before writing and before reading/exporting historical rows; these projections do not modify the original files. Immutable diagnostic `content` retains its existing server-redacted pagination/hash contract. Synthetic redactor/API-client tests and the isolated `provider_faults` log-export fixture cover the boundary without real credentials. Previously disclosed credentials still require rotation; deploying a redactor cannot retract old outputs.
 
+`reign_query_logs` searches credential-redacted JSON after removing private conversation reference metadata. A match confirms that the searched text occurs in the redacted record, even when the matching field is omitted. The ordinary log response exposes bounded operational fields. It omits free-form text, request and response bodies, and the search term itself. Related prompt or conversation payloads require a separate read with the exact identifiers in `relatedEvidence`. Missing or expired evidence stays unavailable. Reading or paging through logs leaves the source files intact.
+
 The `accepted_unit_test_` fixtures exercise a single database publication boundary with injected faults, concurrent retries and restored-generation rejection. They bind canonical sources and final prose to memory, negotiation, drinking, scene handoffs, social evidence and introductions. Introduction quotes must belong to the actual speaker and be audible to the observer; private scene handoffs cannot grant a bystander knowledge. Legacy handoff reads recover eligible canonical words or withhold unsupported other-speaker content without changing historical rows. Tests run through the retained exact-artifact verifier, never invoke providers, publish native actions, control runtime, or operate on a user campaign. Their transaction is not authority for external files, social incident consequences or native effects.
 
 The route-memory offline contracts use disposable PostgreSQL campaigns and injected providers to verify atomic source/cache/acceptance receipts, zero-call replay and receipt mismatch rejection. NPC-only shared-history retrieval keeps the existing observer, timeline and time boundaries; removing its player-turn prerequisite grants no private cross-observer knowledge. Neither contract invokes a real provider or changes runtime settings.
@@ -379,6 +381,8 @@ Portable complete campaign backup remains a Control Center operation rather than
 
 ## Build and verification effects
 
+`reign_build` and `reign_validate` share the machine-wide validation lease, build and restore permissions, repository hygiene audit, and the verification gates of the selected plan. A project ID can select dependencies and tests. The legacy response identifies the canonical report. Deployment still requires its own qualified report, artifact inventory and reviewed authority.
+
 An isolated build redirects deployable output to the configured workspace build root. It may update ordinary workspace-local `obj` intermediates, but it does not use the projects' normal final output folders or any installed module directory.
 
 Quick/offline CLI verification uses Reign's supported non-listening mode and
@@ -439,6 +443,23 @@ checkpoint, and advancement commands return bounded receipts while retaining
 full native evidence in their referenced live-test reports, preventing an
 oversized status payload from erasing a successful checkpoint receipt.
 Checkpoint restoration is destructive only to unsaved transient state:
+The guarded campaign-test service requires the protected baseline to differ
+from every checkpoint destination under case-insensitive comparison. New
+destinations must be vacant in the native save directory and Save Sync inventory.
+Save Sync checks the exact generated slot across ledgers of campaigns with local
+metadata and reports foreign occupancy without returning details of that campaign.
+Campaign identity is case-sensitive. If a recovery fence prevents proving slot
+occupancy, the lookup refuses guarded checkpoint operations for that shared slot.
+The service durably journals an attempt before dispatch. Native rechecks the
+source, game instance and destination before SaveAs. The completed attempt binds
+the native file SHA-256 and a new finalized, available Save Sync point to the
+enrollment. Mutation checks require that evidence, including a native point and
+byte recheck for the active save. Rolling overwrite and cleanup independently
+recheck the native destination. An unresolved intent is reported and blocks
+further guarded mutation. Name matches and legacy summaries cannot establish
+ownership. The existing exact legacy Spymaster cleanup route retains its
+separate scope.
+
 `reign_restore_campaign_test_checkpoint` verifies the exact active owned
 Current save, campaign, timeline, and finalized Save Sync while intentionally
 allowing the unsaved pre-reload encounter/menu location to be unsafe. It
@@ -708,7 +729,7 @@ ReignServer is Linux-only. Canonical server verification uses WSL on Windows, an
 
 Run manifest-selected changed/Release validation, then `reign_run_offline_verification` with its exact `validationRunId`, `tier=offline`, `suite=memory_precision` and confirmation `run isolated offline verification`. Keep `prompt_efficiency`, `memory_relationships` and Save Sync coverage with the candidate. Fixtures are run-owned in ReignValidation, use no paid providers or listening runtime, and retain existing Lab cleanup. Inspect every `memory_precision_*` assertion and the packet's actual required content, not only source IDs.
 
-The validated `ReignServer/scripts/Repair-ConversationContinuity.ps1` gains `-Mode Stage`: an exact campaign/timeline `reign-memory-stage-request-v1` produces a read-only serializable snapshot manifest with complete source records, source hashes, unresolved coverage and token estimates. The existing `Preview` rolls back; `Apply` requires the reviewed manifest/artifact hashes, unchanged sources and restore generation, stopped game/service and verified backup. New operations are `rebuild_scene_memory`, `set_memory_mode` (legacy/shadow/precision, projection-generation increment) and `quarantine_summary`; all are derived-state operations. Staging cannot run providers, replay actions, change scores or rewrite original transcripts. An uninitialized predeployment generation must be restaged after schema deployment. Private memory content stays in ignored evidence storage. Maintenance executes as the managed `reign` Linux account with PostgreSQL peer authentication on `/var/run/postgresql`, explicit database `reign`, and incidental CLI files under `EvidenceDirectory`. Canonical fixtures verify Stage/Preview identity binding, wrong-artifact rejection and the running-service/BLSE game Apply gates; no roles, credentials or services are changed.
+The validated `ReignServer/scripts/Repair-ConversationContinuity.ps1` gains `-Mode Stage`: an exact campaign/timeline `reign-memory-stage-request-v1` produces a read-only serializable snapshot manifest with complete source records, source hashes, unresolved coverage and token estimates. The existing `Preview` rolls back; `Apply` requires the reviewed manifest/artifact hashes, unchanged sources and restore generation, stopped game/service and verified backup. Before opening PostgreSQL, Apply checks the selected campaign’s Save Sync journals under `/var/www/html/ReignServer/data/campaigns` and refuses an unfinished or unreadable journal. New operations are `rebuild_scene_memory`, `set_memory_mode` (legacy/shadow/precision, projection-generation increment) and `quarantine_summary`; all are derived-state operations. Staging cannot run providers, replay actions, change scores or rewrite original transcripts. An uninitialized predeployment generation must be restaged after schema deployment. Private memory content stays in ignored evidence storage. Maintenance executes as the managed `reign` Linux account with PostgreSQL peer authentication on `/var/run/postgresql`, explicit database `reign`, and incidental CLI files under `EvidenceDirectory`. Canonical fixtures verify Stage/Preview identity binding, wrong-artifact rejection and the running-service/BLSE game Apply gates; no roles, credentials or services are changed.
 
 Shadow is the default and makes no additional helper/provider calls. A helper can choose only supplied eligible aliases, once, with one bounded source expansion. Cross-encoder ranking is optional and requires a local model plus a held-out accuracy/latency certificate; it stays disabled on failure. Sources and limits: `ReignServer/docs/server/MemoryPrecision.md`. Paid provider, native game and human roleplay acceptance remain separate gates; synthetic offline cases cannot prove their quality targets.
 
@@ -1124,6 +1145,8 @@ Review hardening: current question quotes must span complete punctuated request 
 ## Deployment authority and source checking
 
 `reign_check_deployment_source` and `--deployment-source-check-cli` are read-only. They accept only original canonical report paths beneath the configured workspace build root, reject redirected paths before reads, bound reports to64MiB, and use the existing canonical source fingerprint plus report-owned artifact hashes. They cannot read arbitrary settings/credentials through a report argument, start a listener/build/provider, change authority or control campaigns.
+
+Transferring a reviewed checkpoint requires `-MigrateRoots` at preparation and promotion. The receipt binds the previous and destination physical primary pairs, the existing pointer, both destination qualifications and the full source delta. Promotion independently checks the canonical Git origins, direct sibling junctions, report/artifact bindings and the byte-identical retained prior pointer. The fixed deployment reader then uses the accepted destination roots.
 
 Deploy requires a machine-local pointer to durable reviewed source/artifact receipts. Only explicit checkpoint promotion writes it atomically under its own writer lock; Deploy never adopts an arbitrary checkout. Review receipts bind prior pointer, complete candidate and exact delta hashes plus all changed paths. Source inventory includes tracked and untracked nonignored bytes, first-party assets and verified physical roots/junction. Old worktree/legacy/chained deployment invocations remain gated by the primary hook; read arguments do not exempt a chained invocation. This is an accident-prevention boundary, not a sandbox against deliberately rewriting code and all local evidence. Existing external communication, provider-cost, native-game and deployment authorization rules remain authoritative.
 

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AIPortraits;
 using Helpers;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.UI.Calibration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
@@ -19,8 +18,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.ScreenSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

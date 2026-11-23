@@ -7,15 +7,22 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
-using ReignBeta.Settings;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Characters.UI
 {
     public sealed class ReignTavernHouseScreenVM : ViewModel, IReignTavernActionHost
     {
@@ -38,7 +45,7 @@ namespace ReignBeta.UI.ViewModels
         private TavernHouseVisitReceipt _receipt;
         private bool _finalized, _busy, _imageBusy;
         private int _transcriptRevision, _chatScrollVersion;
-        private string _inputText = "", _statusText = "", _sceneImageId = "", _imageStatus = "A scene will appear after you agree on a visit.";
+        private string _statusText = "", _sceneImageId = "", _imageStatus = "A scene will appear after you agree on a visit.";
         private ReignPartyChatMemberVM _preview;
         private JObject _pendingTurn;
         private string _pendingRequestId;
@@ -107,7 +114,7 @@ namespace ReignBeta.UI.ViewModels
                 AddLine("Player", "I would like to hear about the house and its people.", "player");
                 return;
             }
-            _house = ReignTavernHouseCampaignBehavior.Instance ?? throw new InvalidOperationException("The tavern house is not ready.");
+            _house = ReignServices.TavernHouse ?? throw new InvalidOperationException("The tavern house is not ready.");
             _house.EnsureTown(town);
             _staff = _house.GetStaff(town).ToList(); _madam = _house.GetMadam(town);
             if (_madam == null) throw new InvalidOperationException("No madam is available at this town.");
@@ -119,7 +126,7 @@ namespace ReignBeta.UI.ViewModels
             }
             _receipt = _house.GetOpenVisit(town);
             if (_receipt != null && !string.IsNullOrWhiteSpace(_receipt.ConversationId)) _conversationId = _receipt.ConversationId;
-            ReignBeta.Actions.ReignTavernHouseAction.Open(this, () => TavernActionContext);
+            ReignBeta.Characters.Actions.ReignTavernHouseAction.Open(this, () => TavernActionContext);
             Refresh();
         }
 
@@ -160,7 +167,7 @@ namespace ReignBeta.UI.ViewModels
         {
             _pendingActionDraft = action;
             _recruitmentAgreement = null;
-            _pendingTurn = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+            _pendingTurn = ReignTavernHouseClient.BuildTavernHousePayload(Town, _conversationId);
             _pendingTurn["structuredActionRecipientId"] = action?.NpcId ?? "";
             _pendingTurn["playerText"] = text;
             _pendingTurn["playerTurnId"] = Guid.NewGuid().ToString("N");
@@ -184,7 +191,7 @@ namespace ReignBeta.UI.ViewModels
                     JObject request = (JObject)_pendingTurn.DeepClone();
                     request["speakerHeroStringId"] = speaker.StringId;
                     request["requestId"] = _pendingRequestId ?? request.Value<string>("playerTurnId") + "_" + index;
-                    JObject response = await ReignServerClient.PostTavernHouseAsync("respond", request,
+                    JObject response = await ReignTavernHouseClient.PostTavernHouseAsync("respond", request,
                         _pendingActionDraft?.NpcId == speaker.StringId ? _pendingActionDraft : null).ConfigureAwait(false);
                     bool next = await ReignMainThread.InvokeAsync(() =>
                     {
@@ -238,12 +245,12 @@ namespace ReignBeta.UI.ViewModels
             _busy = true; _statusText = "Confirming your visit…"; Refresh();
             try
             {
-                JObject request = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+                JObject request = ReignTavernHouseClient.BuildTavernHousePayload(Town, _conversationId);
                 var serializer = JsonSerializer.Create(new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
                 JObject receipt = JObject.FromObject(_receipt, serializer);
                 receipt["nativePaymentConfirmed"] = _receipt.Paid;
                 request["receipt"] = receipt;
-                JObject response = await ReignServerClient.PostTavernHouseAsync("confirm", request).ConfigureAwait(false);
+                JObject response = await ReignTavernHouseClient.PostTavernHouseAsync("confirm", request).ConfigureAwait(false);
                 bool confirmed = await ReignMainThread.InvokeAsync(() =>
                 {
                     if (_finalized) return false;
@@ -280,7 +287,7 @@ namespace ReignBeta.UI.ViewModels
             int index = speakers.FindIndex(h => h?.StringId == speakerId);
             if (string.IsNullOrWhiteSpace(turnId) || string.IsNullOrWhiteSpace(requestId) || index < 0 || speakers.Any(h => h == null))
                 throw new InvalidOperationException("The saved reply cannot be resumed with the current visit participants.");
-            _pendingTurn = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+            _pendingTurn = ReignTavernHouseClient.BuildTavernHousePayload(Town, _conversationId);
             _pendingTurn["playerText"] = text; _pendingTurn["playerTurnId"] = turnId;
             _pendingRequestId = requestId; _pendingSpeakers = speakers; _pendingSpeakerIndex = index;
             if (text.Length > 0 && pending.Value<bool?>("playerRecordedInTranscript") != true)
@@ -313,10 +320,10 @@ namespace ReignBeta.UI.ViewModels
             _imageBusy = true; _imageStatus = "Picturing your company…"; Refresh();
             try
             {
-                JObject request = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+                JObject request = ReignTavernHouseClient.BuildTavernHousePayload(Town, _conversationId);
                 request["visitId"] = _receipt.VisitId; request["kind"] = kind;
                 request["imagesEnabled"] = ImagesEnabled; request["expectedTranscriptRevision"] = _transcriptRevision;
-                JObject response = await ReignServerClient.PostTavernHouseAsync("scene", request).ConfigureAwait(false);
+                JObject response = await ReignTavernHouseClient.PostTavernHouseAsync("scene", request).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (_finalized) return;
@@ -352,13 +359,13 @@ namespace ReignBeta.UI.ViewModels
         {
             if (!_fixture) _receipt = _house?.GetOpenVisit(Town) ?? _receipt;
             ReignActionBuilder.CloseFor(this); _composer?.Dispose();
-            ReignBeta.Actions.ReignTavernHouseAction.Close(this);
+            ReignBeta.Characters.Actions.ReignTavernHouseAction.Close(this);
             if (_finalized) return;
             _finalized = true;
             // A debit awaiting server confirmation stays open and resumes with the original receipt.
             if (!_fixture && (_receipt == null || _receipt.ServerConfirmed))
             {
-                JObject request = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+                JObject request = ReignTavernHouseClient.BuildTavernHousePayload(Town, _conversationId);
                 if (_receipt != null) { request["visitId"] = _receipt.VisitId; _house.EndVisit(_receipt.VisitId); }
                 _ = CloseServerAsync(request);
             }
@@ -367,7 +374,7 @@ namespace ReignBeta.UI.ViewModels
         }
         private static async Task CloseServerAsync(JObject request)
         {
-            try { await ReignServerClient.PostTavernHouseAsync("close", request).ConfigureAwait(false); }
+            try { await ReignTavernHouseClient.PostTavernHouseAsync("close", request).ConfigureAwait(false); }
             catch (Exception ex) { ReignLog.Warn("Tavern visit close: " + ex.Message); }
         }
         private Task SetErrorAsync(string error) => ReignMainThread.InvokeAsync(() => _statusText = error);

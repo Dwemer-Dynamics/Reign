@@ -1,7 +1,7 @@
 using System;
 using TaleWorlds.Library;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Government.UI
 {
     /// <summary>A published declaration total, never a forecast from private preferences.</summary>
     public sealed class ReignGovernmentShareVM : ViewModel

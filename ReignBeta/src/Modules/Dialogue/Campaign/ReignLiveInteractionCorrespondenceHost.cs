@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -25,13 +27,13 @@ namespace ReignBeta.Campaign
                 return "No known living correspondence contact matched the requested target.";
             if (recipient == null)
                 recipient = await ReignMainThread.InvokeAsync(() =>
-                    ReignServerClient.GetKnownCorrespondenceContacts()
+                    ReignCorrespondenceClient.GetKnownCorrespondenceContacts()
                         .FirstOrDefault()).ConfigureAwait(false);
             if (recipient == null)
                 return "No known living correspondence contact matched the requested target.";
 
             bool legitimate = await ReignMainThread.InvokeAsync(() =>
-                ReignServerClient.GetKnownCorrespondenceContacts()
+                ReignCorrespondenceClient.GetKnownCorrespondenceContacts()
                     .Any(hero => string.Equals(
                         hero.StringId,
                         recipient.StringId,

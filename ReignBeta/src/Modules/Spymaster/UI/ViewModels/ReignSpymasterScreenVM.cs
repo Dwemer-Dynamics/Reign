@@ -4,7 +4,6 @@ using System.Linq;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
@@ -12,8 +11,12 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Spymaster.Campaign;
+using ReignBeta.Spymaster.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Spymaster.UI
 {
     public sealed class ReignSpymasterScreenVM : ViewModel
     {
@@ -354,6 +357,7 @@ namespace ReignBeta.UI.ViewModels
                 _court.EnsureSpymasterState().Missions
                     .Where(mission => mission != null
                         && mission.State == ReignSpymasterMissionState.Succeeded
+                        && mission.AgreementEffectState == "completed"
                         && string.Equals(mission.MissionType, missionType, StringComparison.OrdinalIgnoreCase)
                         && TargetOptions.Any(option => string.Equals(option.Id, mission.TargetStringId, StringComparison.OrdinalIgnoreCase)))
                     .OrderByDescending(mission => mission.ResolvedDay)
@@ -780,7 +784,15 @@ namespace ReignBeta.UI.ViewModels
         public ReignSpymasterMissionVM(ReignSpymasterMission mission, Action<ReignSpymasterMissionVM> select) { Mission = mission; _select = select; }
         public ReignSpymasterMission Mission { get; }
         [DataSourceProperty] public string Title => Mission.TargetName + " — " + Mission.MissionType.Replace('_', ' ');
-        [DataSourceProperty] public string StateText => Mission.State.ToString().ToUpperInvariant();
+        [DataSourceProperty] public string StateText => Mission.State == ReignSpymasterMissionState.Succeeded
+            ? Mission.AgreementEffectState switch
+            {
+                "completed" => "SUCCEEDED",
+                "no_effect" => "NO EFFECT",
+                "applying" or "pending" => "AWAITING EFFECT",
+                _ => "EFFECT UNCONFIRMED"
+            }
+            : Mission.State.ToString().ToUpperInvariant();
         [DataSourceProperty] public string DateText => Mission.State == ReignSpymasterMissionState.Active
             ? "Due day " + Mission.DueDay.ToString("0.0") : "Resolved day " + Mission.ResolvedDay.ToString("0.0");
         [DataSourceProperty] public bool IsSelected { get => _isSelected; set { if (_isSelected != value) { _isSelected = value; OnPropertyChangedWithValue(value); } } }

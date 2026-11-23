@@ -1,6 +1,6 @@
 using System.Text;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
+using ReignBeta.Dialogue.Runtime;
 using Reign.Core.Contracts.Dialogue;
 using Xunit;
 

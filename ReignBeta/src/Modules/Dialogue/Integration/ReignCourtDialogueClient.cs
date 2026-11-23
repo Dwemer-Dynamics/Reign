@@ -6,8 +6,12 @@ using ReignBeta.Campaign;
 using ReignBeta.Court;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     public sealed class ReignCourtDialogueReply
     {
@@ -18,7 +22,7 @@ namespace ReignBeta.Integration
         public long Revision;
     }
 
-    public static partial class ReignServerClient
+    internal static class ReignCourtDialogueClient
     {
         public static async Task<ReignCourtDialogueReply> RequestCourtMatterResponseAsync(CourtMatter matter, Hero speaker, string playerText,
             long expectedRevision, string commandId, Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
@@ -35,7 +39,7 @@ namespace ReignBeta.Integration
                 JObject payload = new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["commandId"] = commandId ?? string.Empty,
                     ["expectedRevision"] = expectedRevision,
                     ["matterId"] = matter.MatterId,
@@ -57,7 +61,7 @@ namespace ReignBeta.Integration
                     ["nativePoliticalContext"] = BuildNativePoliticalContext(speaker),
                     ["actionResolutionIndex"] = BuildActionResolutionIndex(speaker, new List<Hero> { speaker })
                 };
-                Action<JObject> completeAction = await ReignMainThread.InvokeAsync(() => BeginStructuredActionExchange(payload, speaker, actionDraft)).ConfigureAwait(false);
+                Action<JObject> completeAction = await ReignMainThread.InvokeAsync(() => ReignStructuredActionClient.BeginStructuredActionExchange(payload, speaker, actionDraft)).ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "dialogue", speaker, new List<Hero> { speaker }).ConfigureAwait(false);
                 JObject response = await PostJsonAsync("/court/matter/respond", payload).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => completeAction(response)).ConfigureAwait(false);

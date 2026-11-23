@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Native references are held ONLY while the event is active. Closed details live in bounded JSON receipts.
     internal static class ReignMedicalDischarge
@@ -34,7 +35,7 @@ namespace ReignBeta.Economy
             internal Dictionary<string, int[]> Expected;
         }
         private static readonly Dictionary<MapEvent, Frame> Finalizing = new Dictionary<MapEvent, Frame>(ReignWarEconomyReferenceComparer<MapEvent>.Instance);
-        private static ReignEconomyCampaignBehavior Host => ReignEconomyCampaignBehavior.Instance;
+        private static ReignEconomyCampaignBehavior Host => ReignServices.Economy;
         private static string Key(MobileParty p) => ReignWarEconomyTransactions.GenerationKey(p);
         private static bool Military(MobileParty p) => p != null && p.IsActive && !p.IsMilitia
             && (p.IsLordParty || p.IsGarrison || p.PartyComponent is TaleWorlds.CampaignSystem.Party.PartyComponents.PatrolPartyComponent);

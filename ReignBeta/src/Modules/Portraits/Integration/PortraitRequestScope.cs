@@ -1,8 +1,9 @@
 using System;
 using System.Threading;
 using Newtonsoft.Json.Linq;
+using ReignBeta.Characters.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     // ExecutionContext carries the original campaign across awaits, including cache registration.
     internal sealed class PortraitRequestScope : IDisposable

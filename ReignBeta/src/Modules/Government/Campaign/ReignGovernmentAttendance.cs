@@ -4,12 +4,14 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Government.Domain;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed class ReignGovernmentAttendanceRecord
     {
@@ -29,7 +31,7 @@ namespace ReignBeta.Government
 
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<ReignGovernmentAttendanceRecord> _governmentAttendance = new List<ReignGovernmentAttendanceRecord>();
+        internal List<ReignGovernmentAttendanceRecord> _governmentAttendance = new List<ReignGovernmentAttendanceRecord>();
         private List<string> _governmentHearingChunks = new List<string>();
         public long GovernmentAttendanceRevision { get; private set; }
         public bool IsGovernmentAttendanceReserved(Hero hero) => hero != null && _governmentAttendance.Any(x => !x.Released && !x.Returning
@@ -101,11 +103,11 @@ namespace ReignBeta.Government
             ["commitments"] = JArray.FromObject(_governmentCommitments)
         };
 
-        private Settlement GovernmentCapital(Kingdom kingdom)
+        internal Settlement GovernmentCapital(Kingdom kingdom)
         {
             if (kingdom == null) return null;
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
+            var court = ReignServices.Court;
             var designation = court?.CapitalDesignations.FirstOrDefault(x => Same(x.KingdomStringId, kingdom.StringId));
             if (designation != null)
             {
@@ -133,7 +135,7 @@ namespace ReignBeta.Government
                 || campaign?.QuestManager?.TrackedObjects?.ContainsKey(hero) == true
                 || campaign?.IssueManager?.IssueSolvingCompanionList?.Contains(hero) == true) return "Occupied with another duty";
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
+            var court = ReignServices.Court;
             if (court != null && (court.IsNobleVisitorReserved(hero) || court.HasConflictingGovernmentAttendanceDuty(hero, requiresRelocation)
                 || requiresRelocation && (court.Offices.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))
                 || court.Regents.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))

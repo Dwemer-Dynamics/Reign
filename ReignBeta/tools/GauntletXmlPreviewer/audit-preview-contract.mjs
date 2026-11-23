@@ -373,10 +373,10 @@ function auditToolContract() {
     [path.join(toolRoot, "js", "calibration-editor.js"), "live install available; reopen the affected interface afterward", "The previewer does not expose the supported live-install/reopen workflow."],
     [path.join(toolRoot, "serve-preview.ps1"), "replacementRollbackPath", "Installed prefab replacement does not provide the non-null rollback file required by Windows File.Replace."],
     [path.join(toolRoot, "serve-preview.ps1"), "snapshotMatchesSource", "Native evidence does not reject snapshots from a different prefab revision."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), '_loadedPrefabSha256 = PrefabSha256(movieName)', "Native calibration does not retain the prefab hash at movie-load time."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'snapshot.Add("prefabSha256", _loadedPrefabSha256', "Native snapshots do not attribute geometry to the prefab revision actually loaded by Gauntlet."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'snapshot.Add("installedPrefabSha256AtCapture", PrefabSha256(MovieName))', "Native snapshots cannot diagnose a prefab installed after the current movie was loaded."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'supportUiInjected = false', "Native snapshots do not attest that the previewer-only calibration surface was absent from Bannerlord."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), '_loadedPrefabSha256 = PrefabSha256(movieName)', "Native calibration does not retain the prefab hash at movie-load time."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'snapshot.Add("prefabSha256", _loadedPrefabSha256', "Native snapshots do not attribute geometry to the prefab revision actually loaded by Gauntlet."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'snapshot.Add("installedPrefabSha256AtCapture", PrefabSha256(MovieName))', "Native snapshots cannot diagnose a prefab installed after the current movie was loaded."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'supportUiInjected = false', "Native snapshots do not attest that the previewer-only calibration surface was absent from Bannerlord."],
     [path.join(toolRoot, "audit-rendered-preview.mjs"), "reign-ui-rendered-preview-audit-v1", "The provider-free dual-resolution render audit is absent."],
     [path.join(toolRoot, "audit-rendered-preview.mjs"), "interfaces.filter((entry) => !entry.supportUi)", "The rendered readiness assertion still counts the previewer-only calibration asset as a native surface."],
     [path.join(toolRoot, "audit-typography-parity.mjs"), 'fixed-literal', "Typography parity does not classify and freeze remaining runtime literals."],
@@ -418,8 +418,8 @@ function auditToolContract() {
     [path.join(toolRoot, "capture-native-matrix.ps1"), '$bridgeArmMinutes = 240', "The standalone native matrix runner does not request a fresh bounded 240-minute live-test bridge arm after campaign start."],
     [path.join(toolRoot, "capture-native-matrix.ps1"), "Invoke-LiveTest -Arguments @('arm', '--minutes', [string]$bridgeArmMinutes, '--json')", "The standalone native matrix runner still relies on external or stale bridge arming instead of obtaining its own arm receipt."],
     [path.join(toolRoot, "capture-native-matrix.ps1"), '$bridgeArmReceipt.ok -ne $true -or $bridgeArmReceipt.armed -ne $true', "The standalone native matrix runner does not fail closed when its fresh arm receipt is invalid."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'session.SaveSnapshot(false, out error)', "The live-test snapshot route does not retain its headless target-widget snapshot seam."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'supportUiInjected = false', "Native runtime snapshots do not explicitly attest that visual support UI was not injected."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'session.SaveSnapshot(false, out error)', "The live-test snapshot route does not retain its headless target-widget snapshot seam."],
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'supportUiInjected = false', "Native runtime snapshots do not explicitly attest that visual support UI was not injected."],
     [path.join(toolRoot, "capture-native-matrix.ps1"), 'supportUiInjected', "The standalone native matrix runner does not fail closed on an injected calibration support surface."],
     [path.join(toolRoot, "calibration_workflow.py"), '"runtimeUiScale":runtime_ui_scale', "Native acceptance does not retain the snapshot's runtime UIContext.CustomScale."],
     [path.join(toolRoot, "audit-native-parity.mjs"), 'runtime snapshot UIContext.CustomScale is invalid', "Native parity does not validate the recorded runtime Gauntlet scale."],
@@ -451,13 +451,13 @@ function auditToolContract() {
     [path.join(toolRoot, "capture-native-augmentation-batch.ps1"), '$bridgeArmMinutes = 240', "The native augmentation batch does not request a fresh bounded 240-minute live-test bridge arm after campaign start."],
     [path.join(toolRoot, "capture-native-augmentation-batch.ps1"), "Invoke-LiveTest -Arguments @('arm', '--minutes', [string]$bridgeArmMinutes, '--json')", "The native augmentation batch still relies on external or stale bridge arming instead of obtaining its own arm receipt."],
     [path.join(toolRoot, "capture-native-augmentation-batch.ps1"), '$bridgeArmReceipt.ok -ne $true -or $bridgeArmReceipt.armed -ne $true', "The native augmentation batch does not fail closed when its fresh arm receipt is invalid."],
-    [path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'never be loaded into the live Gauntlet widget tree', "The native calibration service does not declare the previewer-only support-UI boundary."]
+    [path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), 'never be loaded into the live Gauntlet widget tree', "The native calibration service does not declare the previewer-only support-UI boundary."]
   ];
   const contractErrors = [];
   for (const [file, marker, message] of checks) {
     if (!fs.existsSync(file) || !fs.readFileSync(file, "utf8").includes(marker)) contractErrors.push(message);
   }
-  const calibrationService = fs.readFileSync(path.join(moduleRoot, "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"), "utf8");
+  const calibrationService = fs.readFileSync(path.join(moduleRoot, "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"), "utf8");
   const calibrationHost = fs.readFileSync(path.join(moduleRoot, "src", "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionUiCalibrationHost.cs"), "utf8");
   if (calibrationService.includes("layer.LoadMovie(OverlayMovieName")) {
     contractErrors.push("The previewer-only calibration overlay is still loaded into the native Bannerlord Gauntlet tree.");
@@ -511,7 +511,7 @@ function auditNativeCalibrationContract() {
   const memoriesPrefabPath = path.join(moduleRoot, "GUI", "Prefabs", "AIPortraitsMemoriesBook.xml");
   const eventArtFactoryPath = path.join(sourceRoot, "Modules", "Portraits", "UI", "EventArt", "ReignEventArtTextureFactory.cs");
   const notableManagerPath = path.join(sourceRoot, "Modules", "Characters", "UI", "ReignNotableGenerationPopupManager.cs");
-  const calibrationServicePath = path.join(sourceRoot, "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs");
+  const calibrationServicePath = path.join(sourceRoot, "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs");
   const files = [hostPath, liveTestPath, correspondenceManagerPath, individualManagerPath,
     socialManagerPath, correspondenceVmPath, individualVmPath, socialVmPath, memoriesManagerPath, memoriesVmPath,
     memoriesPrefabPath, eventArtFactoryPath, notableManagerPath, calibrationServicePath];
@@ -522,7 +522,10 @@ function auditNativeCalibrationContract() {
   if (contractErrors.length) return { checkedTargets: runtimeEntries.length, targetIds: runtimeEntries.map((entry) => entry.id), errors: contractErrors };
 
   const host = fs.readFileSync(hostPath, "utf8");
-  const liveTest = fs.readFileSync(liveTestPath, "utf8");
+  // ReignLiveTest Program.cs together with any Program.<Area>.cs partial files beside it (single-file or split layout).
+  const liveTest = [liveTestPath, ...fs.readdirSync(path.dirname(liveTestPath))
+    .filter((name) => name.startsWith("Program.") && name.endsWith(".cs") && name !== "Program.cs").sort()
+    .map((name) => path.join(path.dirname(liveTestPath), name))].map((file) => fs.readFileSync(file, "utf8")).join("\n\n");
   const memoriesVm = fs.readFileSync(memoriesVmPath, "utf8");
   const memoriesPrefab = fs.readFileSync(memoriesPrefabPath, "utf8");
   for (const entry of runtimeEntries) {

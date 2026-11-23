@@ -17,14 +17,14 @@ public sealed class TestingCatalogContractTests
         var route = catalog.RootElement.GetProperty("categorizedMemoryContracts");
         Assert.Equal("reign-categorized-memory-contracts-v1", route.GetProperty("schema").GetString());
         Assert.Equal(64, route.GetProperty("caseResultLimit").GetInt32());
-        string runner = Read("ReignServer/src/Modules/Platform/VerificationLab.cs");
+        string runner = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         int start = runner.IndexOf("string.Equals(requestedSuite, \"categorized_memory\", StringComparison.OrdinalIgnoreCase)", StringComparison.Ordinal);
         Assert.True(start >= 0);
         int end = runner.IndexOf("return;", start, StringComparison.Ordinal);
         Assert.True(end > start);
         Assert.Contains("RunCategorizedMemorySubsystemSelfTests(), caseResultLimit:64", runner[start..end]);
         Assert.Contains("\"pipeline.categorized_memory\", \"categorized_memory\"", runner[start..end]);
-        string fixture = Read("ReignServer/src/Modules/Dialogue/CategorizedMemory.cs");
+        string fixture = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/Memory/CategorizedMemory.cs"));
         foreach (string id in new[] { "private_promise_retrieval", "long_archive_recall", "contradictory_recollections", "exact_live_prompt_context", "recent_raw_window_without_recall_keywords" })
         {
             Assert.Contains("add(\"" + id + "\"", fixture);
@@ -48,14 +48,14 @@ public sealed class TestingCatalogContractTests
             Assert.Contains("questionCoverageV1", text);
             Assert.Contains("dialogueQuestionCoverage", text);
         }
-        string boundary = Read("ReignServer/src/Modules/Dialogue/DialogueAnswerSupport.cs");
+        string boundary = Read("ReignServer/src/Modules/Dialogue/Grounding/DialogueAnswerSupport.cs");
         Assert.Contains("ApplyQuestionCoverageGuard(llm, request, payload, speaker, AnswerSupportMaxCalls, responder)", boundary);
         Assert.Contains("AnswerSupportMaxCalls - rows.Count", boundary);
-        string source = Read("ReignServer/src/Modules/Dialogue/DialogueQuestionCoverage.cs");
+        string source = Read("ReignServer/src/Modules/Dialogue/Grounding/DialogueQuestionCoverage.cs");
         Assert.Contains("QuestionCoverageQuoteBound", source);
         Assert.Contains("char.IsLetterOrDigit(question[i])", source);
         Assert.Contains("SealAnswerSupportAudit", source);
-        string contracts = Read("ReignServer/src/Modules/Dialogue/DialogueAnswerSupportSelfTests.cs");
+        string contracts = Read("ReignServer/src/Modules/Dialogue/Grounding/DialogueAnswerSupportSelfTests.cs");
         foreach (string name in new[] { "prose_audits_keep_priority_with_shared_question_capacity", "final_boundary_checks_structured_question_without_prose_claim", "only_declared_spans_enter_audit", "incomplete_whole_item_held_", "immutable_original_gap_is_explicit_and_not_reinterpreted" })
             Assert.Contains(name, contracts);
     }
@@ -72,11 +72,11 @@ public sealed class TestingCatalogContractTests
             Assert.Contains("SET TRANSACTION READ ONLY", text);
             Assert.Contains("certificateEligible=false", text);
         }
-        string source = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplayInspection.cs");
-        Assert.Contains("PrepareQuestionContinuityWrite(connection, write, CloneDictionary(payload)", source);
+        string source = Read("ReignServer/src/Modules/Dialogue/Qualification/MemoryEvidenceReplayInspection.cs");
+        Assert.Matches(@"PrepareQuestionContinuityWrite\(connection, write, (Program\.)?CloneDictionary\(payload\)", source);
         Assert.Contains("transaction.Rollback();", source);
         Assert.Contains("question_link_inspection_requires_isolated_validation", source);
-        string contracts = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplaySelfTests.cs");
+        string contracts = Read("ReignServer/src/Modules/Dialogue/Qualification/MemoryEvidenceReplaySelfTests.cs");
         foreach (string name in new[] { "question_inspection_uses_native_good_and_spliced_quote_binding", "question_inspection_cannot_change_provider_wire", "question_inspection_is_database_read_only_and_unpublished", "question_inspection_never_keeps_partial_or_empty_answered_state", "question_inspection_refuses_missing_isolated_root" })
             Assert.Contains(name, contracts);
     }
@@ -87,10 +87,10 @@ public sealed class TestingCatalogContractTests
         string workspace = TestOptions.FindWorkspace();
         foreach (string path in new[] { "reign.testing.json", "ReignServer/docs/server/DialogueClaimValidation.md", "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md", "docs/agent/testing/PROOF_AND_EVIDENCE.md", "ReignMcp/docs/security-model.md" })
             Assert.Contains("specificityCoverageV2", File.ReadAllText(Path.Combine(workspace, path)));
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/DialogueClaimEvidence.cs"));
+        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/Grounding/DialogueClaimEvidence.cs"));
         Assert.Equal(2, source.Split("ExtractDialogueFactualClaims(DialogueFactualWriteText(field, write)").Length - 1);
         Assert.Contains("DialogueSpecificityComparisonText", source);
-        string contracts = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/DialogueClaimEvidenceSelfTests.cs"));
+        string contracts = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/Grounding/DialogueClaimEvidenceSelfTests.cs"));
         foreach (string id in new[] { "spelled_count_withheld_", "equivalent_count_spelling_kept_", "canonical_meaning_extra_count_withheld", "supported_continuity_meaning_kept", "numeric_token_not_substring" })
             Assert.Contains(id, contracts);
     }
@@ -107,11 +107,11 @@ public sealed class TestingCatalogContractTests
             Assert.Contains("referenceGraphAudit", text);
             Assert.Contains("historyBackfilled=false", text);
         }
-        string source = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplay.cs");
+        string source = Read("ReignServer/src/Modules/Dialogue/Qualification/MemoryEvidenceReplay.cs");
         Assert.Contains("mode is not (\"off\" or \"capture\" or \"enabled\")", source);
         Assert.Contains("using var referenceMode = new EvidenceReplayReferenceModeScope(ReadDictionary(item, \"writerReplay\"));", source);
         Assert.Contains("public void Dispose() => ConversationReferenceValidationMode.Value = previous;", source);
-        string contracts = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplaySelfTests.cs");
+        string contracts = Read("ReignServer/src/Modules/Dialogue/Qualification/MemoryEvidenceReplaySelfTests.cs");
         Assert.Contains("reference_mode_off_enabled_off_has_no_cache_leak", contracts);
         Assert.Contains("reference_mode_restores_after_failure", contracts);
         Assert.Contains("reference_mode_refuses_missing_isolated_root", contracts);
@@ -126,28 +126,28 @@ public sealed class TestingCatalogContractTests
         string catalog = Read("reign.testing.json");
         Assert.Contains("finalModelRepairBoundary", catalog);
         Assert.Contains("lateRepairDraft", catalog);
-        string replay = Read("ReignServer/src/Modules/Dialogue/DialogueAttributionReplay.cs");
+        string replay = Read("ReignServer/src/Modules/Dialogue/Qualification/DialogueAttributionReplay.cs");
         Assert.Contains("sourceAuditsBeforeLateRepair", replay);
         Assert.Contains("PrepareCountedRouteProviderRequest(check, replayRequest);", replay);
         const string boundary = "FinishDialogueRepairsWithAnswerSupport(() =>";
-        string program = Read("ReignServer/src/Modules/Platform/Program.cs");
+        string program = TestSourceLocator.ServerProgramText(workspace).Replace("\r\n", "\n");
         Assert.DoesNotContain(boundary, program);
         Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest", program);
         Assert.Contains("GenerateSinglePassConversation(eventLlmRequest", program);
         foreach (string route in new[] {
-            "ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs",
+            "ReignServer/src/Modules/Dialogue/Memory/ConversationRouteMemory.cs",
             "ReignServer/src/Modules/Relationships/Relationships.cs" })
         {
             string text = Read(route);
             Assert.DoesNotContain(boundary, text);
             Assert.Contains("GenerateSinglePassConversation(", text);
         }
-        string support = Read("ReignServer/src/Modules/Dialogue/DialogueAnswerSupport.cs");
+        string support = Read("ReignServer/src/Modules/Dialogue/Grounding/DialogueAnswerSupport.cs");
         Assert.Contains("var result = finishRepairs();", support);
         Assert.Contains("ConditionalWeakTable<Dictionary<string, object>, object>", support);
-        Assert.Contains("SealAnswerSupportAudit(CloneDictionary(check))", support);
+        Assert.Matches(@"SealAnswerSupportAudit\((Program\.)?CloneDictionary\(check\)\)", support);
         Assert.Contains("\"memoryReferences\", \"communicationPlans\"", support);
-        string counted = Read("ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs");
+        string counted = Read("ReignServer/src/Modules/Dialogue/Memory/ConversationRouteMemory.cs");
         Assert.Contains("if (IsSealedAnswerSupportAudit(input)) return;", counted);
         Assert.Contains("PrepareCountedRouteProviderRequest(input, request);", counted);
         Assert.Contains("context.ProviderCalls++; return call(input);", counted);
@@ -162,9 +162,9 @@ public sealed class TestingCatalogContractTests
         string catalog = File.ReadAllText(Path.Combine(workspace, "reign.testing.json"));
         Assert.Contains("reign-live-interaction-source-contracts-v1", catalog);
         Assert.Contains("tier=quick suite=live_interaction", catalog);
-        string runner = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
+        string runner = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("string.Equals(requestedSuite, \"live_interaction\", StringComparison.OrdinalIgnoreCase)", runner);
-        Assert.Contains("\"contracts.live_interaction\", \"live_interaction\", RunLiveInteractionTestSelfTests(), caseResultLimit:512", runner);
+        Assert.Matches(@"""contracts\.live_interaction"", ""live_interaction"", (WorldSimulationService\.)?RunLiveInteractionTestSelfTests\(\), caseResultLimit:512", runner);
         foreach (string path in new[] { "docs/agent/testing/CAMPAIGN_AND_RUNTIME.md", "ReignMcp/README.md", "ReignMcp/docs/security-model.md" })
         {
             string text = TestingDocumentation.Read(Path.Combine(workspace, path));
@@ -350,7 +350,9 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("contracts.dialogue_marriage", marriage.GetProperty("verification").GetString());
         foreach (string path in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/tool-catalog.md",
             "ReignMcp/docs/security-model.md", "ReignServer/src/Modules/Platform/VerificationLab.cs" })
-            Assert.Contains("contracts.dialogue_marriage", TestingDocumentation.Read(Path.Combine(workspace, path)));
+            Assert.Contains("contracts.dialogue_marriage", path.EndsWith(".cs", StringComparison.Ordinal)
+                ? TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, path))
+                : TestingDocumentation.Read(Path.Combine(workspace, path)));
     }
 
     [Fact]
@@ -1223,7 +1225,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("day 0, 30, 60, and 90", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("blockerCount", raw, StringComparison.Ordinal);
         Assert.Contains("\"product\"", raw, StringComparison.Ordinal);
-        Assert.Contains("workspace-wide lease", raw, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("machine-wide lease", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("ecosystem release", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("reign-repository-policy-v1", raw, StringComparison.Ordinal);
         Assert.Contains("repository-hygiene-report", raw, StringComparison.Ordinal);
@@ -1316,7 +1318,7 @@ public sealed class TestingCatalogContractTests
     public void InitialScreenStartMenuRequiresNativeGauntletActivationEvidence()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string source = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         string batch = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "tools", "GauntletXmlPreviewer",
             "capture-native-augmentation-batch.ps1"));
 
@@ -1342,7 +1344,7 @@ public sealed class TestingCatalogContractTests
             Path.Combine(root, "reign.testing.json")));
         string[] commands = document.RootElement.GetProperty("liveTestCommands")
             .EnumerateArray().Select(value => value.GetString()!).ToArray();
-        string program = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string program = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         string catalog = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "TestingCatalogControl.cs"));
         string[] implemented = System.Text.RegularExpressions.Regex.Matches(program, "case \\\"([^\\\"]+)\\\"")
             .Select(match => match.Groups[1].Value)
@@ -1388,7 +1390,7 @@ public sealed class TestingCatalogContractTests
         string nativeHost = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionNativeUiCalibrationHost.cs"));
         string portraitMixin = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Portraits", "AIPortraits", "ConversationPortraitMixin.cs"));
         string individualManager = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Dialogue", "UI", "ReignIndividualChatScreenManager.cs"));
-        string calibrationService = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"));
+        string calibrationService = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"));
         string guide = TestingDocumentation.Read(Path.Combine(root, "docs", "agent", "TESTING_TOOL_GUIDE.md"));
         string security = File.ReadAllText(Path.Combine(root, "ReignMcp", "docs", "security-model.md"));
         int leaseAcquireIndex = uiHost.IndexOf(
@@ -1501,7 +1503,7 @@ public sealed class TestingCatalogContractTests
     public void CampaignCheckpointRecoversNativeMapEscapeMenuBeforeSaveAs()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "src", "Modules",
+        string source = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
         using JsonDocument catalog = JsonDocument.Parse(
             File.ReadAllText(Path.Combine(workspace, "reign.testing.json")));
@@ -1583,6 +1585,10 @@ public sealed class TestingCatalogContractTests
             Assert.StartsWith("ReignTest_WarEconomyYearOne_", state.GetProperty("currentSaveName").GetString());
             Assert.EndsWith("_Current", state.GetProperty("currentSaveName").GetString());
             Assert.True(state.GetProperty("currentSaveName").GetString()!.Length <= 64);
+            string alias = state.GetProperty("currentSaveName").GetString()!.ToLowerInvariant();
+            var error = Assert.Throws<InvalidOperationException>(() =>
+                service.Prepare("campaignA", "main", alias, "run-123", "War Economy Year One"));
+            Assert.Contains("protected baseline name", error.Message, StringComparison.Ordinal);
         }
         finally
         {
@@ -1618,7 +1624,7 @@ public sealed class TestingCatalogContractTests
 
         Assert.Contains("ValidateSnapshot(state, activeSnapshot, allowBaseline: false,\n            requireSafeSettlement: false);",
             source, StringComparison.Ordinal);
-        Assert.Contains("if (!snapshot.FindBoolean(\"safeSettlement\"))", source,
+        Assert.Contains("VerifyReloadedCurrent(state, snapshot, activeSnapshot);", source,
             StringComparison.Ordinal);
         Assert.Contains("if (requireSafeSettlement && !snapshot.FindBoolean(\"safeSettlement\"))",
             source, StringComparison.Ordinal);
@@ -1629,7 +1635,7 @@ public sealed class TestingCatalogContractTests
     public void InterruptedCampaignAdvancePublishesExactOwnershipAndRecoversWithoutSaving()
     {
         string workspace = TestOptions.FindWorkspace();
-        string nativeHost = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "src",
+        string nativeHost = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace, "ReignBeta", "src",
             "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
         string campaignTools = File.ReadAllText(Path.Combine(workspace, "ReignMcp", "src",
             "Reign.Mcp.Server", "Modules", "Platform", "CampaignTestTools.cs"));
@@ -1685,7 +1691,7 @@ public sealed class TestingCatalogContractTests
         foreach (string value in new[] { "2048", "4194304", "UTF16", "inputBounds", "32MiB", "256-case",
             "24000", "30-recent", "256000", "capture-only", "512 sources/8MiB", "timestamp" })
             Assert.Contains(value, bounds, StringComparison.Ordinal);
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer", "src", "Modules", "Dialogue", "MemoryEvidenceReplay.cs"));
+        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer", "src", "Modules", "Dialogue", "Qualification", "MemoryEvidenceReplay.cs"));
         Assert.Contains("MemoryEvidenceReplayMaxSources = 2048", source, StringComparison.Ordinal);
         Assert.Contains("MemoryEvidenceReplayMaxCaseCharacters = 4 * 1024 * 1024", source, StringComparison.Ordinal);
         Assert.Contains("serialized_JSON_UTF16_characters_not_provider_tokens", source, StringComparison.Ordinal);

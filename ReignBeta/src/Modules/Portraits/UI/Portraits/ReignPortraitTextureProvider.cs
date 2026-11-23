@@ -2,7 +2,7 @@ using AIPortraits;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.TwoDimension;
 
-namespace ReignBeta.UI.Portraits
+namespace ReignBeta.Portraits.UI
 {
     public sealed class ReignPortraitTextureProvider : TextureProvider
     {

@@ -4,17 +4,23 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using ReignBeta.Shared;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
-    public sealed class ReignCorrespondenceScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed class ReignCorrespondenceScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => _selected?.Hero == null ? new Hero[0] : new[] { _selected.Hero };
         public bool ActionBusy => IsBusy || _calibrationMode;
@@ -91,7 +97,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public bool CanOpenMarriageOffer => !_finalized && !ActionBusy
             && ReignRelationshipCampaignBehavior.WeddingFeatureReady
-            && ReignRelationshipCampaignBehavior.Instance.OpenMarriageOffers(ActionParticipants).Any();
+            && ReignServices.Relationship.OpenMarriageOffers(ActionParticipants).Any();
 
         public void ExecuteOpenMarriageOffer()
         {
@@ -153,7 +159,7 @@ namespace ReignBeta.UI.ViewModels
                     InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Letter dispatched to " + _selected.Name + "."));
                     if (result.HeldActionId != null)
                         InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] [unknown: "
-                            + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]"));
+                            + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]"));
                     _close?.Invoke();
                     return;
                 }
@@ -170,7 +176,7 @@ namespace ReignBeta.UI.ViewModels
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
             Func<bool> requestOwner = null)
         {
-            ReignLetterSendResult result = await ReignServerClient.SendLetterAsync(
+            ReignLetterSendResult result = await ReignCorrespondenceClient.SendLetterAsync(
                 recipient,
                 body,
                 correlationId, actionDraft, requestOwner).ConfigureAwait(false);
@@ -187,9 +193,9 @@ namespace ReignBeta.UI.ViewModels
                     result.ActionsDeferred = true;
                     return 0;
                 }
-                result.QueuedActions = ReignServerClient.ParseLetterActionRows(result);
+                result.QueuedActions = ReignCorrespondenceClient.ParseLetterActionRows(result);
                 if (result.QueuedActions.Count == 0) return 0;
-                var behavior = ReignAICampaignBehavior.Instance;
+                var behavior = ReignServices.AI;
                 if (behavior == null) return 0;
                 // An interrupted import never turns the accepted letter into a send failure.
                 if (!behavior.TryImportForPresentation(result.QueuedActions, out int imported, out string heldActionId))
@@ -238,9 +244,9 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task LoadAsync()
         {
-            List<Hero> heroes = await ReignMainThread.InvokeAsync(ReignServerClient.GetKnownCorrespondenceContacts);
+            List<Hero> heroes = await ReignMainThread.InvokeAsync(ReignCorrespondenceClient.GetKnownCorrespondenceContacts);
             if (_finalized) return;
-            ReignCorrespondenceSnapshot snapshot = await ReignServerClient.GetCorrespondenceAsync(heroes, summaryOnly: true,
+            ReignCorrespondenceSnapshot snapshot = await ReignCorrespondenceClient.GetCorrespondenceAsync(heroes, summaryOnly: true,
                 isCurrentRequest: () => Task.FromResult(!_finalized));
             if (_finalized) return;
             foreach (string heroId in snapshot.ContactStates.Keys.Concat((snapshot.Letters ?? new List<ReignLetter>())
@@ -361,7 +367,7 @@ namespace ReignBeta.UI.ViewModels
             try
             {
                 if (await ReignMainThread.InvokeAsync(() => _finalized || version != _threadLoadVersion)) return;
-                ReignCorrespondenceSnapshot snapshot = await ReignServerClient.GetCorrespondenceAsync(heroes, contact.Hero.StringId,
+                ReignCorrespondenceSnapshot snapshot = await ReignCorrespondenceClient.GetCorrespondenceAsync(heroes, contact.Hero.StringId,
                     isCurrentRequest: () => Task.FromResult(!_finalized && version == _threadLoadVersion));
                 bool loaded = await ReignMainThread.InvokeAsync(() =>
                 {
@@ -413,7 +419,7 @@ namespace ReignBeta.UI.ViewModels
             if (unread.Count == 0 || _finalized) return;
             try
             {
-                if (!await ReignServerClient.MarkLettersReadAsync(unread.Select(letter => letter.LetterId),
+                if (!await ReignCorrespondenceClient.MarkLettersReadAsync(unread.Select(letter => letter.LetterId),
                     () => Task.FromResult(!_finalized && version == _threadLoadVersion))) return;
                 await ReignMainThread.InvokeAsync(() =>
                 {

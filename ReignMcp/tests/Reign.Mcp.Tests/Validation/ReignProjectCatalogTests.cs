@@ -84,7 +84,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("product", plan.Scope);
         Assert.Equal("quick", plan.VerificationTier);
-        Assert.Equal(10, plan.Projects.Count);
+        Assert.Equal(12, plan.Projects.Count);
         Assert.DoesNotContain(plan.Projects, item => item.Group == "tooling");
         Assert.Contains(plan.Projects, item => item.Id == "client");
         Assert.Contains(plan.Projects, item => item.Id == "mcp-tests");
@@ -153,7 +153,7 @@ public sealed class ReignProjectCatalogTests
 
     [Theory]
     [InlineData("ReignServer/shared/Reign.Core.Contracts/ReignRelationshipBaselinePolicy.cs", 1, "core", "domain", "core-contracts")]
-    [InlineData("ReignServer/src/Modules/Persistence/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Persistence/Data/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs", 2, "persistence", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Characters/CharacterTraits.cs", 2, "characters", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Characters/Family/ReignConceptionRecord.cs", 2, "characters", "bannerlord", "client")]
@@ -161,19 +161,19 @@ public sealed class ReignProjectCatalogTests
     [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", 2, "relationships", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Relationships/Campaign/ReignRelationshipCampaignBehavior.cs", 2, "relationships", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Reputation/SocialReputation.cs", 2, "reputation", "server", "server")]
-    [InlineData("ReignServer/src/Modules/Dialogue/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Dialogue/Conversation/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Dialogue/Runtime/ReignConversationEligibility.cs", 2, "dialogue", "bannerlord", "client")]
     [InlineData("ReignServer/tests/ReignLiveTest/Features/Dialogue/QualificationRunner.cs", 2, "dialogue", "harness", "live-test")]
     [InlineData("ReignServer/src/Modules/Diplomacy/WorldDiplomacyDirector.cs", 2, "diplomacy", "server", "server")]
     [InlineData("ReignServer/src/Modules/Court/CourtSystem.cs", 2, "court", "server", "server")]
     [InlineData("ReignServer/src/Modules/Spymaster/SpymasterSystem.cs", 2, "spymaster", "server", "server")]
-    [InlineData("ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs", 2, "spymaster", "bannerlord", "client")]
+    [InlineData("ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterCampaignBehavior.cs", 2, "spymaster", "bannerlord", "client")]
     [InlineData("ReignMcp/tests/Reign.Mcp.Tests/Features/Spymaster/SpymasterOrganicScenarioContractTests.cs", 2, "spymaster", "mcp", "mcp-tests")]
     [InlineData("ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs", 2, "kingdom-events", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Rebellion/RebellionDirector.cs", 2, "rebellion", "server", "server")]
     [InlineData("ReignServer/src/Modules/WorldSimulation/WorldTest.cs", 2, "world-simulation", "server", "server")]
     [InlineData("ReignServer/src/Modules/Portraits/PortraitGeneration.cs", 2, "portraits", "server", "server")]
-    [InlineData("ReignBeta/src/Modules/UI/UI/ReignRuntimeSpriteSheets.cs", 2, "ui", "bannerlord", "client")]
+    [InlineData("ReignBeta/src/Modules/UI/ReignRuntimeSpriteSheets.cs", 2, "ui", "bannerlord", "client")]
     [InlineData("ReignMcp/src/Reign.Mcp.Server/Modules/Platform/ReignApiClient.cs", 2, "platform", "mcp", "mcp")]
     [InlineData("BannerlordEditorMcp/src/Bannerlord.EditorBridge/EditorBridgeController.cs", 2, "bannerlord-editor", "tooling", "bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj")]
     public void EveryRepresentativeModuleFacetRoutesNarrowly(
@@ -286,7 +286,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("ecosystem", plan.Scope);
         Assert.Equal("quick", plan.VerificationTier);
-        Assert.Equal(21, plan.Projects.Count);
+        Assert.Equal(23, plan.Projects.Count);
     }
 
     [Fact]

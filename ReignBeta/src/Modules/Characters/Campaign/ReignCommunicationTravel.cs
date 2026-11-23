@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
-        private sealed class CommunicationHostReservation
+        internal sealed class CommunicationHostReservation
         {
             public string Id = "", HostId = "", TargetId = "", DestinationId = "", Hash = "";
             public double ExpiresDay;
         }
-        private Dictionary<string, CommunicationHostReservation> _communicationHosts = new Dictionary<string, CommunicationHostReservation>();
+        internal Dictionary<string, CommunicationHostReservation> _communicationHosts = new Dictionary<string, CommunicationHostReservation>();
         internal bool HasPendingCommunicationReceipts => _outbox.Any(row => row.Value<string>("route") == "communication_receipt");
 
         private string CommunicationHostProblem(CommunicationHostReservation hold)
@@ -32,7 +32,7 @@ namespace ReignBeta.Campaign
                 && Free(host) && host.IsTraveling && host.PartyBelongedTo == null
                 && host.CurrentSettlement != null && host.CurrentSettlement.StringId == hold.DestinationId;
             return !ReignNpcLivesPatches.VerifyReady() ? "The native movement safety hooks are unavailable."
-                : !ReignServerClient.NpcLivesOptions.Allows("meeting") ? "Summoned meetings are disabled."
+                : !ReignNpcLivesClient.NpcLivesOptions.Allows("meeting") ? "Summoned meetings are disabled."
                 : host == Hero.MainHero || target == Hero.MainHero ? "A background invitation cannot reserve the player."
                 : !CanSummon(host, target) ? "The host lacks authority or a participant is unavailable."
                 : !AtMeetingPlace(host, hold.DestinationId) && !retainedResident || host.PartyBelongedTo?.Army != null ? "The host is no longer safely at the agreed meeting place."
@@ -44,7 +44,7 @@ namespace ReignBeta.Campaign
 
         private void QueueCommunicationHostReceipt(CommunicationHostReservation hold, string kind, string reason = "")
         {
-            var payload = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var payload = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             payload["communicationId"] = hold.Id; payload["reservationHash"] = hold.Hash;
             payload["hostId"] = hold.HostId; payload["destinationId"] = hold.DestinationId;
             payload["kind"] = kind; payload["reason"] = reason;
@@ -113,7 +113,7 @@ namespace ReignBeta.Campaign
                     || held.HostId != issuer?.StringId || held.TargetId != target?.StringId || held.DestinationId != destination)
                 ? "The accepted invitation has no matching native host reservation."
                 : !ReignNpcLivesPatches.VerifyReady() ? "The native movement safety hooks are unavailable."
-                : !ReignServerClient.NpcLivesOptions.Allows("meeting") ? "Summoned meetings are disabled."
+                : !ReignNpcLivesClient.NpcLivesOptions.Allows("meeting") ? "Summoned meetings are disabled."
                 : issuer == Hero.MainHero || target == Hero.MainHero ? "Background NPC summons cannot control the player hero."
                 : !CanSummon(issuer, target) ? "The issuer lacks current authority or a participant is unavailable."
                 : !AtMeetingPlace(issuer, destination) || issuer.PartyBelongedTo?.Army != null ? "The host must be safely waiting at the agreed fixed meeting place."
@@ -127,7 +127,7 @@ namespace ReignBeta.Campaign
                     ? "A participant already has an incompatible meeting commitment." : "";
             if (problem.Length > 0)
             {
-                var blocked = ReignServerClient.CaptureNpcLivesContext(Generation);
+                var blocked = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 blocked["communicationId"] = id; blocked["acceptanceHash"] = acceptance;
                 blocked["kind"] = "summons_blocked"; blocked["reason"] = problem;
                 QueueLifeOperation("communication_receipt", blocked, id + ":blocked"); return;
@@ -141,7 +141,7 @@ namespace ReignBeta.Campaign
             if (!NpcLivesPolicy.Finite(speed) || speed <= 0) speed = 4d;
             double normal = AtMeetingPlace(target, destination) ? 0
                 : (FieldMeetingPoint(destination, out var point) ? origin.Distance(point) : origin.Distance(place.GatePosition)) / (speed * 24d);
-            double delay = NpcLivesPolicy.SummonsArrivalDelay(normal, ReignServerClient.NpcLivesOptions);
+            double delay = NpcLivesPolicy.SummonsArrivalDelay(normal, ReignNpcLivesClient.NpcLivesOptions);
             var state = new NpcSummonedMeeting {
                 Id = "meeting_" + id, ProposalId = id, Revision = work.Value<int?>("revision") ?? 1,
                 IssuerId = issuer.StringId, TargetId = target.StringId, DestinationId = destination,

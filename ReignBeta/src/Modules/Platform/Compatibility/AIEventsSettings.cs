@@ -1,5 +1,5 @@
 using System;
-using ReignBeta.Settings;
+using ReignBeta.Platform.Settings;
 
 namespace AIEventsAndIntrigue.Settings
 {

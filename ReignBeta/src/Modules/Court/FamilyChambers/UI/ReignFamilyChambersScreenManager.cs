@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem;
@@ -10,8 +9,14 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using static ReignBeta.UI.ReignScreenLayers;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.FamilyChambers
 {
     public static class ReignFamilyChambersScreenManager
     {
@@ -50,7 +55,7 @@ namespace ReignBeta.UI
                 ReignLog.Warn("Family Chambers open ignored because Rule Mode is inactive.");
                 return;
             }
-            if (ReignFamilyChambersCampaignBehavior.Instance == null)
+            if (ReignServices.FamilyChambers == null)
             {
                 ReignLog.Warn("Family Chambers open ignored because its campaign behavior is unavailable.");
                 return;
@@ -70,7 +75,7 @@ namespace ReignBeta.UI
                 ReignLog.Warn("Family Chambers keep entry ignored because no native town or castle keep is active.");
                 return;
             }
-            if (ReignFamilyChambersCampaignBehavior.Instance == null) return;
+            if (ReignServices.FamilyChambers == null) return;
             _pendingCourt = court;
             _pendingAllowOutsideRuleMode = true;
             _pendingOriginReturn = returnToKeep;
@@ -199,12 +204,6 @@ namespace ReignBeta.UI
             _originReturn = null;
             _allowOutsideRuleMode = false;
             IsOpen = false;
-        }
-
-        private static bool SafeHasLayer(ScreenBase host, GauntletLayer layer)
-        {
-            try { return host?.HasLayer(layer) == true; }
-            catch { return false; }
         }
     }
 }

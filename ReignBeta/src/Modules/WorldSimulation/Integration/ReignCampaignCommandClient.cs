@@ -3,10 +3,15 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignCampaignCommandClient
     {
         public static async Task ReportCampaignOrderStateAsync(ReignCampaignOrderRecord order,
             string eventType)
@@ -41,7 +46,7 @@ namespace ReignBeta.Integration
                 string reason = response.Value<string>("reason") ?? string.Empty;
                 if (!ReignCampaignCommandJudgment.IsAllowedOutcome(outcome)) return;
                 await ReignMainThread.InvokeAsync(() =>
-                    ReignCampaignCommandBehavior.Instance?.ApplyLlmJudgment(order.OrderId,
+                    ReignServices.CampaignCommand?.ApplyLlmJudgment(order.OrderId,
                         outcome, reason)).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -66,7 +71,7 @@ namespace ReignBeta.Integration
                 JObject response = await PostJsonAsync("/correspondence/send", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["senderId"] = sender.StringId ?? string.Empty,
                     ["senderName"] = sender.Name?.ToString() ?? "Commander",
                     ["recipientId"] = recipient.StringId ?? string.Empty,

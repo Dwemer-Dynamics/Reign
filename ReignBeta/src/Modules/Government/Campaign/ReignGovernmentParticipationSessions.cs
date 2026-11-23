@@ -6,8 +6,9 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Government.Domain;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -351,7 +352,7 @@ namespace ReignBeta.Government
             return true;
         }
         private bool WaitForPlayerMemberBallot(ReignGovernmentBusinessRecord record) => Hero.MainHero != null && Mission.Current == null
-            && (ReignBeta.UI.ReignGovernmentScreenManager.IsOpen || ReignBeta.UI.ReignGovernmentScreenManager.CanPresentOnMap())
+            && (ReignBeta.Government.UI.ReignGovernmentScreenManager.IsOpen || ReignBeta.Government.UI.ReignGovernmentScreenManager.CanPresentOnMap())
             && GetParticipationAccess(record.KingdomStringId, Hero.MainHero, record.BusinessId).Ballot
             && GetBusinessAttendance(record.BusinessId).Any(x => x.HeroStringId == Hero.MainHero.StringId && x.Status == "present")
             && !_participation.Ballots.Any(x => x.BusinessId == record.BusinessId && x.HeroId == Hero.MainHero.StringId);

@@ -22,7 +22,7 @@ try {
     $native=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.MountAndBlade.dll'))
     $campaign=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $sandbox=[Reflection.Assembly]::LoadFrom((Join-Path $BannerlordPath 'Modules\SandBox\bin\Win64_Shipping_Client\SandBox.dll'))
-    $patches=$client.GetType('ReignBeta.Campaign.ReignDuelCombatPatches',$true)
+    $patches=$client.GetType('ReignBeta.Characters.Campaign.ReignDuelCombatPatches',$true)
     $agent=$native.GetType('TaleWorlds.MountAndBlade.Agent',$true)
     $hero=$campaign.GetType('TaleWorlds.CampaignSystem.Hero',$true)
     $health=$agent.GetProperty('Health',$instance).GetSetMethod($true)
@@ -67,7 +67,7 @@ try {
         if(-not $rejected){throw 'Ambiguous/missing native health assignment accepted.'}
     }
     $scale=$patches.GetMethod('ScaleSkillXp',$static)
-    $scopeType=$client.GetType('ReignBeta.Campaign.ReignDuelCombatPatches+ExperienceScope',$true)
+    $scopeType=$client.GetType('ReignBeta.Characters.Campaign.ReignDuelCombatPatches+ExperienceScope',$true)
     $scopeCtor=$scopeType.GetConstructors($instance)[0]
     $fighter=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($hero)
     $other=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($hero)

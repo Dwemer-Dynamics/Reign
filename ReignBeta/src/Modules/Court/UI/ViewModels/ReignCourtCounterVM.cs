@@ -1,6 +1,6 @@
 using TaleWorlds.Library;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCourtCounterVM : ViewModel
     {

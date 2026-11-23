@@ -7,8 +7,10 @@ using Newtonsoft.Json;
 using Reign.Core.Contracts.Actions;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Actions;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public static class ReignActionConsole
     {
@@ -20,7 +22,7 @@ namespace ReignBeta.Actions
         }
         private static void RequireCampaign()
         {
-            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignAgreementBehavior.Instance == null) throw new InvalidOperationException("Load a campaign first.");
+            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignServices.Agreement == null) throw new InvalidOperationException("Load a campaign first.");
             if (_draftCampaign != TaleWorlds.CampaignSystem.Campaign.Current) { Drafts.Clear(); _draftCampaign = TaleWorlds.CampaignSystem.Campaign.Current; }
         }
 
@@ -59,9 +61,9 @@ namespace ReignBeta.Actions
         [CommandLineFunctionality.CommandLineArgumentFunction("run", "reign.action")]
         public static string Run(List<string> args) => Guard(() => Native(args, true) ?? JsonConvert.SerializeObject(ReignActionService.RunOperator(Single(args)), Formatting.Indented));
         [CommandLineFunctionality.CommandLineArgumentFunction("status", "reign.action")]
-        public static string Status(List<string> args) => Guard(() => { RequireCampaign(); string id = Only(args); return JsonConvert.SerializeObject((object)ReignAgreementBehavior.Instance.NativeOperation(id) ?? ReignAgreementBehavior.Instance.Status(id), Formatting.Indented); });
+        public static string Status(List<string> args) => Guard(() => { RequireCampaign(); string id = Only(args); return JsonConvert.SerializeObject((object)ReignServices.Agreement.NativeOperation(id) ?? ReignServices.Agreement.Status(id), Formatting.Indented); });
         [CommandLineFunctionality.CommandLineArgumentFunction("cancel", "reign.action")]
-        public static string Cancel(List<string> args) => Guard(() => { RequireCampaign(); return JsonConvert.SerializeObject(ReignAgreementBehavior.Instance.Cancel(Only(args)), Formatting.Indented); });
+        public static string Cancel(List<string> args) => Guard(() => { RequireCampaign(); return JsonConvert.SerializeObject(ReignServices.Agreement.Cancel(Only(args)), Formatting.Indented); });
 
         [CommandLineFunctionality.CommandLineArgumentFunction("create", "reign.agreement")]
         public static string Create(List<string> args) => Guard(() =>

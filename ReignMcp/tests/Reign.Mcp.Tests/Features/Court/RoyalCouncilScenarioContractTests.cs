@@ -80,7 +80,8 @@ public sealed class RoyalCouncilScenarioContractTests
     public void AdviceBoundaryAndLegacyOfficeAliasesAreExplicit()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "RoyalCouncil.cs", "/src/"));
+        string server = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "RoyalCouncil.cs", "/src/"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Court");
         Assert.Contains("RoyalCouncilDomainKeys", server, StringComparison.Ordinal);
         Assert.Contains("providerCallCount", server, StringComparison.Ordinal);
         Assert.Contains("nativeActions", server, StringComparison.Ordinal);

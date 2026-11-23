@@ -204,7 +204,7 @@ public static partial class TestingTools
     }
 
     [McpServerTool(Name = "reign_build", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]
-    [Description("Builds a catalog-discovered Reign project ID or the core, product, tooling, or all profile into a fresh workspace-confined .codex-build directory. Product excludes side tooling; all is ecosystem release validation. New managed projects are discovered automatically and unclassified projects fail closed.")]
+    [Description("Compatibility entry for canonical validation under the machine lease. Project IDs use their project-file plan, or the containing core/tooling profile if that plan omits the project. Named profiles retain their normal checks. Returns the original validation report path, run ID and reuse status.")]
     public static Task<BuildBatchResult> Build(
         ReignBuildService buildService,
         [Description("A project ID from reign_get_validation_plan, or core, product, tooling, or all.")]
@@ -212,9 +212,10 @@ public static partial class TestingTools
         [AllowedValues("Debug", "Release")]
         string configuration = "Release",
         [Description("Allow NuGet restore for this build. Also requires REIGN_MCP_ALLOW_RESTORE=true.")] bool restore = false,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [Description("Exact current Codex task UUID for validation ownership attribution.")] string requestingTaskId = "")
     {
-        return buildService.BuildAsync(component, configuration, restore, cancellationToken);
+        return buildService.BuildAsync(component, configuration, restore, cancellationToken, requestingTaskId);
     }
 
     [McpServerTool(Name = "reign_get_validation_plan", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
@@ -233,7 +234,7 @@ public static partial class TestingTools
     }
 
     [McpServerTool(Name = "reign_get_validation_status", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Reads the workspace validation lease, owner task, requested paths, current operation and report location. Does not start, cancel or take over work. Availability is a snapshot; the OS lease remains authoritative.")]
+    [Description("Reads the machine-wide (per WSL lane) validation lease, owner task, requested paths, current operation and report location. Does not start, cancel or take over work. Availability is a snapshot; the OS lease remains authoritative.")]
     public static ValidationLaneStatus GetValidationStatus(ReignValidationService validation) => validation.GetStatus();
 
     [McpServerTool(Name = "reign_validate", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]

@@ -9,14 +9,22 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Government;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     public sealed class ReignCourtServerResponse
     {
@@ -29,7 +37,8 @@ namespace ReignBeta.Integration
 
     public static partial class ReignCourtServerClient
     {
-        private static readonly HttpClient Client = new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(new HttpClientHandler { UseProxy = false })) { Timeout = TimeSpan.FromSeconds(90) };
+        private static readonly HttpClient Client = new HttpClient(ReignHttpTransport.CreateProtocolPipeline(
+            new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })) { Timeout = TimeSpan.FromSeconds(90) };
 
         public static Task<ReignCourtServerResponse> OpenSessionAsync(CourtSession session, long expectedRevision, string commandId, JObject nativeSnapshot)
         {
@@ -37,7 +46,7 @@ namespace ReignBeta.Integration
             payload["sessionId"] = session?.SessionId ?? string.Empty;
             payload["authority"] = (session?.Authority ?? ReignCourtAuthority.Royal).ToString().ToLowerInvariant();
             payload["scope"] = (session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant();
-            payload["capitalSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.CurrentCapital?.StringId ?? string.Empty;
+            payload["capitalSettlementStringId"] = ReignServices.Court?.CurrentCapital?.StringId ?? string.Empty;
             payload["playerIsKingdomRuler"] = ReignCourtCampaignBehavior.IsPlayerKingdomRuler();
             payload["hostSettlementStringId"] = session?.HostSettlementStringId ?? string.Empty;
             payload["lastAgendaDay"] = session?.LastAgendaDay ?? -1;
@@ -175,7 +184,7 @@ namespace ReignBeta.Integration
                 ["clanId"] = speaker?.Clan?.StringId ?? string.Empty
             };
             // The council presents structured receipts as separate system lines.
-            Action<JObject> complete = ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
+            Action<JObject> complete = ReignStructuredActionClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
             return new RoyalCouncilAdviceRequest { Payload = payload, Complete = complete, Fence = ReignServerClient.RequestFence.Capture() };
         }
 
@@ -281,7 +290,7 @@ namespace ReignBeta.Integration
             payload["capitalSettlementStringId"] = capital?.StringId ?? string.Empty;
             payload["capitalSettlementName"] = capital?.Name?.ToString() ?? string.Empty;
             payload["candidates"] = candidates ?? new JArray();
-            payload["originGovernment"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(origin)
+            payload["originGovernment"] = ReignServices.Government?.BuildPublicSnapshot(origin)
                 ?? new JObject { ["available"] = false, ["authoritative"] = true };
             return PostAsync("/court/foreign-ambassadors/establish", payload);
         }
@@ -321,7 +330,7 @@ namespace ReignBeta.Integration
             payload["originRulerName"] = ruler?.Name?.ToString() ?? string.Empty;
             payload["charm"] = posting?.Charm ?? 0;
             payload["rulerTrust"] = posting?.RulerTrust ?? 0;
-            payload["originGovernment"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(ruler?.Clan?.Kingdom)
+            payload["originGovernment"] = ReignServices.Government?.BuildPublicSnapshot(ruler?.Clan?.Kingdom)
                 ?? new JObject { ["available"] = false, ["authoritative"] = true };
             return PostAsync("/court/foreign-ambassadors/authority", payload);
         }
@@ -329,7 +338,7 @@ namespace ReignBeta.Integration
         public static Task<ReignCourtServerResponse> TickForeignAmbassadorsAsync(int dayIndex)
         {
             JObject payload = BasePayload("foreign_ambassador_tick_" + dayIndex, 0);
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/tick", payload);
         }
 
@@ -339,7 +348,7 @@ namespace ReignBeta.Integration
             payload["referralId"] = referralId ?? string.Empty;
             payload["termsHash"] = termsHash ?? string.Empty;
             payload["accept"] = accept;
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/referrals/respond", payload);
         }
 
@@ -417,7 +426,7 @@ namespace ReignBeta.Integration
             try{encoded["terms"]=JObject.Parse(string.IsNullOrWhiteSpace(action?.TermsJson)?"{}":action.TermsJson);}catch{encoded["terms"]=new JObject();}
             JObject payload=BasePayload(commandId,0);
             payload["worldAction"]=encoded;
-            payload["worldSnapshot"]=ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"]=ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             payload["termsHash"]=ReignCourtTerms.Hash(encoded.ToString(Formatting.None));
             return PostAsync("/court/diplomacy/propose",payload);
         }
@@ -482,7 +491,7 @@ namespace ReignBeta.Integration
             return new JObject
             {
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["commandId"] = commandId ?? string.Empty,
                 ["expectedRevision"] = expectedRevision,
                 ["worldDay"] = CampaignTime.Now.ToDays,
@@ -490,10 +499,10 @@ namespace ReignBeta.Integration
                 ["playerClanStringId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["playerKingdomStringId"] = Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
                 ["playerIsKingdomRuler"] = ReignCourtCampaignBehavior.IsPlayerKingdomRuler()
-                , ["sessionId"] = ReignCourtCampaignBehavior.Instance?.Session?.SessionId ?? string.Empty
-                , ["courtScope"] = (ReignCourtCampaignBehavior.Instance?.Session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant()
-                , ["hostSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.Session?.HostSettlementStringId ?? string.Empty
-                , ["capitalSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.CurrentCapital?.StringId ?? string.Empty
+                , ["sessionId"] = ReignServices.Court?.Session?.SessionId ?? string.Empty
+                , ["courtScope"] = (ReignServices.Court?.Session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant()
+                , ["hostSettlementStringId"] = ReignServices.Court?.Session?.HostSettlementStringId ?? string.Empty
+                , ["capitalSettlementStringId"] = ReignServices.Court?.CurrentCapital?.StringId ?? string.Empty
             };
         }
 
@@ -513,47 +522,21 @@ namespace ReignBeta.Integration
             }
             try { await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false); }
             catch (Exception ex) { return new ReignCourtServerResponse { Ok = false, Error = ex.Message }; }
-            if (!ReignServerEndpoint.TryBeginRequest(out string unavailable))
-            {
-                return new ReignCourtServerResponse { Ok = false, Error = unavailable };
-            }
-
             try
             {
                 string json = (payload ?? new JObject()).ToString(Formatting.None);
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+                ReignHttpTransport.DirectJsonResponse response =
+                    await ReignHttpTransport.PostDirectJsonAsync(Client, route, json, checkAvailability: true).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + response.StatusCode + ": " + response.Body };
+                JObject result = response.Json;
+                return new ReignCourtServerResponse
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    Stopwatch timer = Stopwatch.StartNew();
-                    try
-                    {
-                        using (StringContent content = new StringContent(json, Encoding.UTF8, "application/json"))
-                        using (HttpResponseMessage response = await Client.PostAsync(url, content).ConfigureAwait(false))
-                        {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            timer.Stop();
-                            ReignServerEndpoint.ReportSuccess(baseUrl);
-                            if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + (int)response.StatusCode + ": " + body };
-                            JObject result = JObject.Parse(body);
-                            return new ReignCourtServerResponse
-                            {
-                                Ok = result.Value<bool?>("ok") == true,
-                                Error = result.Value<string>("error") ?? string.Empty,
-                                Revision = ReadNumericRevision(result),
-                                NativeActions = result["nativeActions"] as JArray ?? new JArray(),
-                                Raw = result
-                            };
-                        }
-                    }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        lastTransportFailure = ex;
-                    }
-                }
-
-                ReignServerEndpoint.ReportTransportFailure();
-                return new ReignCourtServerResponse { Ok = false, Error = lastTransportFailure?.Message ?? "Local Bannerlord Reign server is unavailable." };
+                    Ok = result.Value<bool?>("ok") == true,
+                    Error = result.Value<string>("error") ?? string.Empty,
+                    Revision = ReadNumericRevision(result),
+                    NativeActions = result["nativeActions"] as JArray ?? new JArray(),
+                    Raw = result
+                };
             }
             catch (Exception ex)
             {

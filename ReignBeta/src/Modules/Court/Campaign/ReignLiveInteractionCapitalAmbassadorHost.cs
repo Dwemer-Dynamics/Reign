@@ -3,15 +3,18 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
         private static async Task<LiveCommandResult> ExecuteCapitalAmbassadorTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = (command.Value<string>("phase") ?? command.Value<string>("profile") ?? command.Value<string>("text") ?? "preflight").Trim().ToLowerInvariant();
@@ -19,7 +22,7 @@ namespace ReignBeta.Campaign
             try
             {
                 if (phase == "prepare")
-                    result = await court.PrepareCapitalAmbassadorFixtureAsync(runId, command).ConfigureAwait(false);
+                    result = await ReignCourtTestControls.PrepareCapitalAmbassadorFixtureAsync(court, runId, command).ConfigureAwait(false);
                 else if (phase == "server_matrix")
                 {
                     ReignCourtServerResponse response = await ReignCourtServerClient.RunCapitalAmbassadorServerMatrixAsync(runId).ConfigureAwait(false);
@@ -28,7 +31,7 @@ namespace ReignBeta.Campaign
                     if (!response.Ok && result.Property("error") == null) result["error"] = response.Error;
                 }
                 else
-                    result = await ReignMainThread.InvokeAsync(() => court.RunCapitalAmbassadorTestProfile(runId, phase, command)).ConfigureAwait(false);
+                    result = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunCapitalAmbassadorTestProfile(court, runId, phase, command)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

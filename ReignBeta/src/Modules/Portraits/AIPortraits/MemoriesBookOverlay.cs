@@ -2,6 +2,7 @@ using System;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using static AIPortraits.PortraitMessages;
 
 namespace AIPortraits;
 
@@ -112,10 +113,5 @@ public static class MemoriesBookOverlay
 		_vm = null;
 		_hostScreen = null;
 		_calibrationMode = false;
-	}
-
-	private static void Msg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage("[AIPortraits] " + text, Color.FromUint(color)));
 	}
 }

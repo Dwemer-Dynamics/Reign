@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     // Native Clan and CompanionOf maintain different caches. A civilian assigned
     // only to Clan is neither a lord nor a companion after native cache rebuilds.

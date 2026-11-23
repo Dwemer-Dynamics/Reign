@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Domain
 {
     internal sealed class GovernmentResidenceLease
     {

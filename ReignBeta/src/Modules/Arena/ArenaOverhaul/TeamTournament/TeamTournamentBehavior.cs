@@ -25,6 +25,8 @@ namespace ArenaOverhaul.TeamTournament
 {
     public class TeamTournamentBehavior : MissionLogic, ICameraModeLogic
     {
+        private readonly Campaign? _campaign;
+
         public TournamentGame TournamentGame { get; private set; }
         public int PlayerTeamLostAtRound { get => _playerLostAtRound; }
         public bool IsPlayerEliminated { get; private set; }
@@ -50,6 +52,7 @@ namespace ArenaOverhaul.TeamTournament
 
         public TeamTournamentBehavior(TournamentGame tournamentGame, Settlement settlement, ITournamentGameBehavior gameBehavior, bool isPlayerParticipating)
         {
+            _campaign = Campaign.Current;
             Settlement = settlement;
             TournamentGame = tournamentGame;
             MissionBehavior = (gameBehavior as TeamTournamentMissionController)!;
@@ -276,9 +279,8 @@ namespace ArenaOverhaul.TeamTournament
                     }
 
                     var list = new List<CharacterObject>(_teams!.SelectMany(x => x.Members).Select(y => y.Character));
-                    TeamTournamentOutcome.Capture(Settlement.Town, Winner?.Character,
-                        winningTeam?.Members.Select(x => x.Character));
-                    CampaignEventDispatcher.Instance.OnTournamentFinished(Winner?.Character, new(list), Settlement.Town, TournamentGame.Prize);
+                    TeamTournamentOutcome.PublishFinishedEvent(_campaign, Winner?.Character, list, Settlement.Town,
+                        TournamentGame.Prize, winningTeam?.Members.Select(x => x.Character));
 
                     CurrentInfo.Finish();
 

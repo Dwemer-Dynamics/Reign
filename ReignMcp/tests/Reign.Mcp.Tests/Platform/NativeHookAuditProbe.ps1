@@ -124,7 +124,7 @@ public static class NativeGarrisonQuoteFixture {
     [NativeGarrisonQuoteFixture]::ExpectedInstance=$behavior
     [NativeGarrisonQuoteFixture]::ExpectedTown=$town
     $garrisonHarmony=[HarmonyLib.Harmony]::new($garrisonOwner)
-    $bridge=$client.GetType('ReignBeta.Economy.ReignEconomyPatches',$true).GetMethod('NativeGarrisonChange',$flags)
+    $bridge=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignEconomyPatches',$true).GetMethod('NativeGarrisonChange',$flags)
     if(!$bridge){throw 'Compiled native garrison quote bridge missing'}
     foreach($automatic in @($true,$false)){
         $name=if($automatic){'GetAutoRecruitmentGarrisonChangeExplainedNumber'}else{'GetBaseGarrisonChangeExplainedNumber'}
@@ -145,7 +145,7 @@ public static class NativeGarrisonQuoteFixture {
     }
     if([NativeGarrisonQuoteFixture]::Calls -ne 6 -or !$legacyGarrisonArityRejected){throw 'Native garrison invocation proof incomplete'}
     $garrisonHarmony.UnpatchAll($garrisonOwner)
-    $resident=$client.GetType('ReignBeta.Campaign.ReignEncounteredResidentPatches',$true)
+    $resident=$client.GetType('ReignBeta.Characters.Campaign.ReignEncounteredResidentPatches',$true)
     $bindings=@($resident.GetMethod('ResolveNativeTargets',$flags).Invoke($null,@()))
     if($bindings.Count -ne 9 -or @($bindings|Where-Object {$null -eq $_}).Count){throw 'Resident target set is incomplete'}
     if($bindings[3].GetParameters().Count -ne 4){throw 'Resident SpawnAgent must bind the actual four-parameter native method'}

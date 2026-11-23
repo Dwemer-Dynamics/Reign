@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
 using ReignBeta.Court;
@@ -15,8 +13,13 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     public static class ReignPartyChatScreenManager
     {

@@ -18,5 +18,6 @@ Current pure libraries:
 
 - `Reign.Core.Contracts`: Bannerlord-independent shared relationship baseline contract.
 - `Reign.Relationships`: compatibility calculations with exhaustive deterministic unit tests.
+- `ReignBeta.Core` (`ReignBeta/Core`): game-free client policies, codecs and protocol state, netstandard2.0. Its sources stay in their module folders and are listed once in `ReignBeta/Core/ReignBeta.Core.Sources.props`; `ReignBeta` references it and `ReignMcp/tests` unit-tests it directly.
 
 Folder-owned logical modules are Core, Persistence, Characters, Relationships, Reputation, Dialogue, Diplomacy, Court, Spymaster, Kingdom Events, Rebellion, World Simulation, Portraits, UI, Platform, Bannerlord Editor, and Legacy Importer.

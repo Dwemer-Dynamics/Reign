@@ -38,6 +38,48 @@ public sealed class RulerDocketInterfaceContractTests
     }
 
     [Fact]
+    public void CourtAudienceReplyBelongsToTheOpeningInstanceAndReservesItsMatterAcrossScreens()
+    {
+        string directory = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta/src/Modules/Court");
+        string screen = File.ReadAllText(Path.Combine(directory, "UI/ViewModels/ReignCourtScreenVM.cs"));
+        int send = screen.IndexOf("public async void ExecuteSendAudience()", StringComparison.Ordinal);
+        int hide = screen.IndexOf("private void HideAudience()", StringComparison.Ordinal);
+        Assert.True(send >= 0 && hide > send);
+        string reply = screen[send..hide];
+
+        int clear = reply.IndexOf("AudienceInput = string.Empty;", StringComparison.Ordinal);
+        int request = reply.IndexOf("RespondToAudienceAsync(matter, speaker, text)", StringComparison.Ordinal);
+        int owner = reply.IndexOf("viewRevision != _audienceViewRevision || session != _court.Session", StringComparison.Ordinal);
+        int status = reply.IndexOf("StatusText =", StringComparison.Ordinal);
+        int accepted = reply.IndexOf("matter.State = ReignCourtMatterState.AwaitingDecision;", StringComparison.Ordinal);
+        Assert.True(clear >= 0 && clear < request && request < owner && owner < status && status < accepted);
+        Assert.DoesNotContain("AudienceInput =", reply[request..], StringComparison.Ordinal);
+        Assert.Contains("if (_sendingAudienceRevision == viewRevision) _sendingAudienceRevision = null;", reply, StringComparison.Ordinal);
+        Assert.Contains("|| !AudienceVisible || matter != _audienceMatter || matter.IsTerminal", reply, StringComparison.Ordinal);
+        Assert.Contains("long viewRevision = ++_audienceViewRevision;", screen, StringComparison.Ordinal);
+        Assert.Contains("if (_finalized || viewRevision != _audienceViewRevision || session != _court.Session) return;", screen, StringComparison.Ordinal);
+        Assert.Contains("_court.IsAudienceReplyPending(_audienceMatter.MatterId)", screen, StringComparison.Ordinal);
+        int open = screen.IndexOf("private async void BeginAudience(", StringComparison.Ordinal);
+        int next = screen.IndexOf("private void ConfirmMatterDecision(", StringComparison.Ordinal);
+        Assert.True(open >= 0 && next > open);
+        string opening = screen[open..next];
+        int existing = opening.IndexOf("_court.IsAudienceReplyPending(matter.MatterId)", StringComparison.Ordinal);
+        int begin = opening.IndexOf("_court.BeginAudienceAsync(matter)", StringComparison.Ordinal);
+        Assert.True(existing >= 0 && existing < begin);
+        Assert.Contains("if (StatusText == OpeningAudienceStatus) StatusText = string.Empty;", screen[hide..open],
+            StringComparison.Ordinal);
+
+        string behavior = File.ReadAllText(Path.Combine(directory, "Campaign/ReignCourtCampaignBehavior.cs"));
+        int reservation = behavior.IndexOf("_audienceRepliesInFlight.Add(pendingKey)", StringComparison.Ordinal);
+        int transport = behavior.IndexOf("RequestCourtMatterResponseAsync(matter, speaker, playerText, revision, commandId)", StringComparison.Ordinal);
+        int receipt = behavior.IndexOf("_serverMatterRevisions.AddOrUpdate(matterId, reply.Revision", StringComparison.Ordinal);
+        int release = behavior.IndexOf("_audienceRepliesInFlight.Remove(pendingKey)", StringComparison.Ordinal);
+        Assert.True(reservation >= 0 && reservation < transport && transport < receipt && receipt < release);
+        Assert.Contains("(session.CampaignId, session.TimelineId, MatterId: matterId)", behavior, StringComparison.Ordinal);
+        Assert.Contains("finally", behavior[receipt..release], StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void CourtLifeHallArtUsesHostSettlementAndNeverVisitorCulture()
     {
         string root = TestOptions.FindWorkspace();
@@ -76,7 +118,7 @@ public sealed class RulerDocketInterfaceContractTests
         Assert.True(frozenContract.Success);
         string actualContractHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
             Path.Combine(root, "GUI", "UiCalibration", "modern-style-contract.json")))).ToLowerInvariant();
-        Assert.Equal(actualContractHash, frozenContract.Groups[1].Value);
+        Assert.Equal(frozenContract.Groups[1].Value, actualContractHash);
     }
 
     [Fact]
@@ -90,7 +132,7 @@ public sealed class RulerDocketInterfaceContractTests
         string scroll = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "Widgets", "ReignDocketCardScrollPanel.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
         string assetTool = File.ReadAllText(Path.Combine(root, "ReignBeta", "artwork",
             "ui-modern-style-kit", "tools", "prepare_ruler_docket_interface_assets.py"));
         string deployUi = File.ReadAllText(Path.Combine(root, "ReignBeta", "tools",
@@ -211,15 +253,14 @@ public sealed class RulerDocketInterfaceContractTests
         string sceneClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "Integration", "ReignRulerPetitionSceneClient.cs"));
         string domain = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketDomain.cs"));
+            "Campaign", "ReignRulerDocketDomain.cs"));
         string client = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "Integration", "ReignCourtServerClient.cs"));
         string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Court",
-            "RulerDocketDialogue.cs"));
-        string normalClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
+            "RulerDocketDialogue.cs")) + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Court");
+        string normalClient = TestSourceLocator.PartialTypeText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
             "Integration", "ReignServerClient.cs"));
-        string normalServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Platform",
-            "Program.cs"));
+        string normalServer = TestSourceLocator.ServerProgramText(root);
         string textureFactory = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Portraits",
             "UI", "EventArt", "ReignEventArtTextureFactory.cs"));
         string assetTool = File.ReadAllText(Path.Combine(root, "ReignBeta", "artwork",
@@ -361,15 +402,14 @@ public sealed class RulerDocketInterfaceContractTests
         string manager = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ReignCourtPetitionScreenManager.cs"));
         string nobleBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignNobleDocketCampaignBehavior.cs"));
+            "Campaign", "ReignNobleDocketCampaignBehavior.cs"));
         string screen = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtScreenVM.cs"));
         string reputation = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Reputation", "CourtSocialReputation.cs"));
         string dialogue = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Court", "RulerDocketDialogue.cs"));
-        string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
-            "Platform", "Program.cs"));
+        string server = TestSourceLocator.ServerProgramText(root);
 
         Assert.Contains("TryActivateNobleMatter", manager, StringComparison.Ordinal);
         Assert.Contains("card.Payload is ReignNobleDocketMatter", screen, StringComparison.Ordinal);
@@ -432,7 +472,7 @@ public sealed class RulerDocketInterfaceContractTests
         string screen = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtScreenVM.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
 
         int proclamation = xml.IndexOf("Command.Click=\"ExecuteRoyalProclamation\"",
             StringComparison.Ordinal);
@@ -463,7 +503,7 @@ public sealed class RulerDocketInterfaceContractTests
     {
         string root = TestOptions.FindWorkspace();
         string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketInGameTests.cs"));
+            "Campaign", "ReignRulerDocketInGameTests.cs"));
 
         Assert.Contains("state.SettlementSamples.RemoveAll(x => x.Day >= day - 3", fixture,
             StringComparison.Ordinal);

@@ -1,7 +1,7 @@
 using System;
 using Reign.Core.Contracts.Actions;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     // These three adapters only record a treaty. A queued dispatch is not fulfillment.
     // This recovery never invokes an executor, releases custody or grants new consent.

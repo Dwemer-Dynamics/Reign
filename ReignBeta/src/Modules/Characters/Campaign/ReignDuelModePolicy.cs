@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignDuelModePolicy
     {

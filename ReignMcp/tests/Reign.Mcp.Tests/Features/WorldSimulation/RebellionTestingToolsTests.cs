@@ -117,11 +117,11 @@ public sealed class RebellionTestingToolsTests
         string workspace = TestOptions.FindWorkspace();
         string host = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRebellionPreparationTestHost.cs", "/src/Modules/Rebellion/Testing/"));
-        string behavior = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+        string behavior = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRebellionCampaignBehavior.cs", "/src/Modules/Rebellion/Campaign/"));
         string correspondence = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionCorrespondenceHost.cs", "/src/Modules/Dialogue/Campaign/"));
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
             "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
         string relationships = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRelationshipCampaignBehavior.cs", "/src/Modules/Relationships/Campaign/"));
@@ -185,13 +185,13 @@ public sealed class RebellionTestingToolsTests
     public void Server_language_contract_accepts_direct_questions_and_scopes_negation()
     {
         string workspace = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
+        string server = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "RebellionDirector.cs",
             "/src/Modules/Rebellion/"));
-        string prompt = File.ReadAllText(TestSourceLocator.Unique(
+        string prompt = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "PromptCaching.cs",
             "/src/Modules/Dialogue/"));
-        string client = File.ReadAllText(TestSourceLocator.Unique(
+        string client = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"), "ReignServerClient.cs",
             "/src/Modules/Platform/Integration/"));
 

@@ -1,10 +1,94 @@
-using ReignBeta.PartyAgency;
+using Newtonsoft.Json.Linq;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Platform;
 
 public sealed class ActionReliabilityContractTests
 {
+    [Fact]
+    public void PollIsolatesMalformedRowsAndKeepsHealthyIdentitiesInWireOrder()
+    {
+        var rows = JArray.Parse("""
+            [
+              {"actionId":"first","typeValue":1},
+              null,
+              {"actionId":"bad-number","typeValue":{}},
+              {"actionId":"overflow","typeValue":2147483648},
+              {"actionId":"wrong","serverActionId":"another","typeValue":2},
+              {"typeValue":2},
+              {"serverActionId":"unknown","typeValue":0},
+              {"serverActionId":"last","typeValue":3}
+            ]
+            """);
+        var rejected = new List<(int Index, string? ActionId, string Reason)>();
+
+        var accepted = ReignActionPollRows.Read(rows,
+            (row, id) => row.Value<int>("typeValue") > 0 ? id : null,
+            (index, id, reason) => rejected.Add((index, id, reason)));
+
+        Assert.Equal(new[] { "first", "last" }, accepted);
+        Assert.Equal(new (int, string?, string)[]
+        {
+            (1, null, "invalid_row"),
+            (2, "bad-number", "invalid_action_fields"),
+            (3, "overflow", "invalid_action_fields"),
+            (4, null, "invalid_action_identity"),
+            (5, null, "invalid_action_identity"),
+            (6, "unknown", "unknown_action_type")
+        }, rejected);
+    }
+
+    [Fact]
+    public void PollRejectsExplicitInvalidSelectorAndScheduleBeforeCreatingRecords()
+    {
+        var rows = JArray.Parse("""
+            [
+              {"actionId":"overflow","command":"fixture_command","typeValue":2147483648},
+              {"actionId":"legacy-missing","command":"fixture_command"},
+              {"actionId":"invalid-selector","command":"fixture_command","typeValue":"invalid"},
+              {"actionId":"object-delay","command":"fixture_command","executeAfterDays":{}},
+              {"actionId":"bad-accepted-day","command":"fixture_command","acceptedDay":"later"},
+              {"actionId":"legacy-null","command":"fixture_command","typeValue":null,"acceptedDay":null,"executeAfterDays":null},
+              {"actionId":"nonfinite-accepted","command":"fixture_command","acceptedDay":"NaN"},
+              {"actionId":"nonfinite-delay","command":"fixture_command","executeAfterDays":"Infinity"},
+              {"actionId":"legacy-strings","typeValue":"3","acceptedDay":"1","executeAfterDays":"2"},
+              {"actionId":"healthy","typeValue":3,"acceptedDay":1,"executeAfterDays":2}
+            ]
+            """);
+        var created = new List<string>();
+        var rejected = new List<(string? ActionId, string Reason)>();
+
+        var accepted = ReignActionPollRows.Read(rows, (_, id) =>
+        {
+            created.Add(id);
+            return id;
+        }, (_, id, reason) => rejected.Add((id, reason)));
+
+        Assert.Equal(new[] { "legacy-missing", "legacy-null", "legacy-strings", "healthy" }, created);
+        Assert.Equal(created, accepted);
+        Assert.Equal(new (string?, string)[]
+        {
+            ("overflow", "invalid_action_fields"),
+            ("invalid-selector", "invalid_action_fields"),
+            ("object-delay", "invalid_action_fields"),
+            ("bad-accepted-day", "invalid_action_fields"),
+            ("nonfinite-accepted", "invalid_action_fields"),
+            ("nonfinite-delay", "invalid_action_fields")
+        }, rejected);
+    }
+
+    [Fact]
+    public void PollPreservesCallerCancellation()
+    {
+        var rows = new JArray(new JObject { ["actionId"] = "canceled" });
+
+        Assert.Throws<OperationCanceledException>(() => ReignActionPollRows.Read<string>(rows,
+            (_, _) => throw new OperationCanceledException(),
+            (_, _, _) => throw new InvalidOperationException("Cancellation is not a malformed row.")));
+    }
+
     [Theory]
     [InlineData(91081, 0, 0)]
     [InlineData(91112.499, 0, 0)]

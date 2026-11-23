@@ -6,8 +6,9 @@ using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Actions;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

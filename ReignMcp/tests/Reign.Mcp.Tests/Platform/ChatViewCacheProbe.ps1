@@ -1,7 +1,7 @@
 param([Parameter(Mandatory)][string]$Source, [Parameter(Mandatory)][string]$Scratch)
 $ErrorActionPreference = 'Stop'
 Add-Type -TypeDefinition ([IO.File]::ReadAllText($Source)) -WarningAction SilentlyContinue
-$writer = [AppDomain]::CurrentDomain.GetAssemblies() | ForEach-Object { $_.GetType('ReignBeta.Integration.ReignChatViewCacheFile', $false) } | Where-Object { $_ } | Select-Object -First 1
+$writer = [AppDomain]::CurrentDomain.GetAssemblies() | ForEach-Object { $_.GetType('ReignBeta.Dialogue.Integration.ReignChatViewCacheFile', $false) } | Where-Object { $_ } | Select-Object -First 1
 $flags = [Reflection.BindingFlags]'Static,NonPublic'
 $write = $writer.GetMethod('WriteAtomic', $flags)
 $temporaryPath = $writer.GetMethod('TemporaryPath', $flags)

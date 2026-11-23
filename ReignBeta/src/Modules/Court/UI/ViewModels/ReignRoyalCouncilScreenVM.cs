@@ -6,15 +6,22 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
 using ReignBeta.Court.WarCouncil;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Spymaster.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignRoyalCouncilScreenVM : ViewModel, IReignActionHost
     {
@@ -28,7 +35,6 @@ namespace ReignBeta.UI.ViewModels
         private readonly Action _close;
         private readonly string _sessionId = "royal_council_" + Guid.NewGuid().ToString("N");
         private bool _busy;
-        private string _inputText = string.Empty;
         private string _statusText = "The Royal Council is assembling.";
         private int _providerCallCount;
         private List<string> _lastRoles = new List<string>();
@@ -71,8 +77,8 @@ namespace ReignBeta.UI.ViewModels
             string text = InputText ?? string.Empty;
             if (IsBusy || string.IsNullOrWhiteSpace(text)) return;
             string contribution = "council_input_" + Guid.NewGuid().ToString("N");
-            try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text, session: _sessionId); }
+            try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text, session: _sessionId); }
             catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;
@@ -206,7 +212,7 @@ namespace ReignBeta.UI.ViewModels
                 else
                 {
                     Transcript.Add(new ReignChatLineVM(hero?.Name?.ToString() ?? Seat(role).Title, response.Raw.Value<string>("reply") ?? "Nothing material to report.", "npc"));
-                    foreach (string statusLine in ReignServerClient.NativeStatusLines(response.Raw))
+                    foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.Raw))
                         Transcript.Add(new ReignChatLineVM("Council Clerk", statusLine, "system"));
                 }
                 return true;
@@ -223,7 +229,7 @@ namespace ReignBeta.UI.ViewModels
                     ["wars"] = new JArray(Kingdom.All.Where(k => k != null && k != ours && !k.IsEliminated && ours != null && FactionManager.IsAtWarAgainstFaction(ours, k)).Take(12).Select(k => k.Name?.ToString())),
                     ["hostileForces"] = new JArray(MobileParty.All.Where(p => p?.LeaderHero != null && p.CurrentSettlement != null && p.CurrentSettlement.MapFaction == ours && ours != null && FactionManager.IsAtWarAgainstFaction(ours, p.MapFaction)).Take(20).Select(p => p.Name?.ToString())),
                     ["realmForces"] = ours == null ? 0 : ours.CurrentTotalStrength,
-                    ["recentBattles"] = new JArray((ReignWarCouncilCampaignBehavior.Instance?.RecentReports
+                    ["recentBattles"] = new JArray((ReignServices.WarCouncil?.RecentReports
                         ?? Enumerable.Empty<ReignWarCouncilBattleReport>()).Take(12).Select(report => new JObject
                     {
                         ["day"] = report.Day, ["type"] = report.BattleType, ["winner"] = report.Winner,
@@ -271,7 +277,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void RefreshSeats()
         {
-            WarSeat = CreateSeat("war", "WAR COUNCILOR", FindHero(ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId), OpenWar);
+            WarSeat = CreateSeat("war", "WAR COUNCILOR", FindHero(ReignServices.WarCouncil?.SelectedCouncilorHeroId), OpenWar);
             SpymasterSeat = CreateSeat("spymaster", "SPYMASTER", OfficeHero(ReignCourtOffice.Spymaster), OpenSpymaster);
             EconomicSeat = CreateSeat("economic", "ECONOMIC ADVISOR", OfficeHero(ReignCourtOffice.EconomicAdvisor), () => OpenOrAppoint(ReignCourtOffice.EconomicAdvisor));
             ForeignSeat = CreateSeat("foreign", "FOREIGN ADVISOR", OfficeHero(ReignCourtOffice.ForeignAdvisor), () => OpenOrAppoint(ReignCourtOffice.ForeignAdvisor));
@@ -312,7 +318,7 @@ namespace ReignBeta.UI.ViewModels
         private IEnumerable<Hero> ResidentAdvisorCandidates()
         {
             var used = new HashSet<string>(_court.Offices.Where(a => a.IsActive).Select(a => a.HeroStringId), StringComparer.OrdinalIgnoreCase);
-            string war = ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId;
+            string war = ReignServices.WarCouncil?.SelectedCouncilorHeroId;
             if (!string.IsNullOrWhiteSpace(war)) used.Add(war);
             return Hero.AllAliveHeroes.Where(hero => hero != null && hero.Occupation == Occupation.Lord && !hero.IsChild && !hero.IsPrisoner
                 && hero.CurrentSettlement == _court.CurrentCapital && !used.Contains(hero.StringId));

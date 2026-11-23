@@ -1,4 +1,4 @@
-using ReignBeta.UI;
+using ReignBeta.Dialogue.UI;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Platform;

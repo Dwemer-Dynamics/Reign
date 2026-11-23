@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Arrests
 {
     internal static class ReignArrestCustodyPatches
     {
@@ -94,8 +94,8 @@ namespace ReignBeta.Campaign
 
         private static bool EndCaptivityPrefix(Hero prisoner, EndCaptivityDetail detail)
         {
-            bool protectedCustody = ReignArrestCampaignBehavior.Instance?.IsProtectedCustody(prisoner) == true
-                || ReignCourtCampaignBehavior.Instance?.IsProtectedDocketCustody(prisoner) == true;
+            bool protectedCustody = ReignServices.Arrest?.IsProtectedCustody(prisoner) == true
+                || ReignServices.CourtWorld?.IsProtectedDocketCustody(prisoner) == true;
             if (detail == EndCaptivityDetail.Death
                 || detail == EndCaptivityDetail.ReleasedByChoice
                 || detail == EndCaptivityDetail.ReleasedAfterBattle)
@@ -110,7 +110,7 @@ namespace ReignBeta.Campaign
 
         private static void ChangeOwnerPostfix(Settlement settlement, Hero newOwner)
         {
-            ReignArrestCampaignBehavior.Instance?
+            ReignServices.Arrest?
                 .ReconcileSovereigntyCustodyAfterOwnerChange(settlement, newOwner);
         }
 

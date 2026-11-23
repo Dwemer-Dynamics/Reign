@@ -8,15 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -122,7 +127,7 @@ namespace ReignBeta.Campaign
                 || enrollment?.Value<bool?>("recoveryCheckpointVerified") != true
                 || string.IsNullOrWhiteSpace(enrollment?.Value<string>("campaignTestRunId"))
                 || enrollment?.Value<string>("campaignId") != campaignId
-                || enrollment?.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                || enrollment?.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                 || expected.Length == 0 || baseline.Length == 0
                 || string.Equals(expected, baseline, StringComparison.OrdinalIgnoreCase)
                 || expected != ActiveSaveName() || expected != command.Value<string>("expectedSaveName")
@@ -183,7 +188,7 @@ namespace ReignBeta.Campaign
                 ["clock"] = ReignConversationClockProbe.Read(ConversationClockTracker(campaign)),
                 ["gameInstanceId"] = _gameInstanceId,
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["saveName"] = ActiveSaveName(),
                 ["applicationDispatchTicks"] = ReignMainThread.LastDrainUtc.Ticks,
                 ["worldDay"] = CampaignTime.Now.ToDays,

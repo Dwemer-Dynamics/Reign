@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.FamilyChambers
 {
     internal static class ReignFamilyChambersPrompt
     {

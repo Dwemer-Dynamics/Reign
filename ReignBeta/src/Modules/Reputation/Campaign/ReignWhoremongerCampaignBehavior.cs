@@ -4,13 +4,15 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     /// <summary>
     /// Records genuine NPC arrivals through the existing durable world-history outbox.
@@ -124,13 +126,13 @@ namespace ReignBeta.Campaign
                 float adultAge = TaleWorlds.CampaignSystem.Campaign.Current?.Models?.AgeModel?.HeroComesOfAge ?? 18f;
                 if (!settlement.IsTown || hero == Hero.MainHero || !hero.IsAlive
                     || hero.IsPrisoner || hero.Age < Math.Max(18f, adultAge)) continue;
-                if (ReignWorldHistoryCampaignBehavior.Instance == null) continue;
+                if (ReignServices.WorldHistory == null) continue;
                 long sequence = (record.Value<long?>("sequence") ?? 0L) + 1L;
                 record["sequence"] = sequence;
                 double day = CampaignTime.Now.ToDays;
                 string source = "whoremonger_town_entry|" + hero.StringId + "|"
                     + sequence.ToString(CultureInfo.InvariantCulture) + "|" + settlement.StringId;
-                ReignWorldHistoryCampaignBehavior.Instance.RecordSocialOutcome("whoremonger", hero,
+                ReignServices.WorldHistory.RecordSocialOutcome("whoremonger", hero,
                     "visitor", source, hero.Name + " arrived in " + settlement.Name + ".",
                     new JObject { ["genuineTownEntry"] = true, ["isTown"] = true,
                         ["isPrisoner"] = false, ["townId"] = settlement.StringId,

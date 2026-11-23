@@ -4,27 +4,31 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignPregnancyContextClient
     {
         // requestOwner (optional) is the originating request's Bannerlord-thread
         // owner/load predicate. It is checked inside the same game-thread callback
         // before native capture and before knowledge acceptance/enrichment, and the
         // nested sync is dispatched through the owned transport (that route never
         // re-enters this helper). Null keeps the legacy unowned behavior.
-        private static async Task SynchronizePregnancyContextAsync(string route, JObject request, Func<bool> requestOwner = null)
+        internal static async Task SynchronizePregnancyContextAsync(string route, JObject request, Func<bool> requestOwner = null)
         {
             if (request == null) return;
             var capture = await ReignMainThread.InvokeAsync(() =>
             {
                 EnsureRequestOwner(requestOwner, "pregnancy context capture");
-                var family = ReignFamilyCampaignBehavior.Instance;
+                var family = ReignServices.Family;
                 if (family == null || TaleWorlds.CampaignSystem.Campaign.Current == null) return null;
-                string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string campaignId = GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string requestedCampaign = request.Value<string>("campaignId"), requestedTimeline = request.Value<string>("timelineId");
                 if (!string.IsNullOrEmpty(requestedCampaign) && requestedCampaign != campaignId
                     || !string.IsNullOrEmpty(requestedTimeline) && requestedTimeline != timeline)
@@ -69,8 +73,8 @@ namespace ReignBeta.Integration
             await ReignMainThread.InvokeAsync(() =>
             {
                 EnsureRequestOwner(requestOwner, "pregnancy knowledge acceptance");
-                if (capture.Campaign != TaleWorlds.CampaignSystem.Campaign.Current || capture.Family != ReignFamilyCampaignBehavior.Instance
-                    || capture.CampaignId != GetCampaignId() || capture.Timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                if (capture.Campaign != TaleWorlds.CampaignSystem.Campaign.Current || capture.Family != ReignServices.Family
+                    || capture.CampaignId != GetCampaignId() || capture.Timeline != (ReignServices.WorldHistory?.TimelineId ?? "main"))
                     throw new OperationCanceledException("Pregnancy context belongs to another loaded save.");
                 capture.Family.AcceptPregnancyKnowledge(response["knowledge"] as JArray);
                 JObject views = response["observerViews"] as JObject ?? new JObject();

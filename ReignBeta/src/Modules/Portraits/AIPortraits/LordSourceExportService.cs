@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Core;
@@ -13,6 +12,8 @@ using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
+using static AIPortraits.PortraitMessages;
+using ReignBeta.Portraits.Integration;
 
 namespace AIPortraits;
 
@@ -64,12 +65,6 @@ public static class LordSourceExportService
 	private static bool _active;
 
 	private const double SettleSeconds = 1.2;
-
-	private const double RetryThrottleSeconds = 0.35;
-
-	private const double FreshOpenGapSeconds = 0.5;
-
-	private const double GiveUpWarnSeconds = 12.0;
 
 	private static readonly Stopwatch _clock = Stopwatch.StartNew();
 
@@ -676,10 +671,5 @@ public static class LordSourceExportService
 	private static string SafeField(string value)
 	{
 		return (value ?? string.Empty).Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
-	}
-
-	private static void Msg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage("[AIPortraits] " + text, Color.FromUint(color)));
 	}
 }

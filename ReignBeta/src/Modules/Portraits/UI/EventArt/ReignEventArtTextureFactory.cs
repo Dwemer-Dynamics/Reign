@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using AIPortraits;
-using ReignBeta.Integration;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.EventArt
+namespace ReignBeta.Portraits.UI
 {
     public static class ReignEventArtTextureFactory
     {

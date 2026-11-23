@@ -844,7 +844,8 @@
         "dialogue",
         "diplomacy",
         "reputation",
-        "persistence"
+        "persistence",
+        "world-simulation"
       ],
       "boundaryModules": [
         "dialogue",
@@ -1715,13 +1716,18 @@
           "id": "bannerlord",
           "ownership": [
             "ReignBeta/ReignBeta.csproj",
+            "ReignBeta/Core/**",
+            "ReignBeta/Testing/**",
             "ReignBeta/src/Modules/Platform/**",
             "ReignBeta/src/Platform/**",
             "ReignBeta/tools/**",
+            "tools/*.ps1",
             "ReignBeta/lib/**"
           ],
           "projects": [
-            "client"
+            "client",
+            "client-core",
+            "client-testing"
           ],
           "testProjects": [],
           "defaultTier": 2,

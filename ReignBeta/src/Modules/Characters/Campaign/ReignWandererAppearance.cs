@@ -6,7 +6,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignWandererAppearance
     {
@@ -19,7 +19,7 @@ namespace ReignBeta.Campaign
             long mismatches = SchemaCache.Mismatches;
             var indices = SchemaCache.Get(key, ReadFaceIndices);
             if (SchemaCache.Mismatches != mismatches)
-                ReignBeta.Integration.ReignLog.Warn("Native face schema changed; schema memoization disabled for this session.");
+                ReignBeta.Platform.Integration.ReignLog.Warn("Native face schema changed; schema memoization disabled for this session.");
             return indices;
         }
         private static int[] ReadFaceIndices(PopulationFaceSchemaKey key)

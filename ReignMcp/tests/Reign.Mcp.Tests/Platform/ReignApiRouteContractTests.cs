@@ -6,13 +6,7 @@ public sealed class ReignApiRouteContractTests
     public void EveryWrappedRouteExistsInCurrentReignRouter()
     {
         var workspace = TestOptions.FindWorkspace();
-        var router = string.Join(Environment.NewLine,
-            Directory.EnumerateFiles(
-                    Path.Combine(workspace, "ReignServer", "src"),
-                    "Program*.cs",
-                    SearchOption.AllDirectories)
-                .Order(StringComparer.OrdinalIgnoreCase)
-                .Select(File.ReadAllText));
+        var router = TestSourceLocator.ServerRouterText(workspace);
         string[] exactRoutes =
         [
             "/health",
@@ -51,17 +45,12 @@ public sealed class ReignApiRouteContractTests
 
         Assert.All(exactRoutes, route =>
             Assert.True(
-                router.Contains($"request.Path == \"{route}\"", StringComparison.Ordinal) ||
-                router.Contains($"case \"{route}\":", StringComparison.Ordinal),
+                TestSourceLocator.ServerDeclaresRoute(router, route),
                 $"The current router does not declare {route}."));
-        Assert.Contains(
-            "request.Path.StartsWith(\"/world-history/event/\"",
-            router,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "request.Path.StartsWith(\"/world-history/correlation/\"",
-            router,
-            StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoutePrefix(router, "/world-history/event/"),
+            "The current router does not declare the /world-history/event/ prefix.");
+        Assert.True(TestSourceLocator.ServerDeclaresRoutePrefix(router, "/world-history/correlation/"),
+            "The current router does not declare the /world-history/correlation/ prefix.");
     }
 
     [Fact]
@@ -70,7 +59,7 @@ public sealed class ReignApiRouteContractTests
         var workspace = TestOptions.FindWorkspace();
         string dialogue = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "RulerDocketDialogue.cs",
-            "/src/Modules/Court/"));
+            "/src/Modules/Court/")) + Environment.NewLine + TestSourceLocator.ServerModuleDataText(workspace, "Court");
         string art = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"), "ReignRulerPetitionSceneClient.cs",
             "/src/Modules/Court/"));
@@ -102,8 +91,8 @@ public sealed class ReignApiRouteContractTests
             StringComparison.Ordinal);
         Assert.Contains("[\"reputationChanges\"] = new ArrayList()", dialogue,
             StringComparison.Ordinal);
-        var artRequest = ReignBeta.Integration.ReignCourtAudienceScene.BuildRequest(
-            new ReignBeta.Integration.CourtSceneSnapshot
+        var artRequest = ReignBeta.Court.Integration.ReignCourtAudienceScene.BuildRequest(
+            new ReignBeta.Court.Integration.CourtSceneSnapshot
             {
                 CampaignId = "contract", TimelineId = "main", AudienceId = "petition", HostId = "host",
                 CultureId = "empire", PublicContext = "The petition", Hall = new byte[] { 1 },
@@ -128,7 +117,7 @@ public sealed class ReignApiRouteContractTests
         Assert.Equal("court_audience_all_cast_host_hall_v6", artRequest.Value<string>("renderContract"));
         Assert.Single(artRequest.Properties(), property => property.Name.EndsWith("Base64", StringComparison.Ordinal));
         foreach (string culture in new[] { "empire", "vlandia", "sturgia", "battania", "aserai", "khuzait" })
-            Assert.EndsWith("-" + culture + ".png", ReignBeta.Integration.ReignCourtAudienceScene.HallReference(culture));
+            Assert.EndsWith("-" + culture + ".png", ReignBeta.Court.Integration.ReignCourtAudienceScene.HallReference(culture));
         var cultureReferenceHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["empire"] = "62178f5c0ce9c12ef2f605f2bd158c8588c212baaf24101aac12719a5ad26c6e",
@@ -171,19 +160,17 @@ public sealed class ReignApiRouteContractTests
     public void RuntimeAndLogRoutesKeepPollingResponsesBounded()
     {
         var workspace = TestOptions.FindWorkspace();
-        string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
-        string liveTests = File.ReadAllText(TestSourceLocator.Unique(
+        string platform = TestSourceLocator.ServerProgramText(workspace);
+        string liveTests = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
 
         Assert.Contains("LiveTestRunSummary(run, false)", liveTests, StringComparison.Ordinal);
         Assert.Contains("WriteIdleLiveTestRunIndex", liveTests, StringComparison.Ordinal);
         Assert.Contains("ReadBool(indexed, \"scanComplete\", false)", liveTests, StringComparison.Ordinal);
         Assert.Contains("[\"status\"] = \"idle\"", liveTests, StringComparison.Ordinal);
-        Assert.Contains("maxResponseCharacters = 256 * 1024", platform, StringComparison.Ordinal);
-        Assert.Contains("Math.Min(500, limit)", platform, StringComparison.Ordinal);
-        Assert.Contains("IndexOf(search, StringComparison.OrdinalIgnoreCase)", platform, StringComparison.Ordinal);
-        Assert.Contains("[\"truncated\"] = rows.Count < candidates.Count", platform, StringComparison.Ordinal);
+        // The isolated server contracts exercise the log handler's wire size, search and continuation.
+        Assert.Contains("routes.Get(\"/api/logs\", request => OperationsService.ReadLogApi(request.Query))",
+            platform, StringComparison.Ordinal);
         Assert.Contains("server.client_disconnect", platform, StringComparison.Ordinal);
         Assert.Contains("[\"path\"] = request?.Path", platform, StringComparison.Ordinal);
         Assert.Contains("catch (DirectoryNotFoundException ex)", platform, StringComparison.Ordinal);
@@ -224,7 +211,7 @@ public sealed class ReignApiRouteContractTests
             Path.Combine(workspace, "ReignServer"),
             "SaveSync.cs",
             "/src/Modules/Persistence/"));
-        string campaignBackups = File.ReadAllText(TestSourceLocator.Unique(
+        string campaignBackups = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"),
             "CampaignBackups.cs",
             "/src/Modules/Persistence/"));

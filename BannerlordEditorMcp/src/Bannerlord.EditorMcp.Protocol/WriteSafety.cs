@@ -40,6 +40,29 @@ public static class WriteSafetyValidator
 
     public static SafetyRejection? Validate(BridgeRequest request, WriteSafetyContext context)
     {
+        var scopeRejection = ValidateTarget(request, context);
+        if (scopeRejection is not null)
+        {
+            return scopeRejection;
+        }
+
+        if (!string.Equals(request.ExpectedSceneRevision, context.CurrentRevision, StringComparison.Ordinal))
+        {
+            return new SafetyRejection(
+                "stale_scene_revision",
+                "The expected scene revision is stale. Reinspect the scene before writing.");
+        }
+
+        return ValidateIdempotencyKey(request);
+    }
+
+    public static SafetyRejection? ValidateReplayScope(BridgeRequest request, WriteSafetyContext context)
+    {
+        return ValidateTarget(request, context) ?? ValidateIdempotencyKey(request);
+    }
+
+    private static SafetyRejection? ValidateTarget(BridgeRequest request, WriteSafetyContext context)
+    {
         if (!context.BridgeEnabled)
         {
             return new SafetyRejection("bridge_disabled", "Bridge Enabled is off in the editor.");
@@ -63,13 +86,11 @@ public static class WriteSafetyValidator
             return new SafetyRejection("invalid_target_scene", "Writes are allowed only in the configured disposable scene.");
         }
 
-        if (!string.Equals(request.ExpectedSceneRevision, context.CurrentRevision, StringComparison.Ordinal))
-        {
-            return new SafetyRejection(
-                "stale_scene_revision",
-                "The expected scene revision is stale. Reinspect the scene before writing.");
-        }
+        return null;
+    }
 
+    private static SafetyRejection? ValidateIdempotencyKey(BridgeRequest request)
+    {
         if (string.IsNullOrWhiteSpace(request.IdempotencyKey) || request.IdempotencyKey.Length > 160)
         {
             return new SafetyRejection(

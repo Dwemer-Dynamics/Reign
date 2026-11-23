@@ -4,6 +4,8 @@
 *.props text eol=lf
 *.targets text eol=lf
 *.json text eol=lf
+# This deployment authority is hashed as raw bytes. Keep line-ending drift visible to Git.
+ReignBeta/GUI/UiCalibration/modern-style-contract.json -text !eol
 *.md text eol=lf
 *.ps1 text eol=crlf
 *.cmd text eol=crlf

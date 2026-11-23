@@ -1,4 +1,4 @@
-using ReignBeta.Campaign;
+using ReignBeta.Characters.Domain;
 
 namespace Reign.Mcp.Tests;
 

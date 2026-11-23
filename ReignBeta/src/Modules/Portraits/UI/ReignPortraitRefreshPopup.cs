@@ -1,12 +1,11 @@
 using System;
-using ReignBeta.Integration;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Portraits.UI
 {
     internal sealed class ReignPortraitRefreshPopup : ScreenBase
     {

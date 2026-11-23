@@ -1,4 +1,4 @@
-using ReignBeta.Campaign;
+using ReignBeta.WorldSimulation.Domain;
 using System.Text.Json;
 
 namespace Reign.Mcp.Tests;
@@ -61,7 +61,7 @@ public sealed class PassiveWorldAdvanceBoundaryTests
     public void ProductionTickAndAsyncContinuationUseTheSameOwnedBoundary()
     {
         var root = TestOptions.FindWorkspace();
-        var host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        var host = TestSourceLocator.PartialTypeSourceText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         var advance = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionPassiveWorldHost.cs"));
         Assert.Contains("EnforcePassiveWorldAdvanceBoundary(campaign);", host);
         Assert.Contains("boundary.Owns(campaign, _activeRunId)", advance);

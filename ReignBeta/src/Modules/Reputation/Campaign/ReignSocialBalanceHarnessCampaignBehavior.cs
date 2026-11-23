@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     /// <summary>
     /// Save-backed receipts and reversible test overrides for the explicitly
@@ -24,11 +27,11 @@ namespace ReignBeta.Campaign
         private List<string> _stateChunks = new List<string>();
         private JObject _state;
 
-        public static ReignSocialBalanceHarnessCampaignBehavior Instance { get; private set; }
+        public static ReignSocialBalanceHarnessCampaignBehavior Instance => ReignServices.SocialBalanceHarness;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.SocialBalanceHarness = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, _ => EnsureState());
         }
 
@@ -79,7 +82,7 @@ namespace ReignBeta.Campaign
             string disposableSaveName = enrollment.Value<string>("disposableSaveName") ?? string.Empty;
             string protectedBaselineSaveName = enrollment.Value<string>("protectedBaselineSaveName") ?? string.Empty;
             string actualCampaign = ReignCampaignIdentity.CurrentCampaignId();
-            string actualTimeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string actualTimeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             string actualHero = Hero.MainHero?.StringId ?? string.Empty;
             if (string.IsNullOrWhiteSpace(expectedCampaign)
                 || !string.Equals(expectedCampaign, actualCampaign, StringComparison.OrdinalIgnoreCase))

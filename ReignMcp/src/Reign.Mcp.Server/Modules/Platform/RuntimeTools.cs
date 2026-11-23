@@ -248,20 +248,28 @@ public static class RuntimeTools
     }
 
     [McpServerTool(Name = "reign_query_logs", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Queries bounded Reign operational logs through the existing API. Secrets are redacted. This tool cannot clear or export logs.")]
-    public static Task<ApiEnvelope> QueryLogs(
+    [Description("Queries operational log metadata. Full-text search covers the redacted row, including omitted payloads. Follow nextCursor with the same filters for older matches. Elided entries identify any pinned related evidence.")]
+    public static async Task<ApiEnvelope> QueryLogs(
         ReignApiClient api,
         [Description("Optional case-insensitive text filter, at most 200 characters.")] string search = "",
         [Description("Maximum rows from 1 through 500.")] int limit = 100,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        [Description("Continue with nextCursor from this log query.")] string cursor = "",
+        [Description("Optional exact event type, phase or request type, ignoring case.")] string eventType = "",
+        [Description("Optional exact severity, such as info, warning, error, or unclassified.")] string severity = "")
     {
         search = InputGuard.BoundedText(search, nameof(search), 200);
         limit = InputGuard.Range(limit, nameof(limit), 1, 500);
-        return api.GetAsync("/api/logs", new Dictionary<string, string?>
+        cursor = InputGuard.OptionalIdentifier(cursor, nameof(cursor));
+        cursor = InputGuard.BoundedText(cursor, nameof(cursor), 75);
+        var page = await api.GetAsync("/api/logs", new Dictionary<string, string?>
         {
             ["search"] = search,
-            ["limit"] = limit.ToString()
-        }, cancellationToken);
+            ["limit"] = limit.ToString(), ["cursor"] = cursor,
+            ["eventType"] = InputGuard.BoundedText(eventType, nameof(eventType), 160),
+            ["severity"] = InputGuard.BoundedText(severity, nameof(severity), 32)
+        }, cancellationToken).ConfigureAwait(false);
+        return page with { Endpoint = "/api/logs" }; // Search terms can themselves be private.
     }
 
     [McpServerTool(Name = "reign_query_audit", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Serialization;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static class ReignLog
     {

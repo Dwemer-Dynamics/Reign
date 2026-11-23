@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     // Also exercised under the game's .NET Framework file APIs by the offline probe.
     internal static class ReignChatViewCacheFile

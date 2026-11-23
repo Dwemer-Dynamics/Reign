@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -13,19 +11,26 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static ReignBeta.WorldSimulation.World.ReignWorldParsing;
+using ReignBeta.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Domain;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Arrests
 {
     public sealed class ReignArrestCampaignBehavior : CampaignBehaviorBase
     {
         private List<ReignArrestCase> _cases = new List<ReignArrestCase>();
         private float _lastEvidenceReviewDay = -1000f;
 
-        public static ReignArrestCampaignBehavior Instance { get; private set; }
+        public static ReignArrestCampaignBehavior Instance => ReignServices.Arrest;
 
         public ReignArrestCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.Arrest = this;
         }
 
         public override void RegisterEvents()
@@ -221,10 +226,7 @@ namespace ReignBeta.Campaign
 
         public ReignActionResult ReleaseArrested(ReignWorldActionRecord action, Hero accused, bool rescind)
         {
-            ReignArrestCase item = ResolveActionCase(action, accused)
-                ?? _cases.LastOrDefault(candidate => candidate.AccusationActive
-                    && string.Equals(candidate.AccusedHeroStringId, accused?.StringId,
-                        StringComparison.OrdinalIgnoreCase));
+            ReignArrestCase item = ResolveActionCase(action, accused, includeClosedAccusation: true);
             if (item == null || accused == null)
                 return ReignActionResult.ValidationFailed("No arrest case was found for this character.");
 
@@ -683,18 +685,8 @@ namespace ReignBeta.Campaign
         {
             evidence = string.Empty;
 #if !REIGN_EXCLUDE_COURT
-            ReignSpymasterState state = ReignCourtCampaignBehavior.Instance?.SpymasterState;
-            ReignForeignAgentRecord agent = state?.ForeignAgents?.FirstOrDefault(candidate => candidate.Exposed
-                && string.Equals(candidate.AgentHeroStringId, accused?.StringId,
-                    StringComparison.OrdinalIgnoreCase));
-            if (agent == null) return false;
-            List<string> ids = new List<string> { "foreign_agent:" + agent.AgentHeroStringId };
-            ids.AddRange((state.ForeignAgentActions ?? new List<ReignForeignAgentActionRecord>())
-                .Where(action => action.Detected && string.Equals(action.AgentHeroStringId,
-                    agent.AgentHeroStringId, StringComparison.OrdinalIgnoreCase))
-                .Select(action => "foreign_agent_action:" + action.ActionId));
-            evidence = string.Join(",", ids.Distinct(StringComparer.OrdinalIgnoreCase));
-            return true;
+            ICourtWorldBridge court = ReignServices.CourtWorld;
+            return court != null && court.HasExposedAgentEvidence(accused, out evidence);
 #else
             return false;
 #endif
@@ -782,10 +774,23 @@ namespace ReignBeta.Campaign
             return party.IsMobile && party.MobileParty == MobileParty.MainParty;
         }
 
-        private ReignArrestCase ResolveActionCase(ReignWorldActionRecord action, Hero accused)
+        private ReignArrestCase ResolveActionCase(ReignWorldActionRecord action, Hero accused,
+            bool includeClosedAccusation = false)
         {
+            if (accused == null) return null;
+
             string id = ReadString(ParseTerms(action?.TermsJson), "caseId", string.Empty);
-            return !string.IsNullOrWhiteSpace(id) ? FindCase(id) : ActiveCaseFor(accused);
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                ReignArrestCase item = FindCase(id);
+                return item != null && string.Equals(item.AccusedHeroStringId, accused.StringId,
+                    StringComparison.OrdinalIgnoreCase) ? item : null;
+            }
+
+            return ActiveCaseFor(accused) ?? (includeClosedAccusation
+                ? _cases.LastOrDefault(item => item.AccusationActive
+                    && string.Equals(item.AccusedHeroStringId, accused.StringId, StringComparison.OrdinalIgnoreCase))
+                : null);
         }
 
         private static void AddHistory(ReignArrestCase item, string phase, string summary)
@@ -801,7 +806,7 @@ namespace ReignBeta.Campaign
         private static void RecordHistory(ReignArrestCase item, Hero accused, string eventType,
             string phase, string summary)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 eventType, phase, "justice", item?.CaseId ?? string.Empty,
                 summary, "ordinary", Hero.MainHero?.StringId ?? string.Empty,
                 Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
@@ -817,13 +822,6 @@ namespace ReignBeta.Campaign
                     ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
                 },
                 new JArray(accused?.StringId ?? string.Empty));
-        }
-
-        private static JObject ParseTerms(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json)) return new JObject();
-            try { return JObject.Parse(json); }
-            catch { return new JObject(); }
         }
 
         private static string ReadString(JObject obj, string key, string fallback)

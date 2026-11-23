@@ -1,5 +1,6 @@
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
+using ReignBeta.Dialogue.UI;
 
 namespace ReignBeta.UI.Widgets
 {

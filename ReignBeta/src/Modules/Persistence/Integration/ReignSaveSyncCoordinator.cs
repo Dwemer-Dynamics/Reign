@@ -6,16 +6,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Persistence.Integration
 {
     internal static class ReignSaveSyncCoordinator
     {
         private static readonly object Gate = new object();
-        private static readonly HttpClient Client = new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(new HttpClientHandler { UseProxy = false })) { Timeout = TimeSpan.FromMinutes(6) };
+        private static readonly HttpClient Client = new HttpClient(ReignHttpTransport.CreateProtocolPipeline(
+            new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })) { Timeout = TimeSpan.FromMinutes(6) };
         private static TaskCompletionSource<bool> _ready = ReadySource(true);
         private static int _generation;
         private static string _campaignId = string.Empty;
@@ -155,6 +158,8 @@ namespace ReignBeta.Integration
             // across retries so the server can replay the completed receipt
             // instead of performing the destructive rollback a second time.
             loadPayload["loadSessionId"] = Guid.NewGuid().ToString("N");
+            if (ExactString(loadPayload, "savePointKind") == "native_save")
+                loadPayload["skipCleanLoadComparison"] = true;
             // Game thread: capture the reset owner now; weak so a superseded
             // Campaign stays collectible during retries.
             WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign =
@@ -537,32 +542,15 @@ namespace ReignBeta.Integration
         private static async Task<System.Collections.Generic.KeyValuePair<JObject, string>> PostDirectWithOriginAsync(string route, JObject payload)
         {
             string json = (payload ?? new JObject()).ToString(Formatting.None);
-            Exception last = null;
-            foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
-            {
-                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                Stopwatch timer = Stopwatch.StartNew();
-                try
-                {
-                    using (StringContent content = new StringContent(json, Encoding.UTF8, "application/json"))
-                    using (HttpResponseMessage response = await Client.PostAsync(url, content).ConfigureAwait(false))
-                    {
-                        string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        timer.Stop();
-                        ReignServerEndpoint.ReportSuccess(baseUrl);
-                        ReignLog.Info("HTTP POST " + route + " status=" + (int)response.StatusCode + " clientMs=" + timer.ElapsedMilliseconds);
-                        if (!response.IsSuccessStatusCode) throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                        Uri final = response.RequestMessage?.RequestUri;
-                        string origin = final != null && Uri.TryCreate(url, UriKind.Absolute, out Uri requested)
-                            && string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)
-                                ? ReignServerClient.PinnableOrigin(baseUrl) : string.Empty;
-                        return new System.Collections.Generic.KeyValuePair<JObject, string>(JObject.Parse(body), origin);
-                    }
-                }
-                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex)) { last = ex; }
-            }
-            ReignServerEndpoint.ReportTransportFailure();
-            throw last ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+            ReignHttpTransport.DirectJsonResponse response =
+                await ReignHttpTransport.PostDirectJsonAsync(Client, route, json).ConfigureAwait(false);
+            ReignLog.Info("HTTP POST " + route + " status=" + response.StatusCode + " clientMs=" + response.ElapsedMilliseconds);
+            if (!response.IsSuccessStatusCode) throw new InvalidOperationException("HTTP " + response.StatusCode + ": " + response.Body);
+            Uri final = response.FinalRequestUri;
+            string origin = final != null && Uri.TryCreate(response.RequestUrl, UriKind.Absolute, out Uri requested)
+                && string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)
+                    ? ReignHttpTransport.PinnableOrigin(response.BaseUrl) : string.Empty;
+            return new System.Collections.Generic.KeyValuePair<JObject, string>(response.Json, origin);
         }
 
         private static bool IsCurrentGeneration(int generation, string campaignId)

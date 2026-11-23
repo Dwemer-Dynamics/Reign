@@ -5,8 +5,6 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
 using ReignBeta.Events;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Characters;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
@@ -15,8 +13,11 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
@@ -40,7 +41,7 @@ namespace ReignBeta.Campaign
             // a new/completed story; re-entering it would disturb native context.
             campaign.GameMenuManager.RefreshMenuOptions(context);
         }
-        private bool WithPlayer(string id)
+        internal bool WithPlayer(string id)
         {
             Hero hero = ReignActionService.HeroById(id);
             return Free(hero) && hero.PartyBelongedTo == MobileParty.MainParty

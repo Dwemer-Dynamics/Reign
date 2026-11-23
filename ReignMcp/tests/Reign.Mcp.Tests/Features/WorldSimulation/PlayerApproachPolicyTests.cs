@@ -1,5 +1,5 @@
 using ReignBeta.Shared;
-using ReignBeta.UI;
+using ReignBeta.Relationships.UI;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;
 

@@ -24,8 +24,8 @@ public sealed class PopulationLookupAndUploadTests
         foreach(string field in new[]{"heroes","presenceGroups","nativeRelations"})
             Assert.DoesNotContain("ReadDictionaryList(payload,\""+field+"\")",compact);
         Assert.Contains("compact_snapshot_mechanical_parity",server);
-        string lifecycle=File.ReadAllText(Path.Combine(root,"ReignServer/src/Modules/Relationships/RelationshipLifecycle.cs"));
-        start=lifecycle.IndexOf("private static List<Dictionary<string, object>> RunCurrentRelationshipSelfTests()",StringComparison.Ordinal);
+        string lifecycle=TestSourceLocator.ServerFileGroupText(Path.Combine(root,"ReignServer/src/Modules/Relationships/RelationshipLifecycle.cs"));
+        start=lifecycle.IndexOf("static List<Dictionary<string, object>> RunCurrentRelationshipSelfTests()",StringComparison.Ordinal);
         string active=lifecycle[start..lifecycle.IndexOf("private static void RunPreparedLifecycleWriteSelfTests",start,StringComparison.Ordinal)];
         Assert.Contains("results.AddRange(RunArrangedMarriageSelfTests());",active);
     }

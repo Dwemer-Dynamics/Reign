@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -15,13 +12,26 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Diplomacy.Runtime;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Diplomacy.Campaign
 {
     public sealed class ReignWorldDiplomacyCampaignBehavior : CampaignBehaviorBase
     {
         private const int OutageNotificationFailureThreshold = 3;
-        public static ReignWorldDiplomacyCampaignBehavior Instance { get; private set; }
+        public static ReignWorldDiplomacyCampaignBehavior Instance => ReignServices.WorldDiplomacy;
         private readonly object _announcementLock = new object();
         private readonly SemaphoreSlim _publicAnnouncementSync = new SemaphoreSlim(1, 1);
         private readonly object _evaluationCatchUpLock = new object();
@@ -58,7 +68,7 @@ namespace ReignBeta.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WorldDiplomacy = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -96,7 +106,7 @@ namespace ReignBeta.Campaign
         internal void PrepareInitialState()
         {
             ReignDiplomacyPatches.CancelUnresolvedNpcDiplomacy();
-            ReignAICampaignBehavior.Instance?.ImportNativeDiplomaticAgreements();
+            ReignServices.AI?.ImportNativeDiplomaticAgreements();
         }
 
         private void OnDailyTick()
@@ -206,7 +216,7 @@ namespace ReignBeta.Campaign
             try
             {
                 ReignDiplomacyEvaluationResult result =
-                    await ReignServerClient.EvaluatePoliticalPressureAsync()
+                    await ReignDiplomacyServerClient.EvaluatePoliticalPressureAsync()
                         .ConfigureAwait(false);
                 if (!result.Ok)
                 {
@@ -244,7 +254,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                ReignDiplomacyEvaluationResult result = await ReignServerClient.EvaluateWorldDiplomacyAsync(retry).ConfigureAwait(false);
+                ReignDiplomacyEvaluationResult result = await ReignDiplomacyServerClient.EvaluateWorldDiplomacyAsync(retry).ConfigureAwait(false);
                 if (!result.Ok)
                 {
                     RecordEvaluationFailure(result.Error);
@@ -339,18 +349,18 @@ namespace ReignBeta.Campaign
                 var ownerRead = ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Campaign.Current);
                 await AwaitPublicAnnouncementPhase(ownerRead, deadlineToken).ConfigureAwait(false);
                 var owner = await ownerRead.ConfigureAwait(false);
-                var fetch = ReignServerClient.FetchDiplomacyAnnouncementsAsync(publicHistory: true);
+                var fetch = ReignDiplomacyServerClient.FetchDiplomacyAnnouncementsAsync(publicHistory: true);
                 await AwaitPublicAnnouncementPhase(fetch, deadlineToken).ConfigureAwait(false);
                 List<ReignDiplomacyAnnouncement> announcements = await fetch.ConfigureAwait(false);
                 var apply = ReignMainThread.InvokeAsync(() => {
                     deadlineToken.ThrowIfCancellationRequested();
                     if (Instance != this || owner != TaleWorlds.CampaignSystem.Campaign.Current)
                         throw new OperationCanceledException("Diplomatic announcements belong to a previous loaded campaign.");
-                    if (ReignNewsCampaignBehavior.Instance == null) throw new InvalidOperationException("Public news history is unavailable.");
+                    if (ReignServices.News == null) throw new InvalidOperationException("Public news history is unavailable.");
                     foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
                     {
                         deadlineToken.ThrowIfCancellationRequested();
-                        ReignNewsCampaignBehavior.Instance.RecordPublicDiplomacyAnnouncement(announcement);
+                        ReignServices.News.RecordPublicDiplomacyAnnouncement(announcement);
                     }
                     lock (_announcementLock)
                     {
@@ -394,7 +404,7 @@ namespace ReignBeta.Campaign
             try
             {
                 List<ReignPoliticalPressureNotice> notices =
-                    await ReignServerClient.FetchPoliticalPressureNoticesAsync().ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.FetchPoliticalPressureNoticesAsync().ConfigureAwait(false);
                 foreach (ReignPoliticalPressureNotice notice in notices.Where(x => x != null))
                 {
                     if (_processedPressureNoticeIds.Contains(notice.IncidentId,
@@ -404,7 +414,7 @@ namespace ReignBeta.Campaign
                             .InvokeAsync(() => ApplyPoliticalPressureNotice(
                                 notice, displayNotice: false))
                             .ConfigureAwait(false);
-                        await ReignServerClient.AcknowledgePoliticalPressureNoticeAsync(
+                        await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
                             notice.IncidentId, notice.TimelineId, CurrentDay(),
                             replayReceipts)
                             .ConfigureAwait(false);
@@ -412,12 +422,12 @@ namespace ReignBeta.Campaign
                     }
                     JArray receipts = await ReignMainThread.InvokeAsync(() =>
                         ApplyPoliticalPressureNotice(notice)).ConfigureAwait(false);
-                    await ReignServerClient.AcknowledgePoliticalPressureNoticeAsync(
+                    await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
                         notice.IncidentId, notice.TimelineId, CurrentDay(), receipts)
                         .ConfigureAwait(false);
                 }
                 List<ReignClanConflictNotice> clanNotices =
-                    await ReignServerClient.FetchClanConflictNoticesAsync().ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.FetchClanConflictNoticesAsync().ConfigureAwait(false);
                 foreach (ReignClanConflictNotice notice in clanNotices.Where(x => x != null))
                 {
                     bool display = !_processedClanConflictNoticeIds.Contains(
@@ -427,7 +437,7 @@ namespace ReignBeta.Campaign
                         await ReignMainThread.InvokeAsync(() =>
                             ApplyClanConflictNotice(notice)).ConfigureAwait(false);
                     }
-                    await ReignServerClient.AcknowledgeClanConflictNoticeAsync(
+                    await ReignDiplomacyServerClient.AcknowledgeClanConflictNoticeAsync(
                         notice.IncidentId, notice.TimelineId, CurrentDay())
                         .ConfigureAwait(false);
                 }
@@ -518,14 +528,14 @@ namespace ReignBeta.Campaign
 
             if (!displayNotice) return receipts;
 
-            ReignNewsCampaignBehavior.Instance?.ForeignRuling(notice);
+            ReignServices.News?.ForeignRuling(notice);
             AddBoundedProcessedId(_processedPressureNoticeIds, notice.IncidentId);
             return receipts;
         }
 
         private void ApplyClanConflictNotice(ReignClanConflictNotice notice)
         {
-            ReignNewsCampaignBehavior.Instance?.ClanRuling(notice);
+            ReignServices.News?.ClanRuling(notice);
             AddBoundedProcessedId(_processedClanConflictNoticeIds, notice.IncidentId);
         }
 
@@ -548,10 +558,10 @@ namespace ReignBeta.Campaign
             {
                 try
                 {
-                    List<ReignDiplomacyAnnouncement> announcements = await ReignServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
+                    List<ReignDiplomacyAnnouncement> announcements = await ReignDiplomacyServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
-                            ReignNewsCampaignBehavior.Instance?.RecordPublicDiplomacyAnnouncement(announcement);
+                            ReignServices.News?.RecordPublicDiplomacyAnnouncement(announcement);
                     }).ConfigureAwait(false);
                     bool matched = false;
                     lock (_announcementLock)
@@ -586,7 +596,7 @@ namespace ReignBeta.Campaign
         private void TryShowNextAnnouncement()
         {
             if (ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
-                || !ReignServerClient.NewsOptionsConfirmed || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
+                || !ReignNewsClient.NewsOptionsConfirmed || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
             {
                 return;
             }
@@ -603,7 +613,7 @@ namespace ReignBeta.Campaign
             if (next != null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + next.Title + ": " + next.Summary + "\n" + next.Terms));
-                if (ReignServerClient.NewsOptionsConfirmed && !ReignServerClient.NewsOptions.Allows(Reign.Core.Contracts.World.ReignNewsCategories.Diplomacy))
+                if (ReignNewsClient.NewsOptionsConfirmed && !ReignNewsClient.NewsOptions.Allows(Reign.Core.Contracts.World.ReignNewsCategories.Diplomacy))
                 {
                     _ = AcknowledgeDiplomacyAnnouncementAndContinueAsync(next.EventId);
                     return;
@@ -639,7 +649,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                await ReignServerClient.AcknowledgeDiplomacyAnnouncementAsync(
+                await ReignDiplomacyServerClient.AcknowledgeDiplomacyAnnouncementAsync(
                     eventId).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -692,7 +702,7 @@ namespace ReignBeta.Campaign
             return topName.IndexOf("Map", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static bool IsEnabled()
+        internal static bool IsEnabled()
         {
             ReignBetaSettings settings = ReignBetaSettings.Instance;
             return (settings == null || settings.Enabled)

@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
@@ -36,7 +39,7 @@ namespace ReignBeta.Integration
                 RequestFence fence = null;
                 List<Hero> speakers = null;
                 List<Hero> attendees = null;
-                ReignBeta.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
+                ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
                 bool playerIsFemale = false;
                 JObject payload = await ReignMainThread.InvokeAsync(() =>
                 {
@@ -48,7 +51,7 @@ namespace ReignBeta.Integration
                         .Take(ReignSocialEventSession.MaxActiveParticipants)
                         .ToList();
                     attendees = session.Record.GetAttendees().ToList();
-                    relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                    relationBehavior = ReignServices.Relationship;
                     playerIsFemale = Hero.MainHero?.IsFemale ?? false;
                     return speakers.Count == 0 ? null : BuildSocialEventPayload(session, null, playerText);
                 }).ConfigureAwait(false);
@@ -111,7 +114,7 @@ namespace ReignBeta.Integration
                         built["turnType"] = "player_reply";
                         built["approachOpening"] = false;
                         built["structuredActionRecipientId"] = actionDraft?.NpcId ?? "";
-                        ConfigureStructuredActions(built, speaker,
+                        ReignStructuredActionClient.ConfigureStructuredActions(built, speaker,
                             actionDraft?.NpcId == speaker.StringId ? actionDraft : null, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
                         built["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false;
                         return built;
@@ -150,7 +153,7 @@ namespace ReignBeta.Integration
                 {
                     // Rechecked before every progressive dispatch: a stale owner sends nothing more.
                     response = await PostOwnedJsonAsync("/events/social/turn", payload, owned).ConfigureAwait(false);
-                    await DeliverSocialEventRepliesAsync(response, session, playerText, turn, delivered, onReply, participantRequests,
+                    await DeliverSocialEventRepliesAsync(response, attendees, playerText, turn, delivered, onReply, participantRequests,
                         fence, requestOwner).ConfigureAwait(false);
                     if (response.Value<bool?>("ok") == true && response.Value<bool?>("hasMore") == true)
                     {
@@ -206,7 +209,7 @@ namespace ReignBeta.Integration
                         // the original load and a still-current owner.
                         bool applied = await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignServices.Relationship)
                                 || !fence.IsCurrent())
                                 throw new InvalidOperationException("The campaign changed before the social relationship effect could be applied.");
                             EnsureRequestOwner(requestOwner, "social relationship effect");
@@ -237,7 +240,7 @@ namespace ReignBeta.Integration
             {
                 turn.Error = ex.Message;
                 // A closed screen or changed load is an expected abandonment, not a failure.
-                if (ex is ReignServerClient.RequestOwnerAbandonedException)
+                if (ex is ReignRequestOwnerAbandonedException)
                     ReignLog.Info("Social event group turn abandoned: " + ex.Message);
                 else
                     ReignLog.Warn("Social event group turn failed: " + ex.Message);
@@ -246,7 +249,7 @@ namespace ReignBeta.Integration
         }
 
         private static async Task DeliverSocialEventRepliesAsync(JObject response,
-            ReignSocialEventSession session, string playerText, ReignSocialEventTurnReply turn,
+            IReadOnlyList<Hero> attendees, string playerText, ReignSocialEventTurnReply turn,
             HashSet<string> delivered, Action<ReignEventReply> onReply, JArray participantRequests,
             RequestFence fence, Func<bool> requestOwner)
         {
@@ -281,15 +284,15 @@ namespace ReignBeta.Integration
                     Hero speaker = ReignObjectResolver.FindHero(heroId);
                     var request = participantRequests.OfType<JObject>().FirstOrDefault(r => r["structuredActionContext"]?.Value<string>("npcId") == heroId);
                     // The reply bytes stay exact; the receipt is presented as a system line.
-                    if (request != null) ProcessStructuredActionDecision(request, row, speaker, inlineReceipt: false);
+                    if (request != null) ReignStructuredActionClient.ProcessStructuredActionDecision(request, row, speaker, inlineReceipt: false);
                     if (speaker != null)
                     {
                         ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
-                        if (!string.IsNullOrWhiteSpace(reply.Text))
-                        {
-                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
-                            _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), playerText, "social_event");
-                        }
+                        if (!string.IsNullOrWhiteSpace(reply.Text) && !IsDelimitedSpeechOnlyResponse(row)
+                            && row["conversationExchange"]?["acceptedUnit"]?["privateExchange"]?.Value<bool?>("ok") != true)
+                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, attendees, reply.Text, "social_event");
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event", row,
+                            () => fence.IsCurrent() && RequestOwnerCurrent(requestOwner));
                     }
                     onReply?.Invoke(reply);
                 }).ConfigureAwait(false);

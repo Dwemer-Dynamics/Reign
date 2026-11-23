@@ -8,102 +8,66 @@ public sealed class ReignBuildService(
     ReignMcpOptions options,
     ReignProcessRunner runner,
     ReignApiClient apiClient,
-    ReignProjectCatalog catalog)
+    ReignProjectCatalog catalog,
+    ReignValidationService validation)
 {
     private static readonly Regex ValidationRunIdPattern = new(
         "^[0-9]{8}-[0-9]{6}-[0-9a-fA-F]{8}$",
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-    public async Task<BuildBatchResult> BuildAsync(
-        string component,
-        string configuration,
-        bool restore,
-        CancellationToken cancellationToken)
+    public ReignBuildService(ReignMcpOptions options, ReignProcessRunner runner,
+        ReignApiClient apiClient, ReignProjectCatalog catalog)
+        : this(options, runner, apiClient, catalog, new ReignValidationService(
+            options, catalog, runner, new ReignRepositoryHygieneAudit(options)))
     {
-        if (!options.AllowBuild)
-        {
-            throw new InvalidOperationException(
-                "Build tools are disabled. Set REIGN_MCP_ALLOW_BUILD=true in the trusted MCP configuration.");
-        }
-        if (restore && !options.AllowRestore)
-        {
-            throw new InvalidOperationException(
-                "Package restore is disabled. Set REIGN_MCP_ALLOW_RESTORE=true only when network/package-cache writes are intended.");
-        }
+    }
 
-        component = component.Trim().ToLowerInvariant();
-        configuration = configuration.Trim();
-        if (configuration is not ("Debug" or "Release"))
-        {
-            throw new ArgumentException("configuration must be Debug or Release.", nameof(configuration));
-        }
+    public Task<BuildBatchResult> BuildAsync(string component, string configuration,
+        bool restore, CancellationToken cancellationToken) =>
+        BuildAsync(component, configuration, restore, cancellationToken, null);
 
-        var catalogProfile = component is "core" or "product" or "tooling" or "all"
-            ? component
-            : "all";
-        var plan = catalog.CreatePlan(catalogProfile, configuration, restore);
-        if (!plan.CoverageComplete)
-        {
-            throw new InvalidOperationException(
-                "The Reign project catalog has unclassified projects. Use reign_get_validation_plan to resolve coverage before building.");
-        }
-        var selected = component is "core" or "product" or "tooling" or "all"
-            ? plan.Projects
-            : plan.Projects
-                .Where(project => project.Id.Equals(component, StringComparison.OrdinalIgnoreCase))
-                .ToArray();
-        if (selected.Count == 0)
-        {
-            throw new ArgumentException(
-                "component must be a discovered project ID, core, product, tooling, or all.",
-                nameof(component));
-        }
-
-        var runRoot = Path.Combine(
-            options.BuildRoot,
-            DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N")[..8]);
-        Directory.CreateDirectory(runRoot);
-        var results = new List<ProcessResult>();
-
-        foreach (var selectedProject in selected)
-        {
-            var project = Path.Combine(
-                options.WorkspaceRoot,
-                selectedProject.ProjectPath.Replace('/', Path.DirectorySeparatorChar));
-            var output = Path.Combine(runRoot, selectedProject.Id, "out");
-            Directory.CreateDirectory(output);
-            var arguments = new List<string>
-            {
-                "build",
-                project,
-                "-c",
-                configuration,
-                restore ? "--restore" : "--no-restore",
-                $"-p:OutputPath={Path.TrimEndingDirectorySeparator(output)}{Path.DirectorySeparatorChar}",
-                "-p:AppendTargetFrameworkToOutputPath=false",
-                "-p:AppendRuntimeIdentifierToOutputPath=false"
-            };
-            var result = await runner.RunAsync(
-                "dotnet",
-                arguments,
-                options.WorkspaceRoot,
-                timeout: Timeout.InfiniteTimeSpan,
-                artifactDirectory: output,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
-            results.Add(result);
-            if (!result.Ok)
-            {
-                break;
-            }
-        }
-
+    internal async Task<BuildBatchResult> BuildAsync(string component, string configuration,
+        bool restore, CancellationToken cancellationToken, string? requestingTaskId)
+    {
+        var report = await validation.ValidatePlanAsync(
+            () => GetBuildPlan(component, configuration, restore), restore,
+            failFast: true, cancellationToken, requestingTaskId).ConfigureAwait(false);
         return new BuildBatchResult
         {
-            Ok = results.Count == selected.Count && results.All(result => result.Ok),
-            Configuration = configuration,
-            ArtifactRoot = runRoot,
-            Results = results
+            Ok = report.Ok,
+            Configuration = report.Plan.Configuration,
+            ArtifactRoot = report.ArtifactRoot,
+            Results = report.Results.Select(result => result.Process).ToArray(),
+            Reused = report.Reused,
+            ValidationRunId = report.RunId,
+            ValidationReportPath = report.ReportPath
         };
+    }
+
+    internal ValidationPlan GetBuildPlan(string component, string configuration, bool restore)
+    {
+        component = component.Trim().ToLowerInvariant();
+        if (component is "core" or "product" or "tooling" or "all")
+            return catalog.CreatePlan(component, configuration, restore);
+
+        var inventory = catalog.CreatePlan("all", configuration, restore);
+        if (!inventory.CoverageComplete)
+            throw new InvalidOperationException("Resolve catalog coverage with reign_get_validation_plan before building.");
+
+        var project = inventory.Projects.SingleOrDefault(item => item.Id.Equals(component, StringComparison.OrdinalIgnoreCase))
+            ?? throw new ArgumentException("component must be a discovered project ID, core, product, tooling, or all.", nameof(component));
+        var plan = catalog.CreatePlan("changed", configuration, restore, project.ProjectPath);
+        if (!plan.CoverageComplete || plan.Projects.Any(item => item.Id == project.Id))
+            return plan;
+
+        // A subsystem boundary can test consumers without selecting the requested
+        // project (for example, the portrait WPF app). Use its containing profile.
+        string profile = project.Group == "core" ? "core" : "tooling";
+        var coveringPlan = catalog.CreatePlan(profile, configuration, restore, project.ProjectPath);
+        if (coveringPlan.CoverageComplete && !coveringPlan.Projects.Any(item => item.Id == project.Id))
+            throw new InvalidOperationException($"Project {project.Id} is no longer in the {profile} profile. Refresh the validation plan.");
+        return coveringPlan with { SelectionReasons = [.. coveringPlan.SelectionReasons,
+            $"Requested project {project.Id} is outside its project-file boundary plan."] };
     }
 
     public async Task<OfflineVerificationResult> RunOfflineVerificationAsync(

@@ -6,8 +6,9 @@ using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Government.Campaign;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Government.UI
 {
     public sealed partial class ReignGovernmentScreenVM
     {
@@ -51,7 +52,7 @@ namespace ReignBeta.UI.ViewModels
         {
             _participationMode = mode; _participationHeading = heading; _participationExplanation = explanation;
             _participationListHeading = listHeading; _participationPrimary = primary; _participationAction = action;
-            PolicyChoices.Clear(); _policyListRevision++; _view = "policy";
+            PolicyChoices.Clear(); _policyListRevision++; SetView("policy");
         }
         private void ParticipationChoice(string id, string title, string detail, Action<string> choose = null, bool enabled = true)
         {

@@ -3,12 +3,14 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Dialogue;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed partial class ReignIndividualChatScreenVM
     {
@@ -21,7 +23,7 @@ namespace ReignBeta.UI.ViewModels
         private readonly ReignRecoveredDraftReview _recoveredDraftReview = new ReignRecoveredDraftReview();
 
         private string ConversationRetryScope => string.Join("|", ReignServerClient.GetCampaignId(),
-            ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+            ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
             _hero?.StringId ?? "", _conversationContext.Value<string>("sessionId") ?? "", ConversationGeneration);
 
         [DataSourceProperty]

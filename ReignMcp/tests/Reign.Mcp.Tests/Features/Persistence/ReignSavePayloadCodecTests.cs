@@ -1,11 +1,99 @@
 using System.Reflection;
 using System.Text;
 using Reign.Core.Contracts.Dialogue;
+using ReignBeta.Persistence.Save;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class ReignSavePayloadCodecTests
 {
+    [Fact]
+    public void Native_authorities_load_missing_fields_and_valid_empty_ledgers()
+    {
+        List<string> ReadOrders(List<string>? chunks, string? legacy) =>
+            ReignSavePayloadCodec.DecodeAuthoritativeState<List<string>>(chunks, legacy,
+                Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>, () => new List<string>());
+
+        Assert.Empty(ReadOrders(null, null));
+        Assert.Empty(ReadOrders(new List<string>(), string.Empty));
+        Assert.Empty(ReadOrders(null, "[]"));
+        Assert.Empty(ReadOrders(ReignSavePayloadCodec.Encode("[]"), "[\"obsolete order\"]"));
+        Assert.Equal(new[] { "retained order" }, ReadOrders(new List<string>(), "[\"retained order\"]"));
+
+        Dictionary<string, string> ReadDocket(List<string>? chunks, string? legacy) =>
+            ReignSavePayloadCodec.DecodeAuthoritativeState<Dictionary<string, string>>(chunks, legacy,
+                Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>, () => new Dictionary<string, string>());
+
+        Assert.Empty(ReadDocket(null, " "));
+        Assert.Empty(ReadDocket(null, "{}"));
+        Assert.Empty(ReadDocket(ReignSavePayloadCodec.Encode("{}"), null));
+    }
+
+    [Fact]
+    public void Native_authority_preserves_unreadable_chunks_and_never_falls_back_to_legacy()
+    {
+        var chunks = new List<string> { "reign-gzip-v1:", "**bad base64**" };
+        string[] originalChunks = chunks.ToArray();
+        const string legacy = "[\"older order\"]";
+        int deserializeCalls = 0;
+        Assert.Throws<FormatException>(() => ReignSavePayloadCodec.DecodeAuthoritativeState(
+            chunks, legacy, json =>
+            {
+                deserializeCalls++;
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(json);
+            }, () => throw new InvalidOperationException("Present chunked authority cannot be empty.")));
+
+        Assert.Equal(0, deserializeCalls);
+        Assert.Equal(originalChunks, chunks);
+    }
+
+    [Fact]
+    public void Native_authority_rejects_present_json_without_ledger_state()
+    {
+        List<string> Read(List<string>? chunks, string? legacy) =>
+            ReignSavePayloadCodec.DecodeAuthoritativeState<List<string>>(chunks, legacy,
+                Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>, () => new List<string>());
+
+        Assert.Throws<InvalidDataException>(() => Read(null, "null"));
+        Assert.Throws<InvalidDataException>(() => Read(ReignSavePayloadCodec.Encode(""), "[]"));
+        Assert.ThrowsAny<Newtonsoft.Json.JsonException>(() => Read(null, "{broken"));
+    }
+
+    [Fact]
+    public void Native_authority_loaders_abort_before_registering_replacement_state_or_migrating()
+    {
+        string root = TestOptions.FindWorkspace();
+        string command = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/WorldSimulation/CampaignCommands/ReignCampaignCommandBehavior.cs"));
+        int commandStart = command.IndexOf("public override void SyncData(", StringComparison.Ordinal);
+        int commandEnd = command.IndexOf("public static bool ValidateControlAction(", StringComparison.Ordinal);
+        Assert.True(commandStart >= 0 && commandEnd > commandStart);
+        string commandLoad = command[commandStart..commandEnd];
+        Assert.Contains("DecodeAuthoritativeState(", commandLoad, StringComparison.Ordinal);
+        Assert.Contains("throw new InvalidOperationException(message, ex);", commandLoad, StringComparison.Ordinal);
+        Assert.DoesNotContain("_orders = new List<ReignCampaignOrderRecord>()", commandLoad, StringComparison.Ordinal);
+        Assert.Contains("SyncData(\"_reign_campaignCommandState\", ref _legacyState)", commandLoad, StringComparison.Ordinal);
+        Assert.Contains("SyncData(\"_reign_campaignCommandStateChunks\", ref _stateChunks)", commandLoad, StringComparison.Ordinal);
+
+        string docket = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignRulerDocketCampaignBehavior.cs"));
+        int docketStart = docket.IndexOf("private void RestoreRulerDocketAfterLoad()", StringComparison.Ordinal);
+        int docketEnd = docket.IndexOf("private void CollapseDuplicatePendingPetitioners(", StringComparison.Ordinal);
+        Assert.True(docketStart >= 0 && docketEnd > docketStart);
+        string docketLoad = docket[docketStart..docketEnd];
+        int decode = docketLoad.IndexOf("DecodeAuthoritativeState(", StringComparison.Ordinal);
+        int publish = docketLoad.IndexOf("_rulerDocketState = state;", StringComparison.Ordinal);
+        int abort = docketLoad.IndexOf("throw new InvalidOperationException(message, ex);", StringComparison.Ordinal);
+        int migrate = docketLoad.IndexOf("MigrateLegacyDocketOnce();", StringComparison.Ordinal);
+        Assert.True(decode >= 0 && publish > decode && abort > publish && migrate > abort);
+        Assert.DoesNotContain("_rulerDocketState = new ReignRulerDocketState()", docketLoad, StringComparison.Ordinal);
+
+        string court = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignCourtCampaignBehavior.cs"));
+        Assert.Contains("SyncData(\"_reignCourt_rulerDocketState\", ref _rulerDocketStateJson)", court, StringComparison.Ordinal);
+        Assert.Contains("SyncData(\"_reignCourt_rulerDocketStateChunks\", ref _rulerDocketStateChunks)", court, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Starting_children_population_survives_signed_short_archive_round_trip()
     {
@@ -25,7 +113,7 @@ public sealed class ReignSavePayloadCodecTests
             })
         });
         Assert.True(Encoding.UTF8.GetByteCount(payload) + 4 > short.MaxValue);
-        var chunks = ReignBeta.Save.ReignSavePayloadCodec.Encode(payload);
+        var chunks = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(payload);
         using var archive = new MemoryStream();
         using (var writer = new BinaryWriter(archive, Encoding.UTF8, true))
             foreach (string chunk in chunks)
@@ -46,7 +134,7 @@ public sealed class ReignSavePayloadCodecTests
             Assert.Equal(entryBytes - 4, stringBytes);
             restored.Add(Encoding.UTF8.GetString(reader.ReadBytes(stringBytes)));
         }
-        Assert.Equal(payload, ReignBeta.Save.ReignSavePayloadCodec.Decode(restored));
+        Assert.Equal(payload, ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(restored));
     }
 
     [Fact]
@@ -71,9 +159,9 @@ public sealed class ReignSavePayloadCodecTests
         string json = System.Text.Json.JsonSerializer.Serialize(ledger);
         Assert.True(Encoding.UTF8.GetByteCount(json) + 4 > short.MaxValue);
 
-        var chunks = ReignBeta.Save.ReignSavePayloadCodec.Encode(json);
+        var chunks = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(json);
         Assert.All(chunks, chunk => Assert.InRange(Encoding.UTF8.GetByteCount(chunk) + 4, 1, short.MaxValue));
-        string restored = ReignBeta.Save.ReignSavePayloadCodec.Decode(chunks);
+        string restored = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(chunks);
         var reloaded = System.Text.Json.JsonSerializer.Deserialize<ReignXpLedger>(restored)!;
         Assert.False(reloaded.TryClaim("conversation:individual:" + 699.ToString("x32")));
 
@@ -92,12 +180,12 @@ public sealed class ReignSavePayloadCodecTests
         var bytes = new byte[11_000];
         random.NextBytes(bytes);
         string payload = Convert.ToBase64String(bytes);
-        string envelope = string.Concat(ReignBeta.Save.ReignSavePayloadCodec.Encode(payload));
+        string envelope = string.Concat(ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(payload));
         Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 > 12_004);
         Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 <= short.MaxValue);
-        Assert.Equal(payload, ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(envelope));
+        Assert.Equal(payload, ReignBeta.Persistence.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(envelope));
         Assert.Throws<System.IO.InvalidDataException>(() =>
-            ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(new string('x', short.MaxValue)));
+            ReignBeta.Persistence.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(new string('x', short.MaxValue)));
     }
 
     [Fact]
@@ -123,8 +211,8 @@ public sealed class ReignSavePayloadCodecTests
         }
         var payload = new string(characters);
 
-        Type? codecType = typeof(ReignSavePayloadCodecTests).Assembly.GetType(
-            "ReignBeta.Save.ReignSavePayloadCodec");
+        Type? codecType = Type.GetType(
+            "ReignBeta.Persistence.Save.ReignSavePayloadCodec, ReignBeta.Core");
         Assert.NotNull(codecType);
 
         MethodInfo? encode = codecType.GetMethod(
@@ -153,9 +241,9 @@ public sealed class ReignSavePayloadCodecTests
     {
         string root = TestOptions.FindWorkspace();
         string domain = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtDomain.cs"));
+            "Court", "Campaign", "ReignCourtDomain.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
         string viewModel = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Dialogue", "UI", "ViewModels", "ReignPartyChatScreenVM.cs"));
 
@@ -178,17 +266,24 @@ public sealed class ReignSavePayloadCodecTests
     {
         string root = TestOptions.FindWorkspace();
         string docketBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
         string courtBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
 
         Assert.Contains("private List<string> _rulerDocketStateChunks", docketBehavior,
             StringComparison.Ordinal);
         Assert.Contains("_rulerDocketStateChunks = ReignSavePayloadCodec.Encode(json);", docketBehavior,
             StringComparison.Ordinal);
-        Assert.Contains("ReignSavePayloadCodec.Decode(_rulerDocketStateChunks)", docketBehavior,
+        Assert.Contains("ReignSavePayloadCodec.DecodeAuthoritativeState(", docketBehavior,
             StringComparison.Ordinal);
-        Assert.Contains(": _rulerDocketStateJson;", docketBehavior, StringComparison.Ordinal);
+        Assert.Contains("_rulerDocketStateChunks, _rulerDocketStateJson, JsonConvert.DeserializeObject<ReignRulerDocketState>",
+            docketBehavior, StringComparison.Ordinal);
+
+        var restored = ReignSavePayloadCodec.DecodeAuthoritativeState<Dictionary<string, int>>(
+            new List<string>(), "{\"Version\":3}",
+            Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>,
+            () => new Dictionary<string, int>());
+        Assert.Equal(3, restored["Version"]);
         Assert.Contains("_reignCourt_rulerDocketStateChunks", courtBehavior, StringComparison.Ordinal);
         Assert.DoesNotContain("_rulerDocketStateJson = JsonConvert.SerializeObject", docketBehavior,
             StringComparison.Ordinal);

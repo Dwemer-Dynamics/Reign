@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.CampaignCommands
 {
     public static class ReignCampaignReportPolicy
     {

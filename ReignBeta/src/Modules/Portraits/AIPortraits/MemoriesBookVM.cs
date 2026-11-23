@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.Library;
+using ReignBeta.Portraits.UI;
 
 namespace AIPortraits;
 
@@ -148,7 +149,7 @@ public sealed class MemoriesBookVM : ViewModel
 		}
 		else
 		{
-			ReignBeta.Integration.ReignChatViewClient.ClearArchive();
+			ReignBeta.Dialogue.Integration.ReignChatViewClient.ClearArchive();
 			Refresh();
 			_ = LoadViewArchiveAsync();
 		}
@@ -158,10 +159,10 @@ public sealed class MemoriesBookVM : ViewModel
 	{
 		try
 		{
-			await ReignBeta.Integration.ReignChatViewClient.RefreshArchiveAsync().ConfigureAwait(false);
-			await ReignBeta.Integration.ReignMainThread.InvokeAsync(() => { if (!_closed) Refresh(); }).ConfigureAwait(false);
+			await ReignBeta.Dialogue.Integration.ReignChatViewClient.RefreshArchiveAsync().ConfigureAwait(false);
+			await ReignBeta.Platform.Integration.ReignMainThread.InvokeAsync(() => { if (!_closed) Refresh(); }).ConfigureAwait(false);
 		}
-		catch (Exception ex) { ReignBeta.Integration.ReignLog.Warn("View memories unavailable: " + ex.GetType().Name); }
+		catch (Exception ex) { ReignBeta.Platform.Integration.ReignLog.Warn("View memories unavailable: " + ex.GetType().Name); }
 	}
 
 	public void ExecuteNext()

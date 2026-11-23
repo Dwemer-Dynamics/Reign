@@ -8,15 +8,23 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCourtPetitionScreenVM : ViewModel, IReignActionHost
     {
@@ -38,7 +46,6 @@ namespace ReignBeta.UI.ViewModels
         private bool _busy;
         private bool _decisionComplete;
         private string _petitionerSpeech;
-        private string _inputText = string.Empty;
         private int _chatScrollVersion;
         private string _eventImageId;
         private readonly bool _calibrationMode;
@@ -268,8 +275,8 @@ namespace ReignBeta.UI.ViewModels
             string contributionId = "petition_input_" + Guid.NewGuid().ToString("N");
             if (!_calibrationMode)
             {
-                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     contributionId, text, _petition.PetitionerHeroId, _petition.TranscriptId); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             }
@@ -327,13 +334,13 @@ namespace ReignBeta.UI.ViewModels
             }
 
             Busy = true;
-            ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync();
+            ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync();
             await ReignMainThread.InvokeAsync(() => CompleteDecision(method, refuse, xp));
         }
 
         private void CompleteDecision(ReignDocketGrantMethod method, bool refuse, ReignXpInteraction xp)
         {
-            if (xp.Owner != ReignBeta.Campaign.ReignXpCampaignBehavior.Instance) { Busy = false; return; }
+            if (xp.Owner != ReignBeta.Dialogue.Campaign.ReignXpCampaignBehavior.Instance) { Busy = false; return; }
             if (!_court.TryDecideRulerPetition(_petition.PetitionId, method, refuse, out string receipt, xp.Options))
             {
                 Busy = false;
@@ -368,7 +375,7 @@ namespace ReignBeta.UI.ViewModels
                         "No active court audience participants are available.");
                 bool stagedTurn = !string.Equals(phase, "conversation",
                     StringComparison.OrdinalIgnoreCase);
-                ReignXpInteraction xp = stagedTurn ? null : await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                ReignXpInteraction xp = stagedTurn ? null : await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 string xpReceipt = "conversation:petition:" + _petition.PetitionId + ":" + Guid.NewGuid().ToString("N");
                 bool exchangeComplete = true;
                 string audienceTurn = string.Equals(phase, "opening",
@@ -421,7 +428,7 @@ namespace ReignBeta.UI.ViewModels
                                 AddTranscriptLine(speakerName, reply, "npc");
                             }
                             // Existing action receipts follow as separate, unpersisted system lines.
-                            foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                            foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.RawResponse))
                                 AddTranscriptLine("Court Clerk", statusLine, "system", false);
                             if (isPetitioner)
                                 _court.AttachRulerPetitionPresentation(_petition.PetitionId,

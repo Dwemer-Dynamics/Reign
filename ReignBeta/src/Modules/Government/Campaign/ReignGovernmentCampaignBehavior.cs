@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 using ReignBeta.UI;
@@ -14,8 +13,16 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static ReignBeta.Platform.Domain.ReignNumeric;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Government.UI;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior : CampaignBehaviorBase
     {
@@ -24,16 +31,36 @@ namespace ReignBeta.Government
         private const int RetainedPressures = 128;
         private const int RetainedLobbyRecords = 128;
 
-        private List<ReignGovernmentStateRecord> _governments = new List<ReignGovernmentStateRecord>();
-        private List<ReignGovernmentPartyRecord> _parties = new List<ReignGovernmentPartyRecord>();
-        private List<ReignGovernmentSeatRecord> _seats = new List<ReignGovernmentSeatRecord>();
-        private List<ReignGovernmentResolutionRecord> _resolutions = new List<ReignGovernmentResolutionRecord>();
-        private List<ReignGovernmentPressureRecord> _pressures = new List<ReignGovernmentPressureRecord>();
-        private List<ReignGovernmentLobbyRecord> _lobbyRecords = new List<ReignGovernmentLobbyRecord>();
-        private List<ReignGovernmentMeetingRecord> _meetings = new List<ReignGovernmentMeetingRecord>();
+        internal List<ReignGovernmentStateRecord> _governments = new List<ReignGovernmentStateRecord>();
+        internal List<ReignGovernmentPartyRecord> _parties = new List<ReignGovernmentPartyRecord>();
+        internal List<ReignGovernmentSeatRecord> _seats = new List<ReignGovernmentSeatRecord>();
+        internal List<ReignGovernmentResolutionRecord> _resolutions = new List<ReignGovernmentResolutionRecord>();
+        internal List<ReignGovernmentPressureRecord> _pressures = new List<ReignGovernmentPressureRecord>();
+        internal List<ReignGovernmentLobbyRecord> _lobbyRecords = new List<ReignGovernmentLobbyRecord>();
+        internal List<ReignGovernmentMeetingRecord> _meetings = new List<ReignGovernmentMeetingRecord>();
         private int _lastDailyTick = -1;
+        // Process-local observations only. They are not saved, do not normalize state,
+        // and cannot turn a failed strict-v2 comparison into a passing comparison.
+        internal readonly Newtonsoft.Json.Linq.JArray _governmentLoadFingerprintPhases = new Newtonsoft.Json.Linq.JArray();
+        // Process-local private-conversation certification baselines prepared by the test harness; never saved.
+        internal readonly Dictionary<string, GovernmentPrivateCaseBaseline> _governmentPrivateCaseBaselines =
+            new Dictionary<string, GovernmentPrivateCaseBaseline>(StringComparer.Ordinal);
+        // Product forwarder: session launch, SyncData and calendar restore record harness load-fingerprint phases.
+        private void CaptureGovernmentLoadFingerprintPhase(string phase, bool reset = false) => ReignBeta.Platform.Runtime.ReignTestHarness.Current.CaptureGovernmentLoadFingerprintPhase(this, phase, reset);
 
-        public static ReignGovernmentCampaignBehavior Instance { get; private set; }
+        internal sealed class GovernmentPrivateCaseBaseline
+        {
+            public string BusinessId;
+            public string MemberId;
+            public string RulerId;
+            public string KingdomId;
+            public int PlayerGold;
+            public int MemberGold;
+            public float Influence;
+            public HashSet<string> ExistingReceipts;
+        }
+
+        public static ReignGovernmentCampaignBehavior Instance => ReignServices.Government;
         public IReadOnlyList<ReignGovernmentStateRecord> Governments => _governments;
         public IReadOnlyList<ReignGovernmentPartyRecord> Parties => _parties;
         public IReadOnlyList<ReignGovernmentSeatRecord> Seats => _seats;
@@ -44,7 +71,7 @@ namespace ReignBeta.Government
 
         public ReignGovernmentCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.Government = this;
         }
 
         public override void RegisterEvents()
@@ -476,12 +503,12 @@ namespace ReignBeta.Government
             _meetings.RemoveAll(x => removedKingdomIds.Contains(x.KingdomStringId));
         }
 
-        private void ReconcileMembership(Kingdom kingdom, ReignGovernmentStateRecord state, bool initializeParties)
+        internal void ReconcileMembership(Kingdom kingdom, ReignGovernmentStateRecord state, bool initializeParties)
         {
             ReconcileParticipationSeats(kingdom, state, initializeParties);
         }
 
-        private void RecalculatePartyState(Kingdom kingdom, ReignGovernmentStateRecord state)
+        internal void RecalculatePartyState(Kingdom kingdom, ReignGovernmentStateRecord state)
         {
             List<ReignGovernmentSeatRecord> seats = _seats.Where(x => Same(x.KingdomStringId, kingdom.StringId)).ToList();
             List<ReignGovernmentPartyRecord> parties = _parties.Where(x => Same(x.KingdomStringId, kingdom.StringId)).ToList();
@@ -646,7 +673,7 @@ namespace ReignBeta.Government
             return Clamp(calculating * 4 + honor * 3 - generosity * 2, -15, 15);
         }
 
-        private static ReignGovernmentPersonality Personality(Hero hero)
+        internal static ReignGovernmentPersonality Personality(Hero hero)
         {
             if (hero == null) return new ReignGovernmentPersonality();
             return new ReignGovernmentPersonality
@@ -665,7 +692,7 @@ namespace ReignBeta.Government
             };
         }
 
-        private List<SeatCandidate> SelectSeatCandidates(Kingdom kingdom, ReignGovernmentInstitutionProfile profile)
+        internal List<SeatCandidate> SelectSeatCandidates(Kingdom kingdom, ReignGovernmentInstitutionProfile profile)
         {
             var rows = new Dictionary<string, SeatCandidate>(StringComparer.OrdinalIgnoreCase);
             foreach (ReignGovernmentSeatSource source in profile.SeatSources)
@@ -705,12 +732,12 @@ namespace ReignBeta.Government
             return true;
         }
 
-        private static bool IsEligibleMember(Hero hero)
+        internal static bool IsEligibleMember(Hero hero)
         {
             return hero != null && hero.IsAlive && !hero.IsChild && hero.HeroState != Hero.CharacterStates.Disabled;
         }
 
-        private static bool IsEligibleKingdom(Kingdom kingdom)
+        internal static bool IsEligibleKingdom(Kingdom kingdom)
         {
             return kingdom != null && !kingdom.IsEliminated && kingdom.Leader != null && kingdom.Fiefs.Count > 0;
         }
@@ -776,7 +803,7 @@ namespace ReignBeta.Government
                 if (hearth != 0) {
                     float beforeHearth = village.Hearth;
                     village.Hearth = MathF.Max(0f, village.Hearth + hearth);
-                    ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_authority", village, beforeHearth);
+                    ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_authority", village, beforeHearth);
                 }
             }
         }
@@ -792,14 +819,9 @@ namespace ReignBeta.Government
             return state != null && state.TemporaryBenefitEndDay > CurrentDay() ? value : 0f;
         }
 
-        private ReignGovernmentPartyRecord FindParty(string kingdomStringId, string partyId)
+        internal ReignGovernmentPartyRecord FindParty(string kingdomStringId, string partyId)
         {
             return _parties.FirstOrDefault(x => Same(x.KingdomStringId, kingdomStringId) && Same(x.PartyId, partyId));
-        }
-
-        private static ReignGovernmentPartyBlueprint ToBlueprint(ReignGovernmentPartyRecord party)
-        {
-            return new ReignGovernmentPartyBlueprint(party.PartyId, party.Name, ParsePlanks(party.PlanksCsv).ToArray());
         }
 
         internal static List<ReignGovernmentPlank> ParsePlanks(string csv)
@@ -812,7 +834,7 @@ namespace ReignBeta.Government
             return result;
         }
 
-        private static HashSet<string> ParseIds(string csv)
+        internal static HashSet<string> ParseIds(string csv)
         {
             return new HashSet<string>((csv ?? string.Empty).Split(',')
                 .Select(x => x.Trim()).Where(x => x.Length > 0), StringComparer.OrdinalIgnoreCase);
@@ -825,24 +847,17 @@ namespace ReignBeta.Government
                 .OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
         }
 
-        private static Hero FindHero(string id)
+        internal static Hero FindHero(string id)
         {
             return string.IsNullOrWhiteSpace(id) ? null : Hero.FindFirst(x => Same(x.StringId, id));
         }
 
-        private static float CurrentDay()
+        internal static float CurrentDay()
         {
             return TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
         }
 
-        private static int StableOffset(string id, string salt, int radius)
-        {
-            int width = radius * 2 + 1;
-            return (int)(ReignGovernmentRules.StableHash((salt ?? string.Empty) + "|" + (id ?? string.Empty)) % (uint)width) - radius;
-        }
-
-        private static bool Same(string left, string right) => string.Equals(left ?? string.Empty, right ?? string.Empty, StringComparison.OrdinalIgnoreCase);
-        private static int Clamp(int value, int minimum, int maximum) => Math.Max(minimum, Math.Min(maximum, value));
+        internal static bool Same(string left, string right) => string.Equals(left ?? string.Empty, right ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 
         private static List<T> Clean<T>(List<T> source, Func<T, bool> keep) where T : class
         {
@@ -871,13 +886,13 @@ namespace ReignBeta.Government
             _meetings = RetainGovernmentMeetingHistory(_meetings);
         }
 
-        private static List<ReignGovernmentMeetingRecord> RetainGovernmentMeetingHistory(
+        internal static List<ReignGovernmentMeetingRecord> RetainGovernmentMeetingHistory(
             IEnumerable<ReignGovernmentMeetingRecord> meetings)
         {
             return meetings.OrderByDescending(x => x.MeetingDay).Take(RetainedMeetings).ToList();
         }
 
-        private sealed class SeatCandidate
+        internal sealed class SeatCandidate
         {
             internal SeatCandidate(Hero hero, Settlement settlement, ReignGovernmentSeatSource source)
             {

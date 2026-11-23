@@ -7,9 +7,6 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using Reign.Core.Contracts.Dialogue;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,10 +14,27 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using static ReignBeta.Dialogue.UI.ReignChatText;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
-    public sealed partial class ReignIndividualChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed partial class ReignIndividualChatScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => new[] { _hero };
         public bool ActionBusy => _presentationInitializing || IsBusy || IsPregnancyWarningVisible || IsOutfitVisible || _calibrationMode;
@@ -117,7 +131,7 @@ namespace ReignBeta.UI.ViewModels
             if (string.IsNullOrWhiteSpace(_conversationContext.Value<string>("sessionId")))
                 _conversationContext["sessionId"] = "conversation_" + Guid.NewGuid().ToString("N");
             _conversationContext["campaignId"] = ReignServerClient.GetCampaignId();
-            _conversationContext["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            _conversationContext["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
             _conversationContext["playerId"] = Hero.MainHero?.StringId ?? string.Empty;
             _loadFence = ReignServerClient.RequestFence.Capture();
             _conversationStartGate = new ConversationSessionStartGate(_conversationContext.Value<string>("sessionId"));
@@ -267,292 +281,6 @@ namespace ReignBeta.UI.ViewModels
         }
 
         [DataSourceProperty]
-        public string Title
-        {
-            get { return _title; }
-            set
-            {
-                if (value != _title)
-                {
-                    _title = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string HeroSubtitle
-        {
-            get { return _heroSubtitle; }
-            set
-            {
-                if (value != _heroSubtitle)
-                {
-                    _heroSubtitle = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string LocationText
-        {
-            get { return _locationText; }
-            set
-            {
-                if (value != _locationText)
-                {
-                    _locationText = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerName
-        {
-            get { return _playerName; }
-            set
-            {
-                if (value != _playerName)
-                {
-                    _playerName = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerSubtitle
-        {
-            get { return _playerSubtitle; }
-            set
-            {
-                if (value != _playerSubtitle)
-                {
-                    _playerSubtitle = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerInfo
-        {
-            get { return _playerInfo; }
-            set
-            {
-                if (value != _playerInfo)
-                {
-                    _playerInfo = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcName
-        {
-            get { return _npcName; }
-            set
-            {
-                if (value != _npcName)
-                {
-                    _npcName = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcSubtitle
-        {
-            get { return _npcSubtitle; }
-            set
-            {
-                if (value != _npcSubtitle)
-                {
-                    _npcSubtitle = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcInfo
-        {
-            get { return _npcInfo; }
-            set
-            {
-                if (value != _npcInfo)
-                {
-                    _npcInfo = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public ImageIdentifierVM PlayerPortrait
-        {
-            get { return _playerPortrait; }
-            set
-            {
-                if (value != _playerPortrait)
-                {
-                    _playerPortrait = value;
-                    PlayerPortraitId = value?.Id ?? string.Empty;
-                    PlayerPortraitAdditionalArgs = value?.AdditionalArgs ?? string.Empty;
-                    PlayerPortraitTextureProviderName = value?.TextureProviderName ?? string.Empty;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public ImageIdentifierVM NpcPortrait
-        {
-            get { return _npcPortrait; }
-            set
-            {
-                if (value != _npcPortrait)
-                {
-                    _npcPortrait = value;
-                    NpcPortraitId = value?.Id ?? string.Empty;
-                    NpcPortraitAdditionalArgs = value?.AdditionalArgs ?? string.Empty;
-                    NpcPortraitTextureProviderName = value?.TextureProviderName ?? string.Empty;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerPortraitId
-        {
-            get { return _playerPortraitId; }
-            set
-            {
-                if (value != _playerPortraitId)
-                {
-                    _playerPortraitId = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerPortraitAdditionalArgs
-        {
-            get { return _playerPortraitAdditionalArgs; }
-            set
-            {
-                if (value != _playerPortraitAdditionalArgs)
-                {
-                    _playerPortraitAdditionalArgs = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string PlayerPortraitTextureProviderName
-        {
-            get { return _playerPortraitTextureProviderName; }
-            set
-            {
-                if (value != _playerPortraitTextureProviderName)
-                {
-                    _playerPortraitTextureProviderName = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcPortraitId
-        {
-            get { return _npcPortraitId; }
-            set
-            {
-                if (value != _npcPortraitId)
-                {
-                    _npcPortraitId = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcPortraitAdditionalArgs
-        {
-            get { return _npcPortraitAdditionalArgs; }
-            set
-            {
-                if (value != _npcPortraitAdditionalArgs)
-                {
-                    _npcPortraitAdditionalArgs = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string NpcPortraitTextureProviderName
-        {
-            get { return _npcPortraitTextureProviderName; }
-            set
-            {
-                if (value != _npcPortraitTextureProviderName)
-                {
-                    _npcPortraitTextureProviderName = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string ZoomPortraitId
-        {
-            get { return _zoomPortraitId; }
-            set
-            {
-                if (value != _zoomPortraitId)
-                {
-                    _zoomPortraitId = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string ZoomPortraitAdditionalArgs
-        {
-            get { return _zoomPortraitAdditionalArgs; }
-            set
-            {
-                if (value != _zoomPortraitAdditionalArgs)
-                {
-                    _zoomPortraitAdditionalArgs = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string ZoomPortraitTextureProviderName
-        {
-            get { return _zoomPortraitTextureProviderName; }
-            set
-            {
-                if (value != _zoomPortraitTextureProviderName)
-                {
-                    _zoomPortraitTextureProviderName = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
         public string InputText
         {
             get { return Composer.State.Text; }
@@ -584,20 +312,6 @@ namespace ReignBeta.UI.ViewModels
         }
 
         [DataSourceProperty]
-        public bool IsPortraitZoomVisible
-        {
-            get { return _isPortraitZoomVisible; }
-            set
-            {
-                if (value != _isPortraitZoomVisible)
-                {
-                    _isPortraitZoomVisible = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
         public bool IsPregnancyWarningVisible
         {
             get { return _isPregnancyWarningVisible; }
@@ -608,146 +322,6 @@ namespace ReignBeta.UI.ViewModels
                     _isPregnancyWarningVisible = value;
                     OnPropertyChangedWithValue(value);
                     OnPropertyChanged(nameof(InputEnabled));
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public string BusyText
-        {
-            get { return _busyText; }
-            set
-            {
-                if (value != _busyText)
-                {
-                    _busyText = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public int ChatScrollVersion
-        {
-            get { return _chatScrollVersion; }
-            set
-            {
-                if (value != _chatScrollVersion)
-                {
-                    _chatScrollVersion = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float PlayerPortraitCropImageWidth
-        {
-            get { return _playerPortraitCropImageWidth; }
-            set
-            {
-                if (Math.Abs(value - _playerPortraitCropImageWidth) > 0.01f)
-                {
-                    _playerPortraitCropImageWidth = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float PlayerPortraitCropImageHeight
-        {
-            get { return _playerPortraitCropImageHeight; }
-            set
-            {
-                if (Math.Abs(value - _playerPortraitCropImageHeight) > 0.01f)
-                {
-                    _playerPortraitCropImageHeight = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float NpcPortraitCropImageWidth
-        {
-            get { return _npcPortraitCropImageWidth; }
-            set
-            {
-                if (Math.Abs(value - _npcPortraitCropImageWidth) > 0.01f)
-                {
-                    _npcPortraitCropImageWidth = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float NpcPortraitCropImageHeight
-        {
-            get { return _npcPortraitCropImageHeight; }
-            set
-            {
-                if (Math.Abs(value - _npcPortraitCropImageHeight) > 0.01f)
-                {
-                    _npcPortraitCropImageHeight = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float ZoomPortraitImageWidth
-        {
-            get { return _zoomPortraitImageWidth; }
-            set
-            {
-                if (Math.Abs(value - _zoomPortraitImageWidth) > 0.01f)
-                {
-                    _zoomPortraitImageWidth = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float ZoomPortraitImageHeight
-        {
-            get { return _zoomPortraitImageHeight; }
-            set
-            {
-                if (Math.Abs(value - _zoomPortraitImageHeight) > 0.01f)
-                {
-                    _zoomPortraitImageHeight = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float ZoomFrameWidth
-        {
-            get { return _zoomFrameWidth; }
-            set
-            {
-                if (Math.Abs(value - _zoomFrameWidth) > 0.01f)
-                {
-                    _zoomFrameWidth = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
-        }
-
-        [DataSourceProperty]
-        public float ZoomFrameHeight
-        {
-            get { return _zoomFrameHeight; }
-            set
-            {
-                if (Math.Abs(value - _zoomFrameHeight) > 0.01f)
-                {
-                    _zoomFrameHeight = value;
-                    OnPropertyChangedWithValue(value);
                 }
             }
         }
@@ -808,7 +382,7 @@ namespace ReignBeta.UI.ViewModels
             if (draft == null || marker < 0
                 || marker != template.LastIndexOf("{action}", StringComparison.Ordinal))
                 throw new InvalidOperationException("Supply one action insertion marker.");
-            ReignBeta.Actions.ReignActionWording.Render(draft);
+            ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
             Composer.SetText(template.Substring(0, marker));
             Composer.Insert(draft);
             Composer.Replace(Composer.State.Text.Length, 0, template.Substring(marker + 8));
@@ -883,7 +457,7 @@ namespace ReignBeta.UI.ViewModels
                 if (!npcOpening)
                 {
                     try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ReignServices.WorldHistory?.TimelineId ?? "main",
                         Hero.MainHero?.StringId ?? "", correlationId, text, _hero?.StringId ?? "",
                         _conversationContext.Value<string>("sessionId") ?? ""); }
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
@@ -930,8 +504,8 @@ namespace ReignBeta.UI.ViewModels
                         owner.SessionId = sessionId;
                         return true;
                     }).ConfigureAwait(false))
-                    throw new ReignServerClient.RequestOwnerAbandonedException("The conversation closed before its session was bound.");
-                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                    throw new ReignRequestOwnerAbandonedException("The conversation closed before its session was bound.");
+                ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
                     text,
@@ -997,7 +571,7 @@ namespace ReignBeta.UI.ViewModels
                     if (reply.Ok && reply.TestDirectiveActions != null && reply.TestDirectiveActions.Count > 0)
                     {
                         int queued = 0;
-                        if (ReignAICampaignBehavior.Instance?.TryImportForPresentation(reply.TestDirectiveActions, out queued, out heldDirectiveId) == false)
+                        if (ReignServices.AI?.TryImportForPresentation(reply.TestDirectiveActions, out queued, out heldDirectiveId) == false)
                             ReignLog.Warn("Immediate test directive import interrupted hero=" + (_hero?.StringId ?? ""));
                         ReignLog.Info("Immediate test directive import hero=" + (_hero?.StringId ?? "") + " actions=" + reply.TestDirectiveActions.Count + " queued=" + queued);
                     }
@@ -1016,13 +590,13 @@ namespace ReignBeta.UI.ViewModels
                             int salary = Math.Max(0,
                                 reply.ChancellorDecision.Value<int?>("activeDailySalary") ??
                                 Reign.Core.Contracts.Court.ReignRulerDocketRules.DefaultActiveChancellorSalary);
-                            officeChanged = ReignCourtCampaignBehavior.Instance
+                            officeChanged = ReignServices.Court
                                 ?.TryAppointChancellor(_hero, salary, true, out officeReceipt) == true;
                         }
                         else if (heroMatches && string.Equals(kind, "dismissal_acknowledged",
                                      StringComparison.OrdinalIgnoreCase))
                         {
-                            officeChanged = ReignCourtCampaignBehavior.Instance
+                            officeChanged = ReignServices.Court
                                 ?.TryDismissChancellor(true, out officeReceipt) == true;
                         }
                         else
@@ -1042,15 +616,15 @@ namespace ReignBeta.UI.ViewModels
                     }
 
                     // Existing receipts/outcomes are separate system lines after the exact NPC line.
-                    List<string> statusLines = reply.Ok ? ReignServerClient.NativeStatusLines(reply.RawResponse) : new List<string>();
+                    List<string> statusLines = reply.Ok ? ReignStructuredActionClient.NativeStatusLines(reply.RawResponse) : new List<string>();
                     if (heldDirectiveId != null)
-                        statusLines.Add("[unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
+                        statusLines.Add("[unknown: " + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
                     if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || statusLines.Count > 0))
                     {
                         ClearFailedConversationTurn();
                         if (_conversationContext.Value<bool?>("rescueOpening") == true)
                         {
-                            ReignRescueConversationBehavior.Instance?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
+                            ReignServices.RescueConversation?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
                             // The opening instruction ends only after a usable response.
                             // Retain the dated rescue facts and unrelated directives.
                             _conversationContext.Remove("sceneContextDirective");
@@ -1104,7 +678,7 @@ namespace ReignBeta.UI.ViewModels
                             requestCampaign, actionDraft, ex.Message, recoveredInput);
                     }
 
-                    if (ex is ReignServerClient.RequestOwnerAbandonedException) ReignLog.Info("Individual chat send abandoned: " + ex.Message);
+                    if (ex is ReignRequestOwnerAbandonedException) ReignLog.Info("Individual chat send abandoned: " + ex.Message);
                     else ReignLog.Warn("Individual chat send failed: " + ex.Message);
                 }).ConfigureAwait(false);
             }
@@ -1166,9 +740,9 @@ namespace ReignBeta.UI.ViewModels
             {
                 string generation = owner?.Fence.SharedActivityGeneration ?? string.Empty;
                 if (!IsRequestOwnerCurrent(owner) || generation.Length == 0
-                    || generation != (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty)) return;
+                    || generation != (ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty)) return;
                 string campaign = ReignServerClient.GetCampaignId();
-                string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string player = owner.Player?.StringId ?? string.Empty;
                 if (campaign != _conversationContext.Value<string>("campaignId") || timeline != _conversationContext.Value<string>("timelineId")
                     || player != _conversationContext.Value<string>("playerId")) return;
@@ -1178,7 +752,7 @@ namespace ReignBeta.UI.ViewModels
                 ReignServerClient.RequestFence fence = owner.Fence;
                 Hero originalPlayer = owner.Player;
                 Func<bool> originalLoad = () => fence.IsCurrent() && ReferenceEquals(originalPlayer, Hero.MainHero)
-                    && generation == (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty);
+                    && generation == (ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty);
                 _ = Task.Run(() => ReignServerClient.SendIndividualViewInsertionAsync(ack, originalLoad));
             }
             catch (Exception ex) { ReignLog.Info("View insertion receipt skipped: " + ex.GetType().Name); }
@@ -1240,7 +814,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            ReignConceptionAttemptResult result = await ReignServerClient.ResolvePlayerConceptionAttemptAsync(
+            ReignConceptionAttemptResult result = await ReignRelationshipDirectorClient.ResolvePlayerConceptionAttemptAsync(
                 _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok)
             {
@@ -1255,7 +829,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            await ReignServerClient.ApplyResolvedPlayerConceptionAsync(result, owner).ConfigureAwait(false);
+            await ReignRelationshipDirectorClient.ApplyResolvedPlayerConceptionAsync(result, owner).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
                 if (owner()) FinishPregnancyDecision("proceed", true, false, string.Empty);
@@ -1295,7 +869,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            ReignConceptionAttemptResult result = await ReignServerClient.CancelPlayerConceptionAttemptAsync(
+            ReignConceptionAttemptResult result = await ReignRelationshipDirectorClient.CancelPlayerConceptionAttemptAsync(
                 _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok || !result.Cancelled)
             {
@@ -1472,7 +1046,7 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task<ConversationSessionStart> StartConversationAsync()
         {
-            var owner = ReignIndividualConversationBehavior.Instance;
+            var owner = ReignServices.IndividualConversation;
             if (owner != null && !await owner.WaitForRecoveryAsync().ConfigureAwait(false))
                 return new ConversationSessionStart { Error = "Conversation recovery has not completed." };
             // The fence is rechecked after the recovery await, inside the
@@ -1655,10 +1229,10 @@ namespace ReignBeta.UI.ViewModels
             {
                 string session = await EnsureConversationSessionAsync().ConfigureAwait(false);
                 if (session.Length == 0 || _isFinalized) return;
-                var lives = ReignNpcLivesBehavior.Instance;
+                var lives = ReignServices.NpcLives;
                 if (lives != null)
                     await ReignMainThread.InvokeAsync(() => lives.PrepareLifeConversationAsync(_hero, session, _conversationContext)).Unwrap().ConfigureAwait(false);
-                await ReignServerClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);
+                await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);
                 // Reload accepted history once. This also recovers an opener which
                 // finished after the previous screen closed, without speaking twice.
                 if (!_isFinalized) await LoadHistoryAsync().ConfigureAwait(false);
@@ -1722,168 +1296,6 @@ namespace ReignBeta.UI.ViewModels
             }
 
             return "Bannerlord Reign server failed: " + text;
-        }
-
-        private static bool ContainsIgnoreCase(string text, string value)
-        {
-            return !string.IsNullOrEmpty(text)
-                && !string.IsNullOrEmpty(value)
-                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static ImageIdentifierVM BuildPortrait(Hero hero, string cacheKey)
-        {
-            try
-            {
-                if (hero?.CharacterObject == null)
-                {
-                    return null;
-                }
-
-                Equipment equipment = hero == Hero.MainHero
-                    ? hero.CivilianEquipment ?? hero.CharacterObject.FirstCivilianEquipment ?? hero.CharacterObject.Equipment
-                    : hero.CharacterObject.FirstCivilianEquipment ?? hero.CharacterObject.Equipment;
-                CharacterCode code = CharacterCode.CreateFrom(hero.CharacterObject, equipment);
-                if (string.IsNullOrWhiteSpace(code?.Code))
-                {
-                    return null;
-                }
-
-                PortraitIndex.Register(PortraitRequestRegistry.NormalizeKey(code.Code), cacheKey);
-                return new CharacterImageIdentifierVM(code);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private void ShowOrToggleZoom(string id, string additionalArgs, string providerName, string cacheKey)
-        {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(providerName) || string.IsNullOrEmpty(cacheKey))
-            {
-                return;
-            }
-
-            if (IsPortraitZoomVisible && string.Equals(_zoomPortraitCacheKey, cacheKey, StringComparison.Ordinal))
-            {
-                ClosePortraitZoom();
-                return;
-            }
-
-            _zoomPortraitCacheKey = cacheKey;
-            PortraitPatch.SetChatZoomIdentity(cacheKey);
-            SetZoomAspect(GetAspectRatioFor(cacheKey, PortraitQualityTier.Zoom));
-            ZoomPortraitId = id;
-            ZoomPortraitAdditionalArgs = additionalArgs ?? string.Empty;
-            ZoomPortraitTextureProviderName = providerName;
-            IsPortraitZoomVisible = true;
-        }
-
-        private void ClosePortraitZoom()
-        {
-            IsPortraitZoomVisible = false;
-            _zoomPortraitCacheKey = null;
-            PortraitPatch.SetChatZoomIdentity(null);
-        }
-
-        private void SetPlayerCropAspect(float ratio)
-        {
-            GetTopToBottomCropDimensions(ratio, out var width, out var height);
-            PlayerPortraitCropImageWidth = width;
-            PlayerPortraitCropImageHeight = height;
-        }
-
-        private void SetNpcCropAspect(float ratio)
-        {
-            GetTopToBottomCropDimensions(ratio, out var width, out var height);
-            NpcPortraitCropImageWidth = width;
-            NpcPortraitCropImageHeight = height;
-        }
-
-        private static void GetTopToBottomCropDimensions(float ratio, out float width, out float height)
-        {
-            if (ratio <= 0f || float.IsNaN(ratio) || float.IsInfinity(ratio))
-            {
-                ratio = 0.75f;
-            }
-
-            float apertureAspect = HeaderPortraitApertureWidth / HeaderPortraitApertureHeight;
-            if (ratio >= apertureAspect)
-            {
-                height = HeaderPortraitApertureHeight * HeaderPortraitCoverOverscan;
-                width = height * ratio;
-            }
-            else
-            {
-                width = HeaderPortraitApertureWidth * HeaderPortraitCoverOverscan;
-                height = width / ratio;
-            }
-        }
-
-        private void SetZoomAspect(float ratio)
-        {
-            if (ratio <= 0f || float.IsNaN(ratio) || float.IsInfinity(ratio))
-            {
-                ratio = 0.75f;
-            }
-
-            float width = 860f;
-            float height = width / ratio;
-            if (height > 920f)
-            {
-                height = 920f;
-                width = height * ratio;
-            }
-
-            ZoomPortraitImageWidth = width;
-            ZoomPortraitImageHeight = height;
-            ZoomFrameWidth = width + 36f;
-            ZoomFrameHeight = height + 36f;
-        }
-
-        private static float GetAspectRatioFor(string cacheKey, PortraitQualityTier tier)
-        {
-            if (!PortraitDerivativeService.TryGetDerivativeAspectRatio(cacheKey, tier, out var ratio)
-                && !PortraitCache.TryGetPortraitAspectRatio(cacheKey, out ratio))
-            {
-                return 0.75f;
-            }
-
-            return ratio;
-        }
-
-        private static string BuildHeroSubtitle(Hero hero)
-        {
-            if (hero == null)
-            {
-                return string.Empty;
-            }
-
-            string clan = hero.Clan?.Name?.ToString();
-            string kingdom = hero.Clan?.Kingdom?.InformalName?.ToString() ?? hero.MapFaction?.Name?.ToString();
-            if (!string.IsNullOrWhiteSpace(clan) && !string.IsNullOrWhiteSpace(kingdom))
-            {
-                return clan + " - " + kingdom;
-            }
-
-            if (!string.IsNullOrWhiteSpace(clan))
-            {
-                return clan;
-            }
-
-            return !string.IsNullOrWhiteSpace(kingdom) ? kingdom : hero.Occupation.ToString();
-        }
-
-        private static string BuildLocationText(Hero hero)
-        {
-            Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement ?? hero?.CurrentSettlement;
-            if (settlement != null)
-            {
-                return "Location: " + settlement.Name;
-            }
-
-            return "Location: with your party";
         }
     }
 }

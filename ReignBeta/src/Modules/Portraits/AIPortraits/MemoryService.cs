@@ -7,13 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using static AIPortraits.PortraitMessages;
 
 namespace AIPortraits;
 
 public static class MemoryService
 {
-	private const string MemoryKeyPrefix = "memory:";
-
 	private static volatile bool _generationRunning;
 
 	private static bool _migrationChecked;
@@ -133,7 +132,7 @@ public static class MemoryService
 			}
 		}
 		Array.Resize(ref array, newSize);
-		array = array.Concat(ReignBeta.Integration.ReignChatViewClient.ArchiveFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+		array = array.Concat(ReignBeta.Dialogue.Integration.ReignChatViewClient.ArchiveFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 		Array.Sort(array, (IComparer<string>)StringComparer.OrdinalIgnoreCase);
 		return array;
 	}
@@ -310,11 +309,6 @@ public static class MemoryService
 		{
 			Debug.Print("[AIPortraits] Failed to delete temporary memory reference: " + ex.Message);
 		}
-	}
-
-	private static void Msg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage("[AIPortraits] " + text, Color.FromUint(color)));
 	}
 
 	private static void MigrateLegacyMemoriesIfNeeded()

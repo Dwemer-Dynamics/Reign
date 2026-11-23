@@ -6,15 +6,26 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
-    public static partial class ReignServerClient
+    // Harness-owned live-test transport and heartbeat. Shared request helpers, campaign identity and the native save name stay on ReignServerClient.
+    internal static class ReignLiveTestServerClient
     {
         private static DateTime _nextLiveTargetCountRefreshUtc = DateTime.MinValue;
         private static int _cachedLivePartyTargetCount;
@@ -92,7 +103,7 @@ namespace ReignBeta.Integration
         {
             var sections = new JObject();
             Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;
-            ReignSocialEventsCampaignBehavior events = ReignSocialEventsCampaignBehavior.Instance;
+            ReignSocialEventsCampaignBehavior events = ReignServices.SocialEvents;
             DateTime now = DateTime.UtcNow;
             if (now >= _nextLiveTargetCountRefreshUtc)
             {
@@ -154,31 +165,31 @@ namespace ReignBeta.Integration
                 {
                     ["alignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending,
                     ["ready"] = ReignSaveSyncCoordinator.IsReadyForCampaign(GetCampaignId()),
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["saveFinalization"] = HeartbeatSection(sections, "saveFinalization", () => ReignSaveSyncCoordinator.SaveFinalizationSnapshot())
                 },
                 ["diplomacy"] = BuildDiplomacyDiagnostics(),
-                ["government"] = HeartbeatSection(sections, "government", () => ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject()),
-                ["rulers"] = HeartbeatSection(sections, "rulers", () => ReignRulerCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject()),
+                ["government"] = HeartbeatSection(sections, "government", () => ReignServices.Government?.PoliticalRuntimeStatus() ?? new JObject()),
+                ["rulers"] = HeartbeatSection(sections, "rulers", () => ReignServices.Ruler?.RuntimeStatus() ?? new JObject()),
                 ["clanAccords"] = new JObject
                 {
                     ["schema"] = "reign-clan-accords-runtime-v1",
-                    ["available"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null,
-                    ["pending"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.HasPendingWork == true,
-                    ["snapshot"] = HeartbeatSection(sections, "clanAccords", () => ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject())
+                    ["available"] = ReignServices.ClanAccords != null,
+                    ["pending"] = ReignServices.ClanAccords?.HasPendingWork == true,
+                    ["snapshot"] = HeartbeatSection(sections, "clanAccords", () => ReignServices.ClanAccords?.Snapshot() ?? new JObject())
                 },
-                ["encounteredResidents"] = HeartbeatSection(sections, "residents", () => ReignEncounteredResidentsCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
-                ["wandererPopulation"] = HeartbeatSection(sections, "wanderers", () => ReignWandererPopulationCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
-                ["tavernHousePopulation"] = ReignTavernHouseCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject(),
+                ["encounteredResidents"] = HeartbeatSection(sections, "residents", () => ReignServices.EncounteredResidents?.RuntimeSnapshot() ?? new JObject()),
+                ["wandererPopulation"] = HeartbeatSection(sections, "wanderers", () => ReignServices.WandererPopulation?.RuntimeSnapshot() ?? new JObject()),
+                ["tavernHousePopulation"] = ReignServices.TavernHouse?.RuntimeStatus() ?? new JObject(),
                 ["courtLife"] = new JObject
                 {
                     ["schema"] = "reign-court-life-runtime-v1",
-                    ["deliveryPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingCourtLifeDeliveryWork == true,
-                    ["internationalPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingInternationalCourtLifeWork == true,
-                    ["familyAttentionPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingFamilyVisitWork == true,
-                    ["familyVisitOutbox"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
+                    ["deliveryPending"] = ReignServices.Court?.HasPendingCourtLifeDeliveryWork == true,
+                    ["internationalPending"] = ReignServices.Court?.HasPendingInternationalCourtLifeWork == true,
+                    ["familyAttentionPending"] = ReignServices.Court?.HasPendingFamilyVisitWork == true,
+                    ["familyVisitOutbox"] = ReignServices.Court?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
                 },
-                ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
+                ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.Court.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
                 ["relationshipClient"] = HeartbeatSection(sections, "relationships", () => BuildRelationshipOutboxDiagnostics()),
                 ["personalGossip"] = HeartbeatSection(sections, "gossip", () => PersonalGossipRuntimeStatus()),
                 ["worldHistory"] = new JObject
@@ -186,7 +197,7 @@ namespace ReignBeta.Integration
                     ["pendingCount"] = ReignWorldHistoryTransport.PendingCount(),
                     ["uploadInFlight"] = ReignWorldHistoryTransport.UploadInFlight,
                     ["sequence"] =
-                        ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L,
+                        ReignServices.WorldHistory?.Sequence ?? 0L,
                     ["upload"] = HeartbeatSection(sections, "worldHistory", () => ReignWorldHistoryTransport.UploadDiagnostics())
                 },
                 ["nativeSave"] = HeartbeatSection(sections, "nativeSave", () => BuildNativeSaveDiagnostics()),
@@ -211,17 +222,19 @@ namespace ReignBeta.Integration
                     ["completedCommandCacheCount"] = ReignLiveInteractionTestHost.CompletedCommandCacheCount
                 },
                 ["httpTransport"] = HttpTransportDiagnostics(),
+                ["terminalReports"] = HeartbeatSection(sections, "terminalReports", () => ReignServices.AI?.TerminalReportHoldDiagnostics()
+                    ?? new JObject { ["schema"] = "reign-terminal-report-holds-v1", ["available"] = false, ["reason"] = "behavior_unavailable" }),
                 ["characterInitialization"] = new JObject
                 {
-                    ["startingChildren"] = HeartbeatSection(sections, "startingChildren", () => ReignStartingChildrenCampaignBehavior.Instance?.Snapshot() ?? new JObject()),
+                    ["startingChildren"] = HeartbeatSection(sections, "startingChildren", () => ReignServices.StartingChildren?.Snapshot() ?? new JObject()),
                     ["notableBackgroundReady"] =
-                        ReignCharacterEditorCampaignBehavior.Instance?.NotableBackgroundInitializationComplete == true,
+                        ReignServices.CharacterEditor?.NotableBackgroundInitializationComplete == true,
                     ["notableBackgroundInFlight"] =
-                        ReignCharacterEditorCampaignBehavior.Instance?.NotableBackgroundInitializationInFlight == true,
+                        ReignServices.CharacterEditor?.NotableBackgroundInitializationInFlight == true,
                     ["policy"] = "campaign_day_1_before_reign_systems",
                     ["gate"] = ReignCampaignInitializationGate.Snapshot(),
                     ["preparation"] =
-                        ReignCampaignPreparationCampaignBehavior.Instance?.Snapshot()
+                        ReignServices.CampaignPreparation?.Snapshot()
                         ?? new JObject()
                 },
                 ["activeRunId"] = activeRunId ?? string.Empty,
@@ -239,17 +252,6 @@ namespace ReignBeta.Integration
             };
         }
 
-        internal static string ActiveNativeSaveName()
-        {
-            try
-            {
-                object value = typeof(MBSaveLoad).GetProperty("ActiveSaveSlotName",
-                    BindingFlags.Public | BindingFlags.Static)?.GetValue(null, null);
-                return Convert.ToString(value) ?? string.Empty;
-            }
-            catch { return string.Empty; }
-        }
-
         private static JObject BuildNativeSaveDiagnostics()
         {
             JObject observation = ReignSaveSyncCampaignBehavior.NativeSaveObservation();
@@ -260,7 +262,7 @@ namespace ReignBeta.Integration
         private static JObject BuildDiplomacyDiagnostics()
         {
             ReignWorldDiplomacyCampaignBehavior behavior =
-                ReignWorldDiplomacyCampaignBehavior.Instance;
+                ReignServices.WorldDiplomacy;
             return new JObject
             {
                 ["evaluationInFlight"] = behavior?.EvaluationInFlight == true,

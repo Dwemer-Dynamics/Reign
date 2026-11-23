@@ -1,13 +1,14 @@
 using System;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Locations;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignTavernHousePatches
     {
@@ -34,7 +35,7 @@ namespace ReignBeta.Campaign
         }
         private static void HeroLocation(Hero hero, Settlement settlement, ref Location __result)
         {
-            var behavior = ReignTavernHouseCampaignBehavior.Instance;
+            var behavior = ReignServices.TavernHouse;
             var person = behavior?.GetPerson(hero);
             if (person == null) return;
             if (behavior.IsActiveStaff(hero)) __result = null;
@@ -43,8 +44,8 @@ namespace ReignBeta.Campaign
         }
         private static void Overlay(LocationCharacter locationCharacter, ref bool __result)
         {
-            if (ReignTavernHouseCampaignBehavior.Instance?.IsActiveStaff(locationCharacter?.Character?.HeroObject) == true) __result = false;
+            if (ReignServices.TavernHouse?.IsActiveStaff(locationCharacter?.Character?.HeroObject) == true) __result = false;
         }
-        private static bool Recruitment(Hero companion) => ReignTavernHouseCampaignBehavior.Instance?.AllowsRecruitment(companion) != false;
+        private static bool Recruitment(Hero companion) => ReignServices.TavernHouse?.AllowsRecruitment(companion) != false;
     }
 }

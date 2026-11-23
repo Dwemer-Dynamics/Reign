@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -16,8 +14,13 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Rulers
 {
     public sealed partial class ReignRulerCampaignBehavior
     {
@@ -42,12 +45,12 @@ namespace ReignBeta.Campaign
                 {
                     // Capture native context on the calling main thread, inside
                     // the try/finally so preparation errors cannot strand busy.
-                    var p = ReignServerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
-                    p["victorProfile"] = ReignServerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
+                    var p = ReignRulerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
+                    p["victorProfile"] = ReignRulerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
                     var defeated = Realm(j.DefeatedKingdomId);
                     p["clans"] = new JArray((defeated?.Clans ?? Enumerable.Empty<Clan>()).Where(c => !c.IsEliminated && !c.IsUnderMercenaryService && c.Leader?.IsAlive == true)
                         .Select(c => new JObject { ["clanId"] = c.StringId, ["leaderId"] = c.Leader.StringId }));
-                    var r = await ReignServerClient.RulerRequestAsync("context", p).ConfigureAwait(false);
+                    var r = await ReignRulerClient.RulerRequestAsync("context", p).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         if (Instance != this || epoch != _epoch || owner != NativeCampaign.Current
                             || !ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
@@ -98,7 +101,7 @@ namespace ReignBeta.Campaign
         {
             if (!ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
             if (_presenting || Mission.Current != null || NativeCampaign.Current.ConversationManager.IsConversationInProgress || MobileParty.MainParty?.MapEvent != null
-                || ReignBeta.UI.ReignDiplomacyAnnouncementScreenManager.IsOpen || InformationManager.IsAnyInquiryActive()) return;
+                || ReignBeta.Diplomacy.UI.ReignDiplomacyAnnouncementScreenManager.IsOpen || InformationManager.IsAnyInquiryActive()) return;
             var rows = Enum.GetValues(typeof(RulerVerdict)).Cast<RulerVerdict>().Where(v => Eligible(j, v)).Select(v => new InquiryElement(v, Label(v), null)).ToList();
             _presenting = true;
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Captured ruler", "Decide the fate of " + (HeroById(j.PrisonerId)?.Name?.ToString() ?? "the captive") + ". Executions allow eight days for escape or rescue; ransom is forbidden after sentencing.",
@@ -242,7 +245,7 @@ namespace ReignBeta.Campaign
                     AddEffects(j, annexed);
                 }
                 else if (j.Verdict == RulerVerdict.Freedom) Once(j, "freedom", () => { if (prisoner.IsPrisoner) EndCaptivityAction.ApplyByReleasedAfterBattle(prisoner); });
-                if (j.CivilWar && !j.DefeatedLord) Once(j, "civil_war_resolution", () => ReignRebellionCampaignBehavior.Instance.CompleteRulerJudgment(j));
+                if (j.CivilWar && !j.DefeatedLord) Once(j, "civil_war_resolution", () => ReignServices.Rebellion.CompleteRulerJudgment(j));
                 if (j.Verdict == RulerVerdict.Imprisonment && (!prisoner.IsAlive || !prisoner.IsPrisoner
                     || prisoner.PartyBelongedToAsPrisoner?.MapFaction != winning))
                     throw new InvalidOperationException("Imprisonment did not retain the living leader in the victorious kingdom's custody.");
@@ -337,7 +340,7 @@ namespace ReignBeta.Campaign
         private void QueueRelations(string id, JArray deltas)
         {
             if (deltas.Count == 0 || _relationOutbox.Any(p => p.Value<string>("operationId") == id)) return;
-            var p = ReignServerClient.RulerRequestPayload(); p["operationId"] = id; p["deltas"] = deltas; _relationOutbox.Add(p);
+            var p = ReignRulerClient.RulerRequestPayload(); p["operationId"] = id; p["deltas"] = deltas; _relationOutbox.Add(p);
         }
         private void SendRelations(JObject pending)
         {
@@ -345,10 +348,10 @@ namespace ReignBeta.Campaign
             async Task Send()
             {
                 try {
-                    var probe = ReignServerClient.RulerRequestPayload(); probe["victorId"] = Hero.MainHero.StringId; probe["prisonerId"] = Hero.MainHero.StringId;
-                    var context = await ReignServerClient.RulerRequestAsync("context", probe).ConfigureAwait(false);
+                    var probe = ReignRulerClient.RulerRequestPayload(); probe["victorId"] = Hero.MainHero.StringId; probe["prisonerId"] = Hero.MainHero.StringId;
+                    var context = await ReignRulerClient.RulerRequestAsync("context", probe).ConfigureAwait(false);
                     var p = (JObject)pending.DeepClone(); p["generation"] = context["generation"]?.DeepClone();
-                    var result = await ReignServerClient.RulerRequestAsync("relations", p).ConfigureAwait(false);
+                    var result = await ReignRulerClient.RulerRequestAsync("relations", p).ConfigureAwait(false);
                     if (result.Value<bool?>("ok") != true || result.Value<string>("operationId") != p.Value<string>("operationId")) throw new InvalidOperationException(result.Value<string>("error") ?? "Ruler relationship receipt missing.");
                     await ReignMainThread.InvokeAsync(() => { if (epoch == _epoch && Instance == this) _relationOutbox.Remove(pending); }).ConfigureAwait(false);
                 }
@@ -358,11 +361,11 @@ namespace ReignBeta.Campaign
         }
         private void History(RulerJudgment j, string phase, string summary)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("ruler_judgment", phase, "politics", j.Id,
+            ReignServices.WorldHistory?.RecordReignSystemEvent("ruler_judgment", phase, "politics", j.Id,
                 summary, "major_world", j.VictorId, j.DefeatedKingdomId, JObject.FromObject(new { judgmentId = j.Id,
                     verdict = ReignRulerPolicy.HasIssuedSentence(j) ? j.Verdict.ToString() : "",
                     j.CapturedDay, j.SentencedDay, j.Deadline, j.CancellationReason, j.ResolvedDay }), new JArray(j.PrisonerId));
-            ReignNewsCampaignBehavior.Instance?.Judgment(j, phase);
+            ReignServices.News?.Judgment(j, phase);
         }
         internal void RequestPlayerSentence(Hero prisoner)
         {

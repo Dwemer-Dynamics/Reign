@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     // Main-thread owned, deliberately not persisted. Saved agreement/ledger state remains authoritative.
     // A close is never a departure decision; only a native end action or the explicit inquiry can depart.

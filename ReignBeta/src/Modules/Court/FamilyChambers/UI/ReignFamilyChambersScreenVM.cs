@@ -7,8 +7,9 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.FamilyChambers
 {
     public sealed class ReignFamilyChambersScreenVM : ViewModel
     {
@@ -55,7 +56,7 @@ namespace ReignBeta.UI.ViewModels
             }
             List<Hero> selected = Adults.Where(card => card.IsSelected).Select(card => card.Hero)
                 .Concat(Children.Where(card => card.IsSelected).Select(card => card.Hero)).Where(hero => hero != null).ToList();
-            FamilyChambersSessionRecord session = ReignFamilyChambersCampaignBehavior.Instance?.CreateSession(selected);
+            FamilyChambersSessionRecord session = ReignServices.FamilyChambers?.CreateSession(selected);
             if (session == null)
             {
                 StatusText = "The Family Chambers cannot be prepared here.";
@@ -68,8 +69,8 @@ namespace ReignBeta.UI.ViewModels
 
         private void RefreshRoster()
         {
-            IReadOnlyList<Hero> adults = ReignFamilyChambersCampaignBehavior.Instance?.GetPresentAdults() ?? Array.Empty<Hero>();
-            IReadOnlyList<Hero> children = ReignFamilyChambersCampaignBehavior.Instance?.GetQualifiedChildren(adults) ?? Array.Empty<Hero>();
+            IReadOnlyList<Hero> adults = ReignServices.FamilyChambers?.GetPresentAdults() ?? Array.Empty<Hero>();
+            IReadOnlyList<Hero> children = ReignServices.FamilyChambers?.GetQualifiedChildren(adults) ?? Array.Empty<Hero>();
             var adultIds = new HashSet<string>(adults.Select(hero => hero.StringId), StringComparer.OrdinalIgnoreCase);
             Adults.Clear();
             Children.Clear();

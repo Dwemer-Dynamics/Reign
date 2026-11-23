@@ -3,6 +3,7 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.SaveSystem;
+using ReignBeta.WorldSimulation.Events;
 
 namespace ReignBeta.Events
 {

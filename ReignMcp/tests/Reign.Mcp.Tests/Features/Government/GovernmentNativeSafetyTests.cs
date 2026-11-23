@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Government;
+using ReignBeta.Government.Domain;
 
 namespace Reign.Mcp.Tests;
 
@@ -385,7 +385,7 @@ public sealed class GovernmentNativeSafetyTests
         Assert.Contains("Harmony.GetPatchInfo", lifecycle);
         Assert.Contains("p.owner == HarmonyId", lifecycle);
         string decisions = File.ReadAllText(Path.Combine(folder, "ReignGovernmentNativeDecisions.cs"));
-        string fallback = decisions[decisions.IndexOf("private void OnNativeKingdomDecisionAdded", StringComparison.Ordinal)..decisions.IndexOf("private void MigrateNativeGovernmentBusiness", StringComparison.Ordinal)];
+        string fallback = decisions[decisions.IndexOf("internal void OnNativeKingdomDecisionAdded", StringComparison.Ordinal)..decisions.IndexOf("internal void MigrateNativeGovernmentBusiness", StringComparison.Ordinal)];
         Assert.DoesNotContain("TryCaptureNativeDecision(", fallback);
         Assert.Contains("TryConsumeEffectPermit", decisions);
         Assert.Contains("OnGovernmentSettlementOwnerChanged", decisions);

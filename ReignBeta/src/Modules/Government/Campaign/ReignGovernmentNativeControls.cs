@@ -10,14 +10,15 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Clans;
 using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Diplomacy;
 using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Decisions;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     internal static class ReignGovernmentNativeControlAuthority
     {
         internal const string Explanation = "Handled through Reign Government. Open Government to petition, recommend, or review this matter.";
         internal static bool Active => ReignGovernmentPatches.IsReady && Clan.PlayerClan?.Kingdom != null
-            && ReignGovernmentCampaignBehavior.Instance?.EnsureGovernment(Clan.PlayerClan.Kingdom) != null;
+            && ReignServices.Government?.EnsureGovernment(Clan.PlayerClan.Kingdom) != null;
     }
 
     [HarmonyPatch]
@@ -62,7 +63,7 @@ namespace ReignBeta.Government
         private static bool Prefix()
         {
             if (!ReignGovernmentNativeControlAuthority.Active) return true;
-            ReignBeta.UI.ReignGovernmentScreenManager.Open(Clan.PlayerClan.Kingdom,
+            ReignBeta.Government.UI.ReignGovernmentScreenManager.Open(Clan.PlayerClan.Kingdom,
                 Clan.PlayerClan.Kingdom.Leader == Hero.MainHero, null);
             return false;
         }
@@ -89,7 +90,7 @@ namespace ReignBeta.Government
         }
         private static bool Prefix(KingdomDecision __0)
         {
-            if (ReignGovernmentCampaignBehavior.Instance?.TryCaptureNativeDecision(__0) != true) return true;
+            if (ReignServices.Government?.TryCaptureNativeDecision(__0) != true) return true;
             __0.Kingdom.RemoveDecision(__0);
             return false;
         }
