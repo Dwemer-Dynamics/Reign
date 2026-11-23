@@ -69,8 +69,36 @@ namespace ReignBeta.WorldSimulation.Actions
             string id = saved.Value<string>(key + "PartyId") ?? "";
             return MobileParty.All.FirstOrDefault(p => p.StringId == id) ?? throw new InvalidOperationException("The agreed " + key + " party is no longer available.");
         }
+        private static PartyBase PrisonerRecipient(Hero from, Hero to, CharacterObject prisoner)
+        {
+            MobileParty party = to.PartyBelongedTo;
+            if (party != null && party != from.PartyBelongedTo) return party.Party;
+
+            Settlement settlement = to.CurrentSettlement;
+            Clan receiverClan = to.Clan;
+            if (prisoner.IsHero && to.IsAlive && !to.IsPrisoner && settlement?.IsFortification == true
+                && !settlement.IsUnderSiege && settlement == from.CurrentSettlement && receiverClan != null
+                && ((settlement.OwnerClan == receiverClan && receiverClan.Leader == to)
+                    || (receiverClan.Kingdom?.Leader == to && settlement.OwnerClan?.Kingdom == receiverClan.Kingdom)))
+                return settlement.Party;
+
+            throw new InvalidOperationException("Deliver the named prisoner to a separate party or to the recipient's authorized dungeon while present there.");
+        }
+        private static PartyBase SavedPrisonerCustody(JObject saved, string key)
+        {
+            string settlementId = saved.Value<string>(key + "SettlementId");
+            if (string.IsNullOrEmpty(settlementId)) return SavedParty(saved, key).Party;
+            var settlement = ReignObjectResolver.FindSettlement(settlementId);
+            if (settlement?.IsFortification != true || settlement.Party == null)
+                throw new InvalidOperationException("The agreed dungeon is no longer available.");
+            return settlement.Party;
+        }
+        private static bool HoldsNamedPrisoner(PartyBase party, CharacterObject prisoner)
+            => prisoner.HeroObject?.IsPrisoner == true && prisoner.HeroObject.PartyBelongedToAsPrisoner == party
+                && party.PrisonRoster.GetTroopCount(prisoner) == 1;
+
         private static TroopRoster SavedRoster(ActionClause c, JObject saved, string key) => Kind(c) == "troop"
-            ? SavedParty(saved, key).MemberRoster : SavedParty(saved, key).PrisonRoster;
+            ? SavedParty(saved, key).MemberRoster : SavedPrisonerCustody(saved, key).PrisonRoster;
 
         private static JObject SourceState(ActionClause c, JObject saved)
         {
@@ -123,8 +151,16 @@ namespace ReignBeta.WorldSimulation.Actions
                     if (Kind(c) == "troop" && troop.IsHero) throw new InvalidOperationException("A hero must personally agree to change parties.");
                     if (troop.HeroObject == Hero.MainHero) throw new InvalidOperationException("An agreement cannot transfer the player into captivity.");
                     if (Roster(c, from).GetTroopCount(troop) < total) throw new InvalidOperationException("The selected roster no longer has that quantity.");
+                    if (Kind(c) == "prisoner")
+                    {
+                        var destination = PrisonerRecipient(from, to, troop);
+                        if (troop.IsHero && (total != 1 || !HoldsNamedPrisoner(from.PartyBelongedTo.Party, troop)
+                            || destination.PrisonRoster.GetTroopCount(troop) != 0))
+                            throw new InvalidOperationException("The named prisoner must be held exactly once by the giver.");
+                        break;
+                    }
                     if (from.PartyBelongedTo == to.PartyBelongedTo || to.PartyBelongedTo == null) throw new InvalidOperationException("Select a recipient with a different party.");
-                    if (Kind(c) == "troop" && to.PartyBelongedTo.MemberRoster.TotalManCount + total > to.PartyBelongedTo.Party.PartySizeLimit) throw new InvalidOperationException("The recipient's party has insufficient room for these troops.");
+                    if (to.PartyBelongedTo.MemberRoster.TotalManCount + total > to.PartyBelongedTo.Party.PartySizeLimit) throw new InvalidOperationException("The recipient's party has insufficient room for these troops.");
                     break;
                 case "settlement":
                     var s = ReignObjectResolver.FindSettlement(ReignActionService.Arg(c, "assetId"));
@@ -197,6 +233,11 @@ namespace ReignBeta.WorldSimulation.Actions
                 result["wounded"] = Math.Max(0, Math.Min(row.WoundedNumber - preceding, result.Value<int>("total")));
                 result["xp"] = row.Number == 0 ? 0 : (int)((long)row.Xp * (preceding + result.Value<int>("total")) / row.Number - (long)row.Xp * preceding / row.Number);
                 result["hero"] = row.Character.IsHero;
+                if (Kind(c) == "prisoner")
+                {
+                    PartyBase destination = PrisonerRecipient(Owner(c), Receiver(c), row.Character);
+                    if (destination.IsSettlement) result["recipientSettlementId"] = destination.Settlement.StringId;
+                }
             }
             return result;
         }
@@ -285,9 +326,15 @@ namespace ReignBeta.WorldSimulation.Actions
         internal static void Deliver(ActionClause c, JObject saved)
         {
             var to = Receiver(c); var from = Owner(c); int count = Quantity(c);
-            if (Kind(c) == "troop" || Kind(c) == "prisoner" || Kind(c) == "ship"
-                || Kind(c) == "item" && saved.Value<string>("recipientStorage") == "party")
+            if (Kind(c) == "prisoner")
+            {
+                if (PrisonerRecipient(from, to, Troop(c)) != SavedPrisonerCustody(saved, "recipient"))
+                    throw new InvalidOperationException("The agreed party or dungeon changed before delivery.");
+            }
+            else if (Kind(c) == "troop" || Kind(c) == "ship" || Kind(c) == "item" && saved.Value<string>("recipientStorage") == "party")
+            {
                 if (to.PartyBelongedTo != SavedParty(saved, "recipient")) throw new InvalidOperationException("The recipient changed parties before delivery.");
+            }
             if (Kind(c) == "settlement" && ((from.Clan?.StringId ?? "") != saved.Value<string>("sourceClanId")
                 || (to.Clan?.StringId ?? "") != saved.Value<string>("recipientClanId")))
                 throw new InvalidOperationException("The agreed settlement clans changed before delivery.");
@@ -302,10 +349,17 @@ namespace ReignBeta.WorldSimulation.Actions
                     if (Kind(c) == "troop" && (long)Roster(c, to).TotalManCount + count > to.PartyBelongedTo.Party.PartySizeLimit) throw new InvalidOperationException("The recipient's party no longer has room for these troops.");
                     if (saved.Value<bool?>("hero") == true)
                     {
-                        if (SavedRoster(c, saved, "source").GetTroopCount(Troop(c)) != 1) throw new InvalidOperationException("The named prisoner is no longer in custody.");
-                        TransferPrisonerAction.Apply(Troop(c), SavedParty(saved, "source").Party, SavedParty(saved, "recipient").Party);
+                        var prisoner = Troop(c);
+                        PartyBase source = SavedPrisonerCustody(saved, "source");
+                        PartyBase recipient = SavedPrisonerCustody(saved, "recipient");
+                        if (!HoldsNamedPrisoner(source, prisoner) || recipient.PrisonRoster.GetTroopCount(prisoner) != 0)
+                            throw new InvalidOperationException("The named prisoner's custody changed before delivery.");
+                        TransferPrisonerAction.Apply(prisoner, source, recipient);
+                        if (!HoldsNamedPrisoner(recipient, prisoner) || source.PrisonRoster.GetTroopCount(prisoner) != 0)
+                            throw new InvalidOperationException("Native custody did not move to the agreed recipient.");
                     }
-                    else Roster(c, to).AddToCounts(Troop(c), count, false, Math.Min(count, saved.Value<int>("wounded")), saved.Value<int>("xp"));
+                    else SavedRoster(c, saved, "recipient").AddToCounts(Troop(c), count, false,
+                        Math.Min(count, saved.Value<int>("wounded")), saved.Value<int>("xp"));
                     break;
                 case "settlement":
                     var settlement = ReignObjectResolver.FindSettlement(ReignActionService.Arg(c, "assetId"));
@@ -416,7 +470,10 @@ namespace ReignBeta.WorldSimulation.Actions
                 var c = agreement.Clauses.Single(x => x.Id == step.ClauseId);
                 Owner(c); Receiver(c);
                 if (Kind(c) == "item") Element(c);
-                if (Kind(c) == "troop" || Kind(c) == "prisoner") Roster(c, Receiver(c));
+                if (Kind(c) == "troop") Roster(c, Receiver(c));
+                if (Kind(c) == "prisoner"
+                    && PrisonerRecipient(Owner(c), Receiver(c), Troop(c)) != SavedPrisonerCustody(JObject.Parse(step.Snapshot), "recipient"))
+                    throw new InvalidOperationException("The agreed party or dungeon changed before delivery.");
             }
             try
             {
@@ -487,7 +544,16 @@ namespace ReignBeta.WorldSimulation.Actions
                 case "item": ChangeItem(to, Element(c), before.Value<int>("count") - current.Value<int>("count"), saved); break;
                 case "troop":
                 case "prisoner":
-                    if (Troop(c).IsHero && current.Value<int>("count") > before.Value<int>("count")) TransferPrisonerAction.Apply(Troop(c), SavedParty(saved, "recipient").Party, SavedParty(saved, "source").Party);
+                    if (Troop(c).IsHero)
+                    {
+                        var prisoner = Troop(c);
+                        PartyBase source = SavedPrisonerCustody(saved, "source");
+                        PartyBase recipient = SavedPrisonerCustody(saved, "recipient");
+                        if (current.Value<int>("count") > before.Value<int>("count") && HoldsNamedPrisoner(recipient, prisoner))
+                            TransferPrisonerAction.Apply(prisoner, recipient, source);
+                        if (!HoldsNamedPrisoner(source, prisoner))
+                            throw new InvalidOperationException("The named prisoner's original custody could not be restored.");
+                    }
                     else SavedRoster(c, saved, "recipient").AddToCounts(Troop(c), before.Value<int>("count") - current.Value<int>("count"), false,
                         before.Value<int>("wounded") - current.Value<int>("wounded"), before.Value<int>("xp") - current.Value<int>("xp"));
                     break;
