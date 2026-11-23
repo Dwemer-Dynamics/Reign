@@ -122,19 +122,19 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("settlement.OwnerClan != Hero.MainHero?.Clan", native);
         Assert.Contains("Take(3)", native);
         Assert.Contains("tariffsBefore == settlement.Town.TradeTaxAccumulated", native);
-        Assert.Contains("edictsBefore == JsonConvert.SerializeObject(_edicts)", native);
+        Assert.Contains("edictsBefore == JsonConvert.SerializeObject(government._edicts)", native);
         Assert.Contains("nonzeroTariffExercised", native);
         Assert.Contains("nonzeroWorkshopExercised", native);
         Assert.Contains("finally { _observation = null; _observationThreadId = 0; }", model);
         Assert.Contains("System.Threading.Thread.CurrentThread.ManagedThreadId", model);
         Assert.DoesNotContain("Unpatch", model);
         Assert.DoesNotContain("Suppress", model);
-        string crime = native[native.IndexOf("private JObject ObserveTownCrimeTargets", StringComparison.Ordinal)..
-            native.IndexOf("private JObject GovernmentAuthorityContracts", StringComparison.Ordinal)];
+        string crime = native[native.IndexOf("private static JObject ObserveTownCrimeTargets", StringComparison.Ordinal)..
+            native.IndexOf("private static JObject GovernmentAuthorityContracts", StringComparison.Ordinal)];
         Assert.Contains("CreateResolution(kingdom, state, party, ReignGovernmentResolutionCatalog.Find(\"R029\")", crime);
         Assert.DoesNotContain("_resolutions.Add", crime);
         Assert.DoesNotContain("_business.Add", crime);
-        Assert.Contains("businessBefore == JsonConvert.SerializeObject(_business)", crime);
+        Assert.Contains("businessBefore == JsonConvert.SerializeObject(government._business)", crime);
         Assert.Contains("kingdoms.Take(32)", crime);
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root,
             "ReignServer/tests/ReignLiveTest/scenarios/government-system-manifest.json")));
@@ -168,6 +168,38 @@ public sealed class GovernmentParticipationContractTests
         Assert.True(contract.GetProperty("ownedTownsOnly").GetBoolean());
         Assert.True(contract.GetProperty("noEligibleTargetMeansNoEvidence").GetBoolean());
         Assert.True(contract.GetProperty("existingFiledTargetsUnchanged").GetBoolean());
+    }
+
+    [Fact]
+    public void HearingReplyBelongsToTheOriginalViewAndComposerRevision()
+    {
+        string directory = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta/src/Modules/Government/UI/ViewModels");
+        string screen = File.ReadAllText(Path.Combine(directory, "ReignGovernmentScreenVM.cs"));
+        int send = screen.IndexOf("private async Task SpeakAsync()", StringComparison.Ordinal);
+        int next = screen.IndexOf("public void ExecuteHoldMeeting()", StringComparison.Ordinal);
+        Assert.True(send >= 0 && next > send);
+        string speech = screen[send..next];
+
+        int submit = speech.IndexOf("SubmitHearingMessageAsync(id, text)", StringComparison.Ordinal);
+        int release = speech.IndexOf("_sending = false;", StringComparison.Ordinal);
+        int business = speech.IndexOf("bool sameBusiness = id == _selected?.BusinessId;", StringComparison.Ordinal);
+        int owner = speech.IndexOf("viewRevision != _hearingViewRevision || !sameBusiness", StringComparison.Ordinal);
+        int draftOwner = speech.IndexOf("composerRevision == _composerRevision", StringComparison.Ordinal);
+        int clear = speech.IndexOf("ComposerText = string.Empty;", StringComparison.Ordinal);
+        int present = speech.IndexOf("RefreshAll(response?", StringComparison.Ordinal);
+        Assert.True(submit >= 0 && submit < release && release < business && business < draftOwner
+            && draftOwner < clear && clear < owner && owner < present);
+        Assert.Contains("if (sameBusiness && response?.Value<bool>(\"ok\") == true && composerRevision == _composerRevision)",
+            speech, StringComparison.Ordinal);
+        Assert.Contains("if (_finalized) return;", speech, StringComparison.Ordinal);
+        Assert.Contains("long viewRevision = _hearingViewRevision;", speech, StringComparison.Ordinal);
+        Assert.Contains("long composerRevision = _composerRevision;", speech, StringComparison.Ordinal);
+        Assert.Contains("if (_composer == text) return;", screen, StringComparison.Ordinal);
+        Assert.Contains("_composerRevision++;", screen, StringComparison.Ordinal);
+        Assert.Contains("if (_view == view) return;", screen, StringComparison.Ordinal);
+        Assert.Contains("if (_selected?.BusinessId != business?.BusinessId) _hearingViewRevision++;", screen, StringComparison.Ordinal);
+        Assert.Contains("SetView(\"policy\");",
+            File.ReadAllText(Path.Combine(directory, "ReignGovernmentParticipationVM.cs")), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -224,9 +256,9 @@ public sealed class GovernmentParticipationContractTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(Path.Combine(root,
             "ReignBeta/src/Modules/Government/Testing/ReignGovernmentInGameTests.cs"));
-        string preflight = source[source.IndexOf("private JObject GovernmentPreflight", StringComparison.Ordinal)..
+        string preflight = source[source.IndexOf("private static JObject GovernmentPreflight", StringComparison.Ordinal)..
             source.IndexOf("private static JObject GovernmentContracts", StringComparison.Ordinal)];
-        Assert.Contains("if (IsCharterPending(kingdom.StringId))", preflight);
+        Assert.Contains("if (government.IsCharterPending(kingdom.StringId))", preflight);
         Assert.Contains("parties.Count == 0 && seats.Count == 0", preflight);
         Assert.Contains("parties.All(party => !party.IsDominant && !party.IsGoverningCoalition)", preflight);
         Assert.Contains("coalitionSeats * 2 > seats.Count", preflight);
@@ -307,18 +339,18 @@ public sealed class GovernmentParticipationContractTests
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
             "ReignBeta/src/Modules/Government/Testing/ReignGovernmentInGameTests.cs"));
-        string fingerprint = source[source.IndexOf("private string GovernmentFeatureFingerprint()", StringComparison.Ordinal)..
+        string fingerprint = source[source.IndexOf("private static string GovernmentFeatureFingerprint(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)..
             source.IndexOf("private static JObject GovernmentTestResult", StringComparison.Ordinal)];
-        Assert.Contains("[\"participation\"] = JObject.FromObject(_participation)", fingerprint);
-        string readback = source[source.IndexOf("private JObject GovernmentSavedConstitutionEvidence()", StringComparison.Ordinal)..
-            source.IndexOf("private string GovernmentFeatureFingerprint()", StringComparison.Ordinal)];
+        Assert.Contains("[\"participation\"] = JObject.FromObject(government._participation)", fingerprint);
+        string readback = source[source.IndexOf("private static JObject GovernmentSavedConstitutionEvidence(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)..
+            source.IndexOf("private static string GovernmentFeatureFingerprint(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)];
         Assert.Contains("Clan.PlayerClan?.Kingdom?.StringId", readback);
         foreach (string field in new[] { "available", "kingdomId", "institutionId", "draftAuthority", "confirmed", "source", "revision" })
             Assert.Contains("[\"" + field + "\"]", readback);
         Assert.DoesNotContain("Profiles", readback);
         Assert.DoesNotContain("JObject.FromObject", readback);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(source,
-            "result\\[\"constitution\"\\] = GovernmentSavedConstitutionEvidence\\(\\);").Count);
+            "result\\[\"constitution\"\\] = GovernmentSavedConstitutionEvidence\\(government\\);").Count);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(source,
             "result\\[\"featureFingerprintSchema\"\\] = \"reign-government-persistence-v2\";").Count);
     }
@@ -337,7 +369,7 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("value.Properties().Take(16)", source);
         Assert.Contains("savedParticipation.Properties().Take(48)", source);
         Assert.Contains("_governmentLoadFingerprintPhases.Count >= 4", source);
-        Assert.DoesNotContain("error.Message", source[source.IndexOf("private void CaptureGovernmentLoadFingerprintPhase", StringComparison.Ordinal)..]);
+        Assert.DoesNotContain("error.Message", source[source.IndexOf("internal static void CaptureGovernmentLoadFingerprintPhase", StringComparison.Ordinal)..]);
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"sync_loaded_before_prune\", true)", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"sync_loaded_after_prune\")", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"session_launched\")", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));
@@ -629,7 +661,7 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("hearing?.BusinessId == _ownPositionHearingId", readerBehavior);
         Assert.Contains("if (!returning) _pendingOptionId = null;", readerBehavior);
         var snapshot = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
-            "ReignBeta/src/Modules/UI/UI/Calibration/ReignUiCalibrationService.cs"));
+            "ReignBeta/src/Modules/UI/Calibration/ReignUiCalibrationService.cs"));
         Assert.Contains("mappedFont =", snapshot);
         Assert.Contains("GetMappedFontForLocalization", snapshot);
         Assert.Contains("fontTextureReady =", snapshot);
@@ -696,7 +728,7 @@ public sealed class GovernmentParticipationContractTests
         string workspace = TestOptions.FindWorkspace();
         string view = File.ReadAllText(Path.Combine(workspace,
             "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs"));
-        string host = File.ReadAllText(Path.Combine(workspace,
+        string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace,
             "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         Assert.Contains("_presentationInitializationTask = InitializePresentationAsync();", view);
         Assert.Contains("await OpenNpcInitiatedConversationAsync()", view);

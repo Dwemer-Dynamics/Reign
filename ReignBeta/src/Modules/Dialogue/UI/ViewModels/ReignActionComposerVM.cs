@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Reign.Core.Contracts.Actions;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     // The widget receives only this opaque, local UI identity. Executable terms never
     // come from an editable string, pasted markup, or a widget-supplied agreement.

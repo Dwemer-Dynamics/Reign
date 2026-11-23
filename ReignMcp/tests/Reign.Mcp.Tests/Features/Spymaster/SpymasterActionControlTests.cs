@@ -46,14 +46,14 @@ public sealed class SpymasterActionControlTests
     {
         string workspace = TestOptions.FindWorkspace();
         string host = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Campaign/ReignLiveInteractionSpymasterHost.cs"));
-        string native = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterOrganicInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterOrganicInGameTests.cs"));
         Assert.Contains("destructive && (command.Value<string>(\"irreversibleConfirmation\")", host);
         Assert.Contains("expected != ActiveSaveName()", host);
         Assert.Contains("CampaignTimeControlMode.Stop", host);
         Assert.Contains("StartsWith(\"spymaster.assassinate_\", StringComparison.Ordinal) != destructive", native);
         Assert.Contains("accepted_assassination_native_deaths", native);
         Assert.Contains("target?.IsDead == true", native);
-        Assert.Contains("target == Hero.MainHero || target == ActiveSpymaster", native);
+        Assert.Contains("target == Hero.MainHero || target == court.ActiveSpymaster", native);
         Assert.Contains("FindSettlement(mission.TargetStringId)?.Town?.Governor", native);
         Assert.Contains("before[\"acceptedAssassinationTargets\"] = targets", native);
         Assert.Contains("CapturedAssassinationHero(batch, m.MissionId)", native);

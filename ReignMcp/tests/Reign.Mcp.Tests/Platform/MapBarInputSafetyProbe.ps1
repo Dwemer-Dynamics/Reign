@@ -84,7 +84,7 @@ if ([IO.File]::Exists($navalPath)) {
     $navalInstance = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($navalType)
     Require-Exception { $navalMethod.Invoke($navalInstance, [object[]]@($empty)) } ([ArgumentOutOfRangeException])
 }
-$patchType = $client.GetType('ReignBeta.Integration.ReignMapBarInputSafetyPatch', $true)
+$patchType = $client.GetType('ReignBeta.Platform.Integration.ReignMapBarInputSafetyPatch', $true)
 Record-ProbeStage 'applying-local-map-patch'
 $apply = $patchType.GetMethod('Apply', $flags)
 $unapply = $patchType.GetMethod('Unapply', $flags)
@@ -125,12 +125,12 @@ try {
     $downKeysField.SetValue($valid, $null)
     Require-Exception { $safeRelease.Invoke($null, [object[]]@($valid, 0)) } ([NullReferenceException])
 
-    $behavior = $client.GetType('ReignBeta.Campaign.ReignSocialEventsCampaignBehavior', $true)
+    $behavior = $client.GetType('ReignBeta.WorldSimulation.Campaign.ReignSocialEventsCampaignBehavior', $true)
     Record-ProbeStage 'checking-map-screen-types'
     $mapCheck = $behavior.GetMethod('IsCampaignMapScreen', $flags)
     $mapScreen = [type]::GetType('SandBox.View.Map.MapScreen, SandBox.View', $true)
     $inventory = $sandbox.GetType('SandBox.GauntletUI.GauntletInventoryScreen', $true)
-    $social = $client.GetType('ReignBeta.UI.ReignSocialEventScreen', $true)
+    $social = $client.GetType('ReignBeta.WorldSimulation.UI.ReignSocialEventScreen', $true)
     Require ($mapCheck.Invoke($null, [object[]]@($mapScreen))) 'Campaign map type rejected.'
     foreach ($screen in @($inventory, $social, $null)) {
         Require (!$mapCheck.Invoke($null, [object[]]@($screen))) 'A non-map screen was accepted for wilderness presentation.'
@@ -139,9 +139,9 @@ try {
     $recordType = $client.GetType('ReignBeta.Events.SocialEventRecord', $true)
     [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'Newtonsoft.Json.dll')) | Out-Null
     Record-ProbeStage 'checking-constructor-bypassed-social-and-wedding-records'
-    $sessionType=$client.GetType('ReignBeta.Runtime.ReignSocialEventSession',$true)
-    $vmType=$client.GetType('ReignBeta.UI.ViewModels.ReignSocialEventScreenVM',$true)
-    $catalogType=$client.GetType('ReignBeta.Events.SocialEventTemplateCatalog',$true)
+    $sessionType=$client.GetType('ReignBeta.WorldSimulation.Runtime.ReignSocialEventSession',$true)
+    $vmType=$client.GetType('ReignBeta.WorldSimulation.UI.ReignSocialEventScreenVM',$true)
+    $catalogType=$client.GetType('ReignBeta.WorldSimulation.Events.SocialEventTemplateCatalog',$true)
     $sessionConstructor=$sessionType.GetConstructor([Type[]]@($recordType))
     $vmConstructor=$vmType.GetConstructors()[0]
     $phaseSetter=$sessionType.GetProperty('CurrentPhaseIndex').GetSetMethod($true)
@@ -194,9 +194,9 @@ try {
     # The catalog already supplies a valid fallback for retired template IDs.
     Require ($null -ne $catalogType.GetMethod('GetById').Invoke($null,[object[]]@('removed_fixture_template'))) 'Unknown event template lost its existing fallback.'
     Record-ProbeStage 'checking-unloaded-campaign-callbacks'
-    $government=$client.GetType('ReignBeta.UI.ReignGovernmentScreenManager',$true)
+    $government=$client.GetType('ReignBeta.Government.UI.ReignGovernmentScreenManager',$true)
     $government.GetMethod('TryPresentPendingBusiness',$flags).Invoke($null,[object[]]@([single]1))|Out-Null
-    $accordsType=$client.GetType('ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior',$true)
+    $accordsType=$client.GetType('ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior',$true)
     $unloadedAccords=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($accordsType)
     $accordsType.GetMethod('OnHourlyTick',$flags).Invoke($unloadedAccords,@())|Out-Null
     Record-ProbeStage 'checking-pending-record-save-fields'

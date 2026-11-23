@@ -5,8 +5,11 @@ using AIEventsAndIntrigue.Settings;
 using AIPortraits;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     public static class ReignPortraitBridge
     {
@@ -21,9 +24,9 @@ namespace ReignBeta.Integration
             if (hero != null && !PortraitCache.IsPending(key)
                 && (TextureFactory.Has(key) || PortraitCache.ExistsOnDisk(key)))
             {
-                if (ReignBeta.UI.ReignPortraitRefreshPopup.IsOpen) return;
+                if (ReignBeta.Portraits.UI.ReignPortraitRefreshPopup.IsOpen) return;
                 string campaign = ReignCampaignIdentity.CurrentCampaignId();
-                TaleWorlds.ScreenSystem.ScreenManager.PushScreen(new ReignBeta.UI.ReignPortraitRefreshPopup(
+                TaleWorlds.ScreenSystem.ScreenManager.PushScreen(new ReignBeta.Portraits.UI.ReignPortraitRefreshPopup(
                     hero.Name?.ToString() ?? "them", hero.Age >= 18 && hero.Age <= 150, mode =>
                     {
                         if (ReignCampaignIdentity.CurrentCampaignId() == campaign) RequestPortraitChoice(hero, mode);
@@ -165,7 +168,7 @@ namespace ReignBeta.Integration
                             if (saved)
                             {
                                 TextureFactory.Invalidate(cacheKey);
-                                var resident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
+                                var resident = ReignServices.EncounteredResidents?.Find(hero);
                                 if (resident != null) resident.InitialPortraitCompleted = true;
                             }
                             InformationManager.DisplayMessage(new InformationMessage(saved
@@ -205,16 +208,6 @@ namespace ReignBeta.Integration
                 ReignLog.Warn("Could not open encyclopedia for " + hero.StringId + ": " + ex.Message);
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Could not open encyclopedia for " + hero.Name + ".", Color.FromUint(0xFFFFAA00)));
             }
-        }
-
-        private static string ShortKey(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                return string.Empty;
-            }
-
-            return key.Length <= 24 ? key : key.Substring(0, 24) + "...";
         }
     }
 }

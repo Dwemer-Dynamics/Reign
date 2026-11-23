@@ -69,7 +69,7 @@ public sealed class NordHouseholdContentTests
     public void NewCampaignRosterUsesExpandedCountsWithoutReplayingCompletedMigrationsOrGrantingResources()
     {
         string root = TestOptions.FindWorkspace();
-        string legacy = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtNobleCampaignBehavior.cs"));
+        string legacy = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtNobleCampaignBehavior.cs"));
         Assert.Contains("AuthoredHouseholdCount = 133", legacy, StringComparison.Ordinal);
         Assert.Contains("AuthoredCourtNobleCount = AuthoredHouseholdCount * 6", legacy, StringComparison.Ordinal);
         Assert.Contains("if (_householdClanMigrationVersion >= HouseholdClanMigrationVersion)", legacy, StringComparison.Ordinal);

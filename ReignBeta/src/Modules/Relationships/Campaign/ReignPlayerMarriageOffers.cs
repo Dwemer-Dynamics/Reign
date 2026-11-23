@@ -7,15 +7,23 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Relationships;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.BarterSystem.Barterables;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     internal sealed class ReignPlayerMarriageOffer
     {
@@ -196,7 +204,7 @@ namespace ReignBeta.Campaign
                 ["offerId"] = offer.Id, ["phase"] = phase, ["day"] = WeddingNow, ["summary"] = summary,
                 ["audience"] = new JArray(offer.PlayerMatchId, offer.ProspectId)
             };
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("arranged_marriage_offer", phase, "relationships", offer.Id,
+            ReignServices.WorldHistory?.RecordReignSystemEvent("arranged_marriage_offer", phase, "relationships", offer.Id,
                 summary, "participants", offer.LeaderId, "", new JObject { ["offerId"] = offer.Id },
                 new JArray(offer.PlayerMatchId, offer.ProspectId));
         }
@@ -216,7 +224,7 @@ namespace ReignBeta.Campaign
             var place = prospect?.CurrentSettlement ?? prospect?.HomeSettlement;
             var origin = prospect?.PartyBelongedTo?.GetPosition2D ?? place?.GetPosition2D;
             if (prospect == null || leader == null || !origin.HasValue || offer.MeetingTown.Length != 0) yield break;
-            double courier = mail ? ReignServerClient.ActionDeliveryDays(Hero.MainHero, leader, WeddingNow) : 0;
+            double courier = mail ? ReignCorrespondenceClient.ActionDeliveryDays(Hero.MainHero, leader, WeddingNow) : 0;
             foreach (var town in Settlement.All.Where(t => SafeWeddingTown(t, Clan.PlayerClan, prospect.Clan)).OrderBy(t => t.Name.ToString()))
             {
                 double days = courier + Math.Max(1d / 24d, Math.Sqrt(origin.Value.DistanceSquared(town.GetPosition2D)) / 96d);
@@ -249,7 +257,7 @@ namespace ReignBeta.Campaign
 
         private void FinalizeMarriageOfferAnswer(ReignPlayerMarriageOffer offer)
         {
-            ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(offer.Id);
+            ReignServices.NpcLives?.EndWeddingAttendance(offer.Id);
             var leader = FindHero(offer.LeaderId);
             var first = FindHero(offer.PlayerMatchId);
             var second = FindHero(offer.ProspectId);
@@ -293,7 +301,7 @@ namespace ReignBeta.Campaign
                 if (offer.State == "open" && !offer.Open)
                 {
                     offer.State = "expired";
-                    ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(offer.Id);
+                    ReignServices.NpcLives?.EndWeddingAttendance(offer.Id);
                 }
                 if (offer.State == "courier" && !offer.LetterSent && maySend)
                     _ = SendMarriageMail(offer, "reign_marriage_offer", FindHero(offer.LeaderId), Hero.MainHero,
@@ -310,7 +318,7 @@ namespace ReignBeta.Campaign
                 var prospect = FindHero(offer.ProspectId);
                 string reason = !SafeWeddingTown(town, Clan.PlayerClan, prospect?.Clan)
                     ? "The venue is no longer safe."
-                    : ReignNpcLivesBehavior.Instance?.BeginWeddingAttendance(offer.Id, prospect, town) ?? "The prospect is unavailable.";
+                    : ReignServices.NpcLives?.BeginWeddingAttendance(offer.Id, prospect, town) ?? "The prospect is unavailable.";
                 if (reason.Length != 0)
                 {
                     offer.MeetingFinished = true;
@@ -341,7 +349,7 @@ namespace ReignBeta.Campaign
                 && spouse.CurrentSettlement?.StringId == match.VenueId && match == AvailableWedding(Settlement.CurrentSettlement ?? TaleWorlds.CampaignSystem.Party.MobileParty.MainParty?.CurrentSettlement)
                 && (match.FirstId == spouse.StringId || match.SecondId == spouse.StringId)
                 && !match.Appeals.ContainsKey(spouse.StringId) && match.PendingAppeal.Length == 0
-                && ReignBeta.UI.ReignSocialEventScreenManager.ActiveViewModel?.ActiveWeddingId == id;
+                && ReignBeta.WorldSimulation.UI.ReignSocialEventScreenManager.ActiveViewModel?.ActiveWeddingId == id;
         }
 
         private static bool IsMarriageAction(ActionClause c) => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal";
@@ -523,7 +531,7 @@ namespace ReignBeta.Campaign
             if (sender == null || recipient == null || !_marriageMailInFlight.Add(key)) return;
             string timeline = WeddingTimeline;
             int generation = ReignSaveSyncCoordinator.CampaignGeneration;
-            bool sent = await ReignServerClient.SendMarriageLetterAsync(source, offer.Id, sender, recipient, text, dispatch).ConfigureAwait(false);
+            bool sent = await ReignCorrespondenceClient.SendMarriageLetterAsync(source, offer.Id, sender, recipient, text, dispatch).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
                 _marriageMailInFlight.Remove(key);

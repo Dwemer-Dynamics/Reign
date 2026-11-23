@@ -5,16 +5,22 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     // Shares the approved court petition movie, including its four portrait slots,
     // transcript scrolling, typography and decision controls.
@@ -32,6 +38,7 @@ namespace ReignBeta.UI.ViewModels
         private readonly ReignCourtAudienceScenePresentation _scene;
         private string _eventImageId;
         private bool _busy, _finalized;
+        private JObject _reviewedOption;
         private string _input = "", _status = "Your guests await an audience.";
         private int _scroll;
         private ReignCourtLifeMatterState _lastState;
@@ -41,6 +48,7 @@ namespace ReignBeta.UI.ViewModels
             RecoverPersistedOpeningReceipts(matter);
             if (matter.Source == ReignDocketSource.Patronage && !matter.EffectsCommitted)
                 court.RefreshPatronageOptions(matter);
+            _reviewedOption = CaptureReviewOption(SelectedOption());
             Transcript = new MBBindingList<ReignChatLineVM>();
             ActiveParticipants = new MBBindingList<ReignCourtLifeAttendeeVM>();
             AvailableAttendees = new MBBindingList<ReignCourtLifeAttendeeVM>();
@@ -156,8 +164,8 @@ namespace ReignBeta.UI.ViewModels
             if (string.IsNullOrWhiteSpace(_matter.PendingPlayerTurnId))
             {
                 string contribution = "court_life_turn_" + Guid.NewGuid().ToString("N");
-                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+                try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
                 _matter.PendingPlayerTurnId = contribution;
                 _matter.PendingPlayerText = text;
@@ -170,13 +178,15 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteGrantDirect()
         {
             if (!CanGrantDirect) return;
+            var shown = _matter.Options.ToDictionary(x => x.OptionId, CaptureReviewOption, StringComparer.Ordinal);
             var choices = _matter.Options.Select(x => new InquiryElement(x.OptionId, OptionLabel(x) + " — " + x.Description, null)).ToList();
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Court decision", "Select terms to review before confirming.",
                 choices, true, 1, 1, "Review", "Back", selected => {
-                    _matter.SelectedOptionId = selected?.FirstOrDefault()?.Identifier as string ?? ""; Notify();
+                    string id = selected?.FirstOrDefault()?.Identifier as string;
+                    if (id != null && shown.TryGetValue(id, out JObject reviewed)) SelectReviewOption(id, reviewed);
                 }, selected => { }, string.Empty, false), true, false);
         }
-        public void ExecuteGrantWithGold() { if (CanGrantWithGold) ApplyOption(_matter.SelectedOptionId); }
+        public void ExecuteGrantWithGold() { if (CanGrantWithGold) ApplyReviewedOption(); }
         public void ExecuteRefuse()
         {
             if (!CanRefuse) return;
@@ -194,8 +204,11 @@ namespace ReignBeta.UI.ViewModels
             switch ((action ?? "").ToLowerInvariant().Replace('_', '-'))
             {
                 case "send": if (!ConversationEnabled || string.IsNullOrWhiteSpace(value)) break; InputText = value; ExecuteSend(); return true;
-                case "choose": if (_matter.Options.Any(x => x.OptionId == value)) { _matter.SelectedOptionId = value; Notify(); return true; } break;
-                case "confirm": if (CanGrantWithGold) return ApplyOption(_matter.SelectedOptionId); break;
+                case "choose":
+                    var offered = _matter.Options.FirstOrDefault(x => x.OptionId == value);
+                    if (offered != null) { SelectReviewOption(value, CaptureReviewOption(offered)); return true; }
+                    break;
+                case "confirm": if (CanGrantWithGold) return ApplyReviewedOption(); break;
                 case "decide": if (ConversationEnabled) return ApplyOption(value); break;
                 case "refuse": if (CanRefuse) { ExecuteRefuse(); return true; } break;
                 case "continue": if (CanContinue) { ExecuteContinue(); return true; } break;
@@ -265,7 +278,7 @@ namespace ReignBeta.UI.ViewModels
                             // NPC line or term interpretation, so a retry never replays its correlation.
                             bool statusOnly = await ReignMainThread.InvokeAsync(() => {
                                 if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
-                                if (ReignServerClient.NativeStatusLines(reply.RawResponse).Count == 0) return false;
+                                if (ReignStructuredActionClient.NativeStatusLines(reply.RawResponse).Count == 0) return false;
                                 AddStatusLines(reply.RawResponse);
                                 if (!_matter.CompletedReplyKeys.Contains(key)) _matter.CompletedReplyKeys.Add(key);
                                 if (!_matter.CompletedInterpretationKeys.Contains(key)) _matter.CompletedInterpretationKeys.Add(key);
@@ -288,10 +301,13 @@ namespace ReignBeta.UI.ViewModels
                         if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
                         AddLine(person.Name, visible, "assistant");
                         AddStatusLines(raw);
-                        _matter.CompletedReplyKeys.Add(key); _matter.ReplyTextsByKey[key] = visible; _court.NotifyCourtLifeChanged();
+                        _matter.CompletedReplyKeys.Add(key); _matter.ReplyTextsByKey[key] = visible;
+                        if (needsInterpretation && ReignServerClient.IsDelimitedSpeechOnlyResponse(raw))
+                            _matter.CompletedInterpretationKeys.Add(key);
+                        _court.NotifyCourtLifeChanged();
                     }).ConfigureAwait(false);
                     }
-                    if (needsInterpretation)
+                    if (needsInterpretation && !_matter.CompletedInterpretationKeys.Contains(key))
                     {
                         JObject interpretationPayload = null;
                         await ReignMainThread.InvokeAsync(() => {
@@ -306,7 +322,13 @@ namespace ReignBeta.UI.ViewModels
                             if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
                             if (interpreted?.Value<bool?>("ok") != true) throw new InvalidOperationException("The reply was saved, but its proposed terms could not be checked. Reopen the audience to retry.");
                             JObject decision = interpreted["decision"] as JObject;
-                            if (decision == null) throw new InvalidOperationException("The reply was saved, but its proposed terms were incomplete.");
+                            if (decision == null || decision.Value<string>("matterId") != _matter.MatterId)
+                                throw new InvalidOperationException("The reply was saved, but its proposed terms were incomplete.");
+                            if (_matter.PendingPlayerTurnId != turnId || _matter.PendingPlayerText != text
+                                || _matter.CompletedInterpretationKeys.Contains(key)
+                                || !_matter.ReplyTextsByKey.TryGetValue(key, out string acceptedReply) || acceptedReply != visible
+                                || !_matter.Participants.Any(x => x.ActorId == person.ActorId && x.HeroId == person.HeroId))
+                                return;
                             if (_matter.Source == ReignDocketSource.International && decision["proposedTerms"] is JObject proposed && proposed.HasValues)
                             {
                                 if (_court.TryCounterInternationalTerms(_matter, proposed, out string quoteSummary))
@@ -320,18 +342,38 @@ namespace ReignBeta.UI.ViewModels
                                 StatusText = "The three destinations are ready to review with the commission terms.";
                                 _matter.CompletedInterpretationKeys.Add(key); _court.NotifyCourtLifeChanged(); Notify(); return;
                             }
-                            if (_matter.Source == ReignDocketSource.Visitor && decision.Value<bool?>("privateMeetingAccepted") == true)
-                                _court.RecordNobleVisitorInvitation(_matter.MatterId, person.HeroId, turnId,
-                                    decision.Value<string>("meetingWords") ?? "", true);
-                            if (decision.Value<bool?>("npcAccepted") == true)
+                            if (_matter.Source == ReignDocketSource.Visitor && decision["privateMeetingProposal"] is JObject invitation)
+                                _court.RecordNobleVisitorInvitationProposal(_matter.MatterId, person.HeroId, turnId,
+                                    invitation.Value<string>("speaker"), invitation.Value<string>("quote"));
+
+                            // An interpretation may select the same offered option for player review.
+                            // The player still has to confirm the decision through ApplyOption.
+                            string selected = decision.Value<string>("optionId");
+                            if (decision.Value<bool?>("playerCommitted") == true
+                                && SameOfferedOption(interpretationPayload, selected))
                             {
-                                decision = RetainPartyAcceptance(decision, person.HeroId);
-                                _matter.AcceptedDecisionJson = decision.ToString();
+                                if (selected == "refer")
+                                {
+                                    string referred = decision.Value<string>("referralOptionId");
+                                    if (SameOfferedOption(interpretationPayload, referred)
+                                        && JToken.DeepEquals(decision["referralTerms"],
+                                            ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.Options.First(x => x.OptionId == referred).TermsJson))
+                                        && ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.PayloadJson).Value<bool?>("nativeActionStarted") != true)
+                                    {
+                                        _matter.AcceptedDecisionJson = new JObject { ["optionId"] = selected,
+                                            ["playerCommitted"] = true, ["referralOptionId"] = referred,
+                                            ["referralTerms"] = decision["referralTerms"].DeepClone() }.ToString();
+                                    }
+                                    else selected = null;
+                                }
+                                if (selected != null)
+                                {
+                                    var chosen = _matter.Options.First(x => x.OptionId == selected);
+                                    StatusText = "Your decision is ready to confirm: " + chosen.Label;
+                                    SelectReviewOption(selected, CaptureReviewOption(chosen));
+                                }
                             }
-                            // Player intent is offered for review. The visible confirmation
-                            // keeps negotiations from spending money merely by discussing it.
-                            if (decision.Value<bool?>("playerCommitted") == true && _matter.Options.Any(x => x.OptionId == decision.Value<string>("optionId")))
-                             { _matter.SelectedOptionId = decision.Value<string>("optionId"); StatusText = "Your decision is ready to confirm: " + SelectedOption()?.Label; Notify(); }
+                            ShowAssentProposal(interpretationPayload, decision, person, acceptedReply);
                             _matter.CompletedInterpretationKeys.Add(key); _court.NotifyCourtLifeChanged();
                         }).ConfigureAwait(false);
                     }
@@ -467,48 +509,86 @@ namespace ReignBeta.UI.ViewModels
             }
             return payload;
         }
-        private JObject RetainPartyAcceptance(JObject incoming, string speakerId)
+        private bool SameOfferedOption(JObject payload, string optionId)
         {
-            if (_matter.Source != ReignDocketSource.International) return incoming;
-            JObject prior = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
-            bool sameAgreement = prior.Value<string>("optionId") == incoming.Value<string>("optionId")
-                && JToken.DeepEquals(prior["acceptedTerms"], incoming["acceptedTerms"]);
-            var tiers = new Dictionary<string, int>(StringComparer.Ordinal);
-            if (prior["acceptedPartyTiers"] is JObject recorded)
-                foreach (JProperty entry in recorded.Properties())
-                    if (entry.Value.Type == JTokenType.Integer && _matter.Participants.Any(x => x.HeroId == entry.Name))
-                        tiers[entry.Name] = entry.Value.Value<int>();
-            string priorSpeaker = prior.Value<string>("agreeingHeroId");
-            if (prior.Value<bool?>("npcAccepted") == true && !string.IsNullOrWhiteSpace(priorSpeaker)
-                && _matter.Participants.Any(x => x.HeroId == priorSpeaker))
-                tiers[priorSpeaker] = prior.Value<int?>("acceptanceTier") ?? 0;
-            // Keep each party's exact-terms assent while the top-level decision
-            // still carries the envoy's independent payment authorization.
-            JObject partyTiers = JObject.FromObject(ReignCourtPartyAcceptanceRules.Merge(
-                tiers, sameAgreement, speakerId, incoming.Value<string>("agreeingHeroId"),
-                incoming.Value<int?>("acceptanceTier") ?? 0));
-            string incomingActor = incoming.Value<string>("agreeingHeroId") ?? "";
-            if (prior.Value<bool?>("npcAccepted") == true
-                && ReignCourtPartyAcceptanceRules.AuthorizationActor(priorSpeaker ?? "", incomingActor, sameAgreement,
-                    _matter.Participants.Where(x => x.Role == "ambassador").Select(x => x.HeroId)) != incomingActor)
-            {
-                prior["playerCommitted"] = incoming["playerCommitted"]?.DeepClone();
-                prior["playerQuote"] = incoming["playerQuote"]?.DeepClone();
-                prior["acceptedPartyTiers"] = partyTiers;
-                return prior;
-            }
-            incoming["acceptedPartyTiers"] = partyTiers;
-            return incoming;
+            ReignCourtLifeOption current = _matter.Options.FirstOrDefault(x => x.OptionId == optionId);
+            JObject offered = (payload["options"] as JArray)?.OfType<JObject>().FirstOrDefault(x => x.Value<string>("optionId") == optionId);
+            return current != null && offered != null
+                && JToken.DeepEquals(offered["terms"], ReignCourtCampaignBehavior.ParseCourtLifeJson(current.TermsJson));
         }
 
-        private bool ApplyOption(string id)
+        private void ShowAssentProposal(JObject payload, JObject decision, ReignCourtLifeParticipant person, string acceptedReply)
         {
-            JObject decision = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
-            if (decision.Value<string>("optionId") != id) decision = new JObject();
-            ReignCourtLifeOption option = _matter.Options.FirstOrDefault(x => x.OptionId == id);
-            if (decision.Value<bool?>("npcAccepted") == true && !JToken.DeepEquals(decision["acceptedTerms"], ReignCourtCampaignBehavior.ParseCourtLifeJson(option?.TermsJson)))
-                decision = new JObject();
-            decision["optionId"] = id;
+            if (_finalized || string.IsNullOrWhiteSpace(acceptedReply) || !(decision["npcAssentProposal"] is JObject proposal)
+                || proposal.Value<string>("speakerHeroId") != person.HeroId
+                || !(proposal["terms"] is JObject terms))
+                return;
+
+            string id = decision.Value<string>("optionId");
+            if (!SameOfferedOption(payload, id)) return;
+            ReignCourtLifeOption option = _matter.Options.First(x => x.OptionId == id);
+            if (!JToken.DeepEquals(terms, ReignCourtCampaignBehavior.ParseCourtLifeJson(option.TermsJson)))
+                return;
+
+            string quote = proposal.Value<string>("quote")?.Trim();
+            if (string.IsNullOrWhiteSpace(quote) || quote.Length < 3) return;
+            int start = acceptedReply.IndexOf(quote, StringComparison.OrdinalIgnoreCase);
+            if (start < 0) return;
+
+            string excerpt = acceptedReply.Substring(start, quote.Length);
+            string details = ReignCourtCampaignBehavior.DescribeInternationalTerms(terms);
+            string offer = string.IsNullOrWhiteSpace(details) ? OptionLabel(option) : OptionLabel(option) + " (" + details + ")";
+            // View-only annotation, distinct from the stored speech and decision.
+            Transcript.Add(new ReignChatLineVM("Court Clerk",
+                "Review " + offer + " alongside this excerpt from " + person.Name + "’s reply. “" + excerpt + "” This proposal is unconfirmed.", "system"));
+            _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
+        }
+
+        private JObject CaptureReviewOption(ReignCourtLifeOption option)
+        {
+            if (option == null) return null;
+            var snapshot = new JObject { ["optionId"] = option.OptionId, ["label"] = OptionLabel(option),
+                ["description"] = option.Description, ["terms"] = ReignCourtCampaignBehavior.ParseCourtLifeJson(option.TermsJson) };
+            if (option.OptionId == "refer")
+                snapshot["referral"] = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
+            return snapshot;
+        }
+
+        private void SelectReviewOption(string id, JObject reviewed)
+        {
+            _matter.SelectedOptionId = id;
+            _reviewedOption = reviewed;
+            Notify();
+        }
+
+        private bool ApplyReviewedOption()
+        {
+            JObject current = CaptureReviewOption(SelectedOption());
+            if (current == null || !JToken.DeepEquals(_reviewedOption, current))
+            {
+                StatusText = "The offered terms changed. Review the choice again before confirming.";
+                Notify();
+                return false;
+            }
+            return ApplyOption(_matter.SelectedOptionId, _reviewedOption["terms"] as JObject);
+        }
+
+        private bool ApplyOption(string id, JObject reviewedTerms = null)
+        {
+            var option = _matter.Options.FirstOrDefault(x => x.OptionId == id);
+            var decision = new JObject { ["optionId"] = id, ["terms"] = reviewedTerms?.DeepClone()
+                ?? ReignCourtCampaignBehavior.ParseCourtLifeJson(option?.TermsJson) };
+            // Older saves may carry prose-derived NPC flags here. Only forward
+            // the separately checked player instruction to refer exact terms.
+            if (id == "refer")
+            {
+                JObject prior = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
+                if (prior.Value<string>("optionId") == id && prior.Value<bool?>("playerCommitted") == true)
+                {
+                    decision["referralOptionId"] = prior["referralOptionId"]?.DeepClone();
+                    decision["referralTerms"] = prior["referralTerms"]?.DeepClone();
+                }
+            }
             bool result = _court.ApplyCourtLifeDecision(_matter, decision, out string summary);
             StatusText = summary;
             if (result) AddLine("Court Clerk", summary, "system");
@@ -526,7 +606,7 @@ namespace ReignBeta.UI.ViewModels
         private void AddStatusLines(JObject raw)
         {
             if (_finalized) return;
-            foreach (string line in ReignServerClient.NativeStatusLines(raw)) Transcript.Add(new ReignChatLineVM("Bannerlord Reign", line, "system"));
+            foreach (string line in ReignStructuredActionClient.NativeStatusLines(raw)) Transcript.Add(new ReignChatLineVM("Bannerlord Reign", line, "system"));
             _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
         }
         private void AddLine(string speaker, string text, string role)

@@ -3,21 +3,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignNpcStoryClient
     {
         internal static string StorySceneSessionId(ReignSocialEventSession session) =>
             "npc_story_scene_" + session.PersonalStory.Id + "_" + session.PersonalStory.Revision;
         internal static async Task<JObject> StartNpcStorySceneAsync(ReignSocialEventSession session)
         {
             var story = session.PersonalStory;
-            Hero hero = await ReignMainThread.InvokeAsync(() => World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
+            Hero hero = await ReignMainThread.InvokeAsync(() => WorldSimulation.World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
             JObject context = await ReignMainThread.InvokeAsync(() => {
-                var p = CaptureNpcLivesContext(ReignNpcLivesBehavior.Instance?.Generation ?? "");
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(ReignServices.NpcLives?.Generation ?? "");
                 p["sessionId"] = StorySceneSessionId(session); p["heroId"] = story.HeroId;
                 p["npcStoryId"] = story.Id; p["npcLivesRevision"] = story.Revision;
                 p["conversationMode"] = "npc_story"; p["suppressRelationshipAssessment"] = true;
@@ -26,7 +30,7 @@ namespace ReignBeta.Integration
             var opened = await StartConversationSessionWithIdentityAsync(hero, context).ConfigureAwait(false);
             if (!opened.Ok || opened.SessionId != context.Value<string>("sessionId")) throw new InvalidOperationException("The story conversation could not be opened.");
             session.PersonalStoryContext = context;
-            var history = await NpcLivesRequestAsync("history", context).ConfigureAwait(false);
+            var history = await ReignNpcLivesClient.NpcLivesRequestAsync("history", context).ConfigureAwait(false);
             if (history.Value<bool?>("ok") != true) throw new InvalidOperationException(history.Value<string>("error") ?? "The story transcript could not be restored.");
             return history;
         }
@@ -35,7 +39,7 @@ namespace ReignBeta.Integration
         {
             await session.PersonalStoryReady.ConfigureAwait(false);
             var story = session.PersonalStory;
-            var owner = await ReignMainThread.InvokeAsync(() => ReignNpcLivesBehavior.Instance).ConfigureAwait(false);
+            var owner = await ReignMainThread.InvokeAsync(() => ReignServices.NpcLives).ConfigureAwait(false);
             await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
             Hero hero = await ReignMainThread.InvokeAsync(() => {
                 EnsureRequestOwner(requestOwner, "story turn capture");
@@ -43,7 +47,7 @@ namespace ReignBeta.Integration
                 if (current == null || current.Status != "active" || current.Revision != story.Revision)
                     throw new InvalidOperationException("This chapter has ended or changed. Reopen Personal lives to continue.");
                 string place = TaleWorlds.CampaignSystem.Settlements.Settlement.CurrentSettlement?.StringId ?? "";
-                var npc = World.ReignObjectResolver.FindHero(story.HeroId);
+                var npc = WorldSimulation.World.ReignObjectResolver.FindHero(story.HeroId);
                 if (npc == null || npc.IsPrisoner || !npc.IsAlive || npc.PartyBelongedTo != TaleWorlds.CampaignSystem.Party.MobileParty.MainParty
                     || story.LocationId.Length > 0 && story.LocationId != place)
                     throw new InvalidOperationException("The required companion or story location is no longer available.");

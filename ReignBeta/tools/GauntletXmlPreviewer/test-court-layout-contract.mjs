@@ -22,7 +22,7 @@ assert.ok(manager.includes('scaleModifier = context.ScaleModifier, customScale =
 const observation = manager.slice(manager.indexOf('internal static object AutomationLayoutSnapshot'), manager.indexOf('private static bool IsPointerInsideCourt'));
 assert.ok(!/(LoadMovie|AddLayer|RemoveLayer|SetInputRestrictions|TrySetFocus|PauseTime|\.ScaleModifier\s*=)/.test(observation), 'Geometry observation cannot change UI, input or scale');
 const heartbeat = read('src/Modules/Platform/Integration/ReignLiveTestClient.cs');
-assert.ok(heartbeat.includes('["courtUi"] = JObject.FromObject(ReignBeta.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)'));
+assert.ok(heartbeat.includes('["courtUi"] = JObject.FromObject(ReignBeta.Court.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)'));
 assert.ok(manager.includes('panel.GlobalPosition') && manager.includes('panel.Size'));
 const app = read('tools/GauntletXmlPreviewer/js/app.js');
 assert.ok(app.includes('return computeCourtLayout(width, height).scale'));

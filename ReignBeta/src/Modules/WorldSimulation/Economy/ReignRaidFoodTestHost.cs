@@ -14,7 +14,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Reachable only through the exact enrolled, paused disposable-save fixture dispatcher.
     internal static class ReignRaidFoodTestHost
@@ -25,7 +25,6 @@ namespace ReignBeta.Economy
         [ThreadStatic] private static MobileParty _creatingAttacker;
         [ThreadStatic] private static int _defenderHits,_damageHits;
         [ThreadStatic] private static int _roundHits;
-        [ThreadStatic] private static Village _fishingVillage;
         [ThreadStatic] private static float _roundInput;
         private static bool NoExtraRaidDamage(MapEventSide __0, ref ExplainedNumber __result)
         { if (_raid == null || !ReferenceEquals(__0,_raid.MapEvent.AttackerSide)) return true;_damageHits++; __result=new ExplainedNumber(0); return false; }

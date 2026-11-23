@@ -12,7 +12,7 @@ public sealed class FollowLifecycleContractTests
     public void OneFollowActionUsesThePersistentAgreementForBothLegacyTypes()
     {
         string executor = Read("ReignRegularActionExecutor.cs", "/src/Modules/WorldSimulation/World/");
-        Assert.Equal(2, executor.Split("ReignFollowCampaignBehavior.Instance.Start(action, actor, target, sceneActions)").Length - 1);
+        Assert.Equal(2, executor.Split("ReignServices.Follow.Start(action, actor, target, sceneActions)").Length - 1);
         Assert.DoesNotContain("TryApplyConcurrentMapFollow", executor, StringComparison.Ordinal);
     }
 

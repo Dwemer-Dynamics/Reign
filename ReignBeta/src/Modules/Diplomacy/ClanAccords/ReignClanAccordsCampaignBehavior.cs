@@ -6,13 +6,16 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.ClanAccords;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.ClanAccords
+namespace ReignBeta.Diplomacy.ClanAccords
 {
     /// <summary>Native-save authority. Server projections own memory and relationship consequences.</summary>
     public sealed class ReignClanAccordsCampaignBehavior : CampaignBehaviorBase
@@ -32,14 +35,14 @@ namespace ReignBeta.ClanAccords
         private long _syncRequestId;
         private long _nextSyncAttempt;
         private float _pumpElapsed;
-        public static ReignClanAccordsCampaignBehavior Instance { get; private set; }
+        public static ReignClanAccordsCampaignBehavior Instance => ReignServices.ClanAccords;
         public IReadOnlyList<ClanAccordRecord> Records => _state.Ledger.Records.ToList();
         public bool HasPendingWork => _inFlight || _dirty || _state.Outbox.Count > 0;
         public static bool IsPlayerRuler => Hero.MainHero != null && Clan.PlayerClan?.Kingdom?.Leader == Hero.MainHero;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.ClanAccords = this;
             CampaignEvents.OnGameLoadFinishedEvent.AddNonSerializedListener(this, OnLoaded);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -75,7 +78,7 @@ namespace ReignBeta.ClanAccords
 
         private void OnLoaded()
         {
-            Instance = this;
+            ReignServices.ClanAccords = this;
             if (_state.LastSeason < 0) _state.LastSeason = SeasonIndex();
             _dirty = true;
         }
@@ -261,14 +264,14 @@ namespace ReignBeta.ClanAccords
         private void OnHourlyTick()
         {
             if (TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null || ReignCampaignInitializationGate.IsPending
-                || ReignWorldHistoryCampaignBehavior.Instance?.TimelineReady != true) return;
+                || ReignServices.WorldHistory?.TimelineReady != true) return;
             Reconcile();
             if (_inFlight || !_dirty || System.Diagnostics.Stopwatch.GetTimestamp() < _nextSyncAttempt) return;
             JObject payload = Snapshot();
             payload["playerHeroId"] = Hero.MainHero.StringId;
             payload["events"] = new JArray(_state.Outbox.Take(64).Select(x => x.DeepClone()));
             string campaign = ReignServerClient.GetCampaignId();
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance.TimelineId;
+            string timeline = ReignServices.WorldHistory.TimelineId;
             payload["campaignId"] = campaign;
             payload["timelineId"] = timeline;
             _inFlight = true;
@@ -291,7 +294,7 @@ namespace ReignBeta.ClanAccords
         {
             JObject result = null;
             string error = null;
-            try { result = await ReignServerClient.SyncClanAccordsAsync(payload).ConfigureAwait(false); }
+            try { result = await ReignClanAccordsClient.SyncClanAccordsAsync(payload).ConfigureAwait(false); }
             catch (Exception ex) { error = ex.Message; }
             try
             {
@@ -301,7 +304,7 @@ namespace ReignBeta.ClanAccords
                     try
                     {
                         if (campaign != ReignServerClient.GetCampaignId()
-                            || timeline != ReignWorldHistoryCampaignBehavior.Instance?.TimelineId) return;
+                            || timeline != ReignServices.WorldHistory?.TimelineId) return;
                         if (error != null || result?.Value<bool?>("ok") != true)
                             throw new InvalidOperationException(error ?? result?.Value<string>("error") ?? "Accord synchronization failed.");
                         var acknowledged = new HashSet<string>((result["acknowledgedEventIds"] as JArray ?? new JArray()).Values<string>());

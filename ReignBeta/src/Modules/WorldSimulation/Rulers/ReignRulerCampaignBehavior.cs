@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -15,12 +12,19 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.News;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Rulers
 {
     public sealed partial class ReignRulerCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignRulerCampaignBehavior Instance { get; private set; }
+        public static ReignRulerCampaignBehavior Instance => ReignServices.Ruler;
         internal RulerState State = new RulerState();
         private List<string> _chunks = new List<string>();
         private List<JObject> _relationOutbox = new List<JObject>();
@@ -28,7 +32,12 @@ namespace ReignBeta.Campaign
         private double _tick;
         private int _epoch;
         internal bool ApplyingNative;
-        internal static bool Enabled(string feature) => ReignServerClient.RulerOptionsConfirmed && ReignServerClient.RulerOptions.Enabled(feature);
+        // One-use fixture controls prepared by the test harness and consumed by product judgment/capture logic.
+        internal readonly System.Collections.Generic.Dictionary<string, JObject> _captureControls = new System.Collections.Generic.Dictionary<string, JObject>();
+        internal readonly System.Collections.Generic.Dictionary<string, JObject> _judgmentControls = new System.Collections.Generic.Dictionary<string, JObject>();
+        private bool TryConsumeJudgmentDraw(RulerJudgment judgment, out double draw) => ReignTestHarness.Current.TryConsumeRulerJudgmentDraw(this, judgment, out draw);
+        internal bool TryConsumeCaptureRoll(Hero hero, out double roll) => ReignTestHarness.Current.TryConsumeRulerCaptureRoll(this, hero, out roll);
+        internal static bool Enabled(string feature) => ReignRulerClient.RulerOptionsConfirmed && ReignRulerClient.RulerOptions.Enabled(feature);
         internal static Hero HeroById(string id) => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == id) ?? Hero.DeadOrDisabledHeroes.FirstOrDefault(h => h.StringId == id);
         internal static Kingdom Realm(string id) => Kingdom.All.FirstOrDefault(k => k.StringId == id);
         internal static Clan ClanById(string id) => Clan.All.FirstOrDefault(c => c.StringId == id);
@@ -37,7 +46,7 @@ namespace ReignBeta.Campaign
         internal static double Day => CampaignTime.Now.ToDays;
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Ruler = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, Hourly);
             CampaignEvents.WarDeclared.AddNonSerializedListener(this, WarDeclared);
@@ -83,7 +92,7 @@ namespace ReignBeta.Campaign
             _tick += Math.Max(0, dt);
             if (_tick < 5 || NativeCampaign.Current == null || Hero.MainHero == null || ReignCampaignInitializationGate.IsPending || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
             _tick = 0;
-            if (!ReignServerClient.RulerOptionsConfirmed) return;
+            if (!ReignRulerClient.RulerOptionsConfirmed) return;
             OptionsChanged();
             if (!_initialized) { InitializeWorld(); _initialized = true; }
             if (_relationOutbox.Count > 0 && !_networkBusy) SendRelations(_relationOutbox[0]);
@@ -117,7 +126,7 @@ namespace ReignBeta.Campaign
             // invent the unrecorded date of an older cancellation.
             foreach (var judgment in State.Judgments.Where(j => j.Stage == RulerJudgmentStage.Cancelled && j.ResolvedDay < 0
                 && ReignRulerPolicy.HasIssuedSentence(j) && (j.CancellationReason == "escaped_or_rescued" || j.CancellationReason == "custody_changed")))
-                ReignNewsCampaignBehavior.Instance?.ReconcileCancelledJudgment(judgment);
+                ReignServices.News?.ReconcileCancelledJudgment(judgment);
             if (Enabled(RulerOptions.Capitals)) foreach (var k in Kingdom.All.Where(k => !k.IsEliminated)) Capital(k);
             foreach (var a in Kingdom.All.Where(k => !k.IsEliminated))
                 foreach (var b in Kingdom.All.Where(k => !k.IsEliminated && string.CompareOrdinal(k.StringId, a.StringId) > 0 && a.IsAtWarWith(k))) GetWar(a, b, true);
@@ -133,9 +142,9 @@ namespace ReignBeta.Campaign
                 // Accepted attendance owns this finite stay. Capital enforcement
                 // resumes after its owner releases the ruler; do not bounce them
                 // between the venue and capital or abandon their return intent.
-                if (ReignNpcLivesBehavior.Instance?.HasOwnedMeetingTeleportDeferral(ruler.StringId) == true
-                    || ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.IsGovernmentAttendanceReserved(ruler) == true
-                    || ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.IsNobleVisitorReserved(ruler) == true) continue;
+                if (ReignServices.NpcLives?.HasOwnedMeetingTeleportDeferral(ruler.StringId) == true
+                    || ReignServices.Government?.IsGovernmentAttendanceReserved(ruler) == true
+                    || ReignServices.CourtWorld?.IsNobleVisitorReserved(ruler) == true) continue;
                 MobileParty party = ruler.PartyBelongedTo;
                 if (party == null)
                 {
@@ -242,7 +251,7 @@ namespace ReignBeta.Campaign
             var jnew = new RulerJudgment { Id = Guid.NewGuid().ToString("N"), PrisonerId = prisoner.StringId, VictorId = victor.Leader.StringId,
                 DefeatedKingdomId = loser.StringId, VictorKingdomId = victor.StringId, CapturedDay = Day, WarId = war.Id,
                 Stage = captor == PartyBase.MainParty && victor.Leader != Hero.MainHero ? RulerJudgmentStage.AwaitingAuthority : RulerJudgmentStage.AwaitingDecision };
-            ReignRebellionCampaignBehavior.Instance?.DescribeRulerJudgment(jnew);
+            ReignServices.Rebellion?.DescribeRulerJudgment(jnew);
             if (jnew.CivilWar && !Enabled(RulerOptions.CivilWars)) return;
             State.Judgments.Add(jnew);
         }
@@ -284,7 +293,7 @@ namespace ReignBeta.Campaign
         internal RulerModifiers Modifiers(Town town) => !Enabled(RulerOptions.Effects) || town?.Settlement?.OwnerClan?.Kingdom == null ? new RulerModifiers()
             : ReignRulerPolicy.Modifiers(State.Effects, town.Settlement.StringId, town.Settlement.OwnerClan.Kingdom.StringId, Day);
         internal JObject RuntimeStatus() => new JObject { ["schema"] = "reign-ruler-runtime-v1",
-            ["available"] = ReignBeta.World.ReignRulerNativePatches.HookCount > 0 && ReignBeta.World.ReignRulerNativePatches.Error.Length == 0,
+            ["available"] = ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.HookCount > 0 && ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Error.Length == 0,
             ["pending"] = _networkBusy || _relationOutbox.Count > 0 || State.Judgments.Any(j => j.Stage == RulerJudgmentStage.Applying && j.Failure.Length == 0),
             ["failures"] = State.Judgments.Count(j => j.Failure.Length > 0), ["pendingRelationships"] = _relationOutbox.Count,
             ["activeJudgments"] = State.Judgments.Count(j => j.Stage != RulerJudgmentStage.Completed && j.Stage != RulerJudgmentStage.Cancelled),
@@ -295,11 +304,34 @@ namespace ReignBeta.Campaign
             ["recentTerminalJudgments"] = new JArray(State.Judgments.Where(j => j.Stage == RulerJudgmentStage.Completed || j.Stage == RulerJudgmentStage.Cancelled)
                 .OrderByDescending(j => j.ResolvedDay >= 0 ? j.ResolvedDay : Math.Max(j.SentencedDay, j.CapturedDay)).ThenBy(j => j.Id, StringComparer.Ordinal)
                 .Take(20).Select(j => JObject.FromObject(ReignRulerPolicy.TimingObservation(j, Day)))),
-            ["nativeHooks"] = ReignBeta.World.ReignRulerNativePatches.HookCount, ["nativeHookError"] = ReignBeta.World.ReignRulerNativePatches.Error };
+            ["nativeHooks"] = ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.HookCount, ["nativeHookError"] = ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Error };
         internal JObject Diagnostics() => JObject.FromObject(new { state = State, pendingNetwork = _networkBusy, pendingRelationships = _relationOutbox.Count,
-            failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignServerClient.RulerOptionsConfirmed,
-            options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignServerClient.RulerOptions.Preference(key)),
+            failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignRulerClient.RulerOptionsConfirmed,
+            options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignRulerClient.RulerOptions.Preference(key)),
             lifeDeathCycleDisabled = CampaignOptions.IsLifeDeathCycleDisabled, campaignOptions = ObserveCampaignOptions(),
-            news = ReignNewsCampaignBehavior.Instance?.Diagnostics() });
+            news = ReignServices.News?.Diagnostics() });
+        private static JObject ObserveCampaignOptions()
+        {
+            // Fixed, read-only metadata. Missing properties are evidence, not inferred defaults.
+            string[] names = { "CampaignDifficulty", "PlayerReceivedDamage", "PlayerTroopsReceivedDamage", "RecruitmentDifficulty",
+                "PlayerMapMovementSpeed", "PersuasionSuccess", "CombatAIDifficulty", "ClanMemberDeathChance", "BattleDeath" };
+            var rows = new JArray();
+            foreach (string name in names)
+            {
+                var row = new JObject { ["name"] = name, ["available"] = false };
+                var property = typeof(CampaignOptions).GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (property?.CanRead == true && property.GetIndexParameters().Length == 0)
+                {
+                    try {
+                        object value = property.GetValue(null, null);
+                        row["value"] = value?.ToString(); row["available"] = true;
+                        if (property.PropertyType.IsEnum) row["enumValues"] = new JArray(Enum.GetNames(property.PropertyType));
+                    }
+                    catch { row["reason"] = "native getter unavailable"; }
+                }
+                rows.Add(row);
+            }
+            return new JObject { ["schema"] = "reign-ruler-campaign-options-observation-v1", ["readOnly"] = true, ["rows"] = rows };
+        }
     }
 }

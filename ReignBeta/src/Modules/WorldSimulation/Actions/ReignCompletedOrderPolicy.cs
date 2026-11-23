@@ -1,6 +1,6 @@
 using Reign.Core.Contracts.Actions;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     // Observed terminal receipts never permit the executor to issue an order again.
     // Mutual cancellation is distinct from completed fulfillment.

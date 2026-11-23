@@ -6,24 +6,45 @@ using ReignBeta.Campaign;
 using ReignBeta.Shared.Dialogue;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public sealed class ReignGoldTransferService : CampaignBehaviorBase
     {
         private GoldPaymentLedger _ledger = new GoldPaymentLedger();
         private string _serialized = "";
-        public static ReignGoldTransferService Instance { get; private set; }
-        public override void RegisterEvents() { Instance = this; }
+        private string _tradePackagesSerialized = "";
+        internal LegacyTradeJournal TradePackages { get; private set; } = new LegacyTradeJournal();
+        public static ReignGoldTransferService Instance => ReignServices.GoldTransferService;
+        public override void RegisterEvents() { ReignServices.GoldTransferService = this; }
         public override void SyncData(IDataStore store)
         {
-            if (store.IsSaving) _serialized = JsonConvert.SerializeObject(_ledger);
+            if (store.IsSaving)
+            {
+                _serialized = JsonConvert.SerializeObject(_ledger);
+                if (TradePackages != null)
+                    _tradePackagesSerialized = JsonConvert.SerializeObject(TradePackages);
+            }
             store.SyncData("_reign_gold_receipts_v1", ref _serialized);
+            if (store.IsLoading)
+            {
+                _tradePackagesSerialized = "";
+                TradePackages = null;
+            }
+            store.SyncData("_reign_legacy_trade_packages_v1", ref _tradePackagesSerialized);
             if (store.IsLoading)
             {
                 _ledger = string.IsNullOrEmpty(_serialized) ? new GoldPaymentLedger() : JsonConvert.DeserializeObject<GoldPaymentLedger>(_serialized);
                 if (_ledger == null || _ledger.Version != 1 || _ledger.Receipts == null)
                     throw new InvalidOperationException("Unsupported Reign gold receipt save data.");
+                var tradePackages = string.IsNullOrEmpty(_tradePackagesSerialized) ? new LegacyTradeJournal()
+                    : JsonConvert.DeserializeObject<LegacyTradeJournal>(_tradePackagesSerialized);
+                if (tradePackages == null || tradePackages.Version != 1 || tradePackages.Receipts == null)
+                    throw new InvalidOperationException("Unsupported Reign trade journal save data.");
+                TradePackages = tradePackages;
             }
         }
         public JArray Snapshot(Hero hero) => JArray.FromObject(_ledger.Receipts
@@ -57,7 +78,7 @@ namespace ReignBeta.World
             string purpose = terms.Value<string>("paymentPurpose") ?? "gift";
             string agreement = terms.Value<string>("paymentAgreementId") ?? "";
             if (purpose == "recruitment_advance"
-                && ReignEncounteredResidentsCampaignBehavior.Instance?.AgreementId(to) != agreement)
+                && ReignServices.EncounteredResidents?.AgreementId(to) != agreement)
                 return ReignActionResult.ValidationFailed("The recruitment advance no longer matches this resident's agreement.");
             return Pay(action.ActionId, from, to, amount, purpose, agreement, terms.Value<string>("refundOfReceiptId") ?? "");
         }

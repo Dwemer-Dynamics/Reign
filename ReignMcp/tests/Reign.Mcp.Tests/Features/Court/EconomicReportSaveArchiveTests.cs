@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using ReignBeta.Save;
+using ReignBeta.Persistence.Save;
 
 namespace Reign.Mcp.Tests;
 
@@ -77,7 +77,7 @@ public sealed class EconomicReportSaveArchiveTests
     public void Court_economic_adapter_migrates_legacy_and_chunks_without_discarding_shipments()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
         Assert.Contains("_economicReportStateJson = string.Empty;", source);
         Assert.Contains("_economicReportStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(", source);
         Assert.Contains("dataStore.SyncData(\"_reignCourt_economicReportState\", ref _economicReportStateJson);", source);

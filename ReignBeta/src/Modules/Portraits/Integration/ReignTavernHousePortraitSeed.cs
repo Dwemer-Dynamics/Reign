@@ -11,8 +11,12 @@ using ReignBeta.Shared.Characters;
 using ReignPortraits;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     /// <summary>Imports shipped tavern masters into their saved native Hero cache. It never generates images or touches shared masters.</summary>
     internal static class ReignTavernHousePortraitSeed
@@ -42,7 +46,7 @@ namespace ReignBeta.Integration
             string castId = person.CastId, heroId = hero.StringId;
             string appearanceCode = PortraitRequestRegistry.GetCodeFor(hero);
             JObject snapshot = ReignServerClient.BuildNativePortraitSnapshot(hero);
-            var behavior = ReignTavernHouseCampaignBehavior.Instance;
+            var behavior = ReignServices.TavernHouse;
             // Resolve every TaleWorlds value above on the requesting game thread.
             Task.Run(async () =>
             {
@@ -60,7 +64,7 @@ namespace ReignBeta.Integration
                         _ = ReignServerClient.RegisterPortraitFileAsync(cacheKey, PortraitCache.DiskPath(cacheKey), "shipped_tavern");
                         await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (ReignTavernHouseCampaignBehavior.Instance != behavior || ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
+                            if (ReignServices.TavernHouse != behavior || ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
                             TextureFactory.Invalidate(cacheKey);
                             person.PortraitComplete = PortraitCache.ExistsOnDisk(cacheKey);
                             PortraitIndex.Register(appearanceCode, cacheKey);

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.Shared.WarCouncil;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
@@ -11,6 +9,10 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.WarCouncil
 {
@@ -53,7 +55,7 @@ namespace ReignBeta.Court.WarCouncil
         private List<string> _chunks = new List<string>();
         private ReignWarCouncilIntelligenceState _intelligence = new ReignWarCouncilIntelligenceState();
         private List<string> _intelligenceChunks = new List<string>();
-        public static ReignWarCouncilCampaignBehavior Instance { get; private set; }
+        public static ReignWarCouncilCampaignBehavior Instance => ReignServices.WarCouncil;
 
         public IReadOnlyList<ReignWarCouncilBattleReport> RecentReports
         {
@@ -70,7 +72,7 @@ namespace ReignBeta.Court.WarCouncil
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WarCouncil = this;
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnMapEventEnded);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         }
@@ -135,7 +137,8 @@ namespace ReignBeta.Court.WarCouncil
             if (TaleWorlds.CampaignSystem.Campaign.Current == null) return;
             EnsureIntelligenceState();
             double now = CampaignTime.Now.ToDays;
-            if (!force && _intelligence != null && _intelligence.SweepIndex > 0 && now < _intelligence.NextSweepDay)
+            bool currentSweep = _intelligence.SweepIndex > 0 && now < _intelligence.NextSweepDay;
+            if (currentSweep && !force)
                 return;
 
             Hero selected = FindHero(_intelligence.CouncilorHeroId);
@@ -147,7 +150,8 @@ namespace ReignBeta.Court.WarCouncil
             Hero effective = selected ?? Hero.MainHero;
             int tactics = effective?.GetSkillValue(DefaultSkills.Tactics) ?? 0;
             int leadership = effective?.GetSkillValue(DefaultSkills.Leadership) ?? 0;
-            int sweep = Math.Max(0, _intelligence?.SweepIndex ?? 0) + 1;
+            // Refreshing the view or councilor can recalculate detection with the current roll.
+            int sweep = currentSweep ? _intelligence.SweepIndex : Math.Max(0, _intelligence.SweepIndex) + 1;
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             Settlement capital = ResolveCapital();
             float capitalX = capital?.GetPosition2D.X ?? MobileParty.MainParty?.Position.X ?? 0f;
@@ -161,7 +165,8 @@ namespace ReignBeta.Court.WarCouncil
             _intelligence = new ReignWarCouncilIntelligenceState
             {
                 ContractVersion = 2,
-                NextSweepDay = now + ReignWarCouncilRules.IntelligenceSweepIntervalDays,
+                NextSweepDay = currentSweep ? _intelligence.NextSweepDay
+                    : now + ReignWarCouncilRules.IntelligenceSweepIntervalDays,
                 SweepIndex = sweep,
                 CouncilorHeroId = selected?.StringId ?? string.Empty,
                 EffectiveCouncilorHeroId = effective?.StringId ?? string.Empty,
@@ -252,7 +257,7 @@ namespace ReignBeta.Court.WarCouncil
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             bool playerRealm = hero?.Clan == Clan.PlayerClan
                 || (playerKingdom != null && hero?.Clan?.Kingdom == playerKingdom);
-            bool holdsCouncilOffice = hero != null && (ReignCourtCampaignBehavior.Instance?.Offices?.Any(assignment => assignment.IsActive
+            bool holdsCouncilOffice = hero != null && (ReignServices.Court?.Offices?.Any(assignment => assignment.IsActive
                 && string.Equals(assignment.HeroStringId, hero.StringId, StringComparison.OrdinalIgnoreCase)) ?? false);
             return hero != null && hero != Hero.MainHero && !holdsCouncilOffice && playerRealm && hero.IsAlive && hero.IsActive
                 && !hero.IsPrisoner && hero.CharacterObject?.Occupation == Occupation.Lord
@@ -270,7 +275,7 @@ namespace ReignBeta.Court.WarCouncil
 
         private static Settlement ResolveCapital()
         {
-            Settlement capital = ReignCourtCampaignBehavior.Instance?.CurrentCapital;
+            Settlement capital = ReignServices.Court?.CurrentCapital;
             if (capital != null) return capital;
             if (Clan.PlayerClan != null)
             {

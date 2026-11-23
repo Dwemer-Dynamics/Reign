@@ -1,6 +1,5 @@
 using System;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
@@ -8,8 +7,14 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+#endif
 
-namespace ReignBeta.UI
+namespace ReignBeta.Diplomacy.UI
 {
     public static class ReignClanAccordsScreenManager
     {

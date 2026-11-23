@@ -66,15 +66,111 @@ public sealed class DeploymentAuthorityPromotionTests
                 $pointer=@{Schema='reign-deployment-authority-v1';CandidatePath=$candidate;CandidateSha256=Get-ReignFileSha $candidate;ReviewPath=$reviewPath;ReviewSha256=Get-ReignFileSha $reviewPath}
                 $pointerPath=Join-Path $Root 'deployment-source.json';$pointer|ConvertTo-Json|Set-Content $pointerPath
                 [void](Read-ReignDeploymentAuthority $pointerPath);$checks++
+                $promote=Join-Path (Split-Path $ModulePath) 'Promote-DeploymentCheckpoint.ps1'
+                $argsForPromotion=@{Candidate=$candidate;ReviewReceipt=$reviewPath;AuthorityPath=$pointerPath}
+                Reject {& $promote @argsForPromotion -MigrateRoots} 'marked candidate'
                 # Pin the altered review too: read-time coverage must still reject it.
                 $review.ReviewedPaths=@();$review|ConvertTo-Json -Depth 16|Set-Content $reviewPath
                 $pointer.ReviewSha256=Get-ReignFileSha $reviewPath;$pointer|ConvertTo-Json|Set-Content $pointerPath
                 Reject {Read-ReignDeploymentAuthority $pointerPath} 'Every added';$checks++
                 if($checks -ne 12){throw "Unexpected contract count $checks"}
                 Write-Output 'PROMOTION_CONTRACTS_12_PASS'
+
+                function New-Repo($Path,$Leaf){
+                    git init --quiet $Path
+                    if($LASTEXITCODE){throw 'Could not initialize fixture Git checkout.'}
+                    git -C $Path remote add origin "https://github.com/Dwemer-Dynamics/$Leaf.git"
+                    if($LASTEXITCODE){throw 'Could not configure fixture origin.'}
+                    git -C $Path -c user.name=Fixture -c user.email=fixture@example.invalid -c commit.gpgsign=false -c core.hooksPath=$Root commit --allow-empty --quiet -m fixture
+                    if($LASTEXITCODE){throw 'Could not create a checked-out fixture commit.'}
+                }
+                function New-Pair($Name){
+                    $parent=Join-Path $Root $Name
+                    foreach($leaf in @('Reign','ReignServer')){
+                        New-Repo (Join-Path $parent $leaf) $leaf
+                    }
+                    $pair=@{WorkspaceRoot=Join-Path $parent Reign;ServerRoot=Join-Path $parent ReignServer}
+                    New-Item -ItemType Junction -Path (Join-Path $pair.WorkspaceRoot ReignServer) -Target $pair.ServerRoot|Out-Null
+                    $pair
+                }
+                $old=New-Pair 'from'
+                $new=New-Pair 'to'
+                function Migration { Get-ReignRootMigration $old $new.WorkspaceRoot $new.ServerRoot $report $report }
+                $scope=Migration
+                if($scope.FromWorkspaceRoot -cne $old.WorkspaceRoot -or $scope.FromServerRoot -cne $old.ServerRoot -or
+                    $scope.ToWorkspaceRoot -cne $new.WorkspaceRoot -or $scope.ToServerRoot -cne $new.ServerRoot){throw 'Incorrect transfer endpoints.'}
+                Reject {Get-ReignRootMigration $null $new.WorkspaceRoot $new.ServerRoot $report $report} 'existing reviewed prior'
+                Reject {Get-ReignRootMigration $old $new.WorkspaceRoot $new.ServerRoot '' $report} 'both original'
+                Reject {Get-ReignRootMigration $old $new.WorkspaceRoot $new.ServerRoot $report ''} 'both original'
+                Reject {Get-ReignOriginalReport $report $new.WorkspaceRoot 'validation'} 'Foreign/copied report'
+                Reject {Get-ReignRootMigration $old $old.WorkspaceRoot $old.ServerRoot $report $report} 'distinct primary pairs'
+                Reject {Assert-ReignPrimaryPair $new.WorkspaceRoot $old.ServerRoot} 'physical Reign and ReignServer siblings'
+                $alias=Join-Path $Root 'alias'
+                New-Item -ItemType Junction -Path $alias -Target (Split-Path $new.WorkspaceRoot)|Out-Null
+                Reject {Assert-ReignPrimaryPair (Join-Path $alias Reign) (Join-Path $alias ReignServer)} 'redirected paths'
+                $projection=Join-Path $new.WorkspaceRoot ReignServer
+                [IO.Directory]::Delete($projection)
+                New-Item -ItemType Junction -Path $projection -Target $old.ServerRoot|Out-Null
+                Reject {Migration} 'direct ReignServer sibling junction'
+                [IO.Directory]::Delete($projection)
+                New-Item -ItemType Junction -Path $projection -Target $new.ServerRoot|Out-Null
+                git -C $new.ServerRoot remote set-url --push origin 'https://example.invalid/ReignServer.git'
+                Reject {Migration} 'canonical fetch and push origins'
+                git -C $new.ServerRoot config --unset-all remote.origin.pushurl
+                $linked=Join-Path $Root 'linked/ReignServer'
+                [IO.Directory]::CreateDirectory($linked)|Out-Null
+                [IO.File]::WriteAllText((Join-Path $linked '.git'),"gitdir: $($new.ServerRoot)/.git/worktrees/linked")
+                $linkedClient=Join-Path (Split-Path $linked) Reign
+                git init --quiet $linkedClient
+                Reject {Assert-ReignPrimaryPair $linkedClient $linked} 'Source Git failed'
+                New-Repo $linkedClient 'Reign'
+                Reject {Assert-ReignPrimaryPair $linkedClient $linked} 'primary Git checkouts'
+
+                $content.RootMigration=$scope
+                $content|ConvertTo-Json -Depth 16|Set-Content $candidate
+                $review.CandidateSha256=Get-ReignFileSha $candidate
+                $review.ReviewedPaths=@($content.Diff|ForEach-Object path)
+                function Read-Review {Get-Content $reviewPath -Raw|ConvertFrom-Json}
+                $review|ConvertTo-Json -Depth 16|Set-Content $reviewPath
+                $parsed=Get-Content $candidate -Raw|ConvertFrom-Json
+                Reject {Assert-ReignCheckpointReview $parsed (Read-Review) $candidate} 'root migration scope'
+                $review.RootMigrationSha256=Get-ReignJsonSha $scope
+                $review|ConvertTo-Json -Depth 16|Set-Content $reviewPath
+                Assert-ReignCheckpointReview $parsed (Read-Review) $candidate
+                $fixtureHash=Get-ReignFileSha $pointerPath
+                Reject {& $promote @argsForPromotion} 'marked candidate'
+                Reject {& $promote @argsForPromotion -Initialize -MigrateRoots} 'marked candidate'
+                if((Get-ReignFileSha $pointerPath) -ne $fixtureHash){throw 'Rejected promotion changed the pointer.'}
+
+                $content.WorkspaceRoot=$new.WorkspaceRoot
+                $content.ServerRoot=$new.ServerRoot
+                $content.ValidationReportSelection=$report
+                $content.LinuxBuildReportSelection=$report
+                $content.PriorAuthoritySha256=$fixtureHash
+                [IO.File]::Copy($pointerPath,($candidate+'.previous-authority.json'))
+                Assert-ReignRootMigration $old $content $candidate
+                $content.RootMigration.FromServerRoot=$new.ServerRoot
+                Reject {Assert-ReignRootMigration $old $content $candidate} 'scope differs'
+                $content.RootMigration=Migration
+                [IO.File]::AppendAllText(($candidate+'.previous-authority.json'),' ')
+                Reject {Assert-ReignRootMigration $old $content $candidate} 'exact retained prior'
+
+                $out=Join-Path $Root 'mcp/out'
+                [IO.Directory]::CreateDirectory($out)|Out-Null
+                $dll=Join-Path $out 'Reign.Mcp.Server.dll'
+                [IO.File]::WriteAllText($dll,'verifier fixture only')
+                $clientReport=[pscustomobject]@{ArtifactRoot=$Root;DeploymentArtifactHashes=[pscustomobject]@{
+                    'mcp/out/Reign.Mcp.Server.dll'=Get-ReignFileSha $dll;'client/out/ReignBeta.dll'='fixture'}}
+                $qualified=Get-ReignReportVerifier $clientReport -MigrateRoots
+                if($qualified.files[0].sha256 -ne (Get-ReignFileSha $dll)){throw 'Incorrect verifier artifact binding.'}
+                [IO.File]::WriteAllText((Join-Path $out 'extra.json'),'extra')
+                Reject {Get-ReignReportVerifier $clientReport -MigrateRoots} 'exact qualified verifier file set'
+                Write-Output 'ROOT_MIGRATION_CONTRACTS_PASS'
                 """);
             var start = new ProcessStartInfo("pwsh") { UseShellExecute = false, CreateNoWindow = true,
                 RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true };
+            foreach (string key in start.Environment.Keys.Where(key => key.StartsWith("GIT_", StringComparison.OrdinalIgnoreCase)).ToArray())
+                start.Environment.Remove(key);
             foreach (string arg in new[] { "-NoProfile", "-NonInteractive", "-File", script,
                 Path.Combine(TestOptions.FindWorkspace(), "ReignServer/scripts/ReignDeploymentAuthority.psm1"), root }) start.ArgumentList.Add(arg);
             using var process = Process.Start(start)!;
@@ -86,11 +182,20 @@ public sealed class DeploymentAuthorityPromotionTests
             string stdout = await output;string stderr = await error;
             Assert.True(process.ExitCode == 0, stderr);
             Assert.Contains("PROMOTION_CONTRACTS_12_PASS", stdout);
+            Assert.Contains("ROOT_MIGRATION_CONTRACTS_PASS", stdout);
         }
         finally
         {
             Assert.StartsWith(Path.GetFullPath(Path.GetTempPath()), Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase);
             Assert.StartsWith("reign-promotion-contract-", Path.GetFileName(root));
+            foreach (string projection in new[] { "alias", "from/Reign/ReignServer", "to/Reign/ReignServer" })
+            {
+                var link = new DirectoryInfo(Path.Combine(root, projection));
+                if (link.LinkTarget is not null) link.Delete();
+            }
+            var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+            foreach (var file in new DirectoryInfo(root).EnumerateFiles("*", options))
+                if (file.IsReadOnly) file.IsReadOnly = false;
             Directory.Delete(root, true);
         }
     }

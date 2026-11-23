@@ -86,7 +86,7 @@
         "target": "InitialScreen",
         "basePrefab": "Native/GUI/Prefabs/InitialScreen.xml",
         "sources": [
-          "src/Modules/UI/UI/ReignMainMenuLogoPrefabPatches.cs"
+          "src/Modules/UI/ReignMainMenuLogoPrefabPatches.cs"
         ]
       },
       {
@@ -95,7 +95,7 @@
         "target": "GameMenu",
         "basePrefab": "Native/GUI/Prefabs/GameMenu/GameMenu.xml",
         "sources": [
-          "src/Modules/UI/UI/Tavern/ReignTavernGameMenuInsertPatch.cs"
+          "src/Modules/UI/Tavern/ReignTavernGameMenuInsertPatch.cs"
         ]
       },
       {
@@ -104,7 +104,7 @@
         "target": "MarriageOfferPopup",
         "basePrefab": "SandBox/GUI/Prefabs/Map/MarriageOfferPopup.xml",
         "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+          "src/Modules/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
         ]
       },
       {
@@ -113,7 +113,7 @@
         "target": "RecruitVolunteerTuple",
         "basePrefab": "SandBox/GUI/Prefabs/Recruitment/RecruitVolunteerTuple.xml",
         "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+          "src/Modules/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
         ]
       },
       {
@@ -122,7 +122,7 @@
         "target": "GameMenuPartyItem",
         "basePrefab": "SandBox/GUI/Prefabs/Map/GameMenuPartyItem.xml",
         "sources": [
-          "src/Modules/UI/UI/GameMenu/ReignGameMenuPartyItemInsertPatch.cs"
+          "src/Modules/UI/GameMenu/ReignGameMenuPartyItemInsertPatch.cs"
         ]
       },
       {

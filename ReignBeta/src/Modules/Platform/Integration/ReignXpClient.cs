@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Dialogue;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Dialogue.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal sealed class ReignXpInteraction
     {
@@ -15,9 +16,9 @@ namespace ReignBeta.Integration
             => Owner?.Award(receipt, skill, baseXp, Options, reason);
     }
 
-    public static partial class ReignServerClient
+    internal static class ReignXpClient
     {
-        private static readonly System.Net.Http.HttpClient XpOptionsClient = CreateLocalServerHttpClient(2, 5);
+        private static readonly System.Net.Http.HttpClient XpOptionsClient = ReignHttpTransport.CreateLocalServerHttpClient(2, 5);
         internal static async Task<ReignXpInteraction> BeginXpInteractionAsync()
         {
             var owner = await ReignMainThread.InvokeAsync(() => ReignXpCampaignBehavior.Instance).ConfigureAwait(false);

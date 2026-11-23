@@ -15,13 +15,27 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Integration;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignRegularActionExecutor
     {
         public static ReignActionResult Execute(ReignWorldActionRecord action)
         {
+            if (action?.Type == ReignWorldActionType.RegularTradePackage)
+            {
+                ReignActionResult replay = ReignTradePackageExecutor.ReplayMaterialTrade(action);
+                if (replay != null) return replay;
+            }
+
             if (!ReignActionValidator.Validate(action, out string validationFailure))
             {
                 return ReignActionResult.ValidationFailed(validationFailure);
@@ -38,19 +52,19 @@ namespace ReignBeta.World
             switch (action.Type)
             {
                 case ReignWorldActionType.RegularFollowOnMap:
-                    return ReignFollowCampaignBehavior.Instance == null
+                    return ReignServices.Follow == null
                         ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
-                        : ReignFollowCampaignBehavior.Instance.Start(action, actor, target, sceneActions);
+                        : ReignServices.Follow.Start(action, actor, target, sceneActions);
                 case ReignWorldActionType.RegularFollowInScene:
                     // Retained only for compatible queued data. New dialogue exposes one
                     // Follow command whose agreement spans campaign and mission contexts.
-                    return ReignFollowCampaignBehavior.Instance == null
+                    return ReignServices.Follow == null
                         ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
-                        : ReignFollowCampaignBehavior.Instance.Start(action, actor, target, sceneActions);
+                        : ReignServices.Follow.Start(action, actor, target, sceneActions);
                 case ReignWorldActionType.RegularStopFollowing:
-                    return ReignFollowCampaignBehavior.Instance == null
+                    return ReignServices.Follow == null
                         ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
-                        : ReignFollowCampaignBehavior.Instance.Stop(actor, sceneActions);
+                        : ReignServices.Follow.Stop(actor, sceneActions);
                 case ReignWorldActionType.RegularGoToSettlement:
                     return GoToSettlement(actor, actorParty, settlement);
                 case ReignWorldActionType.RegularPatrolAroundSettlement:
@@ -83,9 +97,9 @@ namespace ReignBeta.World
                 case ReignWorldActionType.RegularTransferGold:
                     return TransferGold(action, actor, target);
                 case ReignWorldActionType.RegularTransferItem:
-                    return ReignPersonalItemService.Instance == null
+                    return ReignServices.PersonalItemService == null
                         ? ReignActionResult.ValidationFailed("The personal item service is unavailable.")
-                        : WithVerifiedReceipt(ReignPersonalItemService.Instance.Transfer(action, actor, target));
+                        : WithVerifiedReceipt(ReignServices.PersonalItemService.Transfer(action, actor, target));
                 case ReignWorldActionType.RegularTransferWorkshop:
                     return TransferWorkshop(action, target);
                 case ReignWorldActionType.RegularTransferPrisoner:
@@ -111,58 +125,58 @@ namespace ReignBeta.World
                 case ReignWorldActionType.RegularTradePackage:
                     return ReignTradePackageExecutor.Execute(action);
                 case ReignWorldActionType.RegularPrepareArrest:
-                    return ReignArrestCampaignBehavior.Instance == null
+                    return ReignServices.Arrest == null
                         ? ReignActionResult.ValidationFailed("The arrest campaign service is unavailable.")
-                        : ReignArrestCampaignBehavior.Instance.PrepareArrest(action, target);
+                        : ReignServices.Arrest.PrepareArrest(action, target);
                 case ReignWorldActionType.RegularConfirmArrest:
-                    return ReignArrestCampaignBehavior.Instance == null
+                    return ReignServices.Arrest == null
                         ? ReignActionResult.ValidationFailed("The arrest campaign service is unavailable.")
-                        : ReignArrestCampaignBehavior.Instance.ConfirmArrest(action, target);
+                        : ReignServices.Arrest.ConfirmArrest(action, target);
                 case ReignWorldActionType.RegularReleaseArrestedCharacter:
-                    return ReignArrestCampaignBehavior.Instance == null
+                    return ReignServices.Arrest == null
                         ? ReignActionResult.ValidationFailed("The arrest campaign service is unavailable.")
-                        : ReignArrestCampaignBehavior.Instance.ReleaseArrested(action, target, false);
+                        : ReignServices.Arrest.ReleaseArrested(action, target, false);
                 case ReignWorldActionType.RegularRescindArrestAccusation:
-                    return ReignArrestCampaignBehavior.Instance == null
+                    return ReignServices.Arrest == null
                         ? ReignActionResult.ValidationFailed("The arrest campaign service is unavailable.")
-                        : ReignArrestCampaignBehavior.Instance.ReleaseArrested(action, target, true);
+                        : ReignServices.Arrest.ReleaseArrested(action, target, true);
                 case ReignWorldActionType.RegularPlayerAttackParty:
-                    return ReignArrestCampaignBehavior.Instance == null
+                    return ReignServices.Arrest == null
                         ? ReignActionResult.ValidationFailed("The arrest campaign service is unavailable.")
-                        : ReignArrestCampaignBehavior.Instance.AttackTargetParty(action, target);
+                        : ReignServices.Arrest.AttackTargetParty(action, target);
                 case ReignWorldActionType.RegularIssueCampaignOrder:
                 case ReignWorldActionType.RegularReviseCampaignOrder:
                 case ReignWorldActionType.RegularRespondToOrderReport:
                 case ReignWorldActionType.RegularCancelCampaignOrder:
-                    return ReignCampaignCommandBehavior.Instance == null
+                    return ReignServices.CampaignCommand == null
                         ? ReignActionResult.ValidationFailed("The campaign command service is unavailable.")
-                        : ReignCampaignCommandBehavior.Instance.ExecuteControlAction(action);
+                        : ReignServices.CampaignCommand.ExecuteControlAction(action);
                 case ReignWorldActionType.RegularCreateClanAccord:
                 case ReignWorldActionType.RegularCancelClanAccord:
-                    return ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null
+                    return ReignServices.ClanAccords == null
                         ? ReignActionResult.ValidationFailed("The Clan Accords service is unavailable.")
-                        : ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Execute(action);
+                        : ReignServices.ClanAccords.Execute(action);
                 case ReignWorldActionType.RegularAcceptTemporaryPartyGuest:
-                    return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
+                    return ReignServices.TemporaryPartyGuest == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
-                        : ReignTemporaryPartyGuestCampaignBehavior.Instance.AcceptGuest(action, actor);
+                        : ReignServices.TemporaryPartyGuest.AcceptGuest(action, actor);
                 case ReignWorldActionType.RegularRecruitEncounteredResident:
                 case ReignWorldActionType.RegularReleaseResidentFromDuty:
-                    return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null
+                    return ReignServices.EncounteredResidents == null
                         ? ReignActionResult.ValidationFailed("The encountered resident service is unavailable.")
-                        : ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ExecuteResidentAction(action);
+                        : ReignServices.EncounteredResidents.ExecuteResidentAction(action);
                 case ReignWorldActionType.RegularRenewTemporaryPartyGuest:
-                    return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
+                    return ReignServices.TemporaryPartyGuest == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
-                        : ReignTemporaryPartyGuestCampaignBehavior.Instance.RenewGuest(action, actor);
+                        : ReignServices.TemporaryPartyGuest.RenewGuest(action, actor);
                 case ReignWorldActionType.RegularEndTemporaryPartyGuest:
-                    return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
+                    return ReignServices.TemporaryPartyGuest == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
-                        : ReignTemporaryPartyGuestCampaignBehavior.Instance.EndGuest(action, actor);
+                        : ReignServices.TemporaryPartyGuest.EndGuest(action, actor);
                 case ReignWorldActionType.RegularAcknowledgeOwnFactionCombatRisk:
-                    return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
+                    return ReignServices.TemporaryPartyGuest == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
-                        : ReignTemporaryPartyGuestCampaignBehavior.Instance.AcknowledgeOwnFactionRisk(action, actor);
+                        : ReignServices.TemporaryPartyGuest.AcknowledgeOwnFactionRisk(action, actor);
                 default:
                     return ReignActionResult.FailTerminal("Unsupported regular action type: " + action.Type, "unsupported_action", "unsupported_action");
             }
@@ -220,7 +234,7 @@ namespace ReignBeta.World
 
         private static ReignActionResult CreateParty(ReignWorldActionRecord action, Hero actor, Settlement settlement)
         {
-            if (!Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(actor))
+            if (!WorldSimulation.Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(actor))
                 return ReignActionResult.ValidationFailed("The named NPC commander is not eligible to establish a military party.");
             if (actor.PartyBelongedTo != null)
             {
@@ -289,7 +303,7 @@ namespace ReignBeta.World
         private static ReignActionResult GiveGoldToPlayer(ReignWorldActionRecord action, Hero actor)
         {
             int amount = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", ReadIntTerm(action.TermsJson, "goldAmount", 0)));
-            return ReignGoldTransferService.Instance?.Transfer(action, actor, Hero.MainHero, amount)
+            return ReignServices.GoldTransferService?.Transfer(action, actor, Hero.MainHero, amount)
                 ?? ReignActionResult.ValidationFailed("The payment service is unavailable.");
         }
 
@@ -298,7 +312,7 @@ namespace ReignBeta.World
             int amount = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", ReadIntTerm(action.TermsJson, "goldAmount", 0)));
             Hero from = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "fromHeroStringId", string.Empty)) ?? actor;
             Hero to = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "toHeroStringId", string.Empty)) ?? target ?? Hero.MainHero;
-            return ReignGoldTransferService.Instance?.Transfer(action, from, to, amount)
+            return ReignServices.GoldTransferService?.Transfer(action, from, to, amount)
                 ?? ReignActionResult.ValidationFailed("The payment service is unavailable.");
         }
 
@@ -416,10 +430,10 @@ namespace ReignBeta.World
         {
             Clan targetClan = ReignObjectResolver.FindClan(action.TargetClanStringId);
             Clan previousClan = actor.Clan;
-            if (ReignRulerCampaignBehavior.Instance?.CanRecruitFugitiveMember(actor, targetClan) == true)
-                ReignRulerCampaignBehavior.Instance.RecruitFugitiveMember(actor, targetClan);
+            if (ReignServices.Ruler?.CanRecruitFugitiveMember(actor, targetClan) == true)
+                ReignServices.Ruler.RecruitFugitiveMember(actor, targetClan);
             else actor.Clan = targetClan;
-            var residents = ReignEncounteredResidentsCampaignBehavior.Instance;
+            var residents = ReignServices.EncounteredResidents;
             if (residents?.UsesCompanionMembership(actor, targetClan) == true
                 && !residents.RegisterResidentClanMember(actor, out string registrationReason))
                 return ReignActionResult.FailTerminal(registrationReason,
@@ -468,16 +482,6 @@ namespace ReignBeta.World
         {
             string partyId = ReadStringTerm(action.TermsJson, "targetPartyId", string.Empty);
             return ReignObjectResolver.FindParty(partyId);
-        }
-
-        private static MobileParty PartyForInventory(Hero hero)
-        {
-            if (hero == Hero.MainHero)
-            {
-                return MobileParty.MainParty;
-            }
-
-            return hero?.PartyBelongedTo;
         }
 
         private static string PartyName(MobileParty party)

@@ -1,9 +1,10 @@
 using Reign.Core.Contracts.Government;
 using Reign.Core.Contracts.World;
 using ReignBeta.UI;
-using ReignBeta.Runtime;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.News
 {
     public sealed partial class ReignNewsCampaignBehavior
     {

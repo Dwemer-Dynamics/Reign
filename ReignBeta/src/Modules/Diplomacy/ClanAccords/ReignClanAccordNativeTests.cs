@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.ClanAccords;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.ClanAccords
+namespace ReignBeta.Diplomacy.ClanAccords
 {
     /// <summary>Pure fixtures using real native math; never reads or changes the live accord ledger.</summary>
     internal static class ReignClanAccordNativeTests
@@ -143,7 +143,7 @@ namespace ReignBeta.ClanAccords
     }
 }
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -152,7 +152,7 @@ namespace ReignBeta.Campaign
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string profile = command.Value<string>("profile") ?? "contracts";
             JObject report = await ReignMainThread.InvokeAsync(() =>
-                ReignBeta.ClanAccords.ReignClanAccordNativeTests.Run(runId, profile)).ConfigureAwait(false);
+                ReignBeta.Diplomacy.ClanAccords.ReignClanAccordNativeTests.Run(runId, profile)).ConfigureAwait(false);
             return report.Value<bool?>("ok") == true
                 ? LiveCommandResult.Completed("Clan Accords native contracts passed without campaign mutation.", report)
                 : LiveCommandResult.Failed("Clan Accords native contracts failed.", report);

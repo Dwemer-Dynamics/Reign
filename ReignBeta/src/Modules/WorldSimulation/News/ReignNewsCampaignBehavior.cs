@@ -4,10 +4,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.World;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -16,12 +12,24 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.UI;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.News
 {
     public sealed partial class ReignNewsCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignNewsCampaignBehavior Instance { get; private set; }
+        public static ReignNewsCampaignBehavior Instance => ReignServices.News;
         private ReignNewsState _state = new ReignNewsState();
         private List<string> _chunks = new List<string>();
         private string _activeId = "";
@@ -31,7 +39,7 @@ namespace ReignBeta.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.News = this;
             CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnCaptured);
             CampaignEvents.HeroPrisonerReleased.AddNonSerializedListener(this, OnReleased);
             CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnKilled);
@@ -53,7 +61,7 @@ namespace ReignBeta.Campaign
             // and acknowledgment. The existing history outbox owns transport.
             _state.QueuePublicHistory(article, CampaignTime.Now.ToDays);
             FlushPublicHistory();
-            if (!_state.Publish(article, ReignServerClient.NewsOptions, ReignServerClient.NewsOptionsConfirmed)) return;
+            if (!_state.Publish(article, ReignNewsClient.NewsOptions, ReignNewsClient.NewsOptionsConfirmed)) return;
             InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + article.Text, Color.FromUint(0xFFC5BDAF)));
         }
         internal void RecordPublicDiplomacyAnnouncement(ReignDiplomacyAnnouncement announcement)
@@ -76,9 +84,9 @@ namespace ReignBeta.Campaign
         }
         internal void ApplyOptions()
         {
-            if (!ReignServerClient.NewsOptionsConfirmed) return;
-            _state.ApplyOptions(ReignServerClient.NewsOptions);
-            if (!ReignServerClient.NewsOptions.Allows(ReignNewsCategories.Diplomacy))
+            if (!ReignNewsClient.NewsOptionsConfirmed) return;
+            _state.ApplyOptions(ReignNewsClient.NewsOptions);
+            if (!ReignNewsClient.NewsOptions.Allows(ReignNewsCategories.Diplomacy))
                 ReignDiplomacyAnnouncementScreenManager.TryAcknowledgeDisabledDiplomacy();
             if (_activeId.Length > 0 && !_state.Pending.Any(p => p.Id == _activeId))
                 ReignDiplomacyAnnouncementScreenManager.TryCloseOwnedAnnouncement(_activeId);
@@ -92,7 +100,7 @@ namespace ReignBeta.Campaign
         }
         private void FlushPublicHistory()
         {
-            var history = ReignWorldHistoryCampaignBehavior.Instance;
+            var history = ReignServices.WorldHistory;
             if (history?.TimelineReady != true || _state.HistoryOutbox.Count == 0 || _historyRetryDelay > 0) return;
             foreach (var article in _state.HistoryOutbox.ToList())
             {
@@ -112,7 +120,7 @@ namespace ReignBeta.Campaign
         }
         private void TryPresent()
         {
-            if (Instance != this || !ReignServerClient.NewsOptionsConfirmed || _state.Pending.Count == 0
+            if (Instance != this || !ReignNewsClient.NewsOptionsConfirmed || _state.Pending.Count == 0
                 || ReignBetaSettings.Instance?.Enabled == false || ReignBetaSettings.Instance?.UseLocalServer == false
                 || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanPresent()) return;
             ApplyOptions();
@@ -155,15 +163,15 @@ namespace ReignBeta.Campaign
             schema = "reign-town-crier-v1", pending = _state.Pending.Take(64), pendingCount = _state.Pending.Count,
             historyPendingCount = _state.HistoryOutbox.Count, historyPublishedCount = _state.HistoryPublishedIds.Count,
             pendingTruncated = _state.Pending.Count > 64, activeId = _activeId, retainedNoticeIds = _state.Seen.Count,
-            optionsConfirmed = ReignServerClient.NewsOptionsConfirmed,
-            options = ReignNewsCategories.Switches.Keys.ToDictionary(k => k, k => ReignServerClient.NewsOptions.Preference(k)),
+            optionsConfirmed = ReignNewsClient.NewsOptionsConfirmed,
+            options = ReignNewsCategories.Switches.Keys.ToDictionary(k => k, k => ReignNewsClient.NewsOptions.Preference(k)),
             nativeTime = TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode.ToString(),
             timeLocked = TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlModeLock
         });
         private void OnCaptured(PartyBase captor, Hero prisoner)
         {
             if (prisoner == null) return;
-            var movement = ReignRebellionCampaignBehavior.Instance?.FindActiveMovementForHero(prisoner);
+            var movement = ReignServices.Rebellion?.FindActiveMovementForHero(prisoner);
             bool rebellionLeader = string.Equals(movement?.LeaderHeroStringId, prisoner.StringId, StringComparison.Ordinal);
             Capture(prisoner, captor, rebellionLeader);
         }

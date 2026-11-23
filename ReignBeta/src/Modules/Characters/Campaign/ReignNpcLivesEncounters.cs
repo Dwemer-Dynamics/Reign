@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -18,15 +17,20 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
-        private bool _startingStoryEncounter;
-        private readonly Dictionary<string, MapEvent> _storyBattles = new Dictionary<string, MapEvent>();
+        internal bool _startingStoryEncounter;
+        internal readonly Dictionary<string, MapEvent> _storyBattles = new Dictionary<string, MapEvent>();
         private readonly Dictionary<string, PartyBase> _storyRescueCaptors = new Dictionary<string, PartyBase>();
-        private async void StartStoryEncounter(string storyId, string objectiveId)
+        internal async void StartStoryEncounter(string storyId, string objectiveId)
         {
             if (_startingStoryEncounter) return;
             _startingStoryEncounter = true;
@@ -46,7 +50,7 @@ namespace ReignBeta.Campaign
                 if (_storyEncounters.Values.Any(e => e.Value<string>("storyId") == storyId && e.Value<string>("status") != "resolved"))
                     throw new InvalidOperationException("This story already has an encounter in progress.");
                 encounter = "npc_encounter_" + Guid.NewGuid().ToString("N");
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 p["id"] = story.Id; p["revision"] = story.Revision; p["heroId"] = story.HeroId;
                 p["kind"] = "encounter_started"; p["objectiveId"] = objective.Id;
                 p["encounterId"] = encounter; p["nativeReceipt"] = encounter + ":started";
@@ -148,7 +152,7 @@ namespace ReignBeta.Campaign
                 var holder = friend?.PartyBelongedToAsPrisoner;
                 bool currentScope = _initialized && Generation.Length > 0 && row.Value<string>("generation") == Generation
                     && _campaign == ReignServerClient.GetCampaignId() && row.Value<string>("campaignId") == _campaign
-                    && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    && _timeline == (ReignServices.WorldHistory?.TimelineId ?? "main")
                     && row.Value<string>("timelineId") == _timeline;
                 bool activeRescue = row.Value<string>("status") == "active" && row.Value<string>("kind") == "hideout"
                     && row.Value<string>("requiredOutcome") == "rescued" && story?.Status == "active"
@@ -207,7 +211,7 @@ namespace ReignBeta.Campaign
             if (outcome != "won" && outcome != "lost" && outcome != "withdrawn") throw new ArgumentException("A native encounter outcome is required.");
             row["status"] = "resolved"; row["outcome"] = outcome;
             _storyRescueCaptors.Remove(encounter);
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             foreach (string key in new[] { "heroId", "revision", "objectiveId", "kind", "locationId" }) p[key] = row[key].DeepClone();
             p["id"] = row["storyId"].DeepClone(); p["encounterId"] = encounter;
             p["outcome"] = outcome == "won" && row.Value<string>("requiredOutcome").Length > 0 ? row.Value<string>("requiredOutcome") : outcome;

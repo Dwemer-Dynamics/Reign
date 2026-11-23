@@ -6,15 +6,20 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court;
-#endif
-using ReignBeta.Save;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Actions;
+using ReignBeta.Characters.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public sealed class ReignAgreementBehavior : CampaignBehaviorBase, IAgreementBackend
     {
@@ -24,13 +29,13 @@ namespace ReignBeta.Actions
         private Dictionary<string, string> _decisions = new Dictionary<string, string>(StringComparer.Ordinal);
         private Dictionary<string, JObject> _nativeOperations = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private List<string> _chunks = new List<string>();
-        public static ReignAgreementBehavior Instance { get; private set; }
+        public static ReignAgreementBehavior Instance => ReignServices.Agreement;
         public IReadOnlyCollection<AgreementJournal> Agreements => _agreements.Values;
         public IReadOnlyCollection<ActionAgreement> Offers => _offers.Values;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Agreement = this;
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, Advance);
         }
 
@@ -154,7 +159,7 @@ namespace ReignBeta.Actions
                 return null;
             }
             if (a.Clauses.Any(c => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal"))
-                ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.RecordPlayerMarriageProposal(a);
+                ReignServices.Relationship?.RecordPlayerMarriageProposal(a);
             _offers[a.Id] = ReignActionService.Copy(a);
             return a;
         }
@@ -197,7 +202,7 @@ namespace ReignBeta.Actions
                         throw new InvalidOperationException("The marriage action is already resolved under different terms.");
                     return saved.Value<string>("message");
                 }
-                string message = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ReceiveMarriageDecision(offered, decision.Kind)
+                string message = ReignServices.Relationship?.ReceiveMarriageDecision(offered, decision.Kind)
                     ?? "Marriage services are unavailable.";
                 if (decision.Kind == "accept" || decision.Kind == "reject")
                     _decisions[marriageKey] = new JObject { ["hash"] = offered.TermsHash(), ["message"] = message, ["kind"] = decision.Kind }.ToString(Formatting.None);
@@ -231,7 +236,7 @@ namespace ReignBeta.Actions
             {
                 a.State = AgreementState.Rejected;
                 if (a.Clauses.Any(c => c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)))
-                    ReignNpcLivesBehavior.Instance?.DeclineLifeOffer(a);
+                    ReignServices.NpcLives?.DeclineLifeOffer(a);
             }
         }
 
@@ -362,7 +367,7 @@ namespace ReignBeta.Actions
                 catch (InvalidOperationException) { continue; }
                 string orderId = terms.Value<string>("orderId");
                 if (string.IsNullOrWhiteSpace(orderId)) orderId = captured.ActionId;
-                var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o => o.OrderId == orderId);
+                var order = ReignServices.CampaignCommand?.Orders.FirstOrDefault(o => o.OrderId == orderId);
                 if (order == null || order.CommanderHeroStringId != captured.ActorHeroStringId
                     || order.IssuerHeroStringId != captured.TargetHeroStringId || order.CorrelationId != parent.Agreement.Id
                     || !ReignCompletedOrderPolicy.CanReconcileCancellation(parent, step,
@@ -377,7 +382,7 @@ namespace ReignBeta.Actions
                 var receipt = ReignAgreementEngine.CancelObservedOrder(parent, cancellation, clause.Id,
                     orderId, this, ReignActionService.Now);
                 if (receipt.State != AgreementState.Cancelled) return false;
-                return ReignAICampaignBehavior.Instance?.RecordObservedCampaignCancellation(record, orderId, cancellation.Agreement.Id) == true;
+                return ReignServices.AI?.RecordObservedCampaignCancellation(record, orderId, cancellation.Agreement.Id) == true;
             }
             return false;
         }
@@ -396,17 +401,17 @@ namespace ReignBeta.Actions
             try { captured = CapturedRecord(journal.Agreement, clause, step.Snapshot, step.Installment); }
             catch (JsonException) { return false; }
             catch (InvalidOperationException) { return false; }
-            var actual = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(x => x.ActionId == captured.ActionId);
+            var actual = ReignServices.AI?.Actions.FirstOrDefault(x => x.ActionId == captured.ActionId);
             return actual?.Status == ReignWorldActionStatus.Completed
                 && JToken.DeepEquals(AuthorityFields(captured), AuthorityFields(actual));
         }
 
         private void Advance()
         {
-            ReignNpcLivesBehavior.Instance?.ReconcileMeetingAgreements();
+            ReignServices.NpcLives?.ReconcileMeetingAgreements();
             foreach (var j in _agreements.Values.Where(j => j.Agreement.State == AgreementState.Waiting || j.Agreement.State == AgreementState.InTransit).ToList())
             {
-                var cancelled = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(a =>
+                var cancelled = ReignServices.AI?.Actions.FirstOrDefault(a =>
                     a.Type == ReignWorldActionType.RegularIssueCampaignOrder && a.NegotiationId == j.Agreement.Id
                     && ReconcileObservedCampaignCancellation(a));
                 if (cancelled != null || j.Agreement.State == AgreementState.RecoveryRequired) continue;
@@ -462,9 +467,9 @@ namespace ReignBeta.Actions
             ? new JObject { ["pregnancyId"] = ReignActionService.Arg(c, "pregnancyId"), ["disclosure"] = ReignActionService.Arg(c, "disclosure") }.ToString(Formatting.None)
             : c.ActionId.StartsWith("give.", StringComparison.Ordinal)
             ? ReignAssetTransfer.Capture(a, c).ToString(Formatting.None)
-            : c.ActionId.StartsWith("government.", StringComparison.Ordinal) ? ReignGovernmentCampaignBehavior.Instance.CaptureGovernmentAgreement(c).ToString(Formatting.None)
+            : c.ActionId.StartsWith("government.", StringComparison.Ordinal) ? ReignServices.Government.CaptureGovernmentAgreement(c).ToString(Formatting.None)
 #if !REIGN_EXCLUDE_COURT
-            : ReignActionCatalog.Find(c.ActionId).Family == "court" ? ReignCourtCampaignBehavior.Instance.CaptureCourtAgreement(c).ToString(Formatting.None)
+            : ReignActionCatalog.Find(c.ActionId).Family == "court" ? ReignServices.CourtWorld.CaptureCourtAgreement(c).ToString(Formatting.None)
 #endif
             : new JObject { ["worldAction"] = JObject.FromObject(ReignActionService.WorldRecord(a, c)) }.ToString(Formatting.None);
         public void Reserve(ActionAgreement a, ActionClause c, string snapshot) { if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Reserve(c, JObject.Parse(snapshot)); }
@@ -481,20 +486,20 @@ namespace ReignBeta.Actions
             string key = Key(a, c, installment); if (_applied.Contains(key)) return;
             if (c.ActionId == TavernHouseVisitAction.Id) ReignTavernHouseAction.Apply(a);
             else if (c.ActionId == ReignSpouseSeparation.ActionId) ReignSpouseSeparationAction.Apply(a, c, snapshot, key);
-            else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)) ReignNpcLivesBehavior.Instance.ApplyLifeAction(a, c, key);
-            else if (c.ActionId == "expose_concealed_pregnancy") ReignFamilyCampaignBehavior.Instance.ExposePregnancy(
+            else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)) ReignServices.NpcLives.ApplyLifeAction(a, c, key);
+            else if (c.ActionId == "expose_concealed_pregnancy") ReignServices.Family.ExposePregnancy(
                 ReignActionService.Arg(c, "pregnancyId"), c.RecipientId, ReignActionService.Arg(c, "disclosure") == "name_father");
             else if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Deliver(c, JObject.Parse(snapshot));
-            else if (c.ActionId.StartsWith("government.", StringComparison.Ordinal)) ReignGovernmentCampaignBehavior.Instance.ApplyAgreementClause(a.Id, c,
+            else if (c.ActionId.StartsWith("government.", StringComparison.Ordinal)) ReignServices.Government.ApplyAgreementClause(a.Id, c,
                 _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
 #if !REIGN_EXCLUDE_COURT
-            else if (ReignActionCatalog.Find(c.ActionId).Family == "court") ReignCourtCampaignBehavior.Instance.ApplyCourtAgreement(a, c,
+            else if (ReignActionCatalog.Find(c.ActionId).Family == "court") ReignServices.CourtWorld.ApplyCourtAgreement(a, c,
                 _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
 #endif
             else
             {
                 var expected = CapturedRecord(a, c, snapshot, installment);
-                var behavior = ReignAICampaignBehavior.Instance ?? throw new InvalidOperationException("Native action execution is unavailable.");
+                var behavior = ReignServices.AI ?? throw new InvalidOperationException("Native action execution is unavailable.");
                 behavior.EnqueueAndExecuteServerActions(new[] { expected });
                 var queued = behavior.Actions.FirstOrDefault(x => x.ActionId == expected.ActionId);
                 if (queued == null || !JToken.DeepEquals(AuthorityFields(expected), AuthorityFields(queued)))
@@ -508,30 +513,30 @@ namespace ReignBeta.Actions
             if (c.ActionId == TavernHouseVisitAction.Id) return ReignTavernHouseAction.Observe(a);
             if (c.ActionId == ReignSpouseSeparation.ActionId) return ReignSpouseSeparationAction.Observe(c, Key(a, c, installment));
             if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
-                return ReignNpcLivesBehavior.Instance.ObserveLifeAction(a, c, Key(a, c, installment));
+                return ReignServices.NpcLives.ObserveLifeAction(a, c, Key(a, c, installment));
             if (c.ActionId == "expose_concealed_pregnancy") return true;
             if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) return true;
             if (c.ActionId.StartsWith("government.", StringComparison.Ordinal))
-                return ReignGovernmentCampaignBehavior.Instance.ObserveAgreementClause(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
+                return ReignServices.Government.ObserveAgreementClause(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
 #if !REIGN_EXCLUDE_COURT
             if (ReignActionCatalog.Find(c.ActionId).Family == "court")
-                return ReignCourtCampaignBehavior.Instance.ObserveCourtAgreement(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
+                return ReignServices.CourtWorld.ObserveCourtAgreement(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
 #endif
             var expected = CapturedRecord(a, c, snapshot, installment);
             if (expected.Type == ReignWorldActionType.RegularIssueCampaignOrder)
             {
-                var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o => o.OrderId == expected.ActionId);
+                var order = ReignServices.CampaignCommand?.Orders.FirstOrDefault(o => o.OrderId == expected.ActionId);
                 if (order == null) throw new InvalidOperationException("The supervised order was not retained.");
                 if (order.IsTerminal && order.Status != "completed") throw new InvalidOperationException(order.LastFailure);
                 if (order.Status != "completed") return false;
-                var ai = ReignAICampaignBehavior.Instance;
+                var ai = ReignServices.AI;
                 var queued = ai?.Actions.FirstOrDefault(x => x.ActionId == expected.ActionId);
                 if (queued == null) throw new InvalidOperationException("The supervised order's world action was not retained.");
                 if (queued.Status != ReignWorldActionStatus.Completed && !ai.TryCompleteObservedCampaignOrder(queued))
                     throw new InvalidOperationException("The completed native order no longer matches its captured agreement step.");
                 return true;
             }
-            var record = ReignAICampaignBehavior.Instance.Actions.FirstOrDefault(x => x.ActionId == expected.ActionId);
+            var record = ReignServices.AI.Actions.FirstOrDefault(x => x.ActionId == expected.ActionId);
             if (record?.IsTerminal == true && record.Status != ReignWorldActionStatus.Completed) throw new InvalidOperationException(record.FailureReason);
             return record?.Status == ReignWorldActionStatus.Completed;
         }
@@ -559,7 +564,7 @@ namespace ReignBeta.Actions
             var first = ReignActionService.HeroById(a.PlayerId); var second = ReignActionService.HeroById(a.NpcId);
             if (first?.PartyBelongedTo != null && first.PartyBelongedTo == second?.PartyBelongedTo || first?.CurrentSettlement != null && first.CurrentSettlement == second?.CurrentSettlement) return 0;
             if (!a.Clauses.Any(c => c.ActionId.StartsWith("give.", StringComparison.Ordinal))) return 0;
-            return ReignBeta.Integration.ReignServerClient.ActionDeliveryDays(first, second, ReignActionService.Now);
+            return ReignBeta.Dialogue.Integration.ReignCorrespondenceClient.ActionDeliveryDays(first, second, ReignActionService.Now);
         }
         public void SaveJournal(AgreementJournal journal) { _agreements[journal.Agreement.Id] = journal; }
     }

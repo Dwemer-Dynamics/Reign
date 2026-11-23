@@ -10,11 +10,11 @@ public sealed class CourtLifeHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string native = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         Assert.Contains("JObject international = native?[\"international\"] as JObject", native, StringComparison.Ordinal);
         Assert.DoesNotContain("native?[\"international\"]?[\"nativeDiplomaticAction\"]", native, StringComparison.Ordinal);
         Assert.Contains("else if (decisionExpectation == \"resolved\")", native, StringComparison.Ordinal);
-        Assert.Contains("AddCourtLifeDecisionAssertions(decisionAssertions, marker, matter)", native, StringComparison.Ordinal);
+        Assert.Contains("AddCourtLifeDecisionAssertions(court, decisionAssertions, marker, matter)", native, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public sealed class CourtLifeHarnessContractTests
         string root = TestOptions.FindWorkspace();
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         var completion = catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeDiplomaticCompletion");
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         foreach (var assertion in completion.GetProperty("assertions").EnumerateArray())
             Assert.Contains(assertion.GetString()!, native);
         foreach (string file in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/security-model.md", "ReignMcp/docs/tool-catalog.md" })
@@ -76,7 +76,7 @@ public sealed class CourtLifeHarnessContractTests
             Assert.Contains("courtLifeExistingMatterId", document);
             Assert.Contains("pendingMatterInventory", document);
         }
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         Assert.Contains("existing_matter_binding_preserves_matter_and_native_state", native);
         Assert.Contains("[\"limit\"] = 100", native);
         Assert.Contains("payload[\"player\"]?.Value<string>(\"leaderHeroId\") == Hero.MainHero?.StringId", native);
@@ -90,7 +90,7 @@ public sealed class CourtLifeHarnessContractTests
         string contract = catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeFingerprintContract").GetString()!;
         Assert.Contains("hero_id", contract, StringComparison.Ordinal);
         Assert.Contains("visit_id", contract, StringComparison.Ordinal);
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         foreach (string assertion in new[] { "family_row_order_does_not_change_fingerprint", "family_value_change_changes_fingerprint" })
         {
             Assert.Contains(assertion, contract, StringComparison.Ordinal);
@@ -107,9 +107,9 @@ public sealed class CourtLifeHarnessContractTests
         string timing = catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeTimeContract").GetString()!;
         Assert.Contains("immediately", timing, StringComparison.Ordinal);
         Assert.DoesNotContain("advancement to arrival", timing, StringComparison.Ordinal);
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         Assert.Contains("visitors_placed_immediately_without_time_advance", native, StringComparison.Ordinal);
-        string visitors = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs"));
+        string visitors = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs"));
         Assert.DoesNotContain("AmbassadorTravelDays", visitors, StringComparison.Ordinal);
         Assert.DoesNotContain("now < stay.ArrivalDay", visitors, StringComparison.Ordinal);
     }
@@ -118,7 +118,7 @@ public sealed class CourtLifeHarnessContractTests
     public void CourtLifeDatesRetainNativePrecisionThroughEligibilityAndEvidence()
     {
         string root = TestOptions.FindWorkspace();
-        string directory = Path.Combine(root, "ReignBeta/src/Modules/Court/Court");
+        string directory = Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign");
         foreach (string file in new[] { "ReignCourtLifeCampaignBehavior.cs", "ReignCourtLifeInGameTests.cs",
             "ReignCourtLifeFamilyFixture.cs", "ReignNobleVisitorCampaignBehavior.cs",
             "ReignPatronageCampaignBehavior.cs", "ReignPatronageHistory.cs" })
@@ -128,7 +128,7 @@ public sealed class CourtLifeHarnessContractTests
             Assert.Contains("CurrentCourtLifeDay()", source, StringComparison.Ordinal);
         }
         string behavior = File.ReadAllText(Path.Combine(directory, "ReignCourtLifeCampaignBehavior.cs"));
-        Assert.Contains("private static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;", behavior, StringComparison.Ordinal);
+        Assert.Contains("internal static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;", behavior, StringComparison.Ordinal);
         Assert.Contains("x.AvailableDay <= CurrentCourtLifeDay()", behavior, StringComparison.Ordinal);
         Assert.Contains("matter.AvailableDay > CurrentCourtLifeDay()", behavior, StringComparison.Ordinal);
         Assert.Contains("CurrentCourtLifeDay() >= matter.ExpiresDay", behavior, StringComparison.Ordinal);
@@ -138,7 +138,7 @@ public sealed class CourtLifeHarnessContractTests
     public void PatronageSpeakerContextIsBoundToTheCurrentCommission()
     {
         string root = TestOptions.FindWorkspace();
-        string patronage = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs"));
+        string patronage = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignPatronageCampaignBehavior.cs"));
         Assert.Contains("This audience concerns only the current commission", patronage, StringComparison.Ordinal);
         Assert.Contains("Do not introduce a subject, passage, attribution question, proposed line, objective, or dilemma from another patronage commission", patronage, StringComparison.Ordinal);
         Assert.Contains("Current commission premise:", patronage, StringComparison.Ordinal);
@@ -165,7 +165,7 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Equal(Profiles.Order(), catalogProfiles.Where(x => x.StartsWith("court_life_", StringComparison.Ordinal)).Order());
         Assert.Equal("reign-court-life-evidence-v1", docket.GetProperty("courtLifeEvidenceSchema").GetString());
         Assert.Equal("reign-court-life-evidence-v1", manifest["courtLifeEvidenceSchema"]);
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         string host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignLiveInteractionCourtLifeHost.cs"));
         string guide = TestingDocumentation.Read(Path.Combine(root, "docs/agent/TESTING_TOOL_GUIDE.md"));
         foreach (string profile in Profiles)
@@ -176,7 +176,7 @@ public sealed class CourtLifeHarnessContractTests
     public void HouseholdFixtureRetainsNativeCreationAndDisposableGuards()
     {
         string root = TestOptions.FindWorkspace();
-        string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeFamilyFixture.cs"));
+        string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeFamilyFixture.cs"));
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         Assert.Equal("court_life_family_fixture", catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeFamilyFixture").GetProperty("profile").GetString());
         Assert.Contains("RulerDocketFixtureConfirmation", fixture, StringComparison.Ordinal);
@@ -222,7 +222,7 @@ public sealed class CourtLifeHarnessContractTests
     public void NaturalHarnessRequiresExactVisibleMatterAndSeparateReviewedConfirmation()
     {
         string root = TestOptions.FindWorkspace();
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         string host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignLiveInteractionCourtLifeHost.cs"));
         Assert.Contains("RulerDocketFixtureConfirmation", native, StringComparison.Ordinal);
         Assert.Contains("AutomationCourtLifeMatterId", host, StringComparison.Ordinal);
@@ -313,17 +313,146 @@ public sealed class CourtLifeHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string docket = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignInternationalDocket.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
         string decisions = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignInternationalDocketDecisions.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
         Assert.Contains("data[\"sovereignAuthorized\"] = template?.Constructive == true", docket, StringComparison.Ordinal);
         Assert.Contains("data.Property(\"sovereignAuthorized\") == null && savedTemplate?.Constructive == true", docket, StringComparison.Ordinal);
         Assert.Contains("data.Value<bool?>(\"counterProposed\") != true", docket, StringComparison.Ordinal);
         Assert.Contains("string.IsNullOrWhiteSpace(data.Value<string>(\"referralId\")) && data[\"candidate\"] == null", docket, StringComparison.Ordinal);
         Assert.Contains("A standing-charter permission marked false limits your ability to invent or independently change terms", docket, StringComparison.Ordinal);
         Assert.Contains("Do not claim that the represented ruler must approve these same exact terms again", docket, StringComparison.Ordinal);
-        Assert.Contains("bool sovereignTerms = data.Value<bool?>(\"sovereignAuthorized\") == true", decisions, StringComparison.Ordinal);
+        Assert.Contains("HasExactSovereignOffer(matter, data, option, offeredTerms)", decisions, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(InternationalOfferedTerms(data, option", docket, StringComparison.Ordinal);
         Assert.Contains("data.Value<string>(\"remedy\") != \"goodwill\"", decisions, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CourtLifeInterpretationCannotApplyAnOptionOrPromoteSavedProse()
+    {
+        string root = TestOptions.FindWorkspace();
+        string viewModel = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
+        int interpret = viewModel.IndexOf("private async Task ConverseAsync(", StringComparison.Ordinal);
+        int apply = viewModel.IndexOf("private bool ApplyOption(", StringComparison.Ordinal);
+        Assert.True(interpret >= 0 && apply > interpret);
+        Assert.DoesNotContain("_court.ApplyCourtLifeDecision(", viewModel[interpret..apply], StringComparison.Ordinal);
+        Assert.Contains("_court.ApplyCourtLifeDecision(_matter, decision", viewModel[apply..], StringComparison.Ordinal);
+        Assert.Contains("SameOfferedOption(interpretationPayload, selected)", viewModel[interpret..apply], StringComparison.Ordinal);
+        Assert.DoesNotContain("npcAccepted", viewModel, StringComparison.Ordinal);
+        Assert.DoesNotContain("privateMeetingAccepted", viewModel, StringComparison.Ordinal);
+
+        string decisions = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
+        Assert.DoesNotContain("npcAccepted", decisions, StringComparison.Ordinal);
+        Assert.DoesNotContain("acceptedPartyTiers", decisions, StringComparison.Ordinal);
+        Assert.Contains("!effectCommitted && (consensus || promotedOffer) && !HasExactSovereignOffer", decisions, StringComparison.Ordinal);
+
+        string visitors = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs"));
+        Assert.Contains("stay.Invitations.Any(x => x.InvitationId == id)", visitors, StringComparison.Ordinal);
+        Assert.Contains("NpcAccepted = false", visitors, StringComparison.Ordinal);
+        Assert.DoesNotContain("agreedInvitations", visitors, StringComparison.Ordinal);
+
+        string delivery = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignRulerDocketCampaignBehavior.cs"));
+        int legacyInvitation = delivery.IndexOf("job.EventType == \"noble_visitor_invitation\"", StringComparison.Ordinal);
+        int send = delivery.IndexOf("request = ReignCorrespondenceClient.RecordRulerDocketMemoryAsync(", StringComparison.Ordinal);
+        Assert.True(legacyInvitation >= 0 && send > legacyInvitation);
+        Assert.Contains("skipped_unconfirmed_invitation_", delivery[legacyInvitation..send], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CourtAssentAnnotationUsesTheCurrentAcceptedSpeakerReplyAndOfferedTerms()
+    {
+        string root = TestOptions.FindWorkspace();
+        string viewModel = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
+        int annotation = viewModel.IndexOf("private void ShowAssentProposal(", StringComparison.Ordinal);
+        int snapshot = viewModel.IndexOf("private JObject CaptureReviewOption(", StringComparison.Ordinal);
+        Assert.True(annotation >= 0 && snapshot > annotation);
+        string display = viewModel[annotation..snapshot];
+        Assert.Contains("proposal.Value<string>(\"speakerHeroId\") != person.HeroId", display, StringComparison.Ordinal);
+        Assert.Contains("SameOfferedOption(payload, id)", display, StringComparison.Ordinal);
+        Assert.Contains("acceptedReply.Substring(start, quote.Length)", display, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(terms, ReignCourtCampaignBehavior.ParseCourtLifeJson(option.TermsJson))", display, StringComparison.Ordinal);
+        Assert.Contains("Transcript.Add(new ReignChatLineVM", display, StringComparison.Ordinal);
+        Assert.Contains("This proposal is unconfirmed.", display, StringComparison.Ordinal);
+        Assert.DoesNotContain("AddLine(", display, StringComparison.Ordinal);
+        Assert.DoesNotContain("AcceptedDecisionJson", display, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CourtOptionConfirmationUsesTheFrozenSnapshotOfTheDisplayedChoice()
+    {
+        string root = TestOptions.FindWorkspace();
+        string viewModel = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
+        string activation = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeCampaignBehavior.cs"));
+        string decisions = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
+        Assert.Contains("ToDictionary(x => x.OptionId, CaptureReviewOption", viewModel, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(_reviewedOption, current)", viewModel, StringComparison.Ordinal);
+        Assert.Contains("ApplyOption(_matter.SelectedOptionId, _reviewedOption[\"terms\"] as JObject)", viewModel, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(reviewedTerms, ParseCourtLifeJson(option.TermsJson))", activation, StringComparison.Ordinal);
+        Assert.Contains("remedy == \"goodwill\" && data.Value<string>(\"kind\") == \"incident\"", decisions, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TechnicalSovereignFailureDoesNotReplaceOptionsOrBecomeARefusal()
+    {
+        string root = TestOptions.FindWorkspace();
+        string docket = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
+        int failure = docket.IndexOf("// Preserve the original options and exact candidate", StringComparison.Ordinal);
+        Assert.True(failure >= 0);
+        int pending = docket.IndexOf("matter.State = ReignCourtLifeMatterState.Pending;", failure, StringComparison.Ordinal);
+        Assert.True(pending > failure);
+        Assert.DoesNotContain("SetInternationalOptions", docket[failure..pending], StringComparison.Ordinal);
+        Assert.DoesNotContain("declined", docket[failure..pending], StringComparison.Ordinal);
+
+        string decisions = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
+        Assert.Contains("candidate?.Value<string>(\"publicReason\")", decisions, StringComparison.Ordinal);
+        Assert.DoesNotContain("[\"publicReason\"] = matter.Summary", decisions, StringComparison.Ordinal);
+        Assert.Contains("sameTerms ? previousTerms.Value<string>(\"promise\")", decisions, StringComparison.Ordinal);
+        Assert.Contains("if (!replayLegacy)", decisions, StringComparison.Ordinal);
+        Assert.Contains("savedReply.Value<string>(\"status\") == \"model_output_unusable\"", decisions, StringComparison.Ordinal);
+        Assert.Contains("terminalReply && JToken.DeepEquals(sent, candidate)", decisions, StringComparison.Ordinal);
+        Assert.Contains("response.Raw.Value<bool?>(\"technicalFailure\") == true", decisions, StringComparison.Ordinal);
+        Assert.Contains("data[\"replyPromoted\"] = unavailable", decisions, StringComparison.Ordinal);
+        Assert.Contains("data[\"sovereignAuthorized\"] = false", decisions, StringComparison.Ordinal);
+        Assert.Contains("ParseObject(savedReply.Value<string>(\"exact_terms_json\"))", decisions, StringComparison.Ordinal);
+        Assert.Contains("data[\"sentReferralCandidate\"] = candidate.DeepClone()", decisions, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SovereignCourtReplyAdmissionChecksReferralIdentityAndFrozenTerms()
+    {
+        string root = TestOptions.FindWorkspace();
+        string docket = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
+        Assert.Contains("!MatchesInternationalReferral(matter, data, reply)", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"referral_id\") != referralId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"matter_id\") != matter.MatterId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"campaign_id\") != matter.CampaignId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"timeline_id\") != matter.TimelineId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"terms_hash\") == termsHash", docket, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(exact, offered)", docket, StringComparison.Ordinal);
+        Assert.Contains("MatchesCourtNormalizedTerms(CourtMaterialValues(typedTerms)", docket, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(savedCounter, ParseObject(reply.Value<string>(\"counter_terms_json\")))", docket, StringComparison.Ordinal);
+        Assert.Contains("SetSovereignReviewText(exactOption, data, bound, normalized)", docket, StringComparison.Ordinal);
+        Assert.Contains("option.Label = \"Pay \" + terms.Value<int>(\"gold\")", docket, StringComparison.Ordinal);
+        Assert.Contains("HasHistoricalSovereignResponder(frozenRuler, author, data.Value<string>(\"foreignRulerId\"))", docket, StringComparison.Ordinal);
+        Assert.Contains("ParseObject(reply.Value<string>(\"authoritative_receipt_json\")).Value<string>(\"responderHeroId\")", docket, StringComparison.Ordinal);
+        Assert.Contains("BoundSovereignCourtTerms(reply, data, normalized, disposition)", docket, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(normalized, data[\"normalizedAction\"])", docket, StringComparison.Ordinal);
+
+        string activation = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeCampaignBehavior.cs"));
+        Assert.Contains("RefreshSavedInternationalOffer(matter);", activation, StringComparison.Ordinal);
+        Assert.Contains("The saved sovereign terms could not be verified", docket, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -331,7 +460,7 @@ public sealed class CourtLifeHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string docket = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignInternationalDocket.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
         Assert.Contains("current matter \" + matter.MatterId", docket, StringComparison.Ordinal);
         Assert.Contains("unresolved and distinct from every earlier demand", docket, StringComparison.Ordinal);
         Assert.Contains("A payment or settlement recorded for another matter does not satisfy this one", docket, StringComparison.Ordinal);
@@ -343,7 +472,7 @@ public sealed class CourtLifeHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string docket = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignInternationalDocket.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
         Assert.Contains("continues an already generated political incident involving the player kingdom", docket, StringComparison.Ordinal);
         Assert.Contains("already reduced the foreign kingdom's diplomatic pressure toward the player kingdom", docket, StringComparison.Ordinal);
         Assert.Contains("already applied the incident's diplomatic pressure toward the player kingdom", docket, StringComparison.Ordinal);
@@ -358,7 +487,7 @@ public sealed class CourtLifeHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string docket = File.ReadAllText(Path.Combine(root,
-            "ReignBeta/src/Modules/Court/Court/ReignInternationalDocket.cs"));
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
         Assert.Contains("reservedDay.HasValue && reservedDay.Value <= CurrentDay()", docket, StringComparison.Ordinal);
         Assert.DoesNotContain("Value<int?>(\"replyReservedDay\") == CurrentDay()", docket, StringComparison.Ordinal);
     }
@@ -367,7 +496,7 @@ public sealed class CourtLifeHarnessContractTests
     public void FamilyExpectationsRequireExactVisitTransitionsAndRetainedNeglectEvidence()
     {
         string root = TestOptions.FindWorkspace();
-        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Court/ReignCourtLifeInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         string contract = catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeFamilyTransitionContract").GetString()!;
         Assert.Equal(contract, TestingTools.GetRulerDocketTestManifest()["courtLifeFamilyTransitionContract"]);

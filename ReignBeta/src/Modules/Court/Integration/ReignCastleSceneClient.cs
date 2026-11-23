@@ -8,11 +8,15 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.CastleChat;
 using ReignBeta.Court;
-using ReignBeta.Settings;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.UI;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     public static class ReignCastleSceneClient
     {

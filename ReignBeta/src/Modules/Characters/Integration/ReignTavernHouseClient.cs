@@ -4,19 +4,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignTavernHouseClient
     {
         /// <summary>Call on the native main thread, before starting asynchronous work.</summary>
         public static JObject BuildTavernHousePayload(Settlement town, string conversationId)
         {
-            var behavior = ReignTavernHouseCampaignBehavior.Instance;
+            var behavior = ReignServices.TavernHouse;
             if (town?.IsTown != true || behavior == null || Hero.MainHero == null || string.IsNullOrWhiteSpace(conversationId))
                 throw new InvalidOperationException("A live town, native player and tavern conversation identity are required.");
             var roster = new JArray();
@@ -29,7 +35,7 @@ namespace ReignBeta.Integration
                 roster.Add(profile);
             }
             return new JObject {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["conversationSessionId"] = conversationId, ["townId"] = town.StringId, ["townName"] = town.Name.ToString(), ["isTown"] = true,
                 ["playerHeroStringId"] = Hero.MainHero.StringId, ["mainHeroStringId"] = Hero.MainHero.StringId, ["player"] = BuildHeroProfile(Hero.MainHero),
                 ["playerIdentity"] = BuildPlayerIdentityContext(), ["playerName"] = Hero.MainHero.Name.ToString(),
@@ -51,14 +57,16 @@ namespace ReignBeta.Integration
                     return new JObject { ["ok"] = false, ["error"] = "Local server is disabled." };
                 var request = (JObject)payload.DeepClone();
                 Hero speaker = null; var participants = new List<Hero>();
+                RequestFence fence = null;
                 Action<JObject> completeAction = null;
                 if (operation == "respond")
                 {
                     await ReignMainThread.InvokeAsync(() => {
-                        if (GetCampaignId() != request.Value<string>("campaignId") || (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") != request.Value<string>("timelineId"))
+                        if (GetCampaignId() != request.Value<string>("campaignId") || (ReignServices.WorldHistory?.TimelineId ?? "main") != request.Value<string>("timelineId"))
                             throw new InvalidOperationException("The campaign changed before this conversation turn.");
+                        fence = RequestFence.Capture();
                         var town = Settlement.Find(request.Value<string>("townId"));
-                        var behavior = ReignTavernHouseCampaignBehavior.Instance;
+                        var behavior = ReignServices.TavernHouse;
                         if (behavior == null || Hero.MainHero?.CurrentSettlement != town) throw new InvalidOperationException("The player is no longer at this town.");
                         speaker = Hero.Find(request.Value<string>("speakerHeroStringId"));
                         var receipt = behavior.GetOpenVisit(town);
@@ -79,7 +87,7 @@ namespace ReignBeta.Integration
                         request["identityRoster"] = fresh["identityRoster"];
                         request["sceneOpportunity"] = fresh["sceneOpportunity"];
                         request["correlationId"] = request.Value<string>("correlationId") ?? NewCorrelationId("tavern_house", speaker.StringId);
-                        completeAction = BeginStructuredActionExchange(request, speaker, actionDraft, receipt == null);
+                        completeAction = ReignStructuredActionClient.BeginStructuredActionExchange(request, speaker, actionDraft, receipt == null);
                         request["channel"] = "party_chat"; request["phaseId"] = "tavern_house";
                         request["locationId"] = town.StringId; request["sceneInterface"] = "tavern_house";
                     }).ConfigureAwait(false);
@@ -96,13 +104,17 @@ namespace ReignBeta.Integration
                 }
                 JObject response = await PostJsonAsync("/tavern-house/" + operation, request).ConfigureAwait(false);
                 if (completeAction != null) await ReignMainThread.InvokeAsync(() => {
-                    ReignBeta.Actions.ReignTavernHouseAction.RegisterPrepared(response);
+                    ReignBeta.Characters.Actions.ReignTavernHouseAction.RegisterPrepared(response);
                     completeAction(response);
                 }).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)
                     await ReignMainThread.InvokeAsync(() => {
-                        if (GetCampaignId() == request.Value<string>("campaignId") && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == request.Value<string>("timelineId"))
-                            ApplyHeroEncyclopediaText(speaker, response.Value<string>("encyclopediaText") ?? "");
+                        bool CurrentTurn() => fence?.IsCurrent() == true
+                            && Hero.MainHero?.CurrentSettlement?.StringId == request.Value<string>("townId");
+                        if (!CurrentTurn()) return;
+                        ApplyHeroEncyclopediaText(speaker, response.Value<string>("encyclopediaText") ?? "");
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, Array.Empty<Hero>(),
+                            request.Value<string>("playerText"), "party_chat", response, CurrentTurn);
                     }).ConfigureAwait(false);
                 return response;
             }

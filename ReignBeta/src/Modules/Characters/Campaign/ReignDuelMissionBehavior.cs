@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +10,15 @@ using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignDuelMissionBehavior : MissionBehavior
     {
@@ -567,7 +573,7 @@ namespace ReignBeta.Campaign
             bool arrestDuel = string.Equals(finished.Purpose, "arrest_capture",
                 StringComparison.OrdinalIgnoreCase);
             if (arrestDuel)
-                ReignArrestCampaignBehavior.Instance?.CompleteArrestDuel(
+                ReignServices.Arrest?.CompleteArrestDuel(
                     finished.ArrestCaseId, finished.OpponentHero, playerWon);
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
@@ -587,7 +593,7 @@ namespace ReignBeta.Campaign
             }
 
             ReignDuelService.Complete(finished.ActionId);
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(finished.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(finished.ActionId, result);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(0xFFFFD36A)));
             ReignLog.Info("Conversation duel completed action=" + finished.ActionId + " result=" + result.ResultCode + " killed=" + killed);
         }

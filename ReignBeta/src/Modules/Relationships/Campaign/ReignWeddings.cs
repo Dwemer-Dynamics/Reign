@@ -8,8 +8,6 @@ using Reign.Relationships;
 using ReignBeta.Actions;
 using ReignBeta.Events;
 using ReignBeta.Family;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,8 +15,17 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Family;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     internal enum WeddingState
     {
@@ -61,7 +68,7 @@ namespace ReignBeta.Campaign
         private DateTime _weddingReportRetryUtc;
 
         internal static bool WeddingFeatureReady => ReignMarriagePatches.WeddingsReady
-            && ReignBeta.Settings.ReignBetaSettings.Instance?.Enabled != false && Instance != null;
+            && ReignBeta.Platform.Settings.ReignBetaSettings.Instance?.Enabled != false && Instance != null;
 
         private void SyncWeddings(IDataStore store)
         {
@@ -81,7 +88,7 @@ namespace ReignBeta.Campaign
             }
         }
 
-        private static string WeddingTimeline => ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+        private static string WeddingTimeline => ReignServices.WorldHistory?.TimelineId ?? "main";
         private static double WeddingNow => CampaignTime.Now.ToDays;
         internal ReignWedding Wedding(string id) => !string.IsNullOrEmpty(id) && _weddings.TryGetValue(id, out var match) ? match : null;
 
@@ -237,7 +244,7 @@ namespace ReignBeta.Campaign
                 return;
             }
             _openWeddingChoice = match.Id;
-            if (!ReignBeta.UI.ReignActionBuilder.OpenWeddingTownPicker(WeddingNames(match), towns, town =>
+            if (!ReignBeta.Dialogue.UI.ReignActionBuilder.OpenWeddingTownPicker(WeddingNames(match), towns, town =>
                 {
                     if (WeddingChoiceCurrent(match)) BookWedding(match, town);
                 }, () => _openWeddingChoice = ""))
@@ -337,7 +344,7 @@ namespace ReignBeta.Campaign
 
         private bool OpenWeddingDay(ReignWedding match, Hero first, Hero second, Settlement venue)
         {
-            var travel = ReignNpcLivesBehavior.Instance;
+            var travel = ReignServices.NpcLives;
             if (travel == null || !SuitableWeddingPair(first, second, match.Id)) return false;
             foreach (var spouse in new[] { first, second }.Where(h => h != Hero.MainHero))
                 if (travel.WeddingAttendanceProblem(spouse, venue).Length != 0) return false;
@@ -356,7 +363,7 @@ namespace ReignBeta.Campaign
 
         private void RescheduleWedding(ReignWedding match)
         {
-            ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(match.Id);
+            ReignServices.NpcLives?.EndWeddingAttendance(match.Id);
             if (match.Reschedules++ != 0) { CancelWedding(match, "The ceremony could not take place on its second date."); return; }
             var original = Settlement.Find(match.VenueId);
             if (WeddingTowns(match).Contains(original)) BookWedding(match, original);
@@ -447,7 +454,7 @@ namespace ReignBeta.Campaign
                 foreach (var offer in offers)
                     receipts.Add(new JObject { ["directorActionId"] = offer.Id, ["status"] = offer.State == "refused" ? "player_refused" : "obsolete",
                         ["worldDay"] = WeddingNow, ["timelineId"] = timeline });
-                var result = await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
+                var result = await ReignRelationshipDirectorClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!CurrentOwner()) return;
@@ -489,7 +496,7 @@ namespace ReignBeta.Campaign
             match.State = WeddingState.Cancelled;
             match.Reason = reason;
             match.PendingAppeal = "";
-            ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(match.Id);
+            ReignServices.NpcLives?.EndWeddingAttendance(match.Id);
             RecordWeddingOutcome(match, "called_off");
             InformationManager.DisplayMessage(new InformationMessage($"The wedding of {WeddingNames(match)} was called off."));
             if (match.PlayerChoice) InformationManager.DisplayMessage(new InformationMessage(reason));
@@ -497,7 +504,7 @@ namespace ReignBeta.Campaign
 
         private void SettleWedding(ReignWedding match, Hero first, Hero second)
         {
-            ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(match.Id);
+            ReignServices.NpcLives?.EndWeddingAttendance(match.Id);
             if (!SuitableWeddingPair(first, second, match.Id)
                 || TaleWorlds.CampaignSystem.Campaign.Current.Models.MarriageModel.GetClanAfterMarriage(first, second)?.StringId != match.ReceivingClanId)
             {
@@ -523,7 +530,7 @@ namespace ReignBeta.Campaign
                     }
                 }
                 match.State = WeddingState.Completed;
-                ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.PumpCourtWeddingReports();
+                ReignServices.Court?.PumpCourtWeddingReports();
                 RecordWeddingOutcome(match, "married");
                 InformationManager.DisplayMessage(new InformationMessage(WeddingNames(match) + " are married."));
             }
@@ -543,7 +550,7 @@ namespace ReignBeta.Campaign
 
         private static void RecordWeddingOutcome(ReignWedding match, string outcome)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("wedding", outcome, "relationships", match.Id,
+            ReignServices.WorldHistory?.RecordReignSystemEvent("wedding", outcome, "relationships", match.Id,
                 WeddingNames(match) + ". " + (match.Reason.Length != 0 ? match.Reason + " " : "") + DescribeMarriageTerms(match.Consideration),
                 "participants", match.FirstId, match.SecondId, new JObject { ["weddingId"] = match.Id },
                 new JArray(match.FirstId, match.SecondId));

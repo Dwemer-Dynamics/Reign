@@ -1,10 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI.EventArt;
+using ReignBeta.Court.Integration;
+using ReignBeta.Court.UI;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.FamilyChambers
 {
     internal static class ReignFamilyChambersPreparation
     {

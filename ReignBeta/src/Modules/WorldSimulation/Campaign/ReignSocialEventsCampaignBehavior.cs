@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArenaOverhaul.TeamTournament;
 using ReignBeta.Events;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameState;
@@ -20,8 +17,19 @@ using TaleWorlds.Engine.Screens;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Events;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public sealed class ReignSocialEventsCampaignBehavior : CampaignBehaviorBase
     {
@@ -44,11 +52,11 @@ namespace ReignBeta.Campaign
         private bool _generatedWildernessRequestRunning;
         private float _pendingWildernessCheckElapsed;
 
-        public static ReignSocialEventsCampaignBehavior Instance { get; private set; }
+        public static ReignSocialEventsCampaignBehavior Instance => ReignServices.SocialEvents;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.SocialEvents = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -162,12 +170,12 @@ namespace ReignBeta.Campaign
                 args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return WeddingHere() != null; },
                 args => OpenWeddingHere(), false, 4);
             starter.AddGameMenuOption("town", "reign_choose_wedding", "{=!}Choose wedding plans",
-                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return ReignRelationshipCampaignBehavior.Instance?.HasWeddingChoice == true; },
-                args => ReignRelationshipCampaignBehavior.Instance?.ShowWeddingChoice(), false, 4);
+                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return ReignServices.Relationship?.HasWeddingChoice == true; },
+                args => ReignServices.Relationship?.ShowWeddingChoice(), false, 4);
             // Loaded-session repair is owned by the readiness coordinator.
         }
 
-        private static ReignWedding WeddingHere() => ReignRelationshipCampaignBehavior.Instance?.AvailableWedding(
+        private static ReignWedding WeddingHere() => ReignServices.Relationship?.AvailableWedding(
             Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement);
 
         private void OpenWeddingHere()
@@ -1035,7 +1043,7 @@ namespace ReignBeta.Campaign
         private void OnTournamentFinished(CharacterObject winner, MBReadOnlyList<CharacterObject> participants, Town town, ItemObject prize)
         {
             BeginTournamentCelebrationWindDown(town, CurrentCampaignDay(), winner, prize,
-                TeamTournamentOutcome.ForFinishedEvent(town, winner));
+                TeamTournamentOutcome.ForFinishedEvent(participants));
         }
 
         private void OnTournamentCancelled(Town town)
@@ -1239,18 +1247,6 @@ namespace ReignBeta.Campaign
                 record.DisplayName = replacement.DisplayName;
                 ReignLog.Info("Restored tournament celebration presentation id=" + record.EventId + " template=" + replacement.TemplateId + ".");
             }
-        }
-
-        private static string CultureSuffix(string cultureId)
-        {
-            string value = (cultureId ?? string.Empty).ToLowerInvariant();
-            if (value.Contains("vland")) return "vlandia";
-            if (value.Contains("sturg")) return "sturgia";
-            if (value.Contains("battan")) return "battania";
-            if (value.Contains("aserai")) return "aserai";
-            if (value.Contains("khuz")) return "khuzait";
-            if (value.Contains("nord")) return "nord";
-            return "empire";
         }
 
         private SocialEventRecord GetOpenEventForCurrentSettlement()

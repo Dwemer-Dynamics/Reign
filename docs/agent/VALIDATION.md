@@ -8,6 +8,10 @@ Full offline behavioral validation runs only when the user explicitly requests i
 
 The source fingerprint covers Linux `.sh` scripts, `.service` units and the extensionless `reignctl` controller as well as PowerShell modules. Installer/controller changes cannot reuse a report that predates this coverage extension; qualify the final source with the current canonical engine and use its exact verifier for packaging.
 
+Managed WPF `.xaml` files under the plan's fingerprinted roots contribute their exact working bytes. The ordinary validator records `SourceFingerprintSha256` before building and `FinalSourceFingerprintSha256` after collecting artifact hashes. Source drift or a failed final read yields a failed report with `SourceFingerprintError`. The run directory retains the process results, hygiene evidence and artifacts for diagnosis. Reuse also rechecks the requesting source after inspecting the retained artifacts.
+
+Earlier receipts remain evidence of their original runs. Reuse and the current client deployment source check require matching initial and final fingerprints. Qualify the intended source to obtain that evidence. Keep the original reports, verifier and approved deployment checkpoint for provenance.
+
 ## Dedicated ReignServer Linux component
 
 Use `reign_build_linux_server` or `ReignMcp/scripts/reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>` to cross-publish the WSL server. The same canonical OS lease, ownership plan, source fingerprint, and paired hygiene gates apply. This produces `reign-linux-build-v1` and a complete SHA-256 `reign-linux-artifact-v1` file inventory under `.codex-build/reign-mcp/linux-server/<run>`. It does not start services, access campaigns, or call providers. Retain both reports; full manifest-selected validation and Linux runtime checks are separate proof.
@@ -41,9 +45,13 @@ Each plan reports status, nullable selected tier, non-code classification, path 
 
 Canonical validation, Linux publishing and isolated offline verification have no elapsed-time process deadline. Full runs can readily take forty minutes or longer. Do not stop a healthy run because of its duration or replace this with a larger fixed cap. Preserve the OS lease, task attribution, explicit caller cancellation, owned-process cleanup and contract-specific behavioral limits. The generic API/tool process limits do not apply to validation orchestration.
 
-Before validation, call `reign_get_validation_status`. Supply the current task UUID as `requestingTaskId` to `reign_validate`. The OS lease serializes heavy validation; a status snapshot does not reserve it. See [task coordination](TASK_COORDINATION.md) for busy or unknown ownership. Reuse only a successful report whose source fingerprint, configuration, scope, verification tier, exact project set and retained artifacts cover the requested plan.
+Before validation, call `reign_get_validation_status`. Supply the current task UUID as `requestingTaskId` to `reign_validate`. The OS lease serializes heavy validation machine-wide, per WSL validation lane, across every worktree; a status snapshot does not reserve it. See [task coordination](TASK_COORDINATION.md) for busy or unknown ownership. Reuse only a successful report whose source fingerprint, configuration, scope, verification tier, exact project set and retained artifacts cover the requested plan.
+
+`reign_build` accepts its existing component, configuration and restore inputs, plus optional `requestingTaskId`. Named profiles use canonical validation. A project ID selects the changed-path plan for its project file. If a ready plan omits the project, its containing `core` or `tooling` profile covers it and records the project path. A blocked plan stays blocked. The legacy response keeps `ok`, `configuration`, `artifactRoot` and process `results` and adds `validationRunId`, `validationReportPath` and `reused`. Read the original report for its plan, gates and source checks. Historical compilation-only responses carry no validation receipt.
 
 Group related edits before validating. Intermediate checks should reduce a concrete debugging risk. Do not repeat a successful covered validation for unchanged source. Keep long scale, stress and acceptance runs separate unless the change affects performance, concurrency, persistence or deployment behavior.
+
+An older MCP host that describes `reign_build` as compiling every call into a fresh directory still exposes the compilation-only implementation. Use the current worktree's `ReignMcp/scripts/reign-validate.ps1` until the host loads the updated tool.
 
 Use MCP for builds and tests. Do not directly invoke `dotnet build`, `dotnet test`, `dotnet restore`, MSBuild, VSTest, project build scripts or verification executables. If MCP transport is unavailable, use `ReignMcp/scripts/reign-validate.ps1`; CI and automation use that same non-listening engine. A direct build is permitted only to repair `ReignMcp`, with `REIGN_MCP_REPAIR=1`, targeting only that project. A busy lease is not transport failure and is not permission to bypass it.
 

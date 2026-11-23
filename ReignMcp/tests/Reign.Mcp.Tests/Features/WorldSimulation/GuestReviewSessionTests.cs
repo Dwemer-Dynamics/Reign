@@ -1,5 +1,5 @@
-using ReignBeta.PartyAgency;
-using ReignBeta.UI;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Dialogue.UI;
 
 namespace Reign.Mcp.Tests;
 

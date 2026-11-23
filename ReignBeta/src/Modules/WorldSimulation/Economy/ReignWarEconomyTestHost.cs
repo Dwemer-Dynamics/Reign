@@ -11,7 +11,6 @@ using ReignBeta.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Actions;
@@ -21,8 +20,15 @@ using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Read-only native observations. Mutation profiles use the enrolled disposable-save bridge.
     internal static class ReignWarEconomyTestHost
@@ -347,7 +353,7 @@ namespace ReignBeta.Economy
             if (healthy < 20 || healthy > 32768 || regulars.Any(e => e.Xp < 0))
                 throw new InvalidOperationException("Replacement setup needs20-32768 healthy regulars and valid native experience.");
             int target = Math.Min(100, healthy / 2);
-            var economy = ReignEconomyCampaignBehavior.Instance ?? throw new InvalidOperationException("Economy behavior unavailable.");
+            var economy = ReignServices.Economy ?? throw new InvalidOperationException("Economy behavior unavailable.");
             var losses = regulars.ToDictionary(e => e.Character, e => (e.Number - e.WoundedNumber) * target / healthy);
             int remaining = target - losses.Values.Sum();
             foreach (var element in regulars.OrderByDescending(e => (long)(e.Number - e.WoundedNumber) * target % healthy)
@@ -444,7 +450,7 @@ namespace ReignBeta.Economy
                 var other = Kingdom.All.FirstOrDefault(x => x != realm && !x.IsEliminated && x.Fiefs.Count > 0);
                 if (other == null) throw new InvalidOperationException("Readiness quote controls need an existing foreign kingdom.");
                 state.MilitaryPressureCampaign = ReignServerClient.GetCampaignId();
-                state.MilitaryPressureTimeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                state.MilitaryPressureTimeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 state.MilitaryPressureDay = CampaignTime.Now.ToDays;
                 foreach (int value in new[] { 0, -100, 100 })
                 {
@@ -516,7 +522,7 @@ namespace ReignBeta.Economy
             double day = CampaignTime.Now.ToDays;
             Func<JObject> observe = () => new JObject { ["village"] = VillageObservation(village),
                 ["state"] = village.VillageState.ToString(), ["hitPoints"] = locality.SettlementHitPoints,
-                ["recruitCapacity"] = ReignEconomyCampaignBehavior.Instance.GetRecruitCapacity(locality),
+                ["recruitCapacity"] = ReignServices.Economy.GetRecruitCapacity(locality),
                 ["boundTownFoodStocks"] = village.Bound.Town.FoodStocks,
                 ["boundTownFoodModel"] = HoldingFoodModelObservation(village.Bound),
                 ["security"] = village.Bound.Town.Security };
@@ -528,9 +534,9 @@ namespace ReignBeta.Economy
             ChangeVillageStateAction.ApplyBySettingToLooted(locality, raider);
             var after = observe();
             return new JObject { ["ok"] = village.VillageState == Village.VillageStates.Looted
-                    && ReignEconomyCampaignBehavior.Instance.GetRecoveryModifier(village) == 0
+                    && ReignServices.Economy.GetRecoveryModifier(village) == 0
                     && ReignRaidFoodDisruption.Capacity(village)==0
-                    && ReignEconomyCampaignBehavior.Instance.GetRecruitCapacity(locality) == 0
+                    && ReignServices.Economy.GetRecruitCapacity(locality) == 0
                     && CampaignTime.Now.ToDays == day,
                 ["villageId"] = locality.StringId, ["raiderPartyId"] = raider.StringId,
                 ["before"] = before, ["after"] = after, ["syntheticScenario"] = true,
@@ -547,7 +553,7 @@ namespace ReignBeta.Economy
             if (village == null || village.VillageState != Village.VillageStates.Normal
                 || village.Bound?.Town == null || village.Bound.IsUnderSiege || village.Settlement.IsUnderRaid)
                 throw new InvalidOperationException("Production probe requires an exact functioning village bound to a safe fortification.");
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             var state = behavior.EconomyState;
             float originalHearth = village.Hearth;
             bool hadRecovery = state.Recovery.TryGetValue(village.StringId, out float originalRecovery);
@@ -635,7 +641,7 @@ namespace ReignBeta.Economy
             var recipient = network.Where(x => x != donor)
                 .OrderBy(x => (x.Settlement.GetPosition2D - donor.Settlement.GetPosition2D).LengthSquared)
                 .ThenBy(x => x.Settlement.StringId, StringComparer.Ordinal).First();
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             var originalStocks = network.ToDictionary(x => x, x => x.FoodStocks);
             string[] fieldNames = { "_currentReliefDonors", "_currentReliefRecipients", "_currentReliefUnmet",
                 "_currentReliefFoodShipped", "_currentReliefFoodDelivered", "_currentReliefFoodLost", "_reliefBlockedRequests",
@@ -790,7 +796,7 @@ namespace ReignBeta.Economy
 
         private static JObject PersistencePayload()
         {
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             return new JObject { ["economy"] = JObject.FromObject(behavior.EconomyState),
                 ["navalShipReferences"] = new JArray(behavior.NavalShips.Select((ship, i) => new JObject {
                     ["receiptId"] = behavior.NavalShipIds[i], ["hull"] = ship.ShipHull.StringId,
@@ -839,9 +845,9 @@ namespace ReignBeta.Economy
         // or SyncData (which can prune history). Only the digest leaves this method's caller.
         private static JObject PersistedAssistance()
         {
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
-            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
-            var accords = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
+            var court = ReignServices.Court;
+            var government = ReignServices.Government;
+            var accords = ReignServices.ClanAccords;
             return new JObject {
                 ["schema"] = "reign-war-economy-persisted-assistance-v1",
                 ["courtAidAndExpeditions"] = SavedField(court, "_rulerDocketState"),
@@ -867,7 +873,7 @@ namespace ReignBeta.Economy
         private static JObject ProbeHousehold(JObject command)
         {
             var locality = Settlement.Find(command.Value<string>("settlementId"));
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             if (locality?.Town == null || locality.IsUnderSiege || locality.IsUnderRaid
                 || locality.OwnerClan == Clan.PlayerClan || behavior.GetRecruitCapacity(locality) < 30)
                 throw new InvalidOperationException("Household probe requires a safe non-player fortification supporting thirty recruits.");
@@ -1039,7 +1045,7 @@ namespace ReignBeta.Economy
 
         internal static JObject VillageObservation(Village village)
         {
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             double recovery = behavior?.GetRecoveryModifier(village) ?? 1;
             bool functioning = village.VillageState == Village.VillageStates.Normal;
             double potential = 0;
@@ -1053,8 +1059,8 @@ namespace ReignBeta.Economy
                 ["kingdomId"] = village.Settlement.OwnerClan?.Kingdom?.StringId, ["state"] = village.VillageState.ToString(),
                 ["hearth"] = village.Hearth, ["recovery"] = recovery, ["strain"] = behavior?.GetMobilizationStrain(village) ?? 0,
                 ["naturalGrowth"] = natural, ["modelHearthChange"] = delta, ["otherModelGrowth"] = delta - natural,
-                ["governmentGrowth"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0,
-                ["accordGrowth"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0,
+                ["governmentGrowth"] = ReignServices.Government?.GetHearthDelta(village) ?? 0,
+                ["accordGrowth"] = ReignServices.ClanAccords?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0,
                 ["observedHearthChange"] = behavior?.EconomyState.VillageHearthChange.TryGetValue(village.StringId, out double observed) == true ? (double?)observed : null,
                 ["returnedVeteranHearths"] = behavior?.EconomyState.DemobilizationHearthByVillage.TryGetValue(village.StringId, out double returnedVeterans) == true ? returnedVeterans : 0,
                 ["healthyFood"] = ReignWarEconomyPolicy.HealthyFood(village.Hearth),
@@ -1126,7 +1132,7 @@ namespace ReignBeta.Economy
 
         internal static JObject Capture(bool detailed = true)
         {
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             var state = behavior?.EconomyState;
             var villages = Settlement.All.Where(x => x.Village != null).Select(x => VillageObservation(x.Village)).ToList();
             // Native finance calls the leader's workshops without a null check.
@@ -1155,7 +1161,7 @@ namespace ReignBeta.Economy
                 ["cohortControl"] = ReignWarEconomyCohortControl.Status(detailed),
                 ["criminalPressure"] = CriminalPressure(detailed),
                 ["npcFoodSabotage"] = ReignNpcFoodSabotage.Observation(detailed),
-                ["reliefAllocation"] = ReignEconomyCampaignBehavior.Instance?.ReliefDiagnostics(detailed),
+                ["reliefAllocation"] = ReignServices.Economy?.ReliefDiagnostics(detailed),
                 ["fiscalObservationVersion"] = 2,
                 ["financeSnapshotVersion"] = 1, ["financeObservationClans"] = FinanceSnapshot(clans),
                 ["militaryReadinessVersion"] = 1,
@@ -1317,7 +1323,7 @@ namespace ReignBeta.Economy
                 var lines = explained.GetLines().ToArray();
                 float withoutMarket = town.FoodChangeWithoutMarketStocks;
                 var foodModel = TaleWorlds.CampaignSystem.Campaign.Current.Models.SettlementFoodModel;
-                var economy = ReignEconomyCampaignBehavior.Instance;
+                var economy = ReignServices.Economy;
                 var villages = settlement.BoundVillages;
                 var roster = settlement.ItemRoster;
                 int marketFood = 0;
@@ -1329,7 +1335,7 @@ namespace ReignBeta.Economy
                 }
                 float spy = 0;
 #if !REIGN_EXCLUDE_COURT
-                spy = ReignCourtCampaignBehavior.Instance?.GetSpymasterFoodFactor(town) ?? 0;
+                spy = ReignServices.Court?.GetSpymasterFoodFactor(town) ?? 0;
 #endif
                 return new JObject {
                     ["available"] = true, ["prosperity"] = town.Prosperity,
@@ -1344,7 +1350,7 @@ namespace ReignBeta.Economy
                     ["marketFoodUnits"] = marketFood,
                     ["townMarketCash"] = town.Gold,
                     ["lastCivilianConsumption"] = ReignWarEconomyFoodMarket.Observe(town),
-                    ["eventProductionFactor"] = ReignKingdomEventsCampaignBehavior.Instance?.GetFoodProductionFactor(town) ?? 0,
+                    ["eventProductionFactor"] = ReignServices.KingdomEvents?.GetFoodProductionFactor(town) ?? 0,
                     ["espionageProductionFactor"] = spy, ["lineCount"] = lines.Length,
                     ["truncated"] = lines.Length > maxLines,
                     ["lines"] = new JArray(lines.Take(maxLines).Select(line => new JObject { ["source"] = line.name, ["amount"] = line.number })) };
@@ -1374,7 +1380,7 @@ namespace ReignBeta.Economy
                 ["observedFinance"] = state?.Finance.TryGetValue(clan.StringId, out var observedFinance) == true ? JObject.FromObject(observedFinance) : null,
                 ["dailyCashChangeModel"] = finance.CalculateClanGoldChange(clan).ResultNumber,
                 ["observedCashChange"] = state?.ClanCashChange.TryGetValue(clan.StringId, out double change) == true ? (double?)change : null,
-                ["accordIncome"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(clan).TradeIncome ?? 0 };
+                ["accordIncome"] = ReignServices.ClanAccords?.GetBonuses(clan).TradeIncome ?? 0 };
             if (detailed)
             {
                 const int maxLords = 32;

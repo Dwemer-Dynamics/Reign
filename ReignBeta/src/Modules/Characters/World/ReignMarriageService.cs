@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
+using Reign.Relationships;
+using ReignBeta.Actions;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.World
+namespace ReignBeta.Characters.World
 {
     internal static class ReignMarriageService
     {
@@ -234,7 +242,7 @@ namespace ReignBeta.World
             else if (action.Source != "reign_console" && !((first.StringId == action.ActorHeroStringId && second.StringId == action.TargetHeroStringId)
                 || (second.StringId == action.ActorHeroStringId && first.StringId == action.TargetHeroStringId)))
                 reason = "A personal marriage agreement can bind only its two participants.";
-            else if (!proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+            else if (!proposal && ReignServices.Agreement?.Authorizes(action) != true)
                 reason = "Marriage requires the exact accepted agreement or saved operator instruction.";
             else if (first.Spouse == second && second.Spouse == first) return true;
             else if (first.Spouse != null || second.Spouse != null
@@ -279,7 +287,7 @@ namespace ReignBeta.World
         internal static string WeddingId(ReignWorldActionRecord action) => "world_wedding_" + action.ActionId;
 
         internal static ReignWedding LinkedWedding(ReignWorldActionRecord action)
-            => action == null ? null : ReignRelationshipCampaignBehavior.Instance?.Wedding(WeddingId(action));
+            => action == null ? null : ReignServices.Relationship?.Wedding(WeddingId(action));
 
         internal static bool MatchesLinkedTerms(ReignWedding wedding, ReignWorldActionRecord action)
             => wedding != null && wedding.LinkedTerms == (action.TermsJson ?? "")
@@ -290,7 +298,7 @@ namespace ReignBeta.World
             if (!TryResolveCouple(action, out Hero first, out Hero second, out string reason))
                 return ReignActionResult.ValidationFailed(reason);
 
-            var coordinator = ReignRelationshipCampaignBehavior.Instance;
+            var coordinator = ReignServices.Relationship;
             var pending = LinkedWedding(action);
             bool alreadyMarried = first.Spouse == second && second.Spouse == first;
             if (pending == null && !alreadyMarried && ReignRelationshipCampaignBehavior.WeddingFeatureReady)
@@ -309,7 +317,7 @@ namespace ReignBeta.World
                     var receipt = coordinator.ApplyArrangedMarriage(new ReignDirectorAction
                     {
                         DirectorActionId = id, ActionType = "marriage", ActorId = first.StringId, TargetId = second.StringId,
-                        Payload = new JObject { ["route"] = "arranged", ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        Payload = new JObject { ["route"] = "arranged", ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                             ["marriageTerms"] = quote?.DeepClone() }
                     }, action.AcceptedByHeroStringId == Hero.MainHero?.StringId, consideration);
                     pending = coordinator.Wedding(id);
@@ -350,11 +358,34 @@ namespace ReignBeta.World
             if (pending == null && !ReignActionValidator.IsStructuredAction(action)
                 && !string.Equals(action.AuthorizationMode, "dialogue_acceptance", StringComparison.OrdinalIgnoreCase))
                 StampResolvedCouple(action, first, second);
-            return result.WithEffect("marriage_completed", "hero", second.StringId, secondName,
+            result.WithEffect("marriage_completed", "hero", second.StringId, secondName,
                     "alreadyMarried=" + alreadyMarried + ";hero1=" + first.StringId + ";hero1Name=" + firstName
                     + ";hero2=" + second.StringId + ";hero2Name=" + secondName)
                 .WithChangedEntity("hero", first.StringId, firstName, "spouse_changed")
                 .WithChangedEntity("hero", second.StringId, secondName, "spouse_changed");
+            if (TryVerifiedDiplomaticMarriageFee(action, pending, out int fee))
+                result.WithEffect("diplomatic_marriage_settled", "action", action.ActionId, "",
+                    fee.ToString(CultureInfo.InvariantCulture));
+            return result;
+        }
+
+        private static bool TryVerifiedDiplomaticMarriageFee(ReignWorldActionRecord action, ReignWedding wedding, out int fee)
+        {
+            fee = -1;
+            if (wedding?.State != WeddingState.Completed || !wedding.Settled.Contains("native_marriage") || !IsNpcWorldAlliance(action))
+                return false;
+            var quote = ReignValueService.ParseTerms(action)["marriageTerms"] as JObject;
+            if (quote?.Value<int?>("policyVersion") != ArrangedMarriagePolicy.Version) return false;
+            fee = quote.Value<int?>("fee") ?? -1;
+            if (fee < 0) return false;
+            var payment = wedding.Consideration?.Clauses?.FirstOrDefault(clause => clause?.Id == "arranged_fee");
+            if (fee == 0) return payment == null;
+            return payment != null && payment.ActionId == "give.gold"
+                && payment.ActorId == quote.Value<string>("payerId") && payment.RecipientId == quote.Value<string>("payeeId")
+                && ReignActionService.Arg(payment, "quantity") == fee.ToString(CultureInfo.InvariantCulture)
+                && wedding.Settled.Contains(payment.Id)
+                && wedding.SettlementEvidence.TryGetValue(payment.Id, out JObject evidence)
+                && evidence?.Value<bool?>("verified") == true;
         }
 
         private static void StampResolvedCouple(ReignWorldActionRecord action, Hero first, Hero second)

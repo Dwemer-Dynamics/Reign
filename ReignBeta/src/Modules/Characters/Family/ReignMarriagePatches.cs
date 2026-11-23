@@ -4,8 +4,6 @@ using System.Linq;
 using HarmonyLib;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.BarterSystem;
@@ -13,8 +11,13 @@ using TaleWorlds.CampaignSystem.BarterSystem.Barterables;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Family
+namespace ReignBeta.Characters.Family
 {
     internal static class ReignMarriagePatches
     {
@@ -114,7 +117,7 @@ namespace ReignBeta.Family
                 preparations.Remove(pair.Key);
                 if (pair.Key?.IsAlive != true || pair.Value?.IsAlive != true || pair.Key.Spouse != null || pair.Value.Spouse != null) continue;
                 string id = "legacy_native_preparation_" + pair.Key.StringId + "_" + pair.Value.StringId;
-                var behavior = ReignRelationshipCampaignBehavior.Instance;
+                var behavior = ReignServices.Relationship;
                 if (!behavior.RequestWedding(id, pair.Key, pair.Value, null, pair.Value.Clan?.Leader?.StringId,
                     10, out _, legacyPreparation: true))
                     preparations[pair.Key] = pair.Value;
@@ -130,13 +133,13 @@ namespace ReignBeta.Family
         private static void AvailablePostfix(Hero __0, ref bool __result)
         {
             if (__result && ReignRelationshipCampaignBehavior.WeddingFeatureReady
-                && ReignRelationshipCampaignBehavior.Instance.ReservedForWedding(__0)) __result = false;
+                && ReignServices.Relationship.ReservedForWedding(__0)) __result = false;
         }
 
         private static bool MarriagePrefix(Hero __0, Hero __1)
         {
             if (!ReignRelationshipCampaignBehavior.WeddingFeatureReady) return true;
-            var behavior = ReignRelationshipCampaignBehavior.Instance;
+            var behavior = ReignServices.Relationship;
             if (behavior.WeddingAuthorization(__0, __1)) return true;
             if (_nativeMatchmaking != 0)
             {
@@ -149,7 +152,7 @@ namespace ReignBeta.Family
         private static bool AcceptedNativeOfferPrefix(Hero __0, Hero __1)
         {
             if (!ReignRelationshipCampaignBehavior.WeddingFeatureReady) return true;
-            var behavior = ReignRelationshipCampaignBehavior.Instance;
+            var behavior = ReignServices.Relationship;
             string id = "native_offer_" + __0.StringId + "_" + __1.StringId + "_" + Math.Floor(CampaignTime.Now.ToDays);
             behavior.RequestWedding(id, __0, __1, null, __1.Clan?.Leader?.StringId, 10, out _);
             return false;
@@ -177,7 +180,7 @@ namespace ReignBeta.Family
                     terms.Clauses.Add(leg);
                 }
                 ReignWeddingBargain.Check(terms, marriage.ProposingHero, marriage.HeroBeingProposedTo);
-                scheduled = ReignRelationshipCampaignBehavior.Instance.RequestWedding("native_barter_" + terms.Id,
+                scheduled = ReignServices.Relationship.RequestWedding("native_barter_" + terms.Id,
                     marriage.ProposingHero, marriage.HeroBeingProposedTo, terms, "", 0, out _);
             }
             catch (Exception ex) { error = ex.Message; }

@@ -7,11 +7,16 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Relationships;
 using Reign.Core.Contracts.Relationships;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     public sealed partial class ReignRelationshipCampaignBehavior
     {
@@ -68,13 +73,13 @@ namespace ReignBeta.Campaign
         private void SyncMarriageOutbox(IDataStore dataStore)
         {
             if(dataStore.IsSaving)
-                _directorOutboxChunks=ReignBeta.Save.ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_directorOutbox));
+                _directorOutboxChunks=ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_directorOutbox));
             dataStore.SyncData("_reignMarriageOutboxChunksV1",ref _directorOutboxChunks);
             if(dataStore.IsLoading)
             {
                 _directorHeader.Clear();
                 _directorOutbox=_directorOutboxChunks?.Count>0
-                    ?JsonConvert.DeserializeObject<List<string>>(ReignBeta.Save.ReignSavePayloadCodec.Decode(_directorOutboxChunks))
+                    ?JsonConvert.DeserializeObject<List<string>>(ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(_directorOutboxChunks))
                         ??throw new InvalidOperationException("Marriage outbox save payload is null.")
                     :new List<string>();
             }
@@ -82,13 +87,13 @@ namespace ReignBeta.Campaign
 
         private void CaptureDirectorPeriod(double day)
         {
-            string timeline=ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main";
+            string timeline=ReignServices.WorldHistory?.TimelineId??"main";
             long period=ArrangedMarriagePolicy.Period(day);
             if(_directorCaptureTimeline!=timeline) { _directorOutbox.Clear(); _directorHeader.Clear(); _lastDirectorCapturePeriod=-1; _lastDirectorCompletedPeriod=-1; _directorCaptureTimeline=timeline; }
             if(period<=_lastDirectorCapturePeriod)return;
             if(_directorOutbox.Count>=64) { ReignLog.Warn("Marriage outbox is full; capture is blocked, not acknowledged."); return; }
             using var timing=ReignLog.MeasureWork("relationships.capture",0f);
-            var snapshot=ReignServerClient.CaptureMarriageDirectorSnapshot();
+            var snapshot=ReignRelationshipDirectorClient.CaptureMarriageDirectorSnapshot();
             if(_lastDirectorCapturePeriod>=0) _directorCaptureGaps+=Math.Max(0,period-_lastDirectorCapturePeriod-1);
             string document=snapshot.ToString(Formatting.None);
             _directorOutbox.Add(document);
@@ -113,7 +118,7 @@ namespace ReignBeta.Campaign
                     capturedPeriod=payload.Value<long>("periodIndex");
                     _lastDirectorDocumentChars=captured.Length;
                     _lastDirectorParseMs=timer.Elapsed.TotalMilliseconds;
-                    return await ReignServerClient.UploadMarriageDirectorSnapshotAsync(payload).ConfigureAwait(false);
+                    return await ReignRelationshipDirectorClient.UploadMarriageDirectorSnapshotAsync(payload).ConfigureAwait(false);
                 }).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(()=> {
                     if(!ReferenceEquals(Instance,this)||!ReferenceEquals(campaign,TaleWorlds.CampaignSystem.Campaign.Current))return;
@@ -141,7 +146,7 @@ namespace ReignBeta.Campaign
             var campaign=TaleWorlds.CampaignSystem.Campaign.Current;
             JObject Receipt(string status,string error="")=>new JObject {
                 ["directorActionId"]=action.DirectorActionId,["status"]=status,["error"]=error,
-                ["worldDay"]=CampaignTime.Now.ToDays,["timelineId"]=ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main",
+                ["worldDay"]=CampaignTime.Now.ToDays,["timelineId"]=ReignServices.WorldHistory?.TimelineId??"main",
                 ["marriageVerified"]=status=="completed",["paymentVerified"]=status=="completed" };
             if(!ReferenceEquals(Instance,this))return Receipt("obsolete","The originating campaign instance was replaced.");
             var waiting = Wedding(action.DirectorActionId);
@@ -151,7 +156,7 @@ namespace ReignBeta.Campaign
                 return Receipt("deferred","Waiting for a safe native transaction boundary.");
             var terms=action.Payload?["marriageTerms"] as JObject;
             string timeline=action.Payload?.Value<string>("timelineId");
-            if(timeline!=(ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main")
+            if(timeline!=(ReignServices.WorldHistory?.TimelineId??"main")
                 ||(action.Payload?.Value<double?>("scheduledWorldDay")??0)>CampaignTime.Now.ToDays)
                 return Receipt("obsolete","The marriage belongs to a different save/timeline.");
             if(terms?.Value<int?>("policyVersion")!=ArrangedMarriagePolicy.Version)

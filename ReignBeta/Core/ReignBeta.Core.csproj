@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Game-free client core: policies, codecs, protocol state and pure domain rules
+       that run without Bannerlord. Unit-tested directly from ReignMcp/tests. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>ReignBeta.Core</AssemblyName>
+    <RootNamespace>ReignBeta</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Deterministic>true</Deterministic>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Version>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\..\.version_number.txt').Trim())</Version>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
+    <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\..\ReignServer</ReignServerRoot>
+  </PropertyGroup>
+  <Import Project="ReignBeta.Core.Sources.props" />
+  <ItemGroup>
+    <Compile Include="@(ReignCoreSource)" />
+    <Compile Include="@(ReignCoreLinkedSource)" Link="Shared\%(Filename)%(Extension)" />
+    <InternalsVisibleTo Include="ReignBeta" />
+    <InternalsVisibleTo Include="ReignBeta.Testing" />
+    <InternalsVisibleTo Include="Reign.Mcp.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Compile-time only: Bannerlord ships Newtonsoft.Json 13.0.0.0, so no copy flows into the module bin. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" ExcludeAssets="runtime" />
+    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" GlobalPropertiesToRemove="ReignServerRoot" />
+  </ItemGroup>
+</Project>

@@ -9,7 +9,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Provisioning changes tariff diversion; paid-unit guards preserve native commercial rates and prices.
     internal static class ReignWarEconomyTariffs
@@ -104,7 +104,7 @@ namespace ReignBeta.Economy
             catch (Exception ex)
             {
                 if (ReignWarEconomyTransactions.State != null) ReignWarEconomyTransactions.State.TariffUnsupported++;
-                ReignBeta.Integration.ReignLog.Warn("Tariff capture unavailable: " + ex.GetType().Name);
+                ReignBeta.Platform.Integration.ReignLog.Warn("Tariff capture unavailable: " + ex.GetType().Name);
                 sale.Receipt = null;
                 return sale; // A diagnostic failure cannot disable the already bound affordability guard.
             }
@@ -225,7 +225,7 @@ namespace ReignBeta.Economy
                     _loggedFailures++;
                     try
                     {
-                        ReignBeta.Integration.ReignLog.Warn("Tariff unsupported purchase: " + new JObject {
+                        ReignBeta.Platform.Integration.ReignLog.Warn("Tariff unsupported purchase: " + new JObject {
                             ["receipt"] = JObject.FromObject(r), ["ratioSeen"] = sale.RatioSeen,
                             ["commissionSeen"] = sale.CommissionSeen
                         }.ToString(Newtonsoft.Json.Formatting.None));
@@ -236,7 +236,7 @@ namespace ReignBeta.Economy
             catch (Exception ex)
             {
                 if (ReignWarEconomyTransactions.State != null) ReignWarEconomyTransactions.State.TariffUnsupported++;
-                ReignBeta.Integration.ReignLog.Warn("Tariff observation failed: " + ex.GetType().Name);
+                ReignBeta.Platform.Integration.ReignLog.Warn("Tariff observation failed: " + ex.GetType().Name);
             }
             finally
             {

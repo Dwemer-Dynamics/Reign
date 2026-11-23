@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ReignBeta.Family;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using Helpers;
 using TaleWorlds.CampaignSystem;
@@ -14,8 +13,13 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Family;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignFamilyCampaignBehavior : CampaignBehaviorBase
     {
@@ -23,11 +27,11 @@ namespace ReignBeta.Campaign
         private List<ReignParentageRecord> _parentage = new List<ReignParentageRecord>();
         private bool _reconcilingPregnancyRestrictions;
 
-        public static ReignFamilyCampaignBehavior Instance { get; private set; }
+        public static ReignFamilyCampaignBehavior Instance => ReignServices.Family;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Family = this;
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
@@ -185,7 +189,7 @@ namespace ReignBeta.Campaign
             _conceptions.Add(record);
             mother.IsPregnant = true;
             NotifyPregnancyStateChanged(mother);
-            _ = ReignServerClient.ReportConceptionAsync(record, "active", string.Empty);
+            _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "active", string.Empty);
             ReignLog.Info("Managed conception started id=" + record.ConceptionId + " mother=" + mother.StringId + " bioFather=" + biologicalFather.StringId + " legalFather=" + record.LegalFatherId + ".");
             return true;
         }
@@ -328,7 +332,7 @@ namespace ReignBeta.Campaign
                         BiologicalFatherId = native.BiologicalFatherId, LegalFatherId = native.LegalFatherId,
                         IsIllegitimate = native.IsIllegitimate, Revealed = native.FatherExposed,
                         MotherExposed = native.MotherExposed, FatherExposed = native.FatherExposed, ConceptionId = native.ConceptionId });
-                _ = ReignServerClient.ReportConceptionAsync(native, "born", native.ChildId);
+                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(native, "born", native.ChildId);
             }
             // Birth clears Hero.IsPregnant in both native and Reign-managed flows.
             // Eligibility is intentionally returned to Bannerlord without creating a new party.
@@ -574,7 +578,7 @@ namespace ReignBeta.Campaign
             {
                 record.Status = "failed";
                 if (mother != null) mother.IsPregnant = false;
-                _ = ReignServerClient.ReportConceptionAsync(record, "failed", string.Empty);
+                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "failed", string.Empty);
                 return;
             }
 
@@ -604,7 +608,7 @@ namespace ReignBeta.Campaign
                 {
                     CampaignEventDispatcher.Instance.OnGivenBirth(mother, new List<Hero> { child }, 0);
                 }
-                _ = ReignServerClient.ReportConceptionAsync(record, "born", record.ChildId);
+                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "born", record.ChildId);
                 if (record.PlayerInvolved)
                 {
                     InformationManager.DisplayMessage(new InformationMessage(mother.Name + " has given birth."));
@@ -615,7 +619,7 @@ namespace ReignBeta.Campaign
                 mother.IsPregnant = false;
                 record.Status = "failed";
                 ReignLog.Warn("Managed birth failed: " + ex.Message);
-                _ = ReignServerClient.ReportConceptionAsync(record, "failed", string.Empty);
+                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "failed", string.Empty);
             }
         }
 

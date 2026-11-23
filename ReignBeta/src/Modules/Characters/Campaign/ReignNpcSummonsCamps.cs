@@ -11,8 +11,11 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     // Owned by the saved life duty, independently of temporary guest agreements.
     public sealed class NpcSummonsCamp
@@ -61,9 +64,9 @@ namespace ReignBeta.Campaign
                 return "The summoned person's battle, siege or travel transition must finish before departure.";
             if (party.LeaderHero != hero) return ""; // A passenger never reserves somebody else's party.
             if (!IsSummonsCamp(party) && (party.IsCurrentlyUsedByAQuest || party.ShouldBeIgnored
-                || ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true))
+                || ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) == true))
                 return "The person's party is already reserved by another protected duty.";
-            if (ReignCampaignCommandBehavior.Instance?.Orders.Any(o => !o.IsTerminal && o.CommanderHeroStringId == hero.StringId) == true)
+            if (ReignServices.CampaignCommand?.Orders.Any(o => !o.IsTerminal && o.CommanderHeroStringId == hero.StringId) == true)
                 return "The person must finish or cancel their current campaign order before camping their party.";
             return "";
         }
@@ -125,11 +128,11 @@ namespace ReignBeta.Campaign
             var party = LifeParty(camp.PartyId);
             camp.Protected = false;
             if (party == null || party == MobileParty.MainParty
-                || ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true) return;
+                || ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) == true) return;
             party.IgnoreByOtherPartiesTill(CampaignTime.Now);
             party.SetPartyUsedByQuest(camp.UsedByQuest);
             party.IsVisible = camp.Visible;
-            bool otherOwner = ReignCampaignCommandBehavior.Instance?.Orders.Any(o => !o.IsTerminal
+            bool otherOwner = ReignServices.CampaignCommand?.Orders.Any(o => !o.IsTerminal
                 && o.CommanderHeroStringId == (party.LeaderHero?.StringId ?? duty.HeroId) && o.Objective == "timed_hold") == true;
             party.Ai.SetDoNotMakeNewDecisions(duty.DecisionLock || otherOwner);
             party.Party.SetCustomName(camp.HadCustomName ? new TextObject(camp.OriginalName) : TextObject.GetEmpty());
@@ -180,7 +183,7 @@ namespace ReignBeta.Campaign
                 ChangeGovernorAction.Apply(governorTown, hero);
             return true;
         }
-        private JObject SummonsCampEvidence(string heroId)
+        internal JObject SummonsCampEvidence(string heroId)
         {
             if (!_lifeDuties.TryGetValue(heroId, out var duty) || !duty.SoloAttendance) return null;
             var camp = duty.Camp;

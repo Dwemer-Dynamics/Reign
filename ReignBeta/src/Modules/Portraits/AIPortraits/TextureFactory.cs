@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using ReignBeta.Integration;
 using TaleWorlds.Engine;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Platform.Integration;
 
 namespace AIPortraits;
 
@@ -384,7 +384,7 @@ public static class TextureFactory
 			byte[] rgba = PngReencode.DecodeToRgba(File.ReadAllBytes(path), out int width, out int height);
 			if (rgba == null || width <= 0 || height <= 0) return null;
 			bool validFocus = focus != null && focus.FaceCandidateCount == 1 && focus.FocusConfidence > 0;
-			var crop = ReignBeta.UI.Portraits.ReignPortraitBustFraming.Calculate(width, height, targetAspect,
+			var crop = ReignBeta.Portraits.UI.ReignPortraitBustFraming.Calculate(width, height, targetAspect,
 				validFocus ? focus.FaceX : -1, validFocus ? focus.FaceY : -1,
 				validFocus ? focus.FaceWidth : 0, validFocus ? focus.FaceHeight : 0);
 			byte[] pixels = new byte[crop.Width * crop.Height * 4];

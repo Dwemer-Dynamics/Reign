@@ -7,13 +7,15 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Economy;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Rebellion.Campaign;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Ephemeral diagnostic isolation. Never serialized or enabled by ordinary campaign code.
     internal static class ReignWarEconomyCohortControl
@@ -66,14 +68,14 @@ namespace ReignBeta.Economy
             }
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             if (campaign == null || campaign.TimeControlMode != CampaignTimeControlMode.Stop
-                || string.IsNullOrEmpty(instance) || instance != ReignLiveInteractionTestHost.GameInstanceId
+                || string.IsNullOrEmpty(instance) || instance != ReignTestHarness.Current.GameInstanceId
                 || string.IsNullOrEmpty(command.Value<string>("campaignTestRunId"))
                 || command.Value<string>("expectedSaveName") != ReignServerClient.ActiveNativeSaveName())
                 throw new InvalidOperationException("Cohort isolation requires the exact paused enrolled Current.");
             var realms = Kingdom.All.Where(k => !k.IsEliminated).ToArray();
             if (realms.Length > 64) throw new InvalidOperationException("Cohort isolation supports at most64 current kingdoms.");
             if (plan.SuppressRebellions && (Clan.All.Any(c => !c.IsEliminated && c.IsRebelClan)
-                || ReignRebellionCampaignBehavior.Instance?.Movements?.Any(m => m.Stage == "civil_war") == true))
+                || ReignServices.Rebellion?.Movements?.Any(m => m.Stage == "civil_war") == true))
                 throw new InvalidOperationException("Start cohort isolation before any rebellion, not after a civil split.");
             var scope = Resolve(plan);
             var preview = Preview(plan);
@@ -154,7 +156,7 @@ namespace ReignBeta.Economy
         }
         private static bool Owns()
             => _harmony != null && _campaign != null && ReferenceEquals(_campaign, TaleWorlds.CampaignSystem.Campaign.Current)
-                && _instance == ReignLiveInteractionTestHost.GameInstanceId
+                && _instance == ReignTestHarness.Current.GameInstanceId
                 && _save == ReignServerClient.ActiveNativeSaveName()
                 && _playerKingdom == Clan.PlayerClan?.Kingdom?.StringId
                 && DateTime.UtcNow < _expiresUtc && CampaignTime.Now.ToDays >= _start && CampaignTime.Now.ToDays < _end;
@@ -206,7 +208,7 @@ namespace ReignBeta.Economy
                     ?? throw new InvalidOperationException("Rebellion guard proof requires an existing NPC town.");
                 var native = _campaign.GetCampaignBehavior<RebellionsCampaignBehavior>()
                     ?? throw new InvalidOperationException("Native rebellion behavior unavailable.");
-                var reign = ReignRebellionCampaignBehavior.Instance
+                var reign = ReignServices.Rebellion
                     ?? throw new InvalidOperationException("Reign rebellion behavior unavailable.");
                 cases.Add("town_rebellion", Tuple.Create<object, object[]>(native, new object[] { town }));
                 cases.Add("reign_weekly_rebellion", Tuple.Create<object, object[]>(reign, new object[] { (float)CampaignTime.Now.ToDays }));

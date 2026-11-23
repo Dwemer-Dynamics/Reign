@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Dialogue.Runtime
 {
     // Diagnostic primitive only. There is deliberately no conversation/journal hook,
     // setting, Harmony patch or production enable switch. Timer accounting is unqualified.

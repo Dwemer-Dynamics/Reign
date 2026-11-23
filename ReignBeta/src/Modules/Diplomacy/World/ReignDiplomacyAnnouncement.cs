@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.World
+namespace ReignBeta.Diplomacy.World
 {
     public sealed class ReignDiplomacyAnnouncement
     {

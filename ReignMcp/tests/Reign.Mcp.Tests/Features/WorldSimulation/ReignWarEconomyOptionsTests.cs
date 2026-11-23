@@ -98,7 +98,7 @@ public sealed class ReignWarEconomyOptionsTests
     [Fact]
     public void CompleteStackBudgetDoesNotMultiplyPerUnitQuarteringRounding()
     {
-        int count = ReignBeta.Economy.ReignWarEconomyPolicy.AffordableCountExact(20, 15, 15, 0, 0, 0, 1,
+        int count = ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.AffordableCountExact(20, 15, 15, 0, 0, 0, 1,
             recruits => Math.Round(3 * recruits * .5));
         Assert.Equal(10, count);
         Assert.Equal(15, Math.Round(3 * count * .5));
@@ -114,7 +114,7 @@ public sealed class ReignWarEconomyOptionsTests
         Assert.Equal(new[] { 3, 6, 12, 18, 24, 40, 68, 92 }, options.GetProperty("fieldWageDefaults").EnumerateArray().Select(x => x.GetInt32()));
         Assert.Contains("war_economy_options", options.GetProperty("offlineSuite").GetString());
         Assert.Equal(3, options.GetProperty("nativeUiQuotes").GetArrayLength());
-        string lab = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
+        string lab = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("ShouldRunVerificationSuite(requestedSuite, \"war_economy_options\")", lab);
         Assert.Contains("RunWarEconomyOptionsSelfTests()", lab);
     }

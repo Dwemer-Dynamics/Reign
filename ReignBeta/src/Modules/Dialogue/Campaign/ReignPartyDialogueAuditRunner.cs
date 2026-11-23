@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public static class ReignPartyDialogueAuditRunner
     {
@@ -59,13 +62,13 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject request = await ReignServerClient.PollPartyDialogueAuditRequestAsync().ConfigureAwait(false);
+                JObject request = await ReignPartyDialogueAuditClient.PollPartyDialogueAuditRequestAsync().ConfigureAwait(false);
                 if (request.Value<bool?>("ok") != true || request.Value<bool?>("found") != true) return;
                 string requestId = request.Value<string>("requestId") ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(requestId)) return;
                 if (_active || ReignNpcDialogueAuditRunner.IsActive)
                 {
-                    await ReignServerClient.AcknowledgePartyDialogueAuditRequestAsync(
+                    await ReignPartyDialogueAuditClient.AcknowledgePartyDialogueAuditRequestAsync(
                         requestId, "rejected", null, "Another dialogue audit is active.").ConfigureAwait(false);
                     return;
                 }
@@ -75,7 +78,7 @@ namespace ReignBeta.Campaign
                 List<Hero> heroes = await ReignMainThread.InvokeAsync(() => ResolveAvailableHeroes(searches)).ConfigureAwait(false);
                 if (heroes.Count != searches.Count || heroes.Count < 2)
                 {
-                    await ReignServerClient.AcknowledgePartyDialogueAuditRequestAsync(
+                    await ReignPartyDialogueAuditClient.AcknowledgePartyDialogueAuditRequestAsync(
                         requestId, "rejected", heroes,
                         "Every requested hero must be alive and currently available in Party Chat.").ConfigureAwait(false);
                     return;
@@ -91,7 +94,7 @@ namespace ReignBeta.Campaign
                 }).ConfigureAwait(false);
                 if (!started) return;
 
-                await ReignServerClient.AcknowledgePartyDialogueAuditRequestAsync(
+                await ReignPartyDialogueAuditClient.AcknowledgePartyDialogueAuditRequestAsync(
                     requestId, "accepted", heroes, "Party audit scheduled through the production Party Chat runner.").ConfigureAwait(false);
                 ReignLog.Info("Remote party dialogue audit accepted request=" + requestId
                     + " heroes=" + string.Join(",", heroes.Select(hero => hero.StringId)));
@@ -128,7 +131,7 @@ namespace ReignBeta.Campaign
                     settings.ExecuteInternalPoliticsActions = false;
                 }
                 List<PartyAuditLine> plan = BuildPlan(seed);
-                JObject started = await ReignServerClient.StartPartyDialogueAuditAsync(_runId, heroes, seed).ConfigureAwait(false);
+                JObject started = await ReignPartyDialogueAuditClient.StartPartyDialogueAuditAsync(_runId, heroes, seed).ConfigureAwait(false);
                 if (started.Value<bool?>("ok") != true)
                     throw new InvalidOperationException(started.Value<string>("error") ?? "The server refused to start the party audit.");
                 reportPath = started.Value<string>("reportPath") ?? string.Empty;
@@ -150,7 +153,7 @@ namespace ReignBeta.Campaign
                             line.Text, _runId, sceneIndex, line.TurnIndex).ConfigureAwait(false);
                         try
                         {
-                            JObject verified = await ReignServerClient.VerifyPartyDialogueAuditTurnAsync(
+                            JObject verified = await ReignPartyDialogueAuditClient.VerifyPartyDialogueAuditTurnAsync(
                                 _runId,
                                 sceneIndex,
                                 line.TurnIndex,
@@ -174,7 +177,7 @@ namespace ReignBeta.Campaign
                     await ReignMainThread.InvokeAsync(ReignPartyChatScreenManager.Close).ConfigureAwait(false);
                     if (finish.Ok)
                     {
-                        await ReignServerClient.VerifyPartyDialogueAuditSceneAsync(
+                        await ReignPartyDialogueAuditClient.VerifyPartyDialogueAuditSceneAsync(
                             _runId, sceneIndex, finish.SessionId, finish.SceneSummaryId).ConfigureAwait(false);
                     }
                     else
@@ -185,7 +188,7 @@ namespace ReignBeta.Campaign
                 }
 
                 cancelled = _stopRequested;
-                JObject completed = await ReignServerClient.FinishPartyDialogueAuditAsync(_runId, cancelled).ConfigureAwait(false);
+                JObject completed = await ReignPartyDialogueAuditClient.FinishPartyDialogueAuditAsync(_runId, cancelled).ConfigureAwait(false);
                 reportPath = completed.Value<string>("reportPath") ?? reportPath;
                 int passed = completed.Value<int?>("passed") ?? 0;
                 int failed = completed.Value<int?>("failed") ?? 0;
@@ -200,7 +203,7 @@ namespace ReignBeta.Campaign
                 ReignLog.Exception("Party dialogue audit", ex);
                 try
                 {
-                    JObject stopped = await ReignServerClient.FinishPartyDialogueAuditAsync(_runId, true).ConfigureAwait(false);
+                    JObject stopped = await ReignPartyDialogueAuditClient.FinishPartyDialogueAuditAsync(_runId, true).ConfigureAwait(false);
                     reportPath = stopped.Value<string>("reportPath") ?? reportPath;
                 }
                 catch (Exception finishEx)
@@ -231,7 +234,7 @@ namespace ReignBeta.Campaign
             if (string.IsNullOrWhiteSpace(_runId)) return false;
             try
             {
-                JObject status = await ReignServerClient.GetPartyDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
+                JObject status = await ReignPartyDialogueAuditClient.GetPartyDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
                 if (string.Equals(status.Value<string>("status"), "cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     _stopRequested = true;

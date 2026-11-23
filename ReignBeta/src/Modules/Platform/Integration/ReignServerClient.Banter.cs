@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
@@ -30,19 +33,19 @@ namespace ReignBeta.Integration
             foreach (Hero a in heroes) foreach (Hero b in heroes.Where(h => h != a)) pairs.Add(new JObject {
                 ["subjectId"] = a.StringId, ["targetId"] = b.StringId, ["nativeRelation"] = a.GetRelation(b) });
             return new JObject {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = CampaignTime.Now.ToDays, ["generation"] = generation ?? "", ["sessionId"] = sessionId ?? "",
                 ["expectedRevision"] = revision, ["heroes"] = profiles, ["relationshipPairs"] = pairs,
                 ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "", ["playerName"] = Hero.MainHero?.Name?.ToString() ?? "Player",
                 ["partyId"] = MobileParty.MainParty?.StringId ?? "", ["locationId"] = MobileParty.MainParty?.CurrentSettlement?.StringId ?? "",
-                ["traveling"] = traveling, ["chatOpen"] = UI.ReignPartyChatScreenManager.IsOpenOrPending
+                ["traveling"] = traveling, ["chatOpen"] = Dialogue.UI.ReignPartyChatScreenManager.IsOpenOrPending
             };
         }
         internal static async Task<JObject> BanterRequestAsync(string operation, JObject payload, Func<Task<bool>> current, bool projectNative = true)
         {
             var owner = TaleWorlds.CampaignSystem.Campaign.Current;
-            var relationBehavior = ReignRelationshipCampaignBehavior.Instance;
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            var relationBehavior = ReignServices.Relationship;
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             JObject response = await PostJsonAsync("/party-banter/" + operation, payload, current).ConfigureAwait(false);
             JObject episode = response?["episode"] as JObject ?? response;
             JObject effects = episode?["relationshipEffects"] as JObject;
@@ -59,12 +62,12 @@ namespace ReignBeta.Integration
                 if (current != null && !await current().ConfigureAwait(false)) throw new InvalidOperationException("The banter campaign changed before relationship projection.");
                 await ReignMainThread.InvokeAsync(() => {
                     if (!ReferenceEquals(owner, TaleWorlds.CampaignSystem.Campaign.Current)
-                        || !ReferenceEquals(relationBehavior, ReignRelationshipCampaignBehavior.Instance)
-                        || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                        || !ReferenceEquals(relationBehavior, ReignServices.Relationship)
+                        || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main"))
                         throw new InvalidOperationException("The campaign changed before the banter relationship effect could be applied.");
                     Hero subject = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == change.Value<string>("subjectId"));
                     Hero target = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == change.Value<string>("targetId"));
-                    var behavior = ReignRelationshipCampaignBehavior.Instance;
+                    var behavior = ReignServices.Relationship;
                     if (subject != null && target != null && subject != target && behavior != null)
                         nativeReceipt = behavior.ApplyConversationRelationOnce(ids.Values<string>(), subject, target,
                             change.Value<int?>("delta") ?? 0, change.Value<bool?>("showNotification") == true);

@@ -7,17 +7,21 @@ using ReignBeta.Campaign;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Government.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Government.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignGovernmentServerClient
     {
         internal static Task<JObject> RequestGovernmentSpeakerStatementAsync(
             Kingdom kingdom,
             ReignGovernmentPartyRecord party,
             IReadOnlyList<ReignGovernmentResolutionRecord> resolutions)
         {
-            ReignGovernmentCampaignBehavior behavior = ReignGovernmentCampaignBehavior.Instance;
+            ReignGovernmentCampaignBehavior behavior = ReignServices.Government;
             Hero speaker = string.IsNullOrWhiteSpace(party?.SpeakerHeroStringId) ? null
                 : Hero.FindFirst(x => string.Equals(x.StringId, party.SpeakerHeroStringId,
                     System.StringComparison.OrdinalIgnoreCase));
@@ -40,7 +44,7 @@ namespace ReignBeta.Integration
             JObject payload = new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["correlationId"] = "government_meeting_" + (kingdom?.StringId ?? "unknown")
                     + "_" + (party?.PartyId ?? "party"),
                 ["government"] = behavior?.BuildPublicSnapshot(kingdom) ?? new JObject(),

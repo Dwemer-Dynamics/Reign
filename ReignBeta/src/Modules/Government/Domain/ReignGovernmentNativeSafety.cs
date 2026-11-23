@@ -1,7 +1,7 @@
 using System;
 using Reign.Core.Contracts.Government;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Domain
 {
     /// <summary>Save-compatible safety policy, shared with provider-free regression tests.</summary>
     internal static class ReignGovernmentNativeSafety

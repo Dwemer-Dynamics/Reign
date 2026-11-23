@@ -1,12 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignCharacterEditorCampaignBehavior
     {
@@ -47,7 +49,7 @@ namespace ReignBeta.Campaign
             Task<Newtonsoft.Json.Linq.JObject> request;
             try
             {
-                request = ReignServerClient.PrewarmTownNotableProfilesAsync(town,
+                request = ReignTownNotableProfileClient.PrewarmTownNotableProfilesAsync(town,
                     () => ReignMainThread.InvokeAsync(() => IsCurrentCampaign));
             }
             catch (Exception ex)

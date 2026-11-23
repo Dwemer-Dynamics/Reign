@@ -81,13 +81,13 @@ public sealed class PlayerGodModeTests
         Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
         Assert.True(report.RootElement.GetProperty("checks").GetInt32() >= 20);
         string bootstrap = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Platform/SubModule.cs"));
-        Assert.Contains("ReignBeta.World.ReignPlayerGodMode.Attach(mission);", bootstrap);
-        Assert.Contains("ReignBeta.World.ReignPlayerGodModeHealthPatch.TryApply();", bootstrap);
+        Assert.Contains("ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode.Attach(mission);", bootstrap);
+        Assert.Contains("ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.TryApply();", bootstrap);
         int earlyStart = bootstrap.IndexOf("protected override void OnSubModuleLoad()", StringComparison.Ordinal);
         int lateStart = bootstrap.IndexOf("protected override void OnBeforeInitialModuleScreenSetAsRoot()", StringComparison.Ordinal);
         Assert.DoesNotContain("ReignPlayerGodModeHealthPatch", bootstrap[earlyStart..lateStart]);
         Assert.Contains("ReignPlayerGodModeHealthPatch.TryApply();", bootstrap[lateStart..bootstrap.IndexOf("private static void EnsureManagedRuntimeDependencies", StringComparison.Ordinal)]);
-        Assert.Contains("ReignBeta.World.ReignPlayerGodModeHealthPatch.Unapply();", bootstrap);
+        Assert.Contains("ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.Unapply();", bootstrap);
     }
 
     private sealed class WindowsFactAttribute : FactAttribute
@@ -113,7 +113,7 @@ public sealed class PlayerGodModeTests
             }
             public static class AccessTools { public static System.Reflection.MethodInfo PropertySetter(Type type,string name) { return type.GetProperty(name).GetSetMethod(); } }
         }
-        namespace ReignBeta.Integration { public static class ReignLog { public static void Exception(string message,Exception ex) {} } }
+        namespace ReignBeta.Platform.Integration { public static class ReignLog { public static void Exception(string message,Exception ex) {} } }
         namespace TaleWorlds.Core {
             public enum MissionMode { StartUp, Conversation, Battle, Duel, Stealth, Barter, Deployment, Tournament, Replay, CutScene, Benchmark }
             public sealed class InformationMessage { public InformationMessage(string text) {} }
@@ -153,16 +153,16 @@ public sealed class PlayerGodModeTests
         public static class PlayerGodModeProbe {
             private static int checks;
             private static void Check(bool value, string message) { if (!value) throw new Exception(message); checks++; }
-            private static void Key(ReignBeta.World.ReignPlayerGodMode behavior, bool alt, bool pressed) {
+            private static void Key(ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode behavior, bool alt, bool pressed) {
                 Input.Down.Clear(); if (alt) Input.Down.Add(InputKey.LeftAlt); Input.Pressed = pressed; behavior.OnMissionTick(.016f);
             }
             public static object Run() {
                 var player = new Agent(); var mount = new Agent { IsHuman = false }; player.MountAgent = mount;
                 var npc = new Agent(); var mission = new Mission { MainAgent = player }; Mission.Current = mission;
-                var mode = new ReignBeta.World.ReignPlayerGodMode { Mission = mission };
+                var mode = new ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode { Mission = mission };
                 mission.Behavior=mode; player.Mission=mission; mount.Mission=mission; npc.Mission=mission;
-                var attachMission=new Mission(); Check(ReignBeta.World.ReignPlayerGodMode.Attach(attachMission),"attach once");
-                Check(!ReignBeta.World.ReignPlayerGodMode.Attach(attachMission) && attachMission.Added==1,"duplicate attach");
+                var attachMission=new Mission(); Check(ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode.Attach(attachMission),"attach once");
+                Check(!ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode.Attach(attachMission) && attachMission.Added==1,"duplicate attach");
                 HarmonyLib.Harmony.Fail=true; Key(mode,true,true);
                 Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"hook failure does not enable or escape tick");
                 HarmonyLib.Harmony.Fail=false;
@@ -171,17 +171,17 @@ public sealed class PlayerGodModeTests
                 Key(mode,true,true); Check(player.CurrentMortalityState == Agent.MortalityState.Invulnerable,"enable");
                 Check(player.Health == 37,"must not heal"); Check(mount.CurrentMortalityState == Agent.MortalityState.Mortal,"mount");
                 Check(npc.CurrentMortalityState == Agent.MortalityState.Mortal,"npc");
-                float hp=0; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"direct scripted damage");
-                hp=float.NaN; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"invalid damage");
-                hp=50; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==50,"healing unaffected");
-                hp=37; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"equal health");
-                hp=float.PositiveInfinity; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(float.IsPositiveInfinity(hp),"positive health assignment unchanged");
-                hp=0; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(npc,ref hp); Check(hp==0,"npc direct damage");
-                ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(mount,ref hp); Check(hp==0,"mount direct damage");
+                float hp=0; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"direct scripted damage");
+                hp=float.NaN; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"invalid damage");
+                hp=50; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==50,"healing unaffected");
+                hp=37; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==37,"equal health");
+                hp=float.PositiveInfinity; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(float.IsPositiveInfinity(hp),"positive health assignment unchanged");
+                hp=0; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(npc,ref hp); Check(hp==0,"npc direct damage");
+                ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(mount,ref hp); Check(hp==0,"mount direct damage");
                 Key(mode,true,false); Check(player.CurrentMortalityState == Agent.MortalityState.Invulnerable,"held key");
                 Check(HarmonyLib.Harmony.Patches==1,"idempotent hook");
                 Key(mode,true,true); Check(player.CurrentMortalityState == Agent.MortalityState.Mortal,"disable");
-                hp=0; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==0,"damage restored when off");
+                hp=0; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==0,"damage restored when off");
                 player.CurrentMortalityState = Agent.MortalityState.Immortal;
                 Input.Down.Clear(); Input.Down.Add(InputKey.RightAlt); Input.Pressed=true; mode.OnMissionTick(.016f);
                 Check(player.CurrentMortalityState == Agent.MortalityState.Invulnerable,"right alt");
@@ -216,10 +216,10 @@ public sealed class PlayerGodModeTests
                 Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"shift chord");
                 player.IsPlayerControlled=false; Key(mode,true,true); Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"spectator"); player.IsPlayerControlled=true;
                 Key(mode,true,true); Mission.Current=null; Key(mode,false,false); Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"stale mission");
-                Mission.Current=mission; Key(mode,true,true); ReignBeta.World.ReignPlayerGodModeHealthPatch.Unapply();
+                Mission.Current=mission; Key(mode,true,true); ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.Unapply();
                 Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"unload restores agent");
                 mode.End(); Check(player.CurrentMortalityState==Agent.MortalityState.Mortal,"cleanup is idempotent after unload");
-                hp=0; ReignBeta.World.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==0,"unload clears active cache");
+                hp=0; ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.GuardHealth(player,ref hp); Check(hp==0,"unload clears active cache");
                 return new { ok=true, checks=checks };
             }
         }

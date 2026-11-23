@@ -6,24 +6,25 @@ using Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignStartingChildrenCampaignBehavior : CampaignBehaviorBase
     {
         private StartingChildrenState _state = new StartingChildrenState();
         private bool _loadedSave;
         private string _reportPath;
-        internal static ReignStartingChildrenCampaignBehavior Instance { get; private set; }
+        internal static ReignStartingChildrenCampaignBehavior Instance => ReignServices.StartingChildren;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.StartingChildren = this;
             // Registered AFTER court households: their migration, faces and homes are ready first.
             CampaignEvents.OnNewGameCreatedPartialFollowUpEndEvent.AddNonSerializedListener(this, OnNewGame);
         }

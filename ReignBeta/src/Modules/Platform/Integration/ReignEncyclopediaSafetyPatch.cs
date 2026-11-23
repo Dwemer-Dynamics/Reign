@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using HarmonyLib;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static class ReignEncyclopediaSafetyPatch
     {

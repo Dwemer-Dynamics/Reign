@@ -4,8 +4,10 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.World;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal static class ReignActionReceiptFormatter
     {

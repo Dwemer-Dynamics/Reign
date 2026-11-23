@@ -2,8 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
@@ -12,8 +10,24 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.Runtime;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Platform.Campaign
 {
     /// <summary>
     /// Owns the one blocking preparation pass for a campaign generation. Only
@@ -51,12 +65,13 @@ namespace ReignBeta.Campaign
         private long _sealedHistorySequence;
         private float _autonomousWorldOriginDay = -1f;
 
-        public static ReignCampaignPreparationCampaignBehavior Instance { get; private set; }
+        public static ReignCampaignPreparationCampaignBehavior Instance => ReignServices.CampaignPreparation;
         internal bool IsSealedForCurrentCampaign => _sealedForCurrentCampaign;
+        internal bool? LoadedCalendarPrepared { get; private set; }
 
         public ReignCampaignPreparationCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.CampaignPreparation = this;
             BeginGeneration();
         }
 
@@ -73,7 +88,9 @@ namespace ReignBeta.Campaign
             dataStore.SyncData("_reignInitialization_narrativeVersion", ref _narrativeVersion);
             dataStore.SyncData("_reignInitialization_campaignId", ref _sealedCampaignId);
             dataStore.SyncData("_reignInitialization_timelineId", ref _sealedTimelineId);
-            dataStore.SyncData("_reignInitialization_completedStageMask", ref _completedStageMask);
+            bool hasStages = dataStore.SyncData("_reignInitialization_completedStageMask", ref _completedStageMask);
+            if (dataStore.IsLoading && (hasStages || _sealVersion > 0))
+                LoadedCalendarPrepared = _sealVersion > 0 || (_completedStageMask & (int)ReignInitializationStageMask.NativeFoundations) != 0;
             dataStore.SyncData("_reignInitialization_historySequence", ref _sealedHistorySequence);
             dataStore.SyncData("_reignInitialization_autonomousWorldOriginDay",
                 ref _autonomousWorldOriginDay);
@@ -257,7 +274,7 @@ namespace ReignBeta.Campaign
         private void InitializeReadinessState(string campaignId)
         {
             if (_state != null) return;
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? string.Empty;
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? string.Empty;
             bool matchingSeal =
                 _sealVersion >= ReignCampaignReadinessState.CurrentSealVersion
                 && string.Equals(_sealedCampaignId, campaignId, StringComparison.Ordinal)
@@ -294,7 +311,7 @@ namespace ReignBeta.Campaign
                 mask = ReignInitializationStageMask.None;
             }
             if (!matchingSeal
-                && ReignCharacterEditorCampaignBehavior.Instance?.NotableBackgroundInitializationComplete == true)
+                && ReignServices.CharacterEditor?.NotableBackgroundInitializationComplete == true)
             {
                 mask |= ReignInitializationStageMask.Personalities;
             }
@@ -338,7 +355,7 @@ namespace ReignBeta.Campaign
                     {
                         EnsureCurrentGeneration(generationId);
                         Require(
-                            ReignCourtNobleCampaignBehavior.Instance,
+                            ReignServices.CourtNoble,
                             "court-house migration")
                         .EnsureHouseholdClansMigrated();
                         _householdsPrepared = true;
@@ -352,7 +369,7 @@ namespace ReignBeta.Campaign
                         "Restoring durable World History and pending social processing.",
                         string.Empty);
                     ReignWorldHistoryCampaignBehavior history =
-                        Require(ReignWorldHistoryCampaignBehavior.Instance,
+                        Require(ReignServices.WorldHistory,
                             "world-history timeline");
                     string previousTimeline = _state.TimelineId;
                     JObject opened = await history
@@ -389,7 +406,7 @@ namespace ReignBeta.Campaign
                     SetStatus("Preparing Personalities",
                         "Generating and applying permanent notable personalities.", string.Empty);
                     ReignPersonalityPreparationResult personalities =
-                        await Require(ReignCharacterEditorCampaignBehavior.Instance, "character preparation")
+                        await Require(ReignServices.CharacterEditor, "character preparation")
                             .EnsureInitialPersonalitiesAsync(
                                 _generationId,
                                 (completed, total, stage) =>
@@ -414,7 +431,7 @@ namespace ReignBeta.Campaign
                     SetStatus("Opening Campaign Timeline",
                         "Connecting this campaign to its durable world-history timeline.", string.Empty);
                     ReignWorldHistoryCampaignBehavior history =
-                        Require(ReignWorldHistoryCampaignBehavior.Instance, "world-history timeline");
+                        Require(ReignServices.WorldHistory, "world-history timeline");
                     JObject opened = await history.EnsureTimelineReadyAsync(_generationId).ConfigureAwait(false);
                     string timeline = opened?.Value<string>("timelineId") ?? history.TimelineId;
                     if (string.IsNullOrWhiteSpace(timeline))
@@ -439,7 +456,7 @@ namespace ReignBeta.Campaign
                             ?? "Campaign identity synchronization was incomplete.");
                     }
                     await ReignMainThread.InvokeAsync(() =>
-                        ReignCharacterEditorCampaignBehavior.Instance
+                        ReignServices.CharacterEditor
                             ?.MarkIdentitySynchronizedForCurrentDay())
                         .ConfigureAwait(false);
                     Advance(ReignInitializationStage.Identity, true);
@@ -526,7 +543,7 @@ namespace ReignBeta.Campaign
                 "Seeding co-located, family, and political relationships from permanent MBTI compatibility.",
                 string.Empty);
             ReignRelationshipCampaignBehavior relationships =
-                Require(ReignRelationshipCampaignBehavior.Instance, "relationship preparation");
+                Require(ReignServices.Relationship, "relationship preparation");
             ReignAmbientRelationshipRunResult run =
                 await relationships.StartInitialRelationshipRunAsync(_generationId).ConfigureAwait(false);
             _relationshipPlanId = run.NativeSyncPlan?.PlanId ?? string.Empty;
@@ -535,7 +552,7 @@ namespace ReignBeta.Campaign
             {
                 await ReignMainThread.InvokeAsync(
                     relationships.ProcessInitializationProjectionFrame).ConfigureAwait(false);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
                 ReignNativeRelationSyncProgress progress = relationships.InitializationProgress();
                 if (progress == null)
                 {
@@ -555,7 +572,7 @@ namespace ReignBeta.Campaign
                 if (progress.RemainingCount == 0
                     && relationships.PendingNativeReceiptCount == 0)
                 {
-                    if (!await ReignServerClient.ReportNativeRelationSyncProgressAsync(progress)
+                    if (!await ReignRelationshipDirectorClient.ReportNativeRelationSyncProgressAsync(progress)
                         .ConfigureAwait(false))
                     {
                         throw new InvalidOperationException(
@@ -575,7 +592,7 @@ namespace ReignBeta.Campaign
             SetStatus("Verifying Readiness",
                 "Confirming that every critical queue is durably idle.", string.Empty);
             ReignRelationshipCampaignBehavior relationships =
-                Require(ReignRelationshipCampaignBehavior.Instance, "relationship readiness");
+                Require(ReignServices.Relationship, "relationship readiness");
             var timer = System.Diagnostics.Stopwatch.StartNew();
             TimeSpan budget = TimeSpan.FromMinutes(1);
             bool quiescent = false;
@@ -595,20 +612,20 @@ namespace ReignBeta.Campaign
                     relationships.ProcessInitializationProjectionFrame();
                 }).ConfigureAwait(false);
                 EnsureCurrentGeneration(generationId);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
                 EnsureCurrentGeneration(generationId);
                 ReignNativeRelationSyncProgress progress = relationships.InitializationProgress();
                 ReignInitializationQueueObservation observation =
                     new ReignInitializationQueueObservation
                     {
                         WorldHistoryCount = ReignWorldHistoryTransport.PendingCount(),
-                        RelationshipInputCount = ReignServerClient.PendingAmbientInputCount(),
+                        RelationshipInputCount = ReignRelationshipDirectorClient.PendingAmbientInputCount(),
                         NativeTargetCount = progress?.RemainingCount ?? 0,
                         NativeReceiptCount = relationships.PendingNativeReceiptCount,
                         InFlightCount = ReignWorldHistoryTransport.UploadInFlight ? 1 : 0,
                         NativeProjectionFailureCount = progress?.FailedCount ?? 0,
                         HistorySequence =
-                            ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L
+                            ReignServices.WorldHistory?.Sequence ?? 0L
                     };
                 if (observation.NativeProjectionFailureCount > 0)
                     throw new InvalidOperationException(
@@ -625,7 +642,7 @@ namespace ReignBeta.Campaign
                 throw new TimeoutException(
                     "Critical initialization queues did not become durably idle within one minute."
                     + " History=" + ReignWorldHistoryTransport.PendingCount()
-                    + ", relationship inputs=" + ReignServerClient.PendingAmbientInputCount()
+                    + ", relationship inputs=" + ReignRelationshipDirectorClient.PendingAmbientInputCount()
                     + ", native receipts=" + relationships.PendingNativeReceiptCount + ".");
 
             long expectedSequence = _state.SealedHistorySequence;
@@ -667,7 +684,7 @@ namespace ReignBeta.Campaign
                 "Processing initial rumors, reputations, Public Standing, and their native relationship projections.",
                 string.Empty);
             ReignRelationshipCampaignBehavior relationships =
-                Require(ReignRelationshipCampaignBehavior.Instance,
+                Require(ReignServices.Relationship,
                     "initial social-world native projection");
             DateTime deadline = DateTime.UtcNow.AddMinutes(10);
             JObject previous = null;
@@ -683,12 +700,12 @@ namespace ReignBeta.Campaign
                     throw new InvalidOperationException(status?.Value<string>("error")
                         ?? "Initial social-world status was unavailable.");
 
-                await ReignServerClient.PullRelationshipNativeTargetsAsync()
+                await ReignRelationshipRealtimeClient.PullRelationshipNativeTargetsAsync()
                     .ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(
                     relationships.ProcessInitializationProjectionFrame)
                     .ConfigureAwait(false);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync()
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync()
                     .ConfigureAwait(false);
 
                 int pending = status.Value<int?>("pendingSocialOutcomes") ?? 0;
@@ -739,7 +756,7 @@ namespace ReignBeta.Campaign
                     ReignCalendarService.InitializeForCurrentCampaign();
                 if (!ReignCalendarService.IsReady)
                     throw new InvalidOperationException("The restored campaign calendar is not ready.");
-                ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.RestoreSessionCalendar();
+                ReignServices.Government?.RestoreSessionCalendar();
                 return true;
             }).ConfigureAwait(false);
             ReignInitializationReleaseToken token;
@@ -767,23 +784,23 @@ namespace ReignBeta.Campaign
 
         private void PrepareNativeFoundations()
         {
-            Require(ReignAICampaignBehavior.Instance, "calendar").PrepareInitialState();
-            Require(ReignRelationshipCampaignBehavior.Instance, "relationship baselines")
+            Require(ReignServices.AI, "calendar").PrepareInitialState();
+            Require(ReignServices.Relationship, "relationship baselines")
                 .PrepareInitialBaselines();
-            Require(ReignRulerReputationCampaignBehavior.Instance, "ruler reputation")
+            Require(ReignServices.RulerReputation, "ruler reputation")
                 .PrepareInitialState();
-            Require(ReignRebellionCampaignBehavior.Instance, "rebellion state")
+            Require(ReignServices.Rebellion, "rebellion state")
                 .PrepareInitialState();
-            Require(ReignWorldDiplomacyCampaignBehavior.Instance, "world diplomacy")
+            Require(ReignServices.WorldDiplomacy, "world diplomacy")
                 .PrepareInitialState();
-            Require(ReignSocialEventsCampaignBehavior.Instance, "social events")
+            Require(ReignServices.SocialEvents, "social events")
                 .PrepareInitialState();
-            Require(ReignFamilyCampaignBehavior.Instance, "family state")
+            Require(ReignServices.Family, "family state")
                 .PrepareInitialState();
-            Require(ReignCourtPersonalityReputationCampaignBehavior.Instance, "court reputation")
+            Require(ReignServices.CourtPersonalityReputation, "court reputation")
                 .PrepareInitialState();
 #if !REIGN_EXCLUDE_COURT
-            Require(ReignCourtCampaignBehavior.Instance, "court state").PrepareInitialState();
+            Require(ReignServices.Court, "court state").PrepareInitialState();
 #endif
         }
 

@@ -5,21 +5,28 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
-using ReignBeta.Save;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
+using static ReignBeta.Characters.Campaign.ReignNpcLivesBehavior;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.UI;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
-    public sealed partial class ReignNpcLivesBehavior
+    // Harness-owned party composer fixture.
+    internal static partial class ReignNpcLivesTestControls
     {
         // Only the native test dispatcher calls this, after its exact enrolled Current,
         // campaign/timeline/process, paused clock and retained recovery checkpoint gates.
-        internal JObject PrepareNativePartyComposerCase(JObject test)
+        internal static JObject PrepareNativePartyComposerCase(ReignNpcLivesBehavior lives, JObject test)
         {
             string[] fields = { "caseId", "phase", "heroId", "otherHeroId", "operationId" };
             if (test.Count != fields.Length || test.Properties().Any(p => !fields.Contains(p.Name)
@@ -29,8 +36,8 @@ namespace ReignBeta.Campaign
                 throw new InvalidOperationException("Supply only the bounded case, operation and two distinct actual party NPC identities.");
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             var party = MobileParty.MainParty;
-            if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !_initialized || string.IsNullOrEmpty(Generation)
-                || !Current(campaign, _epoch) || _busy || _outbox.Count != 0 || _failedOperations.Count != 0
+            if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !lives._initialized || string.IsNullOrEmpty(lives.Generation)
+                || !lives.Current(campaign, lives._epoch) || lives._busy || lives._outbox.Count != 0 || lives._failedOperations.Count != 0
                 || campaign.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
                 || party == null || !party.IsActive || party.IsDisbanding || party.LeaderHero != Hero.MainHero
                 || Hero.MainHero == null || Hero.MainHero.IsDead || Hero.MainHero.IsChild || Hero.MainHero.IsPrisoner
@@ -39,9 +46,9 @@ namespace ReignBeta.Campaign
                 || campaign.ConversationManager?.IsConversationInProgress == true)
                 throw new InvalidOperationException("An idle exact paused NPC Lives session and free independent land player are required.");
             string operationId = "npc_party_composer:" + test.Value<string>("operationId");
-            string requestHash = PartyComposerDigest(new { campaign = _campaign, timeline = _timeline, generation = Generation,
+            string requestHash = PartyComposerDigest(new { campaign = lives._campaign, timeline = lives._timeline, generation = lives.Generation,
                 arguments = new JObject(test.Properties().OrderBy(p => p.Name, StringComparer.Ordinal).Select(p => new JProperty(p.Name, p.Value.DeepClone()))) });
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
             var retained = journal.NativeOperation(operationId);
             if (retained != null)
             {
@@ -49,7 +56,7 @@ namespace ReignBeta.Campaign
                     throw new InvalidOperationException("This operation identity already belongs to another exact composer request.");
                 retained["replayed"] = true;
                 retained["currentComposer"] = ObserveNativePartyComposer();
-                retained["currentConservation"] = ObservePartyComposerConservation(test.Value<string>("heroId"), test.Value<string>("otherHeroId"));
+                retained["currentConservation"] = ObservePartyComposerConservation(lives, test.Value<string>("heroId"), test.Value<string>("otherHeroId"));
                 return retained; // Including started/uncertain: never reopen a partial operation.
             }
             Hero RequireMember(string id)
@@ -64,7 +71,7 @@ namespace ReignBeta.Campaign
             var second = RequireMember(test.Value<string>("otherHeroId"));
             if (!QuietMap() || ReignActionBuilder.IsOpen || ReignTavernHouseScreenManager.IsOpen)
                 throw new InvalidOperationException("Close all conversations, inquiries and builders before preparing this unsent party composer.");
-            var before = ObservePartyComposerConservation(first.StringId, second.StringId);
+            var before = ObservePartyComposerConservation(lives, first.StringId, second.StringId);
             var receipt = new JObject { ["schema"] = "reign-npc-lives-party-composer-v1", ["origin"] = "operator_unsent_ui_fixture",
                 ["caseId"] = test["caseId"], ["operationId"] = operationId, ["requestHash"] = requestHash,
                 ["status"] = "started", ["invocations"] = 1, ["replayed"] = false, ["consentGranted"] = false,
@@ -82,7 +89,7 @@ namespace ReignBeta.Campaign
                     || !ReignActionBuilder.TryOpenForHost(ScreenManager.TopScreen, vm)
                     || !ReignActionBuilder.IsOpen || ReignActionBuilder.IsCalibrationFixture)
                     throw new InvalidOperationException("The real unsent party action builder did not open for exactly the requested members.");
-                var after = ObservePartyComposerConservation(first.StringId, second.StringId);
+                var after = ObservePartyComposerConservation(lives, first.StringId, second.StringId);
                 receipt["after"] = after;
                 receipt["conserved"] = JToken.DeepEquals(before, after);
                 if (!JToken.DeepEquals(before, after)) throw new InvalidOperationException("Party composer preparation changed conserved campaign state.");
@@ -92,7 +99,7 @@ namespace ReignBeta.Campaign
             {
                 receipt["status"] = "uncertain"; receipt["error"] = ex.Message;
                 if (opened) { ReignActionBuilder.Close(); ReignPartyChatScreenManager.Close(); }
-                receipt["after"] = ObservePartyComposerConservation(first.StringId, second.StringId);
+                receipt["after"] = ObservePartyComposerConservation(lives, first.StringId, second.StringId);
             }
             receipt["currentComposer"] = ObserveNativePartyComposer();
             journal.SaveNativeOperation(operationId, receipt);
@@ -111,14 +118,14 @@ namespace ReignBeta.Campaign
                 ["textDigest"] = PartyComposerDigest(vm?.InputText ?? ""), ["canAnnounce"] = vm?.CanAnnounce ?? false };
         }
 
-        private JObject ObservePartyComposerConservation(string first, string second)
+        private static JObject ObservePartyComposerConservation(ReignNpcLivesBehavior lives, string first, string second)
         {
-            var journal = ReignAgreementBehavior.Instance;
-            return new JObject { ["campaignId"] = _campaign, ["timelineId"] = _timeline, ["generation"] = Generation,
+            var journal = ReignServices.Agreement;
+            return new JObject { ["campaignId"] = lives._campaign, ["timelineId"] = lives._timeline, ["generation"] = lives.Generation,
                 ["worldDay"] = CampaignTime.Now.ToDays,
                 ["timeMode"] = TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode.ToString(),
-                ["npcLivesDigest"] = PartyComposerDigest(State), ["outboxDigest"] = PartyComposerDigest(_outbox),
-                ["outboxCount"] = _outbox.Count, ["nativeEffectsDigest"] = PartyComposerDigest(_nativeEffects.OrderBy(x => x, StringComparer.Ordinal)),
+                ["npcLivesDigest"] = PartyComposerDigest(lives.State), ["outboxDigest"] = PartyComposerDigest(lives._outbox),
+                ["outboxCount"] = lives._outbox.Count, ["nativeEffectsDigest"] = PartyComposerDigest(lives._nativeEffects.OrderBy(x => x, StringComparer.Ordinal)),
                 ["offerCount"] = journal.Offers.Count, ["agreementCount"] = journal.Agreements.Count,
                 ["mainPartyContentsDigest"] = JObject.FromObject(ObserveLifePartyContents(MobileParty.MainParty))["Digest"],
                 ["participants"] = new JArray(new[] { Hero.MainHero, ReignActionService.HeroById(first), ReignActionService.HeroById(second) }

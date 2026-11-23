@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using TaleWorlds.Core;
 
-namespace ReignBeta.Compatibility
+namespace ReignBeta.Platform.Compatibility
 {
     // Execute the licensed game's original IL; do not reproduce its algorithms.
     // Guards select those originals only for detached economic calculations.

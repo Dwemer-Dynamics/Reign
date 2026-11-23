@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using SandBox;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -16,8 +14,12 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Locations;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal sealed class ReignFollowAgreement
     {
@@ -41,7 +43,7 @@ namespace ReignBeta.World
         private List<string> _stateChunks = new List<string>();
         private float _representationTickIn;
 
-        internal static ReignFollowCampaignBehavior Instance { get; private set; }
+        internal static ReignFollowCampaignBehavior Instance => ReignServices.Follow;
 
         internal IEnumerable<Tuple<Hero, Hero>> ActiveSceneFollowers
         {
@@ -59,7 +61,7 @@ namespace ReignBeta.World
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Follow = this;
             CampaignEvents.OnGameLoadFinishedEvent.AddNonSerializedListener(this, ReconcileAfterLoad);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnCampaignTick);
             CampaignEvents.OnMissionEndedEvent.AddNonSerializedListener(this, _ => ApplicationTick(0f));

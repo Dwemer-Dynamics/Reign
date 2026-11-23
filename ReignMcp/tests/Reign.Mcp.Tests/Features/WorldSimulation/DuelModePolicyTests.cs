@@ -1,4 +1,4 @@
-using ReignBeta.Campaign;
+using ReignBeta.Characters.Campaign;
 
 namespace Reign.Mcp.Tests;
 
@@ -217,7 +217,7 @@ public sealed class DuelModePolicyTests
         Assert.Contains("canPlayerLeave = true;", leave);
         Assert.DoesNotContain("TryStopTraining(", leave);
         Assert.DoesNotContain("CompleteTrainingTogether(", leave);
-        string server = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/Program.cs"));
+        string server = TestSourceLocator.ServerProgramText(root);
         Assert.Contains("exactly the same consent, private memory, nonlethal purpose and social rules as practice", server);
     }
 

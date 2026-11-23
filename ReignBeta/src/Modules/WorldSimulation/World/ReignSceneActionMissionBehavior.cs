@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using SandBox;
 using SandBox.Missions.AgentBehaviors;
@@ -14,8 +13,14 @@ using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
         // Production scene orders own one NPC's movement, never player controls.
     // A scene Follow completes after its native behavior binds to the actual
@@ -102,7 +107,7 @@ namespace ReignBeta.World
                 // while Individual Chat replaces its native conversation wrapper.
                 // Resolve that registration first so we do not dereference the stale
                 // native Character pointer for these promoted residents.
-                return ReignEncounteredResidentsCampaignBehavior.Instance?.ResolveAgent(agent) == hero
+                return ReignServices.EncounteredResidents?.ResolveAgent(agent) == hero
                     || agent.Character == hero.CharacterObject;
             }
             catch (NullReferenceException)
@@ -445,8 +450,8 @@ namespace ReignBeta.World
 
         private void EnsurePersistentFollowers()
         {
-            if (ReignFollowCampaignBehavior.Instance == null) return;
-            foreach (Tuple<Hero, Hero> pair in ReignFollowCampaignBehavior.Instance.ActiveSceneFollowers)
+            if (ReignServices.Follow == null) return;
+            foreach (Tuple<Hero, Hero> pair in ReignServices.Follow.ActiveSceneFollowers)
             {
                 Hero actor = pair.Item1;
                 Hero target = pair.Item2;
@@ -512,7 +517,7 @@ namespace ReignBeta.World
             return true;
         }
         private static void Complete(Order order, ReignActionResult result)
-            => ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(order.ActionId, result);
+            => ReignServices.AI?.CompleteActionFromMissionHook(order.ActionId, result);
         private void Finish(Order order, bool success, string message, string code)
         {
             Restore(order);

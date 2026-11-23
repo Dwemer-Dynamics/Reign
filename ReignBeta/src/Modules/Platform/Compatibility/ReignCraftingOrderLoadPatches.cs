@@ -2,12 +2,12 @@ using System;
 using System.Reflection;
 using System.Threading;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.CraftingSystem;
 using TaleWorlds.Core;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Compatibility
+namespace ReignBeta.Platform.Compatibility
 {
     // Extend the native load validator to cover the generator's later rejection.
     // The native consumer removes invalid pending orders; inventory is untouched.

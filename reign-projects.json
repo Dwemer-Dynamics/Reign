@@ -73,6 +73,16 @@
       "id": "client",
       "name": "Bannerlord client"
     },
+    "ReignBeta/Core/ReignBeta.Core.csproj": {
+      "id": "client-core",
+      "name": "Bannerlord client game-free core",
+      "group": "core"
+    },
+    "ReignBeta/Testing/ReignBeta.Testing.csproj": {
+      "id": "client-testing",
+      "name": "Bannerlord client in-game test harness",
+      "group": "core"
+    },
     "ReignServer/ReignServer.csproj": {
       "id": "server",
       "name": "Reign server"

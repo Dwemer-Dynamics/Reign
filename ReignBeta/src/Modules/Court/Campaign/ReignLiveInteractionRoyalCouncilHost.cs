@@ -3,22 +3,24 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
         private static async Task<LiveCommandResult> ExecuteRoyalCouncilTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = (command.Value<string>("phase") ?? "save_prepare").Trim().ToLowerInvariant();
             JObject result;
             try
             {
-                result = await ReignMainThread.InvokeAsync(() => court.RunRoyalCouncilTestProfile(runId, phase, command, GameInstanceId)).ConfigureAwait(false);
+                result = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunRoyalCouncilTestProfile(court, runId, phase, command, GameInstanceId)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -11,7 +11,7 @@ public sealed class NpcLivesHarnessTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignNpcLifeActions.cs"));
         Assert.Contains("=> enabled || agreement != null && agreement.HasBothConsents;", source);
-        Assert.Contains("if (!MeetingFeatureAllows(ReignServerClient.NpcLivesOptions.Allows(\"meeting\"), a))", source);
+        Assert.Contains("if (!MeetingFeatureAllows(ReignNpcLivesClient.NpcLivesOptions.Allows(\"meeting\"), a))", source);
         Assert.Contains("errors.Add(\"New summoned meetings are disabled.\");", source);
         using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         string contract = catalog.RootElement.GetProperty("npcLives").GetProperty("meetingFeatureGate").GetString()!;
@@ -74,8 +74,8 @@ public sealed class NpcLivesHarnessTests
         string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignNpcLivesAnnouncementFixture.cs"));
         foreach (string required in new[] { "Stopwatch.StartNew()", "NativeAnnouncementHoldMaximumSeconds = 180d",
             "AnnouncementTransportScopeAllows", "!double.IsNaN(elapsedSeconds)", "!double.IsInfinity(elapsedSeconds)",
-            "elapsedSeconds >= 0", "elapsedSeconds < NativeAnnouncementHoldMaximumSeconds", "AnnouncementHoldOwnsCurrent(hold)",
-            "RetireAnnouncementHoldIfInvalid()", "PartyComposerDigest(payload)", "[\"sourceMemberIds\"] = AnnouncementMemberIds(payload)",
+            "elapsedSeconds >= 0", "elapsedSeconds < NativeAnnouncementHoldMaximumSeconds", "AnnouncementHoldOwnsCurrent(lives, hold)",
+            "RetireAnnouncementHoldIfInvalid(lives)", "PartyComposerDigest(payload)", "[\"sourceMemberIds\"] = AnnouncementMemberIds(payload)",
             "control == \"arm\" || hold == null || hold.Operation != operation", "[\"releaseCount\"] = 1",
             "OwnsNpcLivesSession", "IsNativeSaveInProgress", "_outbox.Count != 0", "_failedOperations.Count != 0",
             "hero.PartyBelongedTo != party", "party.MemberRoster.GetTroopCount", "members.Count > 64" })
@@ -167,13 +167,13 @@ public sealed class NpcLivesHarnessTests
     public void LeaveConversationKeepsAuthoredSpeechAndIndependentActionPublication()
     {
         string root = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/Program.cs"));
+        string source = TestSourceLocator.ServerProgramText(root);
         const string guard = "ConstrainNpcLeaveReply(payload, heroId, parsed, ref reply);";
         Assert.DoesNotContain(guard, source);
         Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest, payload", source);
         Assert.Contains("GenerateSinglePassConversation(eventLlmRequest, payload", source);
         Assert.Contains("CaptureStructuredActionDecision(payload, parsed);", source);
-        string accepted = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Dialogue/ConversationAcceptedUnit.cs"));
+        string accepted = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Dialogue/Conversation/ConversationAcceptedUnit.cs"));
         Assert.Contains("RecordAcceptedNpcLives(connection, unit, sourceRows)", accepted);
         using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         Assert.Contains("single-pass", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);

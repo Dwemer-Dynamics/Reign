@@ -85,6 +85,22 @@ public sealed class AgreementChannelTests
         Assert.False(AgreementRules.IsImmediateInPerson(agreement));
     }
 
+    [Fact]
+    public void NamedPrisonerHandoffPinsAControlledDungeonAndVerifiesNativeCustody()
+    {
+        var root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
+            "WorldSimulation", "Actions", "ReignAssetTransfer.cs"));
+        Assert.Contains("settlement == from.CurrentSettlement", source);
+        Assert.Contains("receiverClan.Kingdom?.Leader == to && settlement.OwnerClan?.Kingdom == receiverClan.Kingdom", source);
+        Assert.Contains("result[\"recipientSettlementId\"] = destination.Settlement.StringId", source);
+        Assert.Contains("PrisonerRecipient(from, to, Troop(c)) != SavedPrisonerCustody(saved, \"recipient\")", source);
+        Assert.Contains("TransferPrisonerAction.Apply(prisoner, source, recipient)", source);
+        Assert.Contains("!HoldsNamedPrisoner(recipient, prisoner) || source.PrisonRoster.GetTroopCount(prisoner) != 0", source);
+        Assert.Contains("TransferPrisonerAction.Apply(prisoner, recipient, source)", source);
+        Assert.Contains("if (!HoldsNamedPrisoner(source, prisoner))", source);
+    }
+
     private sealed class Backend : IAgreementBackend
     {
         public int Joins, Prisoners;

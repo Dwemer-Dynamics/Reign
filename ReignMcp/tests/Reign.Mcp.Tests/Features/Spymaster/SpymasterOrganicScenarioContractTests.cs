@@ -114,7 +114,7 @@ public sealed class SpymasterOrganicScenarioContractTests
         Assert.Contains("Reign_Spymaster_Organic_Midrun_A", passiveWorldHost, StringComparison.Ordinal);
         Assert.Contains("exactLegacySpymasterCheckpoint", passiveWorldHost, StringComparison.Ordinal);
 
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(TestOptions.FindWorkspace(), "ReignServer"),
             "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"spymaster_organic\"", liveServer, StringComparison.Ordinal);
@@ -131,7 +131,7 @@ public sealed class SpymasterOrganicScenarioContractTests
         Assert.Contains("GameMenu.ActivateGameMenu(menuId)", ui, StringComparison.Ordinal);
         Assert.Contains("settlementMenuReady", ui, StringComparison.Ordinal);
 
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"social_set_underlying_affinity\"", liveServer, StringComparison.Ordinal);
         string socialFixture = File.ReadAllText(TestSourceLocator.Unique(

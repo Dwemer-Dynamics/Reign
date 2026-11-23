@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignPortraits;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     /// <summary>Installs an inventory-verified shipped portrait without decoding or regenerating its images.</summary>
     internal static class ReignTavernPortraitPack

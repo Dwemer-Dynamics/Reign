@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Rebellion.Campaign
 {
     // Native-independent outbreak planning. Ownership is the final allegiance of
     // each holding, captured before any clan-change or war-declaration callback.

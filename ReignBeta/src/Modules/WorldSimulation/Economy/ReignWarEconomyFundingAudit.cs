@@ -21,7 +21,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Operator evidence only. Never changes production finance and never survives a process restart.
     internal static class ReignWarEconomyFundingAudit

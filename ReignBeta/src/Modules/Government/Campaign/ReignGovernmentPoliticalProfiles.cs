@@ -5,11 +5,16 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Government.Domain;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -47,7 +52,7 @@ namespace ReignBeta.Government
                 living.Contains(id) && profiles.TryGetValue(id, out var profile) && !profile.SeenEvidence.Contains(x.Id)));
             return new JObject {
                 ["schema"] = "reign-government-runtime-v1", ["available"] = true,
-                ["calendarReady"] = ReignBeta.Runtime.ReignCalendarService.IsReady,
+                ["calendarReady"] = ReignBeta.WorldSimulation.Runtime.ReignCalendarService.IsReady,
                 ["syncInFlight"] = _politicalSyncInFlight, ["missingProfiles"] = missing,
                 ["pendingEvidence"] = evidence, ["syncError"] = _politicalSyncError,
                 ["refreshActive"] = _politicalRefreshCycle.Active,
@@ -83,7 +88,7 @@ namespace ReignBeta.Government
             if (kingdom == null) return;
             var evidence = new GovernmentPoliticalWorldEvidence {
                 Id = "government:" + record.BusinessId, CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-                TimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                TimelineId = ReignServices.WorldHistory?.TimelineId ?? "main",
                 KingdomId = record.KingdomStringId, Kind = record.Kind, TargetId = record.TargetId,
                 OptionId = optionId, Applied = true, IsRepeal = record.IsRepeal,
                 Interval = GovernmentInterval(CurrentDay()), WorldDay = CurrentDay(),
@@ -130,7 +135,7 @@ namespace ReignBeta.Government
             _politicalCapture = new PoliticalCapture {
                 Campaign = TaleWorlds.CampaignSystem.Campaign.Current, State = _participation,
                 CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-                TimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                TimelineId = ReignServices.WorldHistory?.TimelineId ?? "main",
                 Interval = CurrentPoliticalInterval, Heroes = heroes
             };
             // Selection and capture do not share a frame. Keep the wire batch
@@ -141,7 +146,7 @@ namespace ReignBeta.Government
             && ReferenceEquals(capture.Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
             && ReferenceEquals(capture.State, _participation)
             && capture.CampaignId == ReignCampaignIdentity.CurrentCampaignId()
-            && capture.TimelineId == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
+            && capture.TimelineId == (ReignServices.WorldHistory?.TimelineId ?? "main");
 
         private void ContinuePoliticalCapture()
         {
@@ -167,7 +172,7 @@ namespace ReignBeta.Government
                         try
                         {
                             var current = AppliedPoliticalProfile(hero.StringId);
-                            capture.Rows.Add(ReignServerClient.BuildPoliticalSyncHero(hero));
+                            capture.Rows.Add(ReignGovernmentPoliticalClient.BuildPoliticalSyncHero(hero));
                             _politicalCapturedHeroCount++;
                             capture.Bases[hero.StringId] = new PoliticalBase { Profile = current, Revision = current?.Revision ?? 0 };
                         }
@@ -187,7 +192,7 @@ namespace ReignBeta.Government
                     _politicalSyncError = "No political profiles could be captured.";
                     return;
                 }
-                var payload = ReignServerClient.BuildPoliticalSyncPayload(capture.Rows);
+                var payload = ReignGovernmentPoliticalClient.BuildPoliticalSyncPayload(capture.Rows);
                 _politicalCapture = null;
                 // All native fields are detached before the worker touches JSON
                 // or transport. There is still only one batch in flight.
@@ -209,7 +214,7 @@ namespace ReignBeta.Government
             string failure = "Political profile synchronization did not complete.";
             try
             {
-                response = await ReignServerClient.SyncPoliticalProfilesAsync(payload).ConfigureAwait(false);
+                response = await ReignGovernmentPoliticalClient.SyncPoliticalProfilesAsync(payload).ConfigureAwait(false);
                 if (response?.Value<bool?>("ok") == true) prepared = GovernmentPoliticalBatchPreparation.Prepare(payload, response);
             }
             catch (Exception ex)
@@ -224,7 +229,7 @@ namespace ReignBeta.Government
                 _politicalSyncError = succeeded ? "" : failure;
                 if (!PoliticalScopeCurrent(capture) || capture.Interval != CurrentPoliticalInterval || !succeeded
                     || response.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                    || response.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return false;
+                    || response.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")) return false;
                 try
                 {
                   using (ReignLog.MeasureWork("government.political.apply", 0f))

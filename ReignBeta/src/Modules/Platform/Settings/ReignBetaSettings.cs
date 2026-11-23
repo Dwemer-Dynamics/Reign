@@ -4,8 +4,12 @@ using MCM.Abstractions.Base.Global;
 using AIPortraits;
 using ReignBeta.Campaign;
 using System;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Settings
+namespace ReignBeta.Platform.Settings
 {
     public sealed class ReignBetaSettings : AttributeGlobalSettings<ReignBetaSettings>
     {
@@ -88,7 +92,7 @@ namespace ReignBeta.Settings
                 {
                     _enabled = value;
                     OnPropertyChanged();
-                    ReignFamilyCampaignBehavior.Instance?.OnPregnancyRestrictionSettingsChanged();
+                    ReignServices.Family?.OnPregnancyRestrictionSettingsChanged();
                 }
             }
         }
@@ -244,7 +248,7 @@ namespace ReignBeta.Settings
                 {
                     _pregnancyCombatRestrictionsEnabled = value;
                     OnPropertyChanged();
-                    ReignFamilyCampaignBehavior.Instance?.OnPregnancyRestrictionSettingsChanged();
+                    ReignServices.Family?.OnPregnancyRestrictionSettingsChanged();
                 }
             }
         }

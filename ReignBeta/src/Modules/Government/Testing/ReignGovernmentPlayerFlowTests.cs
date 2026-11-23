@@ -13,14 +13,19 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Government.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
-    public sealed partial class ReignGovernmentCampaignBehavior
+    internal static partial class ReignGovernmentTestControls
     {
         // Called only behind the structured host's exact paused Current/campaign/timeline/
         // process-instance and retained recovery checkpoint gates. Never a player cheat API.
-        internal JObject PrepareGovernmentPlayerFlowFixture(JObject testCase, string operationId)
+        internal static JObject PrepareGovernmentPlayerFlowFixture(ReignGovernmentCampaignBehavior government, JObject testCase, string operationId)
         {
             string action = testCase.Value<string>("actionId");
             bool capitalVisit = action == "fixture.government_capital_visit";
@@ -36,7 +41,7 @@ namespace ReignBeta.Government
             string hash = GovernmentFingerprintDigest(new JObject { ["action"] = action,
                 ["arguments"] = new JObject(args.Properties().OrderBy(p => p.Name, StringComparer.Ordinal)
                     .Select(p => new JProperty(p.Name, p.Value.DeepClone()))) });
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Action journal unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Action journal unavailable.");
             var retained = journal.NativeOperation(operationId);
             if (retained != null)
             {
@@ -57,7 +62,7 @@ namespace ReignBeta.Government
             Settlement target = null;
             if (capitalVisit)
             {
-                target = GovernmentCapital(kingdom);
+                target = government.GovernmentCapital(kingdom);
                 var origin = party.CurrentSettlement;
                 if (kingdom.StringId != args.Value<string>("expectedKingdomId") || target == null
                     || target.StringId != args.Value<string>("expectedCapitalSettlementId")
@@ -72,7 +77,7 @@ namespace ReignBeta.Government
             }
             else
             {
-                var business = _business.FirstOrDefault(x => x.BusinessId == args.Value<string>("businessId"));
+                var business = government._business.FirstOrDefault(x => x.BusinessId == args.Value<string>("businessId"));
                 var npc = ReignIndividualChatScreenManager.ActiveHero;
                 if (!ReignIndividualChatScreenManager.IsOpen || ReignIndividualChatScreenManager.AutomationCalibrationFixture
                     || ReignIndividualChatScreenManager.AutomationBusy || ReignActionBuilder.IsOpen
@@ -81,10 +86,10 @@ namespace ReignBeta.Government
                     || npc.StringId != args.Value<string>("expectedHeroId")
                     || business == null || GovernmentBusinessRules.IsClosed(business.Status)
                     || business.KingdomStringId != kingdom.StringId
-                    || !GetSeats(kingdom.StringId).Any(x => x.HeroStringId == npc.StringId))
+                    || !government.GetSeats(kingdom.StringId).Any(x => x.HeroStringId == npc.StringId))
                     throw new InvalidOperationException("Open an idle ordinary production conversation with the exact current member and an open matter in the player's kingdom.");
             }
-            JObject before = ObserveGovernmentPlayerFlowConservation();
+            JObject before = ObserveGovernmentPlayerFlowConservation(government);
             var receipt = new JObject { ["schema"] = "reign-government-player-flow-fixture-v1", ["actionId"] = action,
                 ["operationId"] = operationId, ["requestHash"] = hash, ["status"] = "started", ["invocations"] = 1,
                 ["origin"] = "operator_fixture", ["semanticVerification"] = "fixture_only",
@@ -111,7 +116,7 @@ namespace ReignBeta.Government
                 }
                 else prepared = ReignActionBuilder.TryOpenForHost(ScreenManager.TopScreen, ReignIndividualChatScreenManager.ActiveViewModel)
                     && ReignActionBuilder.IsOpen && !ReignActionBuilder.IsCalibrationFixture;
-                JObject after = ObserveGovernmentPlayerFlowConservation();
+                JObject after = ObserveGovernmentPlayerFlowConservation(government);
                 receipt["after"] = after;
                 receipt["conserved"] = JToken.DeepEquals(before, after);
                 receipt["actualSettlementId"] = party.CurrentSettlement?.StringId;
@@ -121,19 +126,19 @@ namespace ReignBeta.Government
             {
                 receipt["status"] = "uncertain";
                 receipt["error"] = ex.Message;
-                receipt["after"] = ObserveGovernmentPlayerFlowConservation();
+                receipt["after"] = ObserveGovernmentPlayerFlowConservation(government);
             }
             journal.SaveNativeOperation(operationId, receipt);
             return receipt;
         }
 
-        private JObject ObserveGovernmentPlayerFlowConservation()
+        private static JObject ObserveGovernmentPlayerFlowConservation(ReignGovernmentCampaignBehavior government)
         {
             var party = MobileParty.MainParty;
             return new JObject {
                 ["campaignDay"] = CampaignTime.Now.ToDays,
                 ["timeMode"] = TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode.ToString(),
-                ["governmentFingerprint"] = GovernmentFeatureFingerprint(),
+                ["governmentFingerprint"] = GovernmentFeatureFingerprint(government),
                 ["walletDigest"] = GovernmentFingerprintDigest(new JArray(Hero.AllAliveHeroes.OrderBy(x => x.StringId, StringComparer.Ordinal)
                     .Select(x => new JObject { ["heroId"] = x.StringId, ["gold"] = x.Gold }))),
                 ["playerInfluence"] = Clan.PlayerClan.Influence,

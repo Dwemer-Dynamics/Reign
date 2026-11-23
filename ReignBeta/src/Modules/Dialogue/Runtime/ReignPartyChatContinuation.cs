@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static ReignBeta.Platform.Domain.ReignNumeric;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Dialogue.Runtime
 {
     // Serialized only by the native campaign save. Never fetch a newer transcript
     // from a server/cache when restoring an older native checkpoint.
@@ -43,8 +44,6 @@ namespace ReignBeta.Runtime
                 return "All members of the previous party chat must still be present and available.";
             return "";
         }
-
-        private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
     }
 
     public sealed class ReignPartyChatSavedLine

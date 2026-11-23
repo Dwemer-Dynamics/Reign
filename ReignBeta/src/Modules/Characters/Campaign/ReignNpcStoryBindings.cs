@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -12,8 +11,10 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
@@ -66,7 +67,7 @@ namespace ReignBeta.Campaign
                         record["itemId"] = item.StringId; record["itemName"] = item.Name.ToString();
                     }
                 if (record.Value<string>("heroId") == null) continue;
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 p["id"] = story.Id; p["revision"] = story.Revision; p["heroId"] = story.HeroId;
                 p["kind"] = "story_binding"; p["bindings"] = record.DeepClone();
                 string receipt = story.Id + ":binding"; p["nativeReceipt"] = receipt;

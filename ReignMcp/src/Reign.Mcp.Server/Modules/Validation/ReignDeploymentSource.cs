@@ -36,6 +36,8 @@ public sealed partial class ReignValidationService
                     || report.Plan.Configuration != "Release" || !report.Plan.CoverageComplete
                     || report.RepositoryHygiene.BlocksValidation || !report.RepositoryHygiene.Ok)
                     throw new InvalidDataException("Client deployment requires a successful clean Release product/all report.");
+                if (!report.HasMatchingSourceFingerprints)
+                    throw new InvalidDataException("Client report lacks matching initial and final source fingerprints. Qualify with the current validator.");
                 var plan = GetPlan(report.Plan.Profile, "Release", report.Plan.Restore,
                     string.Join(';', report.Plan.ChangedPaths));
                 if (plan.Status != "ready" || !plan.CoverageComplete

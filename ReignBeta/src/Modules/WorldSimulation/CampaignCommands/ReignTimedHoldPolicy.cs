@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.CampaignCommands
 {
     internal static class ReignTimedHoldPolicy
     {

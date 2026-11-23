@@ -1,18 +1,14 @@
 # Reign Rebellion And Civil War
 
-Reign owns this system completely. Bannerlord campaign state and native relationship values are authoritative; the local server interprets explicit dialogue and correspondence commitments but does not roll or decide NPC outbreaks.
+The local server supplies directional effective attitudes and interprets explicit dialogue and correspondence commitments. The client checks the current Bannerlord campaign, rolls for NPC outbreaks, and saves the results.
 
 ## NPC Outbreaks
 
-Once per seven campaign days, each living, free, non-mercenary NPC vassal clan leader whose native relation with the current ruler is strictly below `-20` receives an independent saved `d100` roll. A result of `1-5` starts a rebellion. There is no strength, fief, coalition, or minimum-support gate.
+Once per seven campaign days, each eligible living, free, non-mercenary NPC vassal clan leader whose effective attitude toward the current ruler is `-35` or lower receives an independent saved `d100` roll. The ruler can be the player or an NPC. A result of `1-5` triggers a rebellion regardless of strength, fiefs, coalition size, or number of supporters.
 
 Every roll is stored in the native save. Only one rebellion can start in a kingdom at a time. If several eligible leaders succeed in the same week, the leader with the lowest ruler relation wins the tie, followed by stable clan StringId ordering. A resolved realm has a 63-day cooldown.
 
-At outbreak, all other eligible NPC vassal leaders in the parent kingdom are polled once:
-
-- join rebels when relation with the rebel leader is strictly higher than relation with the ruler;
-- otherwise remain loyalist;
-- NPC sides do not change during the war.
+At outbreak, each other eligible NPC vassal leader joins the rebels only when their effective attitude toward the rebel leader exceeds their effective attitude toward the ruler. A tie keeps the clan loyal. The realm waits for missing relationship evidence and reuses its saved rolls. Other realms continue their own weekly evaluations. NPC clans keep their chosen sides throughout the war.
 
 The player remains loyalist by staying in the parent kingdom and may later join the active NPC rebel leader through an explicitly accepted Reign conversation or letter.
 

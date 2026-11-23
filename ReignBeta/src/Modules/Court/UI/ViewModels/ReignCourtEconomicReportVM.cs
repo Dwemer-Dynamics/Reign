@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ReignBeta.Court;
-using ReignBeta.Economy;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Localization;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCourtEconomicReportVM : ViewModel
     {
         public void ExecuteClanAccords()
         {
-            var accords = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
-            if (accords != null && ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.IsPlayerRuler)
+            var accords = ReignServices.ClanAccords;
+            if (accords != null && ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.IsPlayerRuler)
                 ReignClanAccordsScreenManager.Open(_court, ReignClanAccordsPresentation.Capture, accords.CancelFromUi);
         }
 
@@ -483,7 +486,7 @@ namespace ReignBeta.UI.ViewModels
         private static string FoodDetails(Town town)
         {
             if (town == null) return "Settlement food information unavailable.";
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             var lines = new List<string> { "Food reserves: " + town.FoodStocks.ToString("0.#") + " / " + town.FoodStocksUpperLimit().ToString("0.#"),
                 "Daily food change: " + town.FoodChange.ToString("+0.#;-0.#;0"),
                 "Seven-day projection: " + Math.Max(0, town.FoodStocks + 7 * town.FoodChange).ToString("0.#") };
@@ -492,8 +495,8 @@ namespace ReignBeta.UI.ViewModels
                 double recovery = behavior?.GetFoodRecoveryModifier(village) ?? 1;
                 double potential = ReignWarEconomyPolicy.Production(village.Hearth, 1, true);
                 double actual = ReignWarEconomyPolicy.Production(village.Hearth, recovery, village.VillageState == Village.VillageStates.Normal);
-                double government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0;
-                double accord = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0;
+                double government = ReignServices.Government?.GetHearthDelta(village) ?? 0;
+                double accord = ReignServices.ClanAccords?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0;
                 lines.Add(village.Name + ": " + village.Hearth.ToString("0.#") + " hearths, " + (100 * recovery).ToString("0.#") + "% recovered"
                     + "; food capacity " + (100 * ReignRaidFoodDisruption.Capacity(village)).ToString("0.#") + "%"
                     + "; household recovery " + (100 * (behavior?.GetRecoveryModifier(village) ?? 1)).ToString("0.#") + "%"

@@ -2,13 +2,16 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignRulerClient
     {
         internal static RulerOptions RulerOptions { get; private set; } = new RulerOptions(_ => false);
         internal static bool RulerOptionsConfirmed { get; private set; }
@@ -18,11 +21,11 @@ namespace ReignBeta.Integration
             foreach (string key in Shared.Rulers.RulerOptions.Switches.Keys) if (values[key]?.Type != JTokenType.Boolean) return;
             var copy = (JObject)values.DeepClone();
             RulerOptions = new RulerOptions(k => copy.Value<bool>(k)); RulerOptionsConfirmed = true;
-            ReignRulerCampaignBehavior.Instance?.OptionsChanged();
+            ReignServices.Ruler?.OptionsChanged();
         }
         internal static JObject RulerRequestPayload()
         {
-            return new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", ["worldDay"] = CampaignTime.Now.ToDays };
+            return new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main", ["worldDay"] = CampaignTime.Now.ToDays };
         }
         internal static Task<JObject> RulerRequestAsync(string operation, JObject payload) => PostJsonAsync("/rulers/" + operation, payload);
         internal static JObject RulerPersonalitySnapshot(Hero hero) => new JObject

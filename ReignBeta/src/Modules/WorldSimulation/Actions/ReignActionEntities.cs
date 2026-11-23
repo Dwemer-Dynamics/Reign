@@ -5,9 +5,6 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Government;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court;
-#endif
 using ReignBeta.World;
 using ReignBeta.Campaign;
 using SandBox.Objects.Usables;
@@ -17,8 +14,16 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public sealed class ReignActionOption
     {
@@ -35,25 +40,25 @@ namespace ReignBeta.Actions
         public static IReadOnlyList<ReignActionOption> Find(string kind, string ownerId, string query = "", string category = "", ActionClause clause = null)
         {
             var rows = new List<ReignActionOption>();
-            if (kind == "pregnancy") return ReignFamilyCampaignBehavior.Instance?.PregnancyExposureOptions(clause?.RecipientId ?? "") ?? rows;
+            if (kind == "pregnancy") return ReignServices.Family?.PregnancyExposureOptions(clause?.RecipientId ?? "") ?? rows;
             Hero owner = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == ownerId);
             MobileParty party = owner?.PartyBelongedTo;
-            string governmentId = ReignGovernmentCampaignBehavior.Instance?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId)?.KingdomStringId
+            string governmentId = ReignServices.Government?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId)?.KingdomStringId
                 ?? owner?.Clan?.Kingdom?.StringId;
             void Add(string id, string label, bool available = true, string reason = "", int quantity = 0)
                 => rows.Add(new ReignActionOption { Id = id, Label = label, Available = available, Reason = reason, Quantity = quantity });
             switch (kind)
             {
                 case "npcMeetingPlace":
-                    rows.AddRange(ReignNpcLivesBehavior.Instance?.MeetingPlaceOptions(clause) ?? Array.Empty<ReignActionOption>());
+                    rows.AddRange(ReignServices.NpcLives?.MeetingPlaceOptions(clause) ?? Array.Empty<ReignActionOption>());
                     break;
                 case "npcMeeting":
-                    rows.AddRange(ReignNpcLivesBehavior.Instance?.MeetingOptions(ownerId) ?? Array.Empty<ReignActionOption>());
+                    rows.AddRange(ReignServices.NpcLives?.MeetingOptions(ownerId) ?? Array.Empty<ReignActionOption>());
                     break;
 #if !REIGN_EXCLUDE_COURT
                 case "spySocialItem":
-                    if (clause != null && ReignCourtCampaignBehavior.Instance != null)
-                        rows.AddRange(ReignCourtCampaignBehavior.Instance.AgreementSocialChoices(clause));
+                    if (clause != null && ReignServices.CourtWorld != null)
+                        rows.AddRange(ReignServices.CourtWorld.AgreementSocialChoices(clause));
                     if (rows.Count == 0) Add("", "No loaded rumors or reputations", false, "The list is loaded from this person's current social record.");
                     break;
 #endif
@@ -91,20 +96,20 @@ namespace ReignBeta.Actions
                     break;
                 case "region": foreach (string region in new[] { "all", "central", "east", "frontier", "north", "south", "west" }) Add(region, char.ToUpperInvariant(region[0]) + region.Substring(1)); break;
                 case "campaignOrder":
-                    if (ReignCampaignCommandBehavior.Instance != null) foreach (var order in ReignCampaignCommandBehavior.Instance.Orders.Where(x => x.CommanderHeroStringId == ownerId))
+                    if (ReignServices.CampaignCommand != null) foreach (var order in ReignServices.CampaignCommand.Orders.Where(x => x.CommanderHeroStringId == ownerId))
                         Add(order.OrderId, order.Objective.Replace('_', ' ') + " — " + order.Status, !order.IsTerminal, "This order has ended.");
                     break;
                 case "clanAccord":
-                    if (ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null)
-                        foreach (var accord in ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Records.Where(x => x.PartnerClanId == owner?.Clan?.StringId))
+                    if (ReignServices.ClanAccords != null)
+                        foreach (var accord in ReignServices.ClanAccords.Records.Where(x => x.PartnerClanId == owner?.Clan?.StringId))
                             Add(accord.Id, accord.Type + " — " + accord.PartnerClanName, accord.IsActive, "This accord has ended.");
                     break;
                 case "arrestCase":
-                    if (ReignArrestCampaignBehavior.Instance != null) foreach (var entry in ReignArrestCampaignBehavior.Instance.Cases)
+                    if (ReignServices.Arrest != null) foreach (var entry in ReignServices.Arrest.Cases)
                         Add(entry.CaseId, (ReignActionService.HeroById(entry.AccusedHeroStringId)?.Name?.ToString() ?? entry.AccusedHeroStringId) + " — " + entry.Phase);
                     break;
                 case "rebellion":
-                    if (ReignRebellionCampaignBehavior.Instance != null) foreach (var movement in ReignRebellionCampaignBehavior.Instance.Movements)
+                    if (ReignServices.Rebellion != null) foreach (var movement in ReignServices.Rebellion.Movements)
                         Add(movement.MovementId, movement.MovementId + " — " + movement.Stage, !movement.ResolutionApplied, "This rebellion has ended.");
                     break;
                 case "sceneLocation":
@@ -113,7 +118,7 @@ namespace ReignBeta.Actions
                     break;
                 case "item":
                     if (owner != null && (party == null || party.LeaderHero != owner && owner != Hero.MainHero))
-                        foreach (var item in (ReignPersonalItemService.Instance?.Snapshot(owner) ?? new JArray()).OfType<JObject>())
+                        foreach (var item in (ReignServices.PersonalItemService?.Snapshot(owner) ?? new JArray()).OfType<JObject>())
                         {
                             string itemId = item.Value<string>("itemId") ?? "";
                             int amount = item.Value<int?>("amount") ?? 0;
@@ -167,12 +172,12 @@ namespace ReignBeta.Actions
                             Add(ReignAssetTransfer.ShipId(ship), ship.Name.ToString(), party.LeaderHero == owner && !ship.IsUsedByQuest && ship.IsTradeable, "Only an owned ship that is free of quest duties can be transferred.");
                     break;
                 case "politicalParty":
-                    if (ReignGovernmentCampaignBehavior.Instance != null)
-                        foreach (var p in ReignGovernmentCampaignBehavior.Instance.Parties.Where(p => p.KingdomStringId == governmentId))
+                    if (ReignServices.Government != null)
+                        foreach (var p in ReignServices.Government.Parties.Where(p => p.KingdomStringId == governmentId))
                             Add(p.PartyId, p.Name);
                     break;
                 case "governmentPetition":
-                    var government = ReignGovernmentCampaignBehavior.Instance;
+                    var government = ReignServices.Government;
                     if (government != null)
                     foreach (var petition in government.Participation.Petitions.Where(x => x.AuthorId == clause?.RecipientId || GovernmentParticipationRules.CanRead(x, ownerId)))
                     {
@@ -184,7 +189,7 @@ namespace ReignBeta.Actions
                     }
                     break;
                 case "governmentNomination":
-                    var nominationGovernment = ReignGovernmentCampaignBehavior.Instance;
+                    var nominationGovernment = ReignServices.Government;
                     if (nominationGovernment != null)
                     foreach (var caucus in nominationGovernment.Participation.Caucuses.Where(c => !c.Closed && c.Roll.Contains(ownerId)))
                     foreach (var petition in nominationGovernment.Participation.Petitions.Where(p => caucus.Nominations.Contains(p.Id)
@@ -200,25 +205,25 @@ namespace ReignBeta.Actions
                     }
                     break;
                 case "governmentPartyMember":
-                    var ownSeat = ReignGovernmentCampaignBehavior.Instance?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId);
-                    if (ownSeat != null) foreach (var member in ReignGovernmentCampaignBehavior.Instance.GetSeats(ownSeat.KingdomStringId).Where(x => x.PartyId == ownSeat.PartyId))
+                    var ownSeat = ReignServices.Government?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId);
+                    if (ownSeat != null) foreach (var member in ReignServices.Government.GetSeats(ownSeat.KingdomStringId).Where(x => x.PartyId == ownSeat.PartyId))
                         Add(member.HeroStringId, ReignActionService.HeroById(member.HeroStringId)?.Name?.ToString() ?? "Unavailable member");
                     break;
                 case "governmentBusiness":
-                    if (ReignGovernmentCampaignBehavior.Instance != null)
-                        foreach (var b in ReignGovernmentCampaignBehavior.Instance.AgreementBusinesses.Where(b => b.KingdomStringId == governmentId))
+                    if (ReignServices.Government != null)
+                        foreach (var b in ReignServices.Government.AgreementBusinesses.Where(b => b.KingdomStringId == governmentId))
                         {
                             bool active = !GovernmentBusinessRules.IsClosed(b.Status);
                             bool memberVote = clause?.ActionId == "government.support_vote";
-                            bool available = active && (!memberVote || ReignGovernmentCampaignBehavior.Instance.GetParticipationAccess(b.KingdomStringId, owner, b.BusinessId).Ballot);
-                            Add(b.BusinessId, ReignGovernmentCampaignBehavior.Instance.DocketLabel(b.BusinessId) + " — " + b.Title, available, available ? "" : "This business is not awaiting this member's vote.");
+                            bool available = active && (!memberVote || ReignServices.Government.GetParticipationAccess(b.KingdomStringId, owner, b.BusinessId).Ballot);
+                            Add(b.BusinessId, ReignServices.Government.DocketLabel(b.BusinessId) + " — " + b.Title, available, available ? "" : "This business is not awaiting this member's vote.");
                         }
                     break;
                 case "governmentResolution":
-                    if (ReignGovernmentCampaignBehavior.Instance != null)
-                        foreach (var r in ReignGovernmentCampaignBehavior.Instance.Resolutions.Where(r => r.KingdomStringId == governmentId))
+                    if (ReignServices.Government != null)
+                        foreach (var r in ReignServices.Government.Resolutions.Where(r => r.KingdomStringId == governmentId))
                         {
-                            var hearing = ReignGovernmentCampaignBehavior.Instance.AgreementBusinesses
+                            var hearing = ReignServices.Government.AgreementBusinesses
                                 .FirstOrDefault(b => b.Kind == "seasonal" && b.TargetId == r.ResolutionId);
                             bool available = clause?.ActionId == "government.contribute_goods" ? r.Status == "active"
                                 : GovernmentBusinessRules.CanDecideResolution(r.Status, hearing?.Status, hearing != null);
@@ -227,12 +232,12 @@ namespace ReignBeta.Actions
                         }
                     break;
                 case "governmentProposal":
-                    if (ReignGovernmentCampaignBehavior.Instance != null)
-                        foreach (var p in ReignGovernmentCampaignBehavior.Instance.GetGovernmentProposalChoices(ReignActionService.Arg(clause, "kingdomId", governmentId)).OfType<JObject>())
+                    if (ReignServices.Government != null)
+                        foreach (var p in ReignServices.Government.GetGovernmentProposalChoices(ReignActionService.Arg(clause, "kingdomId", governmentId)).OfType<JObject>())
                             Add(p.Value<string>("proposalId"), p.Value<string>("label"), p.Value<bool?>("available") == true, "This proposal already has a hearing or is unavailable.");
                     break;
                 case "governmentRoute":
-                    var resolution = ReignGovernmentCampaignBehavior.Instance?.Resolutions.FirstOrDefault(r => r.ResolutionId == ReignActionService.Arg(clause, "resolutionId"));
+                    var resolution = ReignServices.Government?.Resolutions.FirstOrDefault(r => r.ResolutionId == ReignActionService.Arg(clause, "resolutionId"));
                     var template = ReignGovernmentResolutionCatalog.Find(resolution?.TemplateId);
                     if (template != null)
                     {
@@ -242,7 +247,7 @@ namespace ReignBeta.Actions
                     break;
                 case "governmentOption":
                     string businessId = ReignActionService.Arg(clause, "businessId");
-                    var business = ReignGovernmentCampaignBehavior.Instance?.AgreementBusinesses.FirstOrDefault(b => b.BusinessId == businessId);
+                    var business = ReignServices.Government?.AgreementBusinesses.FirstOrDefault(b => b.BusinessId == businessId);
                     if (business != null) foreach (var o in JArray.Parse(business.OptionsJson).OfType<JObject>()) Add(o.Value<string>("id") ?? "", o.Value<string>("label") ?? o.Value<string>("id") ?? "");
                     break;
             }

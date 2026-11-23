@@ -9,7 +9,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
 
-namespace ReignBeta.UI.Tavern
+namespace ReignBeta.Portraits.UI
 {
     public static class ReignTavernArtTextureFactory
     {

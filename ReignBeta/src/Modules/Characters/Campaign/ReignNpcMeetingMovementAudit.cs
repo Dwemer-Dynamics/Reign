@@ -7,8 +7,10 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Domain;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
@@ -16,7 +18,7 @@ namespace ReignBeta.Campaign
 
         internal void ObserveMeetingMovement(Hero hero, string operation, string target = "", string detail = "", bool allowed = true)
         {
-            if (!ReignLiveInteractionTestHost.OwnsAutomationSession || hero == null || hero == Hero.MainHero
+            if (!ReignTestHarness.Current.OwnsAutomationSession || hero == null || hero == Hero.MainHero
                 || !_meetingTravel.Values.Any(j => !j.Terminal && (j.Meeting.IssuerId == hero.StringId || j.Meeting.TargetId == hero.StringId))) return;
             // Method identities only: no source paths, local values or arbitrary object dumps.
             var callers = (new StackTrace(2, false).GetFrames() ?? new StackFrame[0])
@@ -33,7 +35,7 @@ namespace ReignBeta.Campaign
         private void OnMeetingTeleportRequested(Hero hero, Settlement settlement, MobileParty party, TeleportHeroAction.TeleportationDetail detail) =>
             ObserveMeetingMovement(hero, "teleport_requested", settlement?.StringId ?? party?.StringId ?? "", detail.ToString());
 
-        private JObject MeetingMovementSnapshot(Hero hero)
+        internal JObject MeetingMovementSnapshot(Hero hero)
         {
             var rows = _meetingMovement.ForHero(hero.StringId);
             return new JObject { ["schema"] = "reign-meeting-native-movement-evidence-v1",
@@ -42,7 +44,7 @@ namespace ReignBeta.Campaign
                 ["truncated"] = _meetingMovement.CountForHero(hero.StringId) > rows.Count };
         }
 
-        private static JObject NativeMeetingTeleportSnapshot(Hero hero)
+        internal static JObject NativeMeetingTeleportSnapshot(Hero hero)
         {
             var native = TaleWorlds.CampaignSystem.Campaign.Current?.GetCampaignBehavior<TeleportationCampaignBehavior>();
             if (native == null) return new JObject { ["available"] = false };

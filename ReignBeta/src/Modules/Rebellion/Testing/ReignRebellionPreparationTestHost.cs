@@ -5,11 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
-using ReignBeta.Runtime;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -37,7 +38,7 @@ namespace ReignBeta.Campaign
 
         private static JObject BuildRebellionPreparationTestSnapshot(string profile, JObject command)
         {
-            ReignRebellionCampaignBehavior behavior = ReignRebellionCampaignBehavior.Instance;
+            ReignRebellionCampaignBehavior behavior = ReignServices.Rebellion;
             if (behavior == null)
                 return new JObject
                 {

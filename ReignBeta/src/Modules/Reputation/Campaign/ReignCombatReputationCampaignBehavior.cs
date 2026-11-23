@@ -4,16 +4,18 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ArenaOverhaul.TeamTournament;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     public sealed class ReignCombatReputationCampaignBehavior : CampaignBehaviorBase
     {
@@ -209,7 +211,7 @@ namespace ReignBeta.Campaign
             TaleWorlds.Library.MBReadOnlyList<CharacterObject> participants, Town town, ItemObject prize)
         {
             Hero winnerHero = winner?.HeroObject;
-            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(town, winner);
+            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(participants);
             HashSet<Hero> winningHeroes = new HashSet<Hero>(teamOutcome?.WinningTeam.Where(x => x?.HeroObject != null).Select(x => x.HeroObject)
                 ?? Enumerable.Empty<Hero>());
             if (winnerHero != null) winningHeroes.Add(winnerHero);
@@ -309,12 +311,12 @@ namespace ReignBeta.Campaign
 
         private static void Record(string archetype, Hero subject, string role, string source, string summary)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(archetype, subject, role, source, summary);
+            ReignServices.WorldHistory?.RecordSocialOutcome(archetype, subject, role, source, summary);
         }
 
         private static void CounterOnly(Hero subject, string source, string summary, params string[] tagIds)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(string.Empty, subject, "subject", source,
+            ReignServices.WorldHistory?.RecordSocialOutcome(string.Empty, subject, "subject", source,
                 summary, null, new JArray(tagIds));
         }
     }

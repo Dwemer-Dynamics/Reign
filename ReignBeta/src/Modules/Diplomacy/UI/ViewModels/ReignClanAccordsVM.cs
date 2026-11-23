@@ -6,7 +6,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Diplomacy.UI
 {
     // Presentation boundary: callers supply committed active agreements only.
     public sealed class ReignClanAccordsScreenData

@@ -159,9 +159,9 @@ public sealed class ReignWarEconomyScenarioContractTests
         var balance = economy.GetProperty("balanceRevision");
         Assert.Equal(3, balance.GetProperty("productionCurveVersion").GetInt32());
         Assert.Equal(3, balance.GetProperty("recruitmentPriceVersion").GetInt32());
-        Assert.Equal(ReignBeta.Economy.ReignWarEconomyPolicy.ProductionCurveVersion,
+        Assert.Equal(ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.ProductionCurveVersion,
             balance.GetProperty("productionCurveVersion").GetInt32());
-        Assert.Equal(ReignBeta.Economy.ReignWarEconomyPolicy.RecruitmentPriceVersion,
+        Assert.Equal(ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.RecruitmentPriceVersion,
             balance.GetProperty("recruitmentPriceVersion").GetInt32());
         Assert.Equal(2, balance.GetProperty("healthyOutput").GetProperty("anchors").GetProperty("10").GetDouble());
         Assert.Equal(11, balance.GetProperty("healthyOutput").GetProperty("anchors").GetProperty("300").GetDouble());

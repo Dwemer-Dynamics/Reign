@@ -1,4 +1,5 @@
-namespace ReignBeta.World
+using ReignBeta.WorldSimulation.World;
+namespace ReignBeta.WorldSimulation.Domain
 {
     // Identify the captive an operation can actually release or transfer. A
     // diplomatic counterpart is not implicitly a prisoner term.

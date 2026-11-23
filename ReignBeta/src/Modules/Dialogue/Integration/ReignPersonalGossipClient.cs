@@ -14,16 +14,21 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Shared;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignPersonalGossipClient
     {
         private sealed class PersonalGossipPump
         {
             internal TaleWorlds.CampaignSystem.Campaign Campaign;
             internal string CampaignId, Timeline, Generation;
             internal int InFlight;
+            internal DateTime NextCompositionWake;
             internal DateTime NextPoll, NextScopeCheck;
             internal readonly PersonalGossipWakeState Wake = new PersonalGossipWakeState();
             internal double NextDue = double.PositiveInfinity;
@@ -149,7 +154,7 @@ namespace ReignBeta.Integration
                         rows[count++] = new Person(hero);
                     }
                     return new PersonalGossipPresenceSnapshot(rows, count, complete,
-                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ReignServices.WorldHistory?.TimelineId ?? "main",
                         CampaignTime.Now.ToDays, GetCampaignId(), Thread.CurrentThread.ManagedThreadId,
                         ReignCampaignInitializationGate.Snapshot().Value<string>("generationId"));
                 }
@@ -353,7 +358,7 @@ namespace ReignBeta.Integration
         internal static bool PersonalGossipSnapshotCurrent(PersonalGossipPresenceSnapshot snapshot) =>
             snapshot != null && !ReignCampaignInitializationGate.IsPending && !ReignSaveSyncCoordinator.IsAlignmentPending
             && TaleWorlds.CampaignSystem.Campaign.Current != null && snapshot.CampaignId == GetCampaignId()
-            && snapshot.Timeline == (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+            && snapshot.Timeline == (ReignServices.WorldHistory?.TimelineId ?? "main")
             && snapshot.Generation == ReignCampaignInitializationGate.Snapshot().Value<string>("generationId");
         internal static Task<JObject> PersonalGossipIncompleteFixtureAsync(double day, string timeline) =>
             Task.Run(() => PersonalGossipPresenceSnapshot.FixedIncomplete(day, timeline));
@@ -392,7 +397,7 @@ namespace ReignBeta.Integration
                 });
             }
             return new JObject { ["schema"] = "reign-gossip-presence-v1",
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = CampaignTime.Now.ToDays, ["rosterComplete"] = heroes.Count <= 8192, ["people"] = people };
         }
         internal static Tuple<PersonalGossipPresenceSnapshot, JObject> CapturePersonalGossipComparison()
@@ -421,17 +426,17 @@ namespace ReignBeta.Integration
 
         private static bool GossipPumpCurrent(PersonalGossipPump pump) => pump != null
             && ReferenceEquals(pump, _personalGossipPump) && ReferenceEquals(pump.Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
-            && pump.Timeline == (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+            && pump.Timeline == (ReignServices.WorldHistory?.TimelineId ?? "main")
             && pump.Generation == ReignCampaignInitializationGate.Snapshot().Value<string>("generationId")
             && !ReignCampaignInitializationGate.IsPending && !ReignSaveSyncCoordinator.IsAlignmentPending;
 
         private static PersonalGossipPump CurrentGossipPump()
         {
             if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignCampaignInitializationGate.IsPending
-                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignBeta.Campaign.ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return null;
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignBeta.Persistence.Campaign.ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return null;
             if (!GossipPumpCurrent(_personalGossipPump))
                 _personalGossipPump = new PersonalGossipPump { Campaign = TaleWorlds.CampaignSystem.Campaign.Current,
-                    CampaignId = GetCampaignId(), Timeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    CampaignId = GetCampaignId(), Timeline = ReignServices.WorldHistory?.TimelineId ?? "main",
                     Generation = ReignCampaignInitializationGate.Snapshot().Value<string>("generationId"), NextPoll = DateTime.UtcNow };
             return _personalGossipPump;
         }
@@ -488,9 +493,17 @@ namespace ReignBeta.Integration
                     bool work = ready.Value<int?>("pendingComposition") > 0 || ready.Value<int?>("awaitingNativeClock") > 0;
                     pump.Wake.Observe(observedRevision, ready.Value<bool?>("enabled") == true, work, DateTime.UtcNow);
                     if (ready.Value<bool?>("enabled") != true) { pump.NextDue = double.PositiveInfinity; return null; }
-                    if (ready.Value<int?>("awaitingNativeClock") == 0 && pump.NextDue > CampaignTime.Now.ToDays) return null;
+                    var communications = ready["communications"];
+                    long pendingGossip = (ready.Value<long?>("pendingComposition") ?? 0)
+                        - (communications?.Value<long?>("pending") ?? 0) - (communications?.Value<long?>("failed") ?? 0);
+                    // A pending row survives refused admission and server restart. Revisit it on
+                    // a bounded cadence, even while paused and without a ready nonce or arrival.
+                    bool wakeComposition = pendingGossip > 0 && DateTime.UtcNow >= pump.NextCompositionWake;
+                    if (!wakeComposition && ready.Value<int?>("awaitingNativeClock") == 0 && pump.NextDue > CampaignTime.Now.ToDays) return null;
                     // Readiness was received before this main-thread clock/roster capture.
-                    return CapturePersonalGossipPresence();
+                    var presence = CapturePersonalGossipPresence();
+                    if (presence != null) pump.NextCompositionWake = DateTime.UtcNow.AddSeconds(30);
+                    return presence;
                 }).ConfigureAwait(false);
                 if (snapshot != null)
                 {
@@ -575,13 +588,13 @@ namespace ReignBeta.Integration
                 gen0 = _gossipCaptureGen0Overlap; gen1 = _gossipCaptureGen1Overlap; gen2 = _gossipCaptureGen2Overlap;
             }
             return new JObject { ["schema"] = "reign-gossip-clock-runtime-v1", ["inFlight"] = pump != null && Volatile.Read(ref pump.InFlight) != 0
-                    || Volatile.Read(ref _communicationInFlight) != 0 || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
-                ["campaignId"] = pump?.CampaignId ?? _communicationCampaign, ["timelineId"] = pump?.Timeline ?? _communicationTimeline,
+                    || Volatile.Read(ref ReignCommunicationClient._communicationInFlight) != 0 || ReignServices.NpcLives?.HasPendingCommunicationReceipts == true,
+                ["campaignId"] = pump?.CampaignId ?? ReignCommunicationClient._communicationCampaign, ["timelineId"] = pump?.Timeline ?? ReignCommunicationClient._communicationTimeline,
                 ["lastError"] = pump?.LastError ?? "", ["readiness"] = pump?.Readiness?.DeepClone(),
                 ["periodicCommunicationHoldVersion"] = 1,
-                ["periodicCommunicationHoldActive"] = CommunicationPollHold.HasLease
-                    && CommunicationPollHold.Active(TaleWorlds.CampaignSystem.Campaign.Current, CommunicationPollScope(), DateTime.UtcNow),
-                ["periodicCommunicationHoldUntilUtc"] = CommunicationPollHold.UntilUtc,
+                ["periodicCommunicationHoldActive"] = ReignCommunicationClient.CommunicationPollHold.HasLease
+                    && ReignCommunicationClient.CommunicationPollHold.Active(TaleWorlds.CampaignSystem.Campaign.Current, ReignCommunicationClient.CommunicationPollScope(), DateTime.UtcNow),
+                ["periodicCommunicationHoldUntilUtc"] = ReignCommunicationClient.CommunicationPollHold.UntilUtc,
                 ["watchUntilUtc"] = pump?.Wake.UntilUtc, ["knownWork"] = pump?.Wake.HasKnownWork ?? false,
                 ["disabledSettingsWatch"] = pump?.Wake.IsDisabled ?? false,
                 ["nextBackgroundPollUtc"] = pump?.Wake.NextBackgroundPollUtc,

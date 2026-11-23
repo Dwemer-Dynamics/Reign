@@ -45,8 +45,9 @@ public sealed class CorrespondencePortraitTests
         Assert.Contains("ReignMainThread.IsMainThread", knowledge);
         Assert.Contains("ReferenceEquals(campaign", knowledge);
         Assert.Contains("if (!_calibrationMode) ReignHeroKnowledge.MarkMet(hero)", Read("ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs"));
-        Assert.Contains("if (!_calibrationMode) ReignBeta.Campaign.ReignHeroKnowledge.MarkMet(_session.Record.GetAttendees())", Read("ReignBeta/src/Modules/WorldSimulation/UI/ReignSocialEventScreenManager.cs"));
-        string client = Read("ReignBeta/src/Modules/Platform/Integration/ReignServerClient.cs");
+        Assert.Contains("if (!_calibrationMode) ReignBeta.Characters.Campaign.ReignHeroKnowledge.MarkMet(_session.Record.GetAttendees())", Read("ReignBeta/src/Modules/WorldSimulation/UI/ReignSocialEventScreenManager.cs"));
+        string client = TestSourceLocator.PartialTypeText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/Platform/Integration/ReignServerClient.cs"));
         Assert.Contains("ReignHeroKnowledge.MarkMet(activeHeroes)", client);
         Assert.Contains("ReignHeroKnowledge.MarkMet(speaker)", client);
         Assert.Contains("ReignHeroKnowledge.MarkMet(hero)", client);

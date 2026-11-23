@@ -46,7 +46,7 @@ try {
     $native = [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.MountAndBlade.dll'))
     $harmonyPath = @($script:godModeRoots | ForEach-Object { Join-Path $_ '0Harmony.dll' } | Where-Object { Test-Path -LiteralPath $_ })[0]
     [Reflection.Assembly]::LoadFrom($harmonyPath) | Out-Null
-    $patches = $client.GetType('ReignBeta.World.ReignPlayerGodModeHealthPatch', $true)
+    $patches = $client.GetType('ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch', $true)
     if ($true) {
         # Only the native engine lookup is replaced. Native Agent/cache static
         # initialization and production registration run unchanged in this process.
@@ -108,7 +108,7 @@ public static class GodModeActionTable {
     $agentType = $native.GetType('TaleWorlds.MountAndBlade.Agent', $true)
     $setter = $agentType.GetProperty('Health').GetSetMethod()
     Require ($setter.GetParameters().Count -eq 1 -and $setter.GetParameters()[0].ParameterType -eq [single]) 'Native health signature changed.'
-    $patches = $client.GetType('ReignBeta.World.ReignPlayerGodModeHealthPatch', $true)
+    $patches = $client.GetType('ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch', $true)
     Add-Type -TypeDefinition 'public static class PlayerGodModeSentinel { public static void Prefix() {} }'
     $sentinel = [HarmonyLib.Harmony]::new($sentinelOwner)
     $sentinelMethod = [HarmonyLib.HarmonyMethod]::new([PlayerGodModeSentinel].GetMethod('Prefix'))

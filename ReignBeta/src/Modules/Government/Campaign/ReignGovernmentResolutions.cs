@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
@@ -17,8 +16,15 @@ using TaleWorlds.CampaignSystem.Settlements.Buildings;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Spymaster.Campaign;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -48,7 +54,7 @@ namespace ReignBeta.Government
                 try
                 {
                     Task<JObject> call = await ReignMainThread.InvokeAsync(() =>
-                        ReignServerClient.RequestGovernmentSpeakerStatementAsync(
+                        ReignGovernmentServerClient.RequestGovernmentSpeakerStatementAsync(
                             request.Kingdom, request.Party, request.Resolutions)).ConfigureAwait(false);
                     response = await call.ConfigureAwait(false);
                 }
@@ -279,7 +285,7 @@ namespace ReignBeta.Government
             return updated;
         }
 
-        private ReignGovernmentMeetingRecord RunSeasonalMeeting(
+        internal ReignGovernmentMeetingRecord RunSeasonalMeeting(
             Kingdom kingdom,
             ReignGovernmentStateRecord state,
             bool playerAttended)
@@ -383,7 +389,7 @@ namespace ReignBeta.Government
             return true;
         }
 
-        private static bool RequiresRecordedPrisoner(ReignGovernmentResolutionTemplate template) => template != null
+        internal static bool RequiresRecordedPrisoner(ReignGovernmentResolutionTemplate template) => template != null
             && new[] { template.FirstRoute.Action, template.SecondRoute.Action }.Any(action =>
                 action == ReignGovernmentResolutionAction.ReleasePrisoners
                 || action == ReignGovernmentResolutionAction.RansomPrisoners
@@ -398,11 +404,11 @@ namespace ReignBeta.Government
             return hero?.IsAlive == true && hero.IsPrisoner;
         }
 
-        private static bool HasRecordedSeasonalPrisonerTarget(ReignGovernmentResolutionRecord resolution,
+        internal static bool HasRecordedSeasonalPrisonerTarget(ReignGovernmentResolutionRecord resolution,
             ReignGovernmentResolutionTemplate template) => !RequiresRecordedPrisoner(template)
                 || FindHero(resolution?.TargetHeroStringId)?.IsAlive == true;
 
-        private ReignGovernmentResolutionRecord CreateResolution(
+        internal ReignGovernmentResolutionRecord CreateResolution(
             Kingdom kingdom,
             ReignGovernmentStateRecord state,
             ReignGovernmentPartyRecord party,
@@ -440,23 +446,6 @@ namespace ReignBeta.Government
                 }.ToString(Newtonsoft.Json.Formatting.None),
                 Revision = 1
             };
-        }
-
-        private void ApplyNpcMeetingDisposition(Kingdom kingdom, ReignGovernmentStateRecord state,
-            IReadOnlyList<ReignGovernmentResolutionRecord> proposed)
-        {
-            ImportSeasonalBusiness();
-            TickGovernmentBusiness();
-        }
-
-        private static int SelectNpcRoute(Kingdom kingdom, ReignGovernmentResolutionTemplate template)
-        {
-            bool firstGold = UsesImmediateGold(template.FirstRoute.Action);
-            bool secondGold = UsesImmediateGold(template.SecondRoute.Action);
-            int gold = kingdom?.Leader?.Gold ?? 0;
-            if (firstGold && gold < template.FirstRoute.Target && !secondGold) return 1;
-            if (secondGold && gold < template.SecondRoute.Target && !firstGold) return 0;
-            return ReignGovernmentRules.StableHash("npc-route|" + (kingdom?.StringId ?? string.Empty) + "|" + template.Id) % 2u == 0u ? 0 : 1;
         }
 
         private void EvaluateResolutions(Kingdom kingdom, ReignGovernmentStateRecord state)
@@ -524,7 +513,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + reward.HearthOrSecurity);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), reward.SpeakerRelation);
             state.Revision++;
@@ -556,7 +545,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + local);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), relation);
             state.Revision++;
@@ -651,7 +640,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + 0.5f);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
 
             record.CurrentValue += 1f;
@@ -702,10 +691,11 @@ namespace ReignBeta.Government
                     && action != ReignGovernmentResolutionAction.SpymasterCounterintelligence
                     && action != ReignGovernmentResolutionAction.IdentifyCulprit))
                 return;
-            IEnumerable<ReignSpymasterMission> missions = ReignCourtCampaignBehavior.Instance?.SpymasterState?.Missions
+            IEnumerable<ReignSpymasterMission> missions = ReignServices.Court?.SpymasterState?.Missions
                 ?? Enumerable.Empty<ReignSpymasterMission>();
             ReignSpymasterMission completed = missions.Where(x => x != null
                     && x.State == ReignSpymasterMissionState.Succeeded
+                    && x.AgreementEffectState == "completed"
                     && x.ResolvedDay + 0.01f >= record.AcceptedDay
                     && (string.IsNullOrWhiteSpace(x.SponsorKingdomStringId)
                         || Same(x.SponsorKingdomStringId, kingdom.StringId))
@@ -727,7 +717,7 @@ namespace ReignBeta.Government
         }
 #endif
 
-        private static int DailyCommitmentGoldCost(ReignGovernmentResolutionAction action,
+        internal static int DailyCommitmentGoldCost(ReignGovernmentResolutionAction action,
             ReignGovernmentResolutionScale scale)
         {
             int weight = scale == ReignGovernmentResolutionScale.Major ? 3
@@ -789,14 +779,14 @@ namespace ReignBeta.Government
                 || action == ReignGovernmentResolutionAction.CollectTaxMinimum;
         }
 
-        private static bool UsesImmediateGold(ReignGovernmentResolutionAction action)
+        internal static bool UsesImmediateGold(ReignGovernmentResolutionAction action)
         {
             return action == ReignGovernmentResolutionAction.TreasuryPayment
                 || action == ReignGovernmentResolutionAction.CompensateClan
                 || action == ReignGovernmentResolutionAction.HoldFeast;
         }
 
-        private static HashSet<string> CollectEvidenceTags(Kingdom kingdom)
+        internal static HashSet<string> CollectEvidenceTags(Kingdom kingdom)
         {
             var tags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             List<Town> fiefs = kingdom.Fiefs.Where(x => x?.Settlement?.IsFortification == true).ToList();
@@ -829,15 +819,15 @@ namespace ReignBeta.Government
             Add(tags, "open_issues", "merchant_issue", "justice_grievance", "unpopular_policy", "stalled_project", "bad_project",
                 "poor_trade_route", "merchant_burden", "broken_tax_promise", "ambassador_warning", "border_tension");
 #if !REIGN_EXCLUDE_COURT
-            if (fiefs.Any(x => ReignCourtCampaignBehavior.Instance?.GetSpymasterLoyaltyDelta(x) != 0f
-                || ReignCourtCampaignBehavior.Instance?.GetSpymasterSecurityDelta(x) != 0f))
+            if (fiefs.Any(x => ReignServices.Court?.GetSpymasterLoyaltyDelta(x) != 0f
+                || ReignServices.Court?.GetSpymasterSecurityDelta(x) != 0f))
                 Add(tags, "subterfuge_village", "subterfuge_food", "capital_spy_risk", "known_agent", "corruption_evidence",
                     "war_plan_leak", "hostile_rumors", "noble_intrigue", "suspected_proxy_raid");
 #endif
             return tags;
         }
 
-        private static Settlement SelectTargetSettlement(Kingdom kingdom, string tag)
+        internal static Settlement SelectTargetSettlement(Kingdom kingdom, string tag)
         {
             IEnumerable<Settlement> owned = Settlement.All.Where(x => x != null && x.MapFaction == kingdom && (x.IsTown || x.IsCastle || x.IsVillage));
             if (Same(tag, "criminal_activity"))
@@ -860,7 +850,7 @@ namespace ReignBeta.Government
 
         // Callers supply owned towns only. Evidence and target selection share the
         // same threshold; a castle or a recovered town cannot supply R029's need.
-        private static string SelectTownCrimeTargetId(IEnumerable<KeyValuePair<string, float>> towns)
+        internal static string SelectTownCrimeTargetId(IEnumerable<KeyValuePair<string, float>> towns)
         {
             return (towns ?? Enumerable.Empty<KeyValuePair<string, float>>())
                 .Where(x => !string.IsNullOrWhiteSpace(x.Key) && !float.IsNaN(x.Value)
@@ -932,7 +922,7 @@ namespace ReignBeta.Government
             return value.ToString(Newtonsoft.Json.Formatting.None);
         }
 
-        private static Kingdom FindKingdom(string id)
+        internal static Kingdom FindKingdom(string id)
         {
             return string.IsNullOrWhiteSpace(id) ? null : Kingdom.All.FirstOrDefault(x => Same(x.StringId, id));
         }

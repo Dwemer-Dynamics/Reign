@@ -6,7 +6,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Localization;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     // Native eligibility compares two settlements for equality: null == null also
     // admits a recruited workshop owner on the map. Reject that branch before

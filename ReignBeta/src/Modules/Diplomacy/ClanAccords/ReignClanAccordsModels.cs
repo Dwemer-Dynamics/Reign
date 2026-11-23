@@ -3,8 +3,9 @@ using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.ClanAccords
+namespace ReignBeta.Diplomacy.ClanAccords
 {
     internal static class ReignClanAccordModelMath
     {
@@ -57,7 +58,7 @@ namespace ReignBeta.ClanAccords
 
         private static void AddAccordIncome(Clan clan, ref ExplainedNumber result)
         {
-            int income = ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(clan).TradeIncome ?? 0;
+            int income = ReignServices.ClanAccords?.GetBonuses(clan).TradeIncome ?? 0;
             ReignClanAccordModelMath.AddFinalDelta(ref result, income, new TextObject("{=!}Clan Accords: trade cooperation"));
         }
     }
@@ -67,7 +68,7 @@ namespace ReignBeta.ClanAccords
         public override int GetCharacterWage(CharacterObject character)
         {
             int native = base.GetCharacterWage(character);
-            return character.IsHero ? native : TaleWorlds.Library.MathF.Round((float)(native * ReignBeta.Economy.ReignWarEconomyPolicy.WageMultiplier(character.Tier)));
+            return character.IsHero ? native : TaleWorlds.Library.MathF.Round((float)(native * ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.WageMultiplier(character.Tier)));
         }
 
         public override ExplainedNumber GetTroopRecruitmentCost(CharacterObject troop, Hero buyerHero, bool withoutItemCost = false)
@@ -75,9 +76,9 @@ namespace ReignBeta.ClanAccords
             var result = base.GetTroopRecruitmentCost(troop, buyerHero, withoutItemCost);
             // Native ransom prices reuse this quote. The enlistment premium pays for
             // mobilization/training; it must not multiply the cash awarded for captives.
-            if (!troop.IsHero && !ReignBeta.Economy.ReignEconomyPatches.IsRansomQuote)
+            if (!troop.IsHero && !ReignBeta.WorldSimulation.Economy.ReignEconomyPatches.IsRansomQuote)
                 ReignClanAccordModelMath.AddFinalDelta(ref result,
-                    (float)(System.Math.Max(0, result.ResultNumber) * (ReignBeta.Economy.ReignWarEconomyPolicy.HireMultiplier(troop.Tier) - 1)),
+                    (float)(System.Math.Max(0, result.ResultNumber) * (ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.HireMultiplier(troop.Tier) - 1)),
                     new TextObject("{=!}Regular troop enlistment cost"));
             return result;
         }
@@ -86,7 +87,7 @@ namespace ReignBeta.ClanAccords
         {
             var result = base.GetTotalWage(mobileParty, troopRoster, includeDescriptions);
             if (mobileParty?.IsGarrison != true) return result;
-            double reduction = ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(mobileParty.CurrentSettlement?.OwnerClan).GarrisonWageReduction ?? 0d;
+            double reduction = ReignServices.ClanAccords?.GetBonuses(mobileParty.CurrentSettlement?.OwnerClan).GarrisonWageReduction ?? 0d;
             ReignClanAccordModelMath.ApplyWageReduction(ref result, reduction);
             return result;
         }

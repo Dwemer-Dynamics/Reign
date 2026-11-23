@@ -1,4 +1,4 @@
-namespace ReignBeta.Events
+namespace ReignBeta.WorldSimulation.Events
 {
     public class SocialEventPhase
     {

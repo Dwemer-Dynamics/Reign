@@ -4,16 +4,17 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.ClanAccords;
-using ReignBeta.Economy;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Localization;
+using ReignBeta.Diplomacy.ClanAccords;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     // Patch final Reign model overrides, not both their base and override. Every native
     // effect is applied once and remains inside Bannerlord's actual economy calculation.
@@ -52,7 +53,7 @@ namespace ReignBeta.Government
         }
         private static void Postfix(MethodBase __originalMethod, object[] __args, ref ExplainedNumber __result)
         {
-            var behavior = ReignGovernmentCampaignBehavior.Instance;
+            var behavior = ReignServices.Government;
             if (behavior == null) return;
             Settlement settlement = __args.OfType<Town>().FirstOrDefault()?.Settlement
                 ?? __args.OfType<Village>().FirstOrDefault()?.Settlement
@@ -106,7 +107,7 @@ namespace ReignBeta.Government
         { yield return AccessTools.Method(typeof(DefaultVolunteerModel), "GetDailyVolunteerProductionProbability"); }
         private static void Postfix(Settlement settlement, ref float __result)
         {
-            var effects = ReignGovernmentCampaignBehavior.Instance?.EdictEffects(settlement);
+            var effects = ReignServices.Government?.EdictEffects(settlement);
             if (effects != null) __result = Math.Max(0, __result * (1f + (float)effects.RecruitReplenishment));
         }
     }

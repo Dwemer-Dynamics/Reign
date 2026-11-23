@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

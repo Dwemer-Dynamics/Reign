@@ -1,6 +1,6 @@
 using AIPortraits;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
+using ReignBeta.Court.Integration;
 
 namespace Reign.Mcp.Tests.Features.Court;
 

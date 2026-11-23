@@ -137,7 +137,7 @@ public sealed class GovernmentTestingToolsTests
                     StringComparison.OrdinalIgnoreCase);
         });
         string dialogueSource = File.ReadAllText(Path.Combine(workspace, "ReignServer", "src",
-            "Modules", "Dialogue", "MotiveAwareConversation.cs"));
+            "Modules", "Dialogue", "Conversation", "MotiveAwareConversation.cs"));
         Assert.Contains("Government authority levels are hidden mechanics", dialogueSource,
             StringComparison.Ordinal);
         Assert.Contains("numbered levels/scale; describe small/modest/limited control change", dialogueSource,
@@ -194,12 +194,11 @@ public sealed class GovernmentTestingToolsTests
             "ReignGovernmentCertificationTests.cs", "/src/Modules/Government/"));
         string nativeDecisions = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignGovernmentNativeDecisions.cs", "/src/Modules/Government/"));
-        string liveHost = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+        string liveHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionTestHost.cs", "/src/Modules/WorldSimulation/"));
-        string serverLive = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
+        string serverLive = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
             "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
-        string serverProgram = File.ReadAllText(Path.Combine(workspace,
-            "ReignServer", "src", "Modules", "Platform", "Program.cs"));
+        string serverProgram = TestSourceLocator.ServerProgramText(workspace);
         string mcp = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignMcp"),
             "TestingTools.Government.cs"));
         string certificationMcp = File.ReadAllText(TestSourceLocator.Unique(

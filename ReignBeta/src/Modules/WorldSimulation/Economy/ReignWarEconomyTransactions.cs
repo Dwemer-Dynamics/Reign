@@ -7,15 +7,16 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // All mutations run synchronously on Bannerlord's campaign thread. Quotes never debit resources.
     internal static class ReignWarEconomyTransactions
     {
         internal const string Player = "player_volunteer", Ai = "ai_volunteer", Garrison = "native_auto_garrison",
             BaseGarrison = "native_base_garrison", NavalGarrison = "native_naval_garrison", Guard = "castle_guard", Retinue = "household_retinue", Militia = "militia_conversion";
-        internal static ReignEconomyState State => ReignEconomyCampaignBehavior.Instance?.EconomyState;
+        internal static ReignEconomyState State => ReignServices.Economy?.EconomyState;
         private static ReignEconomyState _generationState;
         private static readonly Dictionary<MobileParty, string> Unregistered = new Dictionary<MobileParty, string>(ReignWarEconomyReferenceComparer<MobileParty>.Instance);
         private static void EnsureGenerationState()
@@ -77,7 +78,7 @@ namespace ReignBeta.Economy
             double food = capacity <= 0 ? 0 : holdings.Where(x => x.FoodStocks + 7 * x.FoodChange < .1 * x.FoodStocksUpperLimit())
                 .Sum(x => (double)Math.Max(0, x.FoodStocksUpperLimit())) / capacity;
             double recruitment = villages.Count == 0 ? 1 : villages.Average(x => 1 - ReignWarEconomyPolicy.Clamp(
-                ReignWarEconomyPolicy.Production(x.Hearth, ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(x) ?? 1,
+                ReignWarEconomyPolicy.Production(x.Hearth, ReignServices.Economy?.GetRecoveryModifier(x) ?? 1,
                     x.VillageState == Village.VillageStates.Normal) / 12, 0, 1));
             double wages = 0, unpaid = 0, unfunded = 0;
             foreach (var clan in kingdom.Clans.Where(x => x != null && !x.IsEliminated))
@@ -134,11 +135,11 @@ namespace ReignBeta.Economy
         internal static int Allow(string source, Settlement locality, MobileParty party, Hero payer, CharacterObject troop,
             int requested, bool automatic, bool liability = false, bool recordBlocked = true)
         {
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             int allowed = behavior == null || locality == null || troop == null || payer?.Clan == null || locality.IsUnderSiege
                 || State.Pending.Any(x => x.Party == party?.StringId)
                 || (party != null && State.DrawdownPending.Any(x => x.Party == party.StringId && x.Generation == Generation(party)))
-                || (automatic && !ReignBeta.World.ReignCampaignCommandBehavior.RecruitmentFitsActiveOrder(party, troop))
+                || (automatic && !ReignBeta.WorldSimulation.CampaignCommands.ReignCampaignCommandBehavior.RecruitmentFitsActiveOrder(party, troop))
                 ? 0 : Math.Min(Math.Max(0, requested), behavior.GetRecruitCapacity(locality));
             if (allowed > 0)
             {
@@ -188,8 +189,8 @@ namespace ReignBeta.Economy
                 receipt.Gold[notable.StringId] = notable.Gold;
                 receipt.Volunteers[notable.StringId] = notable.VolunteerTypes.Select(x => x?.StringId).ToArray();
             }
-            foreach (var village in ReignEconomyCampaignBehavior.Instance.GetEligibleVillages(locality))
-                receipt.Population[village.StringId] = new[] { village.Hearth, ReignEconomyCampaignBehavior.Instance.GetMobilizationStrain(village) };
+            foreach (var village in ReignServices.Economy.GetEligibleVillages(locality))
+                receipt.Population[village.StringId] = new[] { village.Hearth, ReignServices.Economy.GetMobilizationStrain(village) };
             state.Pending.Add(receipt);
             return receipt;
         }
@@ -200,14 +201,14 @@ namespace ReignBeta.Economy
             if (receipt == null || state == null || receipt.Status != "pending" || !state.Pending.Contains(receipt)) return;
             int after = troop == null ? party?.MemberRoster.TotalRegulars ?? 0 : party?.MemberRoster.GetTroopCount(troop) ?? 0;
             int enlisted = Math.Max(0, after - receipt.BeforeRoster);
-            if (enlisted > receipt.Requested || enlisted > ReignEconomyCampaignBehavior.Instance.GetRecruitCapacity(locality))
+            if (enlisted > receipt.Requested || enlisted > ReignServices.Economy.GetRecruitCapacity(locality))
             {
                 Rollback(receipt, "resources changed before recruitment committed");
                 return;
             }
             if (enlisted > 0)
             {
-                int charged = ReignEconomyCampaignBehavior.Instance.ConsumeRecruitHearth(locality, enlisted);
+                int charged = ReignServices.Economy.ConsumeRecruitHearth(locality, enlisted);
                 if (charged != enlisted) throw new InvalidOperationException("Population conservation mismatch " + receipt.Id);
                 if (addLiability && payer?.Clan != null)
                     payer.Clan.AutoRecruitmentExpenses += receipt.QuotedCost * enlisted;
@@ -247,7 +248,7 @@ namespace ReignBeta.Economy
             var payer = Hero.FindFirst(x => x.StringId == receipt.Payer);
             if (payer?.Clan != null) payer.Clan.AutoRecruitmentExpenses = receipt.BeforeLiability;
             foreach (var pair in receipt.Population)
-                ReignEconomyCampaignBehavior.Instance.RestorePopulation(pair.Key, pair.Value[0], pair.Value[1]);
+                ReignServices.Economy.RestorePopulation(pair.Key, pair.Value[0], pair.Value[1]);
             state.LastError = "Rolled back " + receipt.Source + "/" + receipt.Id + ": " + reason;
             ReignWarEconomyLedger.Finish(state, receipt, 0, 0, 0, 0, "rolled_back");
         }

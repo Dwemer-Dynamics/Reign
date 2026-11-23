@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Reign.Core.Contracts.Actions;
-using ReignBeta.Actions;
+using ReignBeta.WorldSimulation.Actions;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;

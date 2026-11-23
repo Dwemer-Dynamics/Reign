@@ -4,12 +4,16 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -20,10 +24,10 @@ namespace ReignBeta.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
-                var behavior = ReignEncounteredResidentsCampaignBehavior.Instance;
+                var behavior = ReignServices.EncounteredResidents;
                 JObject enrollment = command["enrollment"] as JObject;
                 string actualCampaign = ReignCampaignIdentity.CurrentCampaignId();
-                string actualTimeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string actualTimeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string save = ReignServerClient.ActiveNativeSaveName();
                 string prefix = enrollment?.Value<string>("savePrefix") ?? "";
                 string baseline = enrollment?.Value<string>("protectedBaselineSaveName") ?? "";
@@ -53,7 +57,7 @@ namespace ReignBeta.Campaign
                     || Mission.Current.IsFieldBattle || Mission.Current.IsSiegeBattle || Mission.Current.IsSallyOutBattle
                     || Mission.Current.IsNavalBattle || Mission.Current.IsNavalRaidBattle || (!arenaExit && !Mission.Current.IsFriendlyMission)
                     || Hero.MainHero?.PartyBelongedTo?.MapEvent != null
-                    || ReignBeta.UI.ReignIndividualChatScreenManager.IsOpen || ReignBeta.UI.ReignPartyChatScreenManager.IsOpen)
+                    || ReignBeta.Dialogue.UI.ReignIndividualChatScreenManager.IsOpen || ReignBeta.Dialogue.UI.ReignPartyChatScreenManager.IsOpen)
                     return LiveCommandResult.Failed("Approach requires a paused peaceful settlement mission without an active native conversation.");
                 if (arenaExit && (Mission.Current.GetMissionBehavior<SandBox.Missions.MissionLogics.Arena.ArenaDuelMissionController>() == null
                     || Mission.Current.GetMissionBehavior<ReignArenaDuelEquipmentBehavior>() == null))

@@ -1,4 +1,4 @@
-using ReignBeta.Economy;
+using ReignBeta.WorldSimulation.Economy;
 using System.Text.Json;
 
 namespace Reign.Mcp.Tests;

@@ -6,7 +6,6 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -19,8 +18,13 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed class NpcPersonalJourney
     {
@@ -72,8 +76,8 @@ namespace ReignBeta.Campaign
     }
     public sealed partial class ReignNpcLivesBehavior
     {
-        private Dictionary<string, NpcPersonalJourney> _personalTravel = new Dictionary<string, NpcPersonalJourney>(StringComparer.Ordinal);
-        private Dictionary<string, NpcMeetingJourney> _meetingTravel = new Dictionary<string, NpcMeetingJourney>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcPersonalJourney> _personalTravel = new Dictionary<string, NpcPersonalJourney>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcMeetingJourney> _meetingTravel = new Dictionary<string, NpcMeetingJourney>(StringComparer.Ordinal);
         private sealed class WeddingAttendanceLease
         {
             public string OwnerId = "", TownId = "", ChildOrigin = "";
@@ -82,8 +86,8 @@ namespace ReignBeta.Campaign
 
         private Dictionary<string, WeddingAttendanceLease> _weddingAttendance = new Dictionary<string, WeddingAttendanceLease>();
 
-        private Dictionary<string, NpcLifeDuty> _lifeDuties = new Dictionary<string, NpcLifeDuty>(StringComparer.Ordinal);
-        private Dictionary<string, JObject> _storyEncounters = new Dictionary<string, JObject>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcLifeDuty> _lifeDuties = new Dictionary<string, NpcLifeDuty>(StringComparer.Ordinal);
+        internal Dictionary<string, JObject> _storyEncounters = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private double _travelTickDay = -1;
         internal bool IsAwayOnPersonalBusiness(string hero) => _personalTravel.Values.Any(l => l.HeroId == hero && l.Status == "away")
             || _lifeDuties.TryGetValue(hero, out var duty) && !duty.WasLeader;
@@ -100,17 +104,17 @@ namespace ReignBeta.Campaign
             _storyBindings = saved["bindings"]?.ToObject<Dictionary<string, JObject>>() ?? new Dictionary<string, JObject>();
             _travelTickDay = -1;
         }
-        private static bool Free(Hero h) => h != null && h.IsAlive && !h.IsPrisoner && h.PartyBelongedTo?.MapEvent == null;
-        private static bool TravelSafe() => Mission.Current == null && MobileParty.MainParty?.MapEvent == null
+        internal static bool Free(Hero h) => h != null && h.IsAlive && !h.IsPrisoner && h.PartyBelongedTo?.MapEvent == null;
+        internal static bool TravelSafe() => Mission.Current == null && MobileParty.MainParty?.MapEvent == null
             && TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager?.IsConversationInProgress != true
-            && !ReignBeta.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.UI.ReignPartyChatScreenManager.IsOpenOrPending;
-        private static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
+            && !ReignBeta.Dialogue.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.Dialogue.UI.ReignPartyChatScreenManager.IsOpenOrPending;
+        internal static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
             && !FactionManager.IsAtWarAgainstFaction(h.MapFaction, s.MapFaction);
-        private static string CurrentLifeGuestAgreement(Hero hero) => ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+        private static string CurrentLifeGuestAgreement(Hero hero) => ReignServices.TemporaryPartyGuest?.Records
             .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.IsLive)?.AgreementId ?? "";
         private static bool MayReturnFromLifeAbsence(Hero hero, string agreement)
         {
-            var record = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+            var record = ReignServices.TemporaryPartyGuest?.Records
                 .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.AgreementId == agreement);
             return NpcLivesPolicy.CanResumeGuestService(agreement, record?.AgreementId ?? "", record?.Phase.ToString() ?? "",
                 hero?.Clan == Clan.PlayerClan && hero?.CompanionOf == Clan.PlayerClan);
@@ -190,7 +194,7 @@ namespace ReignBeta.Campaign
         }
         private void QueueLeaveReceipt(NpcPersonalJourney journey, string kind, double day)
         {
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation); string id = journey.Id + ":" + kind;
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation); string id = journey.Id + ":" + kind;
             p["kind"] = kind; p["id"] = journey.Id; p["heroId"] = journey.HeroId; p["revision"] = journey.Revision; p["worldDay"] = day;
             p["nativeReceipt"] = id; QueueLifeOperation("native", p, id);
         }
@@ -388,7 +392,7 @@ namespace ReignBeta.Campaign
                 }
             }
         }
-        private static NpcPartyContentObservation ObserveLifePartyContents(MobileParty party) => NpcPartyContentObservation.Capture(party.StringId,
+        internal static NpcPartyContentObservation ObserveLifePartyContents(MobileParty party) => NpcPartyContentObservation.Capture(party.StringId,
             party.MemberRoster.GetTroopRoster().Select(r => new NpcPartyRosterEntry { CharacterId = r.Character?.StringId ?? "",
                 Number = r.Number, Wounded = r.WoundedNumber, Xp = r.Xp }),
             party.PrisonRoster.GetTroopRoster().Select(r => new NpcPartyRosterEntry { CharacterId = r.Character?.StringId ?? "",
@@ -453,7 +457,7 @@ namespace ReignBeta.Campaign
         }
         private void QueueMeetingReceipt(NpcMeetingJourney journey, string kind, string agreementHash = "", string operation = null)
         {
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             string receipt = operation ?? journey.Meeting.Id + ":" + journey.Meeting.Revision + ":" + kind;
             p["id"] = journey.Meeting.Id; p["kind"] = kind; p["meeting"] = JObject.FromObject(journey.Meeting);
             p["agreementHash"] = agreementHash; p["nativeReceipt"] = receipt;
@@ -556,7 +560,7 @@ namespace ReignBeta.Campaign
             {
                 var hero = ReignActionService.HeroById(row.Key);
                 var town = Settlement.Find(row.Value.TownId);
-                if (ReignRelationshipCampaignBehavior.Instance?.OwnsWeddingAttendance(row.Value.OwnerId) != true
+                if (ReignServices.Relationship?.OwnsWeddingAttendance(row.Value.OwnerId) != true
                     || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town))
                 {
                     ReleaseWeddingGuest(row.Key, row.Value);
@@ -594,9 +598,9 @@ namespace ReignBeta.Campaign
                 {
                     if (party != null && party.LeaderHero == hero && party != MobileParty.MainParty)
                     {
-                        bool otherOwner = ReignCampaignCommandBehavior.Instance?.Orders.Any(o => o.CommanderHeroStringId == hero.StringId && !o.IsTerminal && o.Objective == "timed_hold") == true;
+                        bool otherOwner = ReignServices.CampaignCommand?.Orders.Any(o => o.CommanderHeroStringId == hero.StringId && !o.IsTerminal && o.Objective == "timed_hold") == true;
                         party.Ai.SetDoNotMakeNewDecisions(duty.DecisionLock || otherOwner
-                            || ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true);
+                            || ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) == true);
                         var destination = Settlement.Find(duty.TargetSettlementId);
                         if (SafePlace(hero, destination) && !otherOwner) party.SetMoveGoToSettlement(destination, party.NavigationCapability, false);
                     }
@@ -653,7 +657,7 @@ namespace ReignBeta.Campaign
                 foreach (var objective in story.Definition.Phases[story.PhaseIndex].Objectives.Where(o => o.Kind == "visit" && !story.Evidence.Any(e => e.ObjectiveId == o.Id)))
                 {
                     string receipt = story.Id + ":" + objective.Id + ":visit";
-                    var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                    var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                     p["kind"] = "visit"; p["id"] = story.Id; p["heroId"] = story.HeroId; p["revision"] = story.Revision;
                     p["objectiveId"] = objective.Id; p["nativeReceipt"] = receipt; p["outcome"] = objective.RequiredOutcome;
                     QueueLifeOperation("native", p, receipt);

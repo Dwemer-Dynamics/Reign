@@ -7,16 +7,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Economy;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
-    public static partial class ReignServerClient
+    // Harness-owned World Test heartbeat. ReignServerClient keeps a thin SubmitWorldTestHeartbeatAsync forwarder for ReignAICampaignBehavior.
+    internal static class ReignWorldTestServerClient
     {
         // Heartbeats are cursor-based, but several autonomous systems can finish
         // more than one durable record while campaign time is paused. Those
@@ -95,9 +104,9 @@ namespace ReignBeta.Integration
                 }
             }
 
-            ReignAICampaignBehavior ai = ReignAICampaignBehavior.Instance;
-            ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            ReignAICampaignBehavior ai = ReignServices.AI;
+            ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             string featureConfiguration = string.Join("|",
                 settings == null || settings.PassiveRelationshipDirectorEnabled,
                 settings == null || settings.AmbientRelationshipDriftEnabled,
@@ -173,7 +182,7 @@ namespace ReignBeta.Integration
                 ["saveSync"] = new JObject
                 {
                     ["alignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending,
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main"
                 },
                 ["relationshipClient"] = BuildRelationshipOutboxDiagnostics(),
                 ["producerClocks"] = new JObject
@@ -208,9 +217,9 @@ namespace ReignBeta.Integration
                     ["agreements"] = agreements,
                     ["actions"] = actions
                 },
-                ["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics() ?? new JObject(),
+                ["rulers"] = ReignServices.Ruler?.Diagnostics() ?? new JObject(),
                 ["warEconomy"] = BuildWorldTestWarEconomy(),
-                ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
+                ["clanAccords"] = ReignServices.ClanAccords?.Snapshot() ?? new JObject(),
                 ["rebellions"] = new JObject
                 {
                     ["weeklyRolls"] = BuildWorldTestRebellionRolls(rebellion, deltaAfterDay),
@@ -266,7 +275,7 @@ namespace ReignBeta.Integration
 
         private static JObject BuildWorldTestWarEconomy()
         {
-            ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
+            ReignEconomyCampaignBehavior behavior = ReignServices.Economy;
             List<Village> villages = Settlement.All.Where(x => x?.Village != null)
                 .Select(x => x.Village).Where(x => x != null).ToList();
             JObject recoveryStages = new JObject();

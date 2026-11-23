@@ -2,7 +2,7 @@
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {

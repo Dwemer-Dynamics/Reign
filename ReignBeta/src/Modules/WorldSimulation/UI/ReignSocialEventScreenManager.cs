@@ -1,5 +1,4 @@
 using System;
-using ReignBeta.Runtime;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
@@ -7,8 +6,10 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.UI
+namespace ReignBeta.WorldSimulation.UI
 {
     public static class ReignSocialEventScreenManager
     {
@@ -46,7 +47,7 @@ namespace ReignBeta.UI
 
             if (_activeScreen != null)
             {
-                Integration.ReignLog.Warn("Ignored duplicate social-event screen open request.");
+                Platform.Integration.ReignLog.Warn("Ignored duplicate social-event screen open request.");
                 return;
             }
 
@@ -58,7 +59,7 @@ namespace ReignBeta.UI
             catch (Exception ex)
             {
                 _activeScreen = null;
-                Integration.ReignLog.Warn("Social event screen failed to open: " + ex);
+                Platform.Integration.ReignLog.Warn("Social event screen failed to open: " + ex);
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Event screen could not open: " + ex.Message, Color.FromUint(0xFFFFCC66)));
             }
         }
@@ -130,12 +131,12 @@ namespace ReignBeta.UI
                 ScreenManager.TrySetFocus(_gauntletLayer);
                 RegisterActiveStateDisableRequest();
                 MouseVisible = true;
-                if (!_calibrationMode) ReignBeta.Campaign.ReignHeroKnowledge.MarkMet(_session.Record.GetAttendees());
-                Integration.ReignLog.Info("Opened social event screen eventId=" + _session.Record.EventId + ".");
+                if (!_calibrationMode) ReignBeta.Characters.Campaign.ReignHeroKnowledge.MarkMet(_session.Record.GetAttendees());
+                Platform.Integration.ReignLog.Info("Opened social event screen eventId=" + _session.Record.EventId + ".");
             }
             catch (Exception ex)
             {
-                Integration.ReignLog.Warn("Social event screen initialization failed: " + ex);
+                Platform.Integration.ReignLog.Warn("Social event screen initialization failed: " + ex);
                 _closeRequested = true;
             }
         }
@@ -159,7 +160,7 @@ namespace ReignBeta.UI
                 _externalOverlayElapsedSeconds += dt;
                 _externalOverlayResumeDelay -= dt;
 
-                if (Integration.ReignPortraitBridge.IsEncyclopediaOpenQueued)
+                if (Portraits.Integration.ReignPortraitBridge.IsEncyclopediaOpenQueued)
                 {
                     return;
                 }
@@ -191,7 +192,7 @@ namespace ReignBeta.UI
             {
                 if (!_loggedFocusIssue)
                 {
-                    Integration.ReignLog.Warn("Social event focus was lost. Attempting to reclaim focus.");
+                    Platform.Integration.ReignLog.Warn("Social event focus was lost. Attempting to reclaim focus.");
                     _loggedFocusIssue = true;
                 }
 
@@ -267,7 +268,7 @@ namespace ReignBeta.UI
         protected override void OnFinalize()
         {
             UnregisterActiveStateDisableRequest();
-            Integration.ReignPortraitBridge.CancelQueuedEncyclopediaOpen();
+            Portraits.Integration.ReignPortraitBridge.CancelQueuedEncyclopediaOpen();
 
             if (_gauntletLayer != null)
             {
@@ -283,7 +284,7 @@ namespace ReignBeta.UI
                 }
                 catch (Exception ex)
                 {
-                    Integration.ReignLog.Warn("Social event focus cleanup failed: " + ex.Message);
+                    Platform.Integration.ReignLog.Warn("Social event focus cleanup failed: " + ex.Message);
                 }
             }
 
@@ -291,7 +292,7 @@ namespace ReignBeta.UI
             _dataSource = null;
             _gauntletLayer = null;
             ReignSocialEventScreenManager.NotifyClosed(this);
-            Integration.ReignLog.Info("Finalized social event screen.");
+            Platform.Integration.ReignLog.Info("Finalized social event screen.");
             base.OnFinalize();
         }
 
@@ -308,7 +309,7 @@ namespace ReignBeta.UI
             }
 
             EnterExternalOverlayMode();
-            Integration.ReignPortraitBridge.QueueOpenHeroEncyclopedia(hero);
+            Portraits.Integration.ReignPortraitBridge.QueueOpenHeroEncyclopedia(hero);
         }
 
         private void OpenPortraitRequestOverlay(TaleWorlds.CampaignSystem.Hero hero)
@@ -318,7 +319,7 @@ namespace ReignBeta.UI
                 return;
             }
 
-            Integration.ReignPortraitBridge.RequestPortrait(hero);
+            Portraits.Integration.ReignPortraitBridge.RequestPortrait(hero);
         }
 
         private void EnterExternalOverlayMode()
@@ -335,7 +336,7 @@ namespace ReignBeta.UI
             _loggedFocusIssue = false;
             UnregisterActiveStateDisableRequest();
             ReleaseInputLock();
-            Integration.ReignLog.Info("Social event released focus for an encyclopedia overlay while remaining visible beneath it.");
+            Platform.Integration.ReignLog.Info("Social event released focus for an encyclopedia overlay while remaining visible beneath it.");
         }
 
         private void ExitExternalOverlayMode()
@@ -357,7 +358,7 @@ namespace ReignBeta.UI
             ScreenManager.TrySetFocus(_gauntletLayer);
             RegisterActiveStateDisableRequest();
             MouseVisible = true;
-            Integration.ReignLog.Info("Social event restored focus after the encyclopedia overlay closed.");
+            Platform.Integration.ReignLog.Info("Social event restored focus after the encyclopedia overlay closed.");
         }
 
         private void ReleaseInputLock()
@@ -399,7 +400,7 @@ namespace ReignBeta.UI
             }
             catch (Exception ex)
             {
-                Integration.ReignLog.Warn("Social event active-state lock failed: " + ex.Message);
+                Platform.Integration.ReignLog.Warn("Social event active-state lock failed: " + ex.Message);
             }
         }
 
@@ -416,7 +417,7 @@ namespace ReignBeta.UI
             }
             catch (Exception ex)
             {
-                Integration.ReignLog.Warn("Social event active-state unlock failed: " + ex.Message);
+                Platform.Integration.ReignLog.Warn("Social event active-state unlock failed: " + ex.Message);
             }
             finally
             {

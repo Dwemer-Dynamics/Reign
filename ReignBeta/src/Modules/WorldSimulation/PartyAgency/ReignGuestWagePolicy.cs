@@ -1,6 +1,7 @@
 using System;
+using static ReignBeta.Platform.Domain.ReignNumeric;
 
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     internal static class ReignGuestWagePolicy
     {
@@ -21,7 +22,5 @@ namespace ReignBeta.PartyAgency
             gold = (long)rate * periods;
             return true;
         }
-
-        private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
     }
 }

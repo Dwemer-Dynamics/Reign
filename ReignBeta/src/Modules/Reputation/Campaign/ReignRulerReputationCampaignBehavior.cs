@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
@@ -14,12 +11,18 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Reputation.Domain;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     public sealed class ReignRulerReputationCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignRulerReputationCampaignBehavior Instance { get; private set; }
+        public static ReignRulerReputationCampaignBehavior Instance => ReignServices.RulerReputation;
         private string _stateJson = string.Empty;
         private List<string> _stateChunks = new List<string>();
         private JObject _state = NewState();
@@ -32,7 +35,7 @@ namespace ReignBeta.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.RulerReputation = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.DailyTickTownEvent.AddNonSerializedListener(this, OnDailyTickTown);
@@ -123,7 +126,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject catalog = await ReignServerClient.GetSocialCatalogAsync().ConfigureAwait(false);
+                JObject catalog = await ReignWorldHistoryClient.GetSocialCatalogAsync().ConfigureAwait(false);
                 JObject governance = catalog?["governanceSettings"] as JObject;
                 JObject war = catalog?["warScoreSettings"] as JObject;
                 if (governance != null) _governanceSettings = (JObject)governance.DeepClone();
@@ -186,7 +189,7 @@ namespace ReignBeta.Campaign
             JArray samples = (JArray)_state["villageSamples"];
             if (_villageSampleIndex.Contains(samples, settlement.StringId, day)) return;
             var previous = _villageSampleIndex.Previous(samples, settlement.StringId, day);
-            double agriculture = ReignBeta.Economy.ReignEconomyCampaignBehavior.Instance?.GetFoodRecoveryModifier(village) ?? 0;
+            double agriculture = ReignServices.Economy?.GetFoodRecoveryModifier(village) ?? 0;
             var episode = ((JObject)_state["villageEpisodes"])[settlement.StringId] as JObject;
             if (episode != null && agriculture >= .999999 && village.VillageState == Village.VillageStates.Normal
                 && Number(episode, "agricultureRecoveredDay") <= 0)
@@ -859,7 +862,7 @@ namespace ReignBeta.Campaign
 
         private static void Record(string archetype, Hero subject, string role, string source, string summary, JObject evidence)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(archetype, subject, role, source, summary, evidence);
+            ReignServices.WorldHistory?.RecordSocialOutcome(archetype, subject, role, source, summary, evidence);
         }
 
         private bool IntegrationActive(string settlementId)

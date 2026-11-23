@@ -9,11 +9,11 @@ public sealed class RulerDocketRulesTests
     {
         string root = TestOptions.FindWorkspace();
         string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignRulerDocketLaunchTests.cs"));
+            "Court", "Campaign", "ReignRulerDocketLaunchTests.cs"));
         string dispatcher = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignRulerDocketInGameTests.cs"));
+            "Court", "Campaign", "ReignRulerDocketInGameTests.cs"));
         string nobleFixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignNobleDocketInGameTests.cs"));
+            "Court", "Campaign", "ReignNobleDocketInGameTests.cs"));
         string manager = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Court", "UI", "ReignCourtPetitionScreenManager.cs"));
         string nobleVm = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
@@ -21,14 +21,14 @@ public sealed class RulerDocketRulesTests
         string liveHost = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Court", "Campaign", "ReignLiveInteractionRulerDocketHost.cs"));
         string nobleBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignNobleDocketCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignNobleDocketCampaignBehavior.cs"));
         string worldHistoryClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Integration", "ReignWorldHistoryClient.cs"));
         string worldHistoryBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignWorldHistoryCampaignBehavior.cs"));
-        string serverClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
+        string serverClient = TestSourceLocator.PartialTypeText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Platform", "Integration", "ReignServerClient.cs"));
-        string reputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
+        string reputationServer = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "SocialReputation.cs"));
         string courtReputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "CourtSocialReputation.cs"));

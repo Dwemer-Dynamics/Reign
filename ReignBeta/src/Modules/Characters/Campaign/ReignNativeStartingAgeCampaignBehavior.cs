@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     /// <summary>Applies Reign's authored ages after native heroes exist in each new campaign.</summary>
     internal sealed class ReignNativeStartingAgeCampaignBehavior : CampaignBehaviorBase

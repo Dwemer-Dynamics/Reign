@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -12,8 +11,12 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignPersonalityPreparationResult
     {
@@ -24,7 +27,7 @@ namespace ReignBeta.Campaign
 
     public sealed partial class ReignCharacterEditorCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignCharacterEditorCampaignBehavior Instance { get; private set; }
+        public static ReignCharacterEditorCampaignBehavior Instance => ReignServices.CharacterEditor;
         public bool NotableBackgroundInitializationComplete => _notableBackgroundInitializationComplete;
         public bool NotableBackgroundInitializationInFlight => _notableBackgroundInitializationInFlight;
 
@@ -41,7 +44,7 @@ namespace ReignBeta.Campaign
 
         public ReignCharacterEditorCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.CharacterEditor = this;
         }
 
         public override void RegisterEvents()
@@ -119,7 +122,7 @@ namespace ReignBeta.Campaign
             DateTime startedUtc = DateTime.UtcNow;
             try
             {
-                JObject initialized = await ReignServerClient.InitializeNotableMbtiProfilesAsync(notables).ConfigureAwait(false);
+                JObject initialized = await ReignCharacterEditorClient.InitializeNotableMbtiProfilesAsync(notables).ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
                 if (initialized?.Value<bool?>("ok") != true)
                     throw new InvalidOperationException("The server did not generate every notable personality ("
@@ -166,7 +169,7 @@ namespace ReignBeta.Campaign
                         applied.Add(new JObject
                         {
                             ["heroId"] = heroId,
-                            ["traits"] = ReignServerClient.NativePersonalityTraits(hero)
+                            ["traits"] = ReignCharacterEditorClient.NativePersonalityTraits(hero)
                         });
                     }
                     return applied;
@@ -177,7 +180,7 @@ namespace ReignBeta.Campaign
                     notables.Count);
                 progress?.Invoke(observations.Count, notables.Count, "Confirming native personality traits");
 
-                JObject confirmed = await ReignServerClient.ConfirmNotableMbtiProfilesAsync(observations).ConfigureAwait(false);
+                JObject confirmed = await ReignCharacterEditorClient.ConfirmNotableMbtiProfilesAsync(observations).ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
                 if (confirmed?.Value<bool?>("ok") != true
                     || (confirmed?.Value<int?>("confirmedCount") ?? -1) != notables.Count)
@@ -234,13 +237,13 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                List<ReignCharacterEditorCommand> commands = await ReignServerClient.PollCharacterEditorCommandsAsync().ConfigureAwait(false);
+                List<ReignCharacterEditorCommand> commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync().ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
                     CharacterEditorApplyResult result = await ReignMainThread.InvokeAsync(() =>
                         IsCurrentCampaign ? Apply(command) : null).ConfigureAwait(false);
                     if (result == null) return; // Never apply old-campaign commands to a new save.
-                    await ReignServerClient.ReportCharacterEditorCommandAsync(command.CommandId, result.Errors.Count == 0 ? "completed" : result.Applied.Count > 0 ? "partially_applied" : "failed", result.Applied, result.Errors).ConfigureAwait(false);
+                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(command.CommandId, result.Errors.Count == 0 ? "completed" : result.Applied.Count > 0 ? "partially_applied" : "failed", result.Applied, result.Errors).ConfigureAwait(false);
                 }
             }
             catch (Exception ex) { ReignLog.Warn("Character editor campaign poll failed: " + ex.Message); }
@@ -317,7 +320,7 @@ namespace ReignBeta.Campaign
                     JObject wealth = value as JObject; if (wealth == null) return false; int wealthGold = wealth.Value<int?>("gold") ?? hero.Gold; hero.ChangeHeroGold(wealthGold - hero.Gold); return true;
                 case "ispregnant":
                     hero.IsPregnant = value.Value<bool>();
-                    ReignFamilyCampaignBehavior.Instance?.NotifyPregnancyStateChanged(hero);
+                    ReignServices.Family?.NotifyPregnancyStateChanged(hero);
                     return true;
                 case "spouseid": SetSpouse(hero, ReignObjectResolver.FindHero(value?.ToString())); return true;
                 case "fatherid": SetParent(hero, ReignObjectResolver.FindHero(value?.ToString()), true); return true;

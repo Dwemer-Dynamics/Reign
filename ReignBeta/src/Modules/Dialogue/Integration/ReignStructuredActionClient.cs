@@ -6,10 +6,14 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignStructuredActionClient
     {
         // Prepare and complete on the campaign thread. Alternate conversation hosts
         // use this same boundary without granting a response from an older load authority.
@@ -20,15 +24,15 @@ namespace ReignBeta.Integration
             bool inlineReceipt = true)
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
-            var behavior = ReignAgreementBehavior.Instance;
-            string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            var behavior = ReignServices.Agreement;
+            string campaignId = GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (TavernHouseVisitAction.Contains(draft) && !tavernActions)
                 throw new InvalidOperationException("This visit action belongs only to the Tavern House conversation.");
             ConfigureStructuredActions(payload, npc, draft, AgreementChannel.InPerson);
             return response =>
             {
-                if (campaign != TaleWorlds.CampaignSystem.Campaign.Current || behavior != ReignAgreementBehavior.Instance
-                    || campaignId != GetCampaignId() || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                if (campaign != TaleWorlds.CampaignSystem.Campaign.Current || behavior != ReignServices.Agreement
+                    || campaignId != GetCampaignId() || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main"))
                 { response["ok"] = false; response["error"] = "The campaign changed before the action response arrived."; return; }
                 ProcessStructuredActionDecision(payload, response, npc,
                     payload.Value<string>("requestId") ?? payload.Value<string>("turnId") ?? payload.Value<string>("commandId") ?? "", tavernActions,
@@ -37,7 +41,7 @@ namespace ReignBeta.Integration
         }
         // Called on the campaign thread. Only the locally attached composer draft
         // supplies executable terms. Speech may rank discovery assets, never authorize them.
-        private static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft,
+        internal static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft,
             AgreementChannel channel)
         {
             if (!Enum.IsDefined(typeof(AgreementChannel), channel)) throw new InvalidOperationException("Unknown native conversation channel.");
@@ -45,9 +49,9 @@ namespace ReignBeta.Integration
             payload["playerHeroStringId"] = playerId;
             payload["speakerHeroStringId"] = npcId;
             string contextId = ReignActionConversationPolicy.ConversationContextId(GetCampaignId(),
-                ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", npcId);
+                ReignServices.WorldHistory?.TimelineId ?? "main", npcId);
             if (draft != null && npc?.IsChild == true) throw new InvalidOperationException("Gameplay bargaining requires an adult participant.");
-            var behavior = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("The explicit action service is unavailable.");
+            var behavior = ReignServices.Agreement ?? throw new InvalidOperationException("The explicit action service is unavailable.");
             var offer = behavior.PrepareOffer(draft, playerId, npcId, contextId, out var receipt, channel);
             var context = new JObject { ["playerId"] = playerId, ["npcId"] = npcId, ["conversationId"] = contextId,
                 ["worldDay"] = ReignActionService.Now, ["adultParticipant"] = npc?.IsChild != true, ["channel"] = (int)channel };
@@ -76,7 +80,7 @@ namespace ReignBeta.Integration
             if (npc?.IsChild != true) context["appraisals"] = ReignActionQuotes.Context(playerId, npcId, offer,
                 payload.Value<string>("playerText") ?? payload.Value<string>("text") ?? payload.Value<string>("message") ?? "");
             if (npc?.IsChild != true)
-                context["governmentPetitions"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                context["governmentPetitions"] = ReignServices.Government
                     ?.PetitionNegotiationContext(npc, Hero.MainHero, offer);
             payload["structuredActionProtocolVersion"] = ActionNegotiation.ProtocolVersion;
             payload["structuredActionContext"] = context;
@@ -84,7 +88,7 @@ namespace ReignBeta.Integration
 
         // Arrival is observation, not a bargaining turn. Supply the same verified
         // payment facts without preparing offers or enabling action decisions.
-        private static void AttachReadOnlyAgreementPaymentHistory(JObject payload, Hero npc)
+        internal static void AttachReadOnlyAgreementPaymentHistory(JObject payload, Hero npc)
         {
             string playerId = Hero.MainHero?.StringId ?? "", npcId = npc?.StringId ?? "";
             payload["structuredActionContext"] = new JObject {
@@ -95,7 +99,7 @@ namespace ReignBeta.Integration
 
         private static JObject CaptureFulfilledPaymentHistory(string playerId, string npcId)
         {
-            var payments = ReignAgreementPaymentFacts.Capture(ReignAgreementBehavior.Instance?.Agreements, playerId, npcId);
+            var payments = ReignAgreementPaymentFacts.Capture(ReignServices.Agreement?.Agreements, playerId, npcId);
             return new JObject {
                 ["schema"] = AgreementPaymentHistory.Schema, ["source"] = "native_agreement_journal",
                 ["total"] = payments.Total, ["truncated"] = payments.Truncated,
@@ -113,7 +117,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false,
+        internal static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false,
             bool inlineReceipt = true)
         {
             if (response == null || response.Value<bool?>("ok") != true || response.Value<bool?>("historicalReplay") == true) return;
@@ -142,14 +146,14 @@ namespace ReignBeta.Integration
                     throw new InvalidOperationException("Visit actions are unavailable outside the dedicated Tavern House conversation.");
                 if (response.Value<string>("preparedVisitError") is string preparationError && preparationError.Length > 0)
                 {
-                    ReignAgreementBehavior.Instance.InvalidateUnpaidTavernOffer(pendingTavern);
+                    ReignServices.Agreement.InvalidateUnpaidTavernOffer(pendingTavern);
                     throw new InvalidOperationException(preparationError);
                 }
                 if (TavernHouseVisitAction.Contains(pendingTavern) && pendingTavern.HasBothConsents && (decision.Kind == "none" || decision.Kind == "accept"))
                 {
-                    message = ReignAgreementBehavior.Instance.CommitPreparedTavern(pendingTavern).Message;
+                    message = ReignServices.Agreement.CommitPreparedTavern(pendingTavern).Message;
                 }
-                else message = ReignAgreementBehavior.Instance.ReceiveDecision(context["proposal"]?.ToObject<ActionAgreement>(), decision,
+                else message = ReignServices.Agreement.ReceiveDecision(context["proposal"]?.ToObject<ActionAgreement>(), decision,
                     context.Value<string>("playerId"), context.Value<string>("npcId"), context.Value<string>("conversationId"),
                     string.IsNullOrEmpty(responseId) ? request.Value<string>("correlationId") ?? request.Value<string>("sceneTurnId") : responseId,
                     (AgreementChannel)(context.Value<int?>("channel") ?? 0));

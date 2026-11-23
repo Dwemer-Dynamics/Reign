@@ -12,7 +12,7 @@ internal sealed class ReignModuleCatalog(ReignMcpOptions options)
 
     private static readonly HashSet<string> AuditedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
+        ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".xaml", ".md",
         ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".xsl", ".iss", ".html", ".css"
     };
 

@@ -8,30 +8,30 @@ public sealed class SocialReputationHarnessContractTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignMcp"), "TestingTools.SocialReputation.cs"));
-        string serverBridge = File.ReadAllText(TestSourceLocator.Unique(
+        string serverBridge = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
-        string clientHost = File.ReadAllText(TestSourceLocator.Unique(
+        string clientHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionSocialBalanceHost.cs", "/src/"));
         string clientHarness = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignSocialBalanceHarnessCampaignBehavior.cs", "/src/"));
-        string liveHost = File.ReadAllText(TestSourceLocator.Unique(
+        string liveHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
         string individualVm = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignIndividualChatScreenVM.cs", "/src/"));
-        string serverClient = File.ReadAllText(TestSourceLocator.Unique(
+        string serverClient = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignServerClient.cs", "/src/Modules/Platform/"));
         string courtProducer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignCourtPersonalityReputationCampaignBehavior.cs", "/src/"));
-        string socialBalance = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
-        string reputationServer = File.ReadAllText(TestSourceLocator.Unique(
+        string socialBalance = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
+            Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
+        string reputationServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialReputation.cs", "/src/"));
         string courtReputationServer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
         string worldHistoryServer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "WorldHistory.cs", "/src/"));
-        string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
+        string platform = TestSourceLocator.ServerProgramText(root);
         Assert.Contains("reign_get_social_reputation_test_manifest", source, StringComparison.Ordinal);
         Assert.Contains("reign_prepare_social_reputation_test", source, StringComparison.Ordinal);
         Assert.Contains("reign_start_social_reputation_test", source, StringComparison.Ordinal);
@@ -201,10 +201,13 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("operation.Equals(\"social_reputation_profile\"", serverBridge, StringComparison.Ordinal);
         Assert.Contains("? 3600", serverBridge, StringComparison.Ordinal);
         Assert.Contains("social_profile_timeout_scope", serverBridge, StringComparison.Ordinal);
-        Assert.Contains("InteractiveClient", serverClient, StringComparison.Ordinal);
-        Assert.Contains("IsProviderBackedInteractiveRoute", serverClient, StringComparison.Ordinal);
-        Assert.Contains("InteractiveProviderTimeoutSeconds = 900", serverClient, StringComparison.Ordinal);
-        Assert.Contains("[\"interactiveProviderTimeoutSeconds\"]", serverClient, StringComparison.Ordinal);
+        // The interactive provider client lives in the shared HTTP transport.
+        string transport = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(root, "ReignBeta"), "ReignHttpTransport.cs", "/src/Modules/Platform/"));
+        Assert.Contains("InteractiveClient", transport, StringComparison.Ordinal);
+        Assert.Contains("IsProviderBackedInteractiveRoute", transport, StringComparison.Ordinal);
+        Assert.Contains("InteractiveProviderTimeoutSeconds = 900", transport, StringComparison.Ordinal);
+        Assert.Contains("[\"interactiveProviderTimeoutSeconds\"]", transport, StringComparison.Ordinal);
         Assert.Contains("RunNpcRulerFavoringPresenceForSocialBalance", courtProducer, StringComparison.Ordinal);
         Assert.Contains("ProcessNpcRulerFavoringPair", courtProducer, StringComparison.Ordinal);
         Assert.Contains("if (record == null)", courtProducer, StringComparison.Ordinal);
@@ -238,12 +241,13 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("new Dictionary<string, object>(rareExposureOverride)", socialBalance, StringComparison.Ordinal);
         Assert.Contains("receiptResultJson", socialBalance, StringComparison.Ordinal);
         Assert.Contains("veryLowThreshold", socialBalance, StringComparison.Ordinal);
-        Assert.Contains("/tests/social-balance/affair/candidates", platform, StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoute(TestSourceLocator.ServerRouterText(root), "/tests/social-balance/affair/candidates"),
+            "The server does not declare /tests/social-balance/affair/candidates.");
         Assert.Contains("court_conversation_signal_receipts", socialBalance, StringComparison.Ordinal);
         Assert.Contains("court_flirt_targets", socialBalance, StringComparison.Ordinal);
         Assert.Contains("clanTierScalingCorrect", socialBalance, StringComparison.Ordinal);
         Assert.Contains("court_social_signal_evidence", socialBalance, StringComparison.Ordinal);
-        string categorizedMemory = File.ReadAllText(TestSourceLocator.Unique(
+        string categorizedMemory = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "CategorizedMemory.cs", "/src/Modules/Dialogue/"));
         Assert.Contains("compact[\"socialSignals\"] = socialSignals", categorizedMemory, StringComparison.Ordinal);
         Assert.Contains("speakerClanTier", categorizedMemory, StringComparison.Ordinal);
@@ -252,10 +256,11 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("opportunitySnapshot", courtSocial, StringComparison.Ordinal);
         Assert.Contains("[\"speakerClanTier\"] = speakerClanTier", courtSocial, StringComparison.Ordinal);
         Assert.Contains("rejectedSocialSignals", platform, StringComparison.Ordinal);
-        int responseStart = platform.IndexOf("Dictionary<string, object> response = new Dictionary<string, object>", StringComparison.Ordinal);
-        int responseEnd = platform.IndexOf("LogOperational(\"dialogue.respond\"", responseStart, StringComparison.Ordinal);
+        string respondSource = TestSourceLocator.ServerProgramFileText(root, "LogOperational(\"dialogue.respond\"");
+        int responseStart = respondSource.IndexOf("Dictionary<string, object> response = new Dictionary<string, object>", StringComparison.Ordinal);
+        int responseEnd = respondSource.IndexOf("LogOperational(\"dialogue.respond\"", responseStart, StringComparison.Ordinal);
         Assert.True(responseStart >= 0 && responseEnd > responseStart);
-        string responseEnvelope = platform.Substring(responseStart, responseEnd - responseStart);
+        string responseEnvelope = respondSource.Substring(responseStart, responseEnd - responseStart);
         Assert.Contains("[\"socialSignals\"] = ReadDictionaryList(socialSignalValidation, \"signals\")", responseEnvelope, StringComparison.Ordinal);
         Assert.Contains("[\"rejectedSocialSignals\"] = ReadDictionaryList(socialSignalValidation, \"rejected\")", responseEnvelope, StringComparison.Ordinal);
         Assert.Contains("Always include socialSignals", platform, StringComparison.Ordinal);
@@ -268,10 +273,11 @@ public sealed class SocialReputationHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string court = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
+            Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
         string standing = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "PublicStanding.cs", "/src/"));
-        string relationships = File.ReadAllText(TestSourceLocator.Unique(
+        string relationships = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "WorldRelationshipModel.cs", "/src/"));
         Assert.Contains("sexual_intimacy_completed", court, StringComparison.Ordinal);
         Assert.Contains("court_social_signal_evidence", court, StringComparison.Ordinal);
@@ -285,7 +291,7 @@ public sealed class SocialReputationHarnessContractTests
     public void PassOnceManifestCoversPlayerRegularLordRulerAndRebellionProfiles()
     {
         string root = TestOptions.FindWorkspace();
-        string manifest = File.ReadAllText(TestSourceLocator.Unique(
+        string manifest = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
         foreach (string required in new[]
         {
@@ -307,9 +313,10 @@ public sealed class SocialReputationHarnessContractTests
         string root = TestOptions.FindWorkspace();
         string tools = File.ReadAllText(Path.Combine(root,
             "ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/TestingTools.SocialReputation.cs"));
-        string server = File.ReadAllText(Path.Combine(root,
-            "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"));
-        string selfTests = File.ReadAllText(Path.Combine(root,
+        string server = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
+            "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
+        string selfTests = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialReputation.cs"));
         Assert.Contains("bool includeSnapshots = true", tools, StringComparison.Ordinal);
         Assert.Contains("InputGuard.OptionalIdentifier(caseId, nameof(caseId))", tools, StringComparison.Ordinal);

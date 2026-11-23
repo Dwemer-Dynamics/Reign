@@ -11,12 +11,9 @@ using ReignBeta.Court;
 using ReignBeta.Court.TrainingYard;
 using ReignBeta.Court.WarCouncil;
 #endif
-using ReignBeta.Integration;
-using ReignBeta.Economy;
 using ReignBeta.Family;
 using ReignBeta.Government;
 using ReignBeta.PartyAgency;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using ReignBeta.UI.HiddenInformation;
 using ReignBeta.World;
@@ -24,6 +21,43 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Family;
+using ReignBeta.Characters.UI;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Diplomacy.Runtime;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.UI;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.FamilyChambers;
+using ReignBeta.Court.UI;
+using ReignBeta.Spymaster.UI;
+#endif
 
 namespace ReignBeta
 {
@@ -38,7 +72,7 @@ namespace ReignBeta
 
         public SubModule()
         {
-            ReignBeta.Compatibility.ReignRbmCompatibility.Bootstrap();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.Bootstrap();
         }
 
         protected override void OnSubModuleLoad()
@@ -47,8 +81,10 @@ namespace ReignBeta
             // Admit scoped main-thread work for campaign games started from now on.
             ReignMainThread.OpenScopedIngress();
             EnsureManagedRuntimeDependencies();
+            // The in-game test harness (optional ReignBeta.Testing.dll) reaches product code only through this seam.
+            ReignTestHarness.InstallFromOptionalAssembly(typeof(SubModule).Assembly);
             ReignBloodFeudPatches.Apply();
-            ReignBeta.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
             ReignEncyclopediaSafetyPatch.Apply();
             ReignMapBarInputSafetyPatch.Apply();
             ReignPregnancyPatches.Apply();
@@ -60,7 +96,7 @@ namespace ReignBeta
             ReignArrestCustodyPatches.Apply();
             ReignHiddenInformationPatches.Apply();
             ReignSaveSyncDeletionPatch.Apply();
-            ReignBeta.World.ReignRulerNativePatches.Apply();
+            ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
             ReignNpcLivesPatches.Apply();
             ReignRescueConversationBehavior.Install();
@@ -80,7 +116,7 @@ namespace ReignBeta
             base.OnBeforeInitialModuleScreenSetAsRoot();
             // Harmony can run Agent's static initializer, which reads the native
             // action cache. Module discovery precedes loading the action table.
-            ReignBeta.World.ReignPlayerGodModeHealthPatch.TryApply();
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.TryApply();
         }
 
         private static void EnsureManagedRuntimeDependencies()
@@ -146,7 +182,7 @@ namespace ReignBeta
                 if (Game.Current?.GameTextManager == null)
                     throw new InvalidOperationException("The native game text manager must be ready before economy hooks.");
                 ReignEconomyPatches.Apply();
-                ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Apply();
+                ReignBeta.Platform.Compatibility.ReignCraftingOrderLoadPatches.Apply();
                 // Open this game's scoped dispatch before any campaign behavior
                 // can capture it.
                 ReignMainThread.BeginGameScope(game);
@@ -158,20 +194,21 @@ namespace ReignBeta
                 campaignStarter.AddModel(new ReignSettlementLoyaltyModel());
                 campaignStarter.AddModel(new ReignSettlementProsperityModel());
                 campaignStarter.AddModel(new ReignBuildingConstructionModel());
-                campaignStarter.AddModel(new ReignBeta.ClanAccords.ReignClanAccordsFinanceModel());
-                campaignStarter.AddModel(new ReignBeta.ClanAccords.ReignClanAccordsWageModel());
-                campaignStarter.AddBehavior(new ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior());
+                campaignStarter.AddModel(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsFinanceModel());
+                campaignStarter.AddModel(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsWageModel());
+                campaignStarter.AddBehavior(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignEconomyCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignRulerCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignNewsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignKingdomEventsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignGovernmentCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCampaignPreparationCampaignBehavior());
-                campaignStarter.AddBehavior(new ReignSocialBalanceHarnessCampaignBehavior());
+                CampaignBehaviorBase socialBalanceHarness = ReignTestHarness.Current.CreateSocialBalanceHarnessBehavior();
+                if (socialBalanceHarness != null) campaignStarter.AddBehavior(socialBalanceHarness);
                 campaignStarter.AddBehavior(new ReignCharacterEditorCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCharacterKnowledgeCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignAICampaignBehavior());
-                campaignStarter.AddBehavior(new ReignBeta.Actions.ReignAgreementBehavior());
+                campaignStarter.AddBehavior(new ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior());
                 campaignStarter.AddBehavior(new ReignPersonalItemService());
                 campaignStarter.AddBehavior(new ReignGoldTransferService());
                 campaignStarter.AddBehavior(new ReignCampaignCommandBehavior());
@@ -218,10 +255,10 @@ namespace ReignBeta
         {
             // Cancel scoped work owned by this exact game before feature teardown.
             ReignMainThread.EndGameScope(game);
-            ReignBanterCampaignBehavior.Instance?.CampaignEnded();
-            ReignPartyChatHistoryBehavior.Instance?.EndCampaign();
-            ReignTavernHouseCampaignBehavior.Instance?.CampaignEnded();
-            ReignWandererPopulationCampaignBehavior.Instance?.CampaignEnded();
+            ReignServices.Banter?.CampaignEnded();
+            ReignServices.PartyChatHistory?.EndCampaign();
+            ReignServices.TavernHouse?.CampaignEnded();
+            ReignServices.WandererPopulation?.CampaignEnded();
             base.OnGameEnd(game);
         }
 
@@ -246,44 +283,44 @@ namespace ReignBeta
 
             RunTickStage(
                 "campaign preparation",
-                () => ReignCampaignPreparationCampaignBehavior.Instance?.ApplicationTick(dt));
+                () => ReignServices.CampaignPreparation?.ApplicationTick(dt));
             if (ReignCampaignInitializationGate.IsPending)
             {
                 // Keep only the local control plane alive while the prerequisite
                 // pass owns the campaign. It provides heartbeat, progress, save,
                 // and shutdown/reload commands, but cannot start interactions.
-                RunTickStage("live interaction host", () => ReignLiveInteractionTestHost.ApplicationTick(dt));
+                RunTickStage("live interaction host", () => ReignTestHarness.Current.LiveInteractionApplicationTick(dt));
                 RunTickStage("notable generation popup", () => ReignNotableGenerationPopupManager.ApplicationTick(dt));
                 return;
             }
             RunTickStage(
                 "character editor polling",
-                () => ReignCharacterEditorCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("paused tavern population preparation", () => ReignTavernHouseCampaignBehavior.Instance?.ApplicationTick());
-            RunTickStage("paused wanderer population preparation", () => ReignWandererPopulationCampaignBehavior.Instance?.ApplicationTick());
+                () => ReignServices.CharacterEditor?.ApplicationTick(dt));
+            RunTickStage("paused tavern population preparation", () => ReignServices.TavernHouse?.ApplicationTick());
+            RunTickStage("paused wanderer population preparation", () => ReignServices.WandererPopulation?.ApplicationTick());
 
-            RunTickStage("continuous relationship outbox", () => ReignServerClient.RelationshipRealtimeTick(dt));
-            RunTickStage("player approach options", () => ReignServerClient.PlayerApproachOptionsTick(dt));
-            RunTickStage("ruler system", () => ReignRulerCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("town-crier news", () => ReignNewsCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("NPC lives", () => ReignNpcLivesBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("continuous native relationship projection", () => ReignRelationshipCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("continuous server action execution", () => ReignAICampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("continuous relationship outbox", () => ReignRelationshipRealtimeClient.RelationshipRealtimeTick(dt));
+            RunTickStage("player approach options", () => ReignPlayerApproachClient.PlayerApproachOptionsTick(dt));
+            RunTickStage("ruler system", () => ReignServices.Ruler?.ApplicationTick(dt));
+            RunTickStage("town-crier news", () => ReignServices.News?.ApplicationTick(dt));
+            RunTickStage("NPC lives", () => ReignServices.NpcLives?.ApplicationTick(dt));
+            RunTickStage("continuous native relationship projection", () => ReignServices.Relationship?.ApplicationTick(dt));
+            RunTickStage("continuous server action execution", () => ReignServices.AI?.ApplicationTick(dt));
 
             // Every subsystem is isolated. A portrait, overlay, queue, or legacy
             // audit failure must never silently stop the live-test heartbeat and
             // leave a remote run permanently unverifiable.
-            RunTickStage("live interaction host", () => ReignLiveInteractionTestHost.ApplicationTick(dt));
+            RunTickStage("live interaction host", () => ReignTestHarness.Current.LiveInteractionApplicationTick(dt));
             RunTickStage("NPC dialogue audit", () => ReignNpcDialogueAuditRunner.ApplicationTick(dt));
             RunTickStage("party dialogue audit", () => ReignPartyDialogueAuditRunner.ApplicationTick(dt));
             RunTickStage("portrait encyclopedia bridge", ReignPortraitBridge.ProcessQueuedEncyclopediaOpen);
             RunTickStage("individual chat overlay", () => ReignIndividualChatScreenManager.ApplicationTick(dt));
             RunTickStage("social event overlay", () => ReignSocialEventScreenManager.ApplicationTick(dt));
             RunTickStage("party chat overlay", () => ReignPartyChatScreenManager.ApplicationTick(dt));
-            RunTickStage("party banter", () => ReignBanterCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("party banter", () => ReignServices.Banter?.ApplicationTick(dt));
             RunTickStage("tavern house overlay", () => ReignTavernHouseScreenManager.ApplicationTick(dt));
-            RunTickStage("temporary noble guests", () => ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick());
-            RunTickStage("persistent follow representation", () => ReignFollowCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("temporary noble guests", () => ReignServices.TemporaryPartyGuest?.ApplicationTick());
+            RunTickStage("persistent follow representation", () => ReignServices.Follow?.ApplicationTick(dt));
             RunTickStage("correspondence overlay", () => ReignCorrespondenceScreenManager.ApplicationTick(dt));
             RunTickStage("duel launch prompt", ReignDuelLaunchPromptService.Tick);
             RunTickStage("diplomacy announcement overlay", () => ReignDiplomacyAnnouncementScreenManager.ApplicationTick(dt));
@@ -296,7 +333,7 @@ namespace ReignBeta
             RunTickStage("royal council overlay", () => ReignRoyalCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("economic report overlay", () => ReignCourtEconomicReportScreenManager.ApplicationTick(dt));
             RunTickStage("clan accords overlay", () => ReignClanAccordsScreenManager.ApplicationTick(dt));
-            RunTickStage("clan accords sync", () => ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("clan accords sync", () => ReignServices.ClanAccords?.ApplicationTick(dt));
             RunTickStage("war council overlay", () => ReignWarCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("ambassador overlay", () => ReignAmbassadorScreenManager.ApplicationTick(dt));
             RunTickStage("spymaster overlay", () => ReignSpymasterScreenManager.ApplicationTick(dt));
@@ -304,7 +341,7 @@ namespace ReignBeta
             RunTickStage("portrait queue", PortraitQueue.DrainOnMainThread);
             RunTickStage("memory queue", MemoryQueue.DrainOnMainThread);
             RunTickStage("diagnostics", DiagnosticsRunner.Tick);
-            RunTickStage("action gauntlet", () => ReignActionGauntlet.ApplicationTick(dt));
+            RunTickStage("action gauntlet", () => ReignTestHarness.Current.ActionGauntletApplicationTick(dt));
             RunTickStage("action sentence builder", ReignActionBuilder.ApplicationTick);
         }
 
@@ -329,12 +366,12 @@ namespace ReignBeta
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
-            ReignBeta.World.ReignPlayerGodMode.Attach(mission);
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode.Attach(mission);
             mission.AddMissionBehavior(new ReignDuelMissionBehavior());
             mission.AddMissionBehavior(new ReignSceneActionMissionBehavior());
             mission.AddMissionBehavior(new ReignEncounteredResidentMissionBehavior());
-            mission.AddMissionBehavior(new ReignBeta.Campaign.ReignSharedActivityMissionBehavior());
-            mission.AddMissionBehavior(new ReignBeta.Campaign.NpcStoryMissionWitness());
+            mission.AddMissionBehavior(new ReignBeta.WorldSimulation.Campaign.ReignSharedActivityMissionBehavior());
+            mission.AddMissionBehavior(new ReignBeta.Characters.Campaign.NpcStoryMissionWitness());
         }
 
         protected override void OnSubModuleUnloaded()
@@ -343,10 +380,10 @@ namespace ReignBeta
             // before patch cleanup. Legacy queued work is unchanged.
             ReignMainThread.CloseScopedIngress();
             base.OnSubModuleUnloaded();
-            ReignBeta.Compatibility.ReignRbmCompatibility.Unload();
-            ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Unapply();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.Unload();
+            ReignBeta.Platform.Compatibility.ReignCraftingOrderLoadPatches.Unapply();
             ReignDuelCombatPatches.Unapply();
-            ReignBeta.World.ReignPlayerGodModeHealthPatch.Unapply();
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.Unapply();
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
             ReignNpcLivesPatches.Unapply();
@@ -360,7 +397,7 @@ namespace ReignBeta
             ReignHiddenInformationPatches.Unapply();
             ReignSaveSyncDeletionPatch.Unapply();
             ReignEconomyPatches.Unapply();
-            ReignBeta.World.ReignRulerNativePatches.Unapply();
+            ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Unapply();
             ReignWorkshopDialoguePatches.Unapply();
             ReignMainMenuVideoPatches.Unapply();
             ReignPopupKeyboardPatches.Unapply();
@@ -374,7 +411,7 @@ namespace ReignBeta
         public override void OnGameInitializationFinished(Game game)
         {
             base.OnGameInitializationFinished(game);
-            ReignBeta.Compatibility.ReignRbmCompatibility.AfterGameLoad(game);
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.AfterGameLoad(game);
             ReignLog.Info("Bannerlord Reign initialized through ReignBeta module id.");
             InformationManager.DisplayMessage(new InformationMessage("Bannerlord Reign AI world foundation loaded.", Color.FromUint(0xFFFFD36A)));
         }

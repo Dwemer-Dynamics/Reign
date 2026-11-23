@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
     internal static class ReignWorldHistoryOutbox
     {

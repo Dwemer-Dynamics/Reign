@@ -1,9 +1,10 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using static ReignBeta.Platform.Integration.ReignServerClient;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Diplomacy.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignClanAccordsClient
     {
         internal static Task<JObject> SyncClanAccordsAsync(JObject payload) => PostJsonAsync("/clan-accords/sync", payload);
     }

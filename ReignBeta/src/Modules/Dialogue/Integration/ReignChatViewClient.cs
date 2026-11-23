@@ -10,22 +10,25 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
-    public static partial class ReignServerClient
-    {
-        public static Task<JObject> PostChatViewAsync(string action, JObject payload) => PostJsonAsync("/chat-view/" + action, payload);
-    }
-
     internal static class ReignChatViewClient
     {
+        public static Task<JObject> PostChatViewAsync(string action, JObject payload) => PostJsonAsync("/chat-view/" + action, payload);
+
         private static readonly Dictionary<string, string[]> Archives = new Dictionary<string, string[]>();
 
         internal static JObject Scope(string session = "") => new JObject
         {
             ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-            ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
             ["playerId"] = Hero.MainHero?.StringId ?? "", ["sessionId"] = session ?? "", ["worldDay"] = CampaignTime.Now.ToDays
         };
 
@@ -65,7 +68,7 @@ namespace ReignBeta.Integration
             do
             {
                 JObject page = (JObject)scope.DeepClone(); page["offset"] = offset;
-                JObject result = await ReignServerClient.PostChatViewAsync(action, page).ConfigureAwait(false);
+                JObject result = await ReignChatViewClient.PostChatViewAsync(action, page).ConfigureAwait(false);
                 Check(result);
                 entries.AddRange((result["entries"] as JArray ?? new JArray()).OfType<JObject>());
                 int next = result.Value<int?>("nextOffset") ?? -1;
@@ -87,7 +90,7 @@ namespace ReignBeta.Integration
             if (bytes == null || Hash(bytes) != expectedHash)
             {
                 JObject query = (JObject)scope.DeepClone(); query["jobId"] = id; query["includeImage"] = true;
-                JObject result = await ReignServerClient.PostChatViewAsync("state", query).ConfigureAwait(false);
+                JObject result = await ReignChatViewClient.PostChatViewAsync("state", query).ConfigureAwait(false);
                 Check(result);
                 string encoded = result.Value<string>("imageBase64") ?? "";
                 if (encoded.Length > 90 * 1024 * 1024) throw new InvalidDataException("The image is too large.");

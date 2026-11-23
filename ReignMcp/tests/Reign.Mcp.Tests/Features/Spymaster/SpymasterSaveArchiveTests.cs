@@ -1,11 +1,34 @@
 using System.Text;
 using System.Text.Json;
-using ReignBeta.Save;
+using ReignBeta.Persistence.Save;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class SpymasterSaveArchiveTests
 {
+    [Fact]
+    public void Pending_and_uncertain_mitigation_missions_retain_status_lookup_terms_after_reload()
+    {
+        string json = JsonSerializer.Serialize(new { Version = 4,
+            Missions = new[] { "pending", "uncertain" }.Select(state => new {
+                MissionId = "spy_" + state, TargetStringId = "hero", MissionType = "mitigate_own_rumor",
+                SocialItemId = "rumor_tag", ResolvedDay = 25.5f, AgreementEffectState = state
+            }).ToArray() });
+        Assert.Equal(json, ReignSavePayloadCodec.Decode(ReignSavePayloadCodec.Encode(json)));
+
+        var root = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules", "Spymaster");
+        string behavior = File.ReadAllText(Path.Combine(root, "Campaign", "ReignSpymasterCampaignBehavior.cs"));
+        string client = File.ReadAllText(Path.Combine(root, "Integration", "ReignSpymasterServerClient.cs"));
+        Assert.Contains("ConfirmSpymasterMitigationAsync(mission, readReceipt: true)", behavior);
+        Assert.Contains("readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission, StillOwnsRequest)", behavior);
+        Assert.Contains("payload[\"readMitigationReceipt\"] = true;", client);
+        Assert.Contains("fence.IsCurrent() && ReferenceEquals(Instance, this)", behavior);
+        Assert.Contains("payload[\"restoreGeneration\"] = restoreGeneration;", client);
+        Assert.Contains("disposition == \"applied\" && changed > 0", behavior);
+        Assert.Contains("Its effect on the social record is unknown.", behavior);
+        Assert.Contains("mission.AgreementEffectState = \"recovery_required\";", behavior);
+    }
+
     [Fact]
     public void Mission_effect_and_control_receipts_survive_signed_short_archive_entries()
     {
@@ -68,7 +91,7 @@ public sealed class SpymasterSaveArchiveTests
     public void Court_adapter_migrates_legacy_and_recovered_state_without_dropping_receipts()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
         Assert.Contains("_spymasterStateJson = string.Empty;", source);
         Assert.Contains("_spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(", source);
         Assert.Contains("dataStore.SyncData(\"_reignCourt_spymasterState\", ref _spymasterStateJson);", source);

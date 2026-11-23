@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Government.Domain;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed class ReignGovernmentCommitmentRecord
     {
@@ -33,9 +35,9 @@ namespace ReignBeta.Government
 
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<ReignGovernmentCommitmentRecord> _governmentCommitments = new List<ReignGovernmentCommitmentRecord>();
+        internal List<ReignGovernmentCommitmentRecord> _governmentCommitments = new List<ReignGovernmentCommitmentRecord>();
         // A receipt can only originate in a currently reserved, actual individual conversation turn.
-        private readonly Dictionary<string, JObject> _governmentConversationTurns = new Dictionary<string, JObject>(StringComparer.Ordinal);
+        internal readonly Dictionary<string, JObject> _governmentConversationTurns = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private readonly HashSet<string> _governmentPublicTurns = new HashSet<string>(StringComparer.Ordinal);
 
         public IReadOnlyList<ReignGovernmentCommitmentRecord> GetGovernmentCommitments(string kingdomId)
@@ -210,7 +212,7 @@ namespace ReignBeta.Government
             JObject response;
             try { response = (payload["speakers"] as JArray)?.Count == 0
                     ? new JObject { ["ok"] = true, ["statements"] = new JArray(), ["message"] = "Your statement was entered in the public record. No participants are present to respond.", ["providerCallCount"] = 0 }
-                    : await ReignServerClient.RequestGovernmentHearingDiscussionAsync(payload).ConfigureAwait(false); }
+                    : await ReignGovernmentHearingServerClient.RequestGovernmentHearingDiscussionAsync(payload).ConfigureAwait(false); }
             catch (Exception ex) { response = new JObject { ["ok"] = false, ["error"] = ex.Message }; }
             return await ReignMainThread.InvokeAsync(() => ApplyPublicHearingTurn(businessId, payload, response)).ConfigureAwait(false);
         }
@@ -236,7 +238,7 @@ namespace ReignBeta.Government
                 ["recommendation"] = business.RecommendedOptionId, ["playerMessage"] = boundedMessage,
                 ["transcript"] = new JArray(transcript.Skip(Math.Max(0, transcript.Count - 12))),
                 ["speakers"] = new JArray(speakerIds.Select(id => new JObject { ["heroId"] = id, ["name"] = FindHero(id).Name.ToString(),
-                    ["profile"] = ReignServerClient.BuildGovernmentPoliticalHero(FindHero(id)),
+                    ["profile"] = ReignGovernmentPoliticalClient.BuildGovernmentPoliticalHero(FindHero(id)),
                     ["role"] = Same(id, business.SponsorHeroStringId) ? "sponsor" : Same(id, business.PetitionerHeroStringId) ? "petitioner" : "member" })) };
         }
 

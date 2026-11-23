@@ -6,15 +6,23 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCourtNobleMatterScreenVM : ViewModel, IReignActionHost
     {
@@ -34,7 +42,6 @@ namespace ReignBeta.UI.ViewModels
         private readonly ReignCourtAudienceScenePresentation _scene;
         private string _eventImageId;
         private string _statusText;
-        private string _inputText = string.Empty;
         private string _petitionerSpeech;
         private string _selectedSuspectHeroId = string.Empty;
         private string _negotiatedTermsJson = string.Empty;
@@ -255,8 +262,8 @@ namespace ReignBeta.UI.ViewModels
             string text = InputText ?? string.Empty;
             if (!CanSend || string.IsNullOrWhiteSpace(text)) return;
             string contribution = "noble_input_" + Guid.NewGuid().ToString("N");
-            try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+            try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
             catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;
@@ -372,7 +379,7 @@ namespace ReignBeta.UI.ViewModels
                             : FallbackStatement(participant, phase);
                         AddTranscriptLine(speaker.Name?.ToString() ?? "Noble", reply, "npc");
                         // Existing action receipts follow as separate view-only system lines.
-                        foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                        foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.RawResponse))
                         { Transcript.Add(new ReignChatLineVM("Court Clerk", statusLine, "system")); ChatScrollVersion++; }
                         PetitionerSpeech = reply;
                         ApplyStructuredTurn(response.RawResponse);

@@ -5,12 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Shared;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -18,12 +16,25 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     public sealed partial class ReignRelationshipCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignRelationshipCampaignBehavior Instance { get; private set; }
+        public static ReignRelationshipCampaignBehavior Instance => ReignServices.Relationship;
 
         private bool _tickInFlight;
         private bool _replyTickInFlight;
@@ -107,7 +118,7 @@ namespace ReignBeta.Campaign
             try
             {
                 List<ReignDirectorAction> actions =
-                    await ReignServerClient.PollRelationshipDirectorActionsAsync()
+                    await ReignRelationshipDirectorClient.PollRelationshipDirectorActionsAsync()
                         .ConfigureAwait(false);
                 if (actions.Count == 0) return;
                 JArray receipts = new JArray();
@@ -117,7 +128,7 @@ namespace ReignBeta.Campaign
                     foreach (ReignDirectorAction action in actions)
                         receipts.Add(ApplyDirectorAction(action));
                 }).ConfigureAwait(false);
-                await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts)
+                await ReignRelationshipDirectorClient.ReportRelationshipDirectorActionsAsync(receipts)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -185,7 +196,7 @@ namespace ReignBeta.Campaign
             string generationId)
         {
             ReignAmbientRelationshipRunResult result =
-                await ReignServerClient.SubmitCampaignOpeningRelationshipSeedAsync(
+                await ReignRelationshipDirectorClient.SubmitCampaignOpeningRelationshipSeedAsync(
                     generationId).ConfigureAwait(false);
             if (!result.Ok)
                 throw new InvalidOperationException(
@@ -199,7 +210,7 @@ namespace ReignBeta.Campaign
                 _lastAmbientCapturedDay =
                     (int)Math.Floor(day + 0.000001f);
                 _lastAmbientCapturedTimelineId =
-                    ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    ReignServices.WorldHistory?.TimelineId ?? "main";
                 _lastDirectorSnapshotDay = day;
                 _ambientConfirmedCadenceInitialized = true;
                 ReplaceNativeSyncPlan(result.NativeSyncPlan);
@@ -281,7 +292,7 @@ namespace ReignBeta.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Relationship = this;
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
@@ -328,92 +339,6 @@ namespace ReignBeta.Campaign
             // Keeping this save flag preserves old save compatibility without
             // writing an intermediate native relation before the final projection.
             _initialRelationshipBaselinesApplied = true;
-        }
-
-        private void ApplyInitialRelationshipBaselines()
-        {
-            if (_initialRelationshipBaselinesApplied) return;
-
-            List<Hero> heroes = Hero.AllAliveHeroes
-                .Where(x => x != null && !string.IsNullOrWhiteSpace(x.StringId))
-                .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase)
-                .Select(x => x.First())
-                .ToList();
-            Dictionary<string, StartingRelationshipPair> pairs =
-                new Dictionary<string, StartingRelationshipPair>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (Hero hero in heroes)
-            {
-                AddStartingRelationshipPair(pairs, hero, hero.Spouse, true, false, false);
-                AddStartingRelationshipPair(pairs, hero, hero.Father, false, true, false);
-                AddStartingRelationshipPair(pairs, hero, hero.Mother, false, true, false);
-            }
-
-            foreach (IGrouping<string, Hero> siblings in heroes
-                .SelectMany(hero => new[]
-                {
-                    new { ParentId = hero.Father?.StringId ?? string.Empty, Hero = hero },
-                    new { ParentId = hero.Mother?.StringId ?? string.Empty, Hero = hero }
-                })
-                .Where(x => !string.IsNullOrWhiteSpace(x.ParentId))
-                .GroupBy(x => x.ParentId, x => x.Hero, StringComparer.OrdinalIgnoreCase))
-            {
-                List<Hero> children = siblings
-                    .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase)
-                    .Select(x => x.First())
-                    .ToList();
-                for (int i = 0; i < children.Count; i++)
-                    for (int j = i + 1; j < children.Count; j++)
-                        AddStartingRelationshipPair(pairs, children[i], children[j], false, true, false);
-            }
-
-            foreach (Kingdom kingdom in Kingdom.All.Where(x => x != null && !x.IsEliminated))
-            {
-                Hero ruler = kingdom.Leader;
-                if (ruler == null || !ruler.IsAlive) continue;
-                foreach (Hero lord in heroes.Where(x => x != ruler && x.IsLord && x.Clan?.Kingdom == kingdom))
-                    AddStartingRelationshipPair(pairs, lord, ruler, false, false, true);
-            }
-
-            int changed = 0;
-            foreach (StartingRelationshipPair pair in pairs.Values)
-            {
-                int current = pair.First.GetRelation(pair.Second);
-                if (current == pair.Target) continue;
-                SetRelationWithoutGameplayRewards(pair.First, pair.Second, pair.Target);
-                changed++;
-            }
-
-            _initialRelationshipBaselinesApplied = true;
-            ReignLog.Info("Initial relationship baselines applied pairs=" + pairs.Count
-                + " changed=" + changed
-                + " spouses=" + pairs.Values.Count(x => x.Target == ReignRelationshipBaselinePolicy.SpouseBaseline)
-                + " familyOrRuler=" + pairs.Values.Count(x => x.Target == ReignRelationshipBaselinePolicy.ImmediateFamilyBaseline)
-                + ".");
-        }
-
-        private static void AddStartingRelationshipPair(
-            Dictionary<string, StartingRelationshipPair> pairs,
-            Hero first,
-            Hero second,
-            bool areSpouses,
-            bool areImmediateFamily,
-            bool isLordRulerPair)
-        {
-            if (first == null || second == null || first == second
-                || !first.IsAlive || !second.IsAlive
-                || string.IsNullOrWhiteSpace(first.StringId) || string.IsNullOrWhiteSpace(second.StringId)) return;
-
-            int target = ReignRelationshipBaselinePolicy.ResolveStartingBaseline(
-                areSpouses, areImmediateFamily, isLordRulerPair);
-            if (target == ReignRelationshipBaselinePolicy.NoBaseline) return;
-
-            bool firstComesFirst = string.Compare(first.StringId, second.StringId, StringComparison.OrdinalIgnoreCase) <= 0;
-            Hero heroA = firstComesFirst ? first : second;
-            Hero heroB = firstComesFirst ? second : first;
-            string key = heroA.StringId + "|" + heroB.StringId;
-            if (!pairs.TryGetValue(key, out StartingRelationshipPair existing) || target > existing.Target)
-                pairs[key] = new StartingRelationshipPair(heroA, heroB, target);
         }
 
         private sealed class StartingRelationshipPair
@@ -590,7 +515,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                if (await ReignServerClient.EvaluateAutonomousCorrespondenceAsync().ConfigureAwait(false))
+                if (await ReignCorrespondenceClient.EvaluateAutonomousCorrespondenceAsync().ConfigureAwait(false))
                     _lastAutonomousMailSlot = slot;
             }
             finally
@@ -602,19 +527,19 @@ namespace ReignBeta.Campaign
         private async Task PollAsync(string phase)
         {
             var nativeCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             List<string> sentAcks;
             lock (_mailReceiptAcks) sentAcks = _mailReceiptAcks.Take(100).ToList();
             try
             {
-                ReignCorrespondenceTickResult result = await ReignServerClient.TickCorrespondenceAsync(phase, sentAcks).ConfigureAwait(false);
+                ReignCorrespondenceTickResult result = await ReignCorrespondenceClient.TickCorrespondenceAsync(phase, sentAcks).ConfigureAwait(false);
                 if (!result.Ok) return;
                 JArray nativeApplications = new JArray();
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!ReferenceEquals(nativeCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
                         || !ReferenceEquals(this, Instance) || ReignSaveSyncCoordinator.IsAlignmentPending
-                        || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                        || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")
                         || result.TimelineId != timeline) return;
                     lock (_mailReceiptAcks) foreach (string id in sentAcks) _mailReceiptAcks.Remove(id);
                     bool applied = true;
@@ -649,9 +574,9 @@ namespace ReignBeta.Campaign
                     }
                     if (result.QueuedActions != null && result.QueuedActions.Count > 0)
                     {
-                        int queued = ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(result.QueuedActions) ?? 0;
+                        int queued = ReignServices.AI?.EnqueueAndExecuteServerActions(result.QueuedActions) ?? 0;
                         ReignLog.Info("Immediate correspondence action import actions=" + result.QueuedActions.Count + " queued=" + queued);
-                        if (ReignAICampaignBehavior.Instance == null) applied = false;
+                        if (ReignServices.AI == null) applied = false;
                     }
                     if (applied) lock (_mailReceiptAcks) foreach (string id in result.DeliveryReceiptIds) _mailReceiptAcks.Add(id);
                     TryShowMailInquiry();
@@ -667,7 +592,7 @@ namespace ReignBeta.Campaign
                         receipt, receipt.Value<string>("subjectId"), eventId: receipt.Value<string>("eventId")).ConfigureAwait(false);
                 ReignNativeRelationSyncProgress nativeProgress = NativeSyncProgressSnapshot();
                 if (nativeProgress != null)
-                    await ReignServerClient.ReportNativeRelationSyncProgressAsync(nativeProgress).ConfigureAwait(false);
+                    await ReignRelationshipDirectorClient.ReportNativeRelationSyncProgressAsync(nativeProgress).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -708,7 +633,7 @@ namespace ReignBeta.Campaign
                 return;
             }
             int dayKey = (int)Math.Floor(day + 0.000001f);
-            string currentTimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string currentTimelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (!currentTimelineId.Equals(_lastAmbientCapturedTimelineId, StringComparison.OrdinalIgnoreCase))
             {
                 _lastAmbientCapturedDay = -1000;
@@ -719,7 +644,7 @@ namespace ReignBeta.Campaign
             {
                 try
                 {
-                    ReignServerClient.CaptureAmbientRelationshipDailyInput();
+                    ReignRelationshipDirectorClient.CaptureAmbientRelationshipDailyInput();
                     _lastAmbientCapturedDay = dayKey;
                 }
                 catch (Exception ex)
@@ -754,7 +679,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                ReignAmbientRelationshipRunResult result = await ReignServerClient.SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
+                ReignAmbientRelationshipRunResult result = await ReignRelationshipDirectorClient.SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
                 if (!result.Ok)
                 {
                     ReignLog.Warn("Ambient relationship drift failed: "
@@ -907,9 +832,9 @@ namespace ReignBeta.Campaign
                     Hero mother = FindHero(action.Payload?.Value<string>("motherId"));
                     Hero bio = FindHero(action.Payload?.Value<string>("biologicalFatherId"));
                     Hero legal = FindHero(action.Payload?.Value<string>("legalFatherId")) ?? bio;
-                    if (ReignFamilyCampaignBehavior.Instance == null)
+                    if (ReignServices.Family == null)
                         throw new InvalidOperationException("Reign family campaign behavior is unavailable.");
-                    if (!ReignFamilyCampaignBehavior.Instance.TryStartManagedConception(
+                    if (!ReignServices.Family.TryStartManagedConception(
                             action.Payload?.Value<string>("conceptionId"), mother, bio, legal,
                             action.Payload?.Value<float?>("conceptionDay") ?? (float)CampaignTime.Now.ToDays,
                             action.Payload?.Value<float?>("dueDay") ?? (float)CampaignTime.Now.ToDays + 36f,
@@ -985,7 +910,7 @@ namespace ReignBeta.Campaign
                 }
                 else if (action.ActionType == "reveal_parentage")
                 {
-                    if (ReignFamilyCampaignBehavior.Instance == null || !ReignFamilyCampaignBehavior.Instance.RevealBiologicalFather(action.Payload?.Value<string>("childId"), out error)) throw new InvalidOperationException(error);
+                    if (ReignServices.Family == null || !ReignServices.Family.RevealBiologicalFather(action.Payload?.Value<string>("childId"), out error)) throw new InvalidOperationException(error);
                 }
                 else throw new InvalidOperationException("Unknown relationship director action: " + action.ActionType);
             }
@@ -996,7 +921,7 @@ namespace ReignBeta.Campaign
                 ["status"] = status,
                 ["error"] = error,
 				["worldDay"] = CampaignTime.Now.ToDays,
-				["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"
+				["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main"
             };
         }
 
@@ -1007,7 +932,7 @@ namespace ReignBeta.Campaign
             Hero sender = FindHero(letter.SenderId);
             _mailInquiryOpen = true;
 #if !REIGN_EXCLUDE_COURT
-            if (ReignCourtCampaignBehavior.Instance?.TryHandleRegentLetter(letter, () =>
+            if (ReignServices.Court?.TryHandleRegentLetter(letter, () =>
             {
                 _mailInquiryOpen = false;
                 _standardMailInquiryOpen = false;

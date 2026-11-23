@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AIPortraits;
-using ReignBeta.UI.Portraits;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Portraits.UI;
 
 namespace ReignBeta.UI.Widgets
 {

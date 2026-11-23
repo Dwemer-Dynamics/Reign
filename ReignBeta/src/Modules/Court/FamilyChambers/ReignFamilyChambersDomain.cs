@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Save;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.SaveSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.FamilyChambers;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court
 {
@@ -41,11 +45,11 @@ namespace ReignBeta.Court
         private List<FamilyChambersSessionRecord> _sessions = new List<FamilyChambersSessionRecord>();
         private List<string> _maturedChildHeroIds = new List<string>();
 
-        public static ReignFamilyChambersCampaignBehavior Instance { get; private set; }
+        public static ReignFamilyChambersCampaignBehavior Instance => ReignServices.FamilyChambers;
 
         public ReignFamilyChambersCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.FamilyChambers = this;
         }
 
         public override void RegisterEvents()
@@ -103,7 +107,7 @@ namespace ReignBeta.Court
             Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;
             float day = (float)(TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays);
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             string childIds = string.Join(",", participants.Where(hero => hero.IsChild).Select(hero => hero.StringId));
             string adultIds = string.Join(",", participants.Where(hero => !hero.IsChild).Select(hero => hero.StringId));
             string stable = campaignId + "|" + timelineId + "|" + (settlement?.StringId ?? "") + "|" + day.ToString("0.000")
@@ -157,7 +161,7 @@ namespace ReignBeta.Court
             if (hero == null || hero.IsChild || !hero.IsAlive || string.IsNullOrWhiteSpace(hero.StringId)) return;
             bool participated = _sessions.Any(session => ReignCourtCampaignBehavior.SplitIds(session?.ChildHeroIdsCsv)
                 .Contains(hero.StringId, StringComparer.OrdinalIgnoreCase))
-                || ReignCourtCampaignBehavior.Instance?.HasUnmigratedChildAttention(hero) == true;
+                || ReignServices.Court?.HasUnmigratedChildAttention(hero) == true;
             if (!participated || _maturedChildHeroIds.Contains(hero.StringId, StringComparer.OrdinalIgnoreCase)) return;
             try
             {
