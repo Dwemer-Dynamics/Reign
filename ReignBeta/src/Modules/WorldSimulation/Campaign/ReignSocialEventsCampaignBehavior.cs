@@ -1043,7 +1043,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private void OnTournamentFinished(CharacterObject winner, MBReadOnlyList<CharacterObject> participants, Town town, ItemObject prize)
         {
             BeginTournamentCelebrationWindDown(town, CurrentCampaignDay(), winner, prize,
-                TeamTournamentOutcome.ForFinishedEvent(town, winner));
+                TeamTournamentOutcome.ForFinishedEvent(participants));
         }
 
         private void OnTournamentCancelled(Town town)

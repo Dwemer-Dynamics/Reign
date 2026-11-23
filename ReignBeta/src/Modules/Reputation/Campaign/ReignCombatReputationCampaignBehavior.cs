@@ -211,7 +211,7 @@ namespace ReignBeta.Reputation.Campaign
             TaleWorlds.Library.MBReadOnlyList<CharacterObject> participants, Town town, ItemObject prize)
         {
             Hero winnerHero = winner?.HeroObject;
-            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(town, winner);
+            TeamTournamentOutcome teamOutcome = TeamTournamentOutcome.ForFinishedEvent(participants);
             HashSet<Hero> winningHeroes = new HashSet<Hero>(teamOutcome?.WinningTeam.Where(x => x?.HeroObject != null).Select(x => x.HeroObject)
                 ?? Enumerable.Empty<Hero>());
             if (winnerHero != null) winningHeroes.Add(winnerHero);
