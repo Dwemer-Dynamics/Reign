@@ -576,6 +576,9 @@ namespace ReignBeta.WorldSimulation.World
                 }
             }
 
+            if (action.Type == ReignWorldActionType.RegularSurrenderToPlayer)
+                return ReignSurrenderService.Validate(action, actorHero, actorParty, proposal, out reason);
+
             bool useSceneFollow = action.Type == ReignWorldActionType.RegularFollowOnMap
                 && ReignSceneActionMissionBehavior.Current?.CanFollow(actorHero, targetHero) == true;
             if (RequiresMapParty(action.Type) && !useSceneFollow && !(action.Type == ReignWorldActionType.RegularStopFollowing
@@ -599,15 +602,7 @@ namespace ReignBeta.WorldSimulation.World
                     return false;
                 }
 
-                if (action.Type == ReignWorldActionType.RegularSurrenderToPlayer)
-                {
-                    if (actorParty.MapEvent == null || !actorParty.MapEvent.IsPlayerMapEvent || PartyBase.MainParty?.MapEvent != actorParty.MapEvent)
-                    {
-                        reason = "SurrenderToPlayer requires an active player encounter with the actor party.";
-                        return false;
-                    }
-                }
-                else if (actorParty.MapEvent != null || actorParty.BesiegedSettlement != null)
+                if (actorParty.MapEvent != null || actorParty.BesiegedSettlement != null)
                 {
                     reason = "Actor party is already in a battle or siege.";
                     return false;
@@ -1055,7 +1050,6 @@ namespace ReignBeta.WorldSimulation.World
                 case ReignWorldActionType.RegularBesiegeSettlement:
                 case ReignWorldActionType.RegularAttackParty:
                 case ReignWorldActionType.RegularAttackPlayerParty:
-                case ReignWorldActionType.RegularSurrenderToPlayer:
                 case ReignWorldActionType.RegularLeavePlayerAlone:
                     return true;
                 default:

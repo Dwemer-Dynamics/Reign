@@ -4,6 +4,8 @@ using System.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Dialogue.Runtime;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
@@ -35,17 +37,77 @@ namespace ReignBeta.WorldSimulation.World
         private static readonly Dictionary<string, PendingSurrender> Pending =
             new Dictionary<string, PendingSurrender>(StringComparer.Ordinal);
 
+        internal static bool Validate(ReignWorldActionRecord action, Hero actor, MobileParty party,
+            bool proposal, out string reason)
+        {
+            reason = string.Empty;
+            Hero player = Hero.MainHero;
+            if (!ReignConversationEligibility.IsAdultLivingNpc(actor) || actor.IsPrisoner
+                || player == null || player.IsPrisoner || PartyBase.MainParty == null)
+            {
+                reason = "Surrender requires a free, living adult NPC and an available player party.";
+                return false;
+            }
+            if (IsEncounterSurrender(actor, party)) return true;
+            if (!CanSurrenderPersonally(actor, party, player))
+            {
+                reason = "The surrendering hero must be present with you or lead the opposing party in your active encounter.";
+                return false;
+            }
+            if (!proposal && (action.RequiresAcceptance
+                || !string.Equals(action.AcceptedByHeroStringId, actor.StringId, StringComparison.OrdinalIgnoreCase)))
+            {
+                reason = "Personal surrender requires the surrendering hero's acceptance.";
+                return false;
+            }
+            return true;
+        }
+
+        private static bool IsEncounterSurrender(Hero actor, MobileParty party)
+        {
+            PartyBase player = PartyBase.MainParty;
+            return party?.IsActive == true && party.LeaderHero == actor && !party.IsMainParty
+                && party.MapEvent?.IsPlayerMapEvent == true && player?.MapEvent == party.MapEvent
+                && party.Party.MapEventSide != null && party.Party.Side == player.OpponentSide;
+        }
+
+        private static bool CanSurrenderPersonally(Hero actor, MobileParty party, Hero player)
+            => PartyBase.MainParty.MapEvent == null && party?.MapEvent == null && party?.BesiegedSettlement == null
+                && ((actor.CurrentSettlement != null && actor.CurrentSettlement == player.CurrentSettlement)
+                    || (party != null && party == MobileParty.MainParty));
+
+        private static ReignActionResult CapturePersonally(Hero actor)
+        {
+            PartyBase player = PartyBase.MainParty;
+            TakePrisonerAction.Apply(player, actor);
+            if (!IsInPlayerCustody(actor))
+                return ReignActionResult.FailTerminal("Personal surrender did not place the hero in your custody.",
+                    "surrender_verification_failed", "state_verification");
+
+            return ReignActionResult.Done(actor.Name + " surrendered and is now your prisoner.")
+                .WithResultCode("personal_surrender_completed")
+                .WithEffect("hero_captured", "hero", actor.StringId, actor.Name.ToString(),
+                    "captorPartyId=" + MobileParty.MainParty.StringId)
+                .WithChangedEntity("hero", actor.StringId, actor.Name.ToString(), "captured");
+        }
+
+        private static bool IsInPlayerCustody(Hero actor)
+        {
+            PartyBase player = PartyBase.MainParty;
+            return actor.IsPrisoner && player != null && actor.PartyBelongedToAsPrisoner == player
+                && player.PrisonRoster.GetTroopRoster().Any(t => t.Character == actor.CharacterObject && t.Number == 1);
+        }
+
         internal static ReignActionResult Queue(ReignWorldActionRecord action, Hero actor, MobileParty party)
         {
             if (action == null || string.IsNullOrWhiteSpace(action.ActionId))
                 return ReignActionResult.ValidationFailed("Surrender requires an identified action.");
             if (Pending.ContainsKey(action.ActionId)) return Waiting(actor);
-            MapEvent battle = party?.MapEvent;
-            PartyBase player = PartyBase.MainParty;
-            if (actor == null || battle == null || !battle.IsPlayerMapEvent
-                || player?.MapEvent != battle || party.Party.MapEventSide == null
-                || party.Party.Side != player.OpponentSide)
-                return ReignActionResult.ValidationFailed("Surrender requires the opposing party in your active encounter.");
+            if (!Validate(action, actor, party, false, out string reason))
+                return ReignActionResult.ValidationFailed(reason);
+            if (!IsEncounterSurrender(actor, party)) return CapturePersonally(actor);
+
+            MapEvent battle = party.MapEvent;
             if (Pending.Values.Any(p => ReferenceEquals(p.Campaign, NativeCampaign.Current)
                 && ReferenceEquals(p.Battle, battle)))
                 return ReignActionResult.ValidationFailed("This encounter already has a surrender awaiting capture.");
@@ -86,10 +148,7 @@ namespace ReignBeta.WorldSimulation.World
                 }
                 try
                 {
-                    bool captive = pending.Actor.IsPrisoner
-                        && pending.Actor.PartyBelongedToAsPrisoner == PartyBase.MainParty
-                        && PartyBase.MainParty.PrisonRoster.GetTroopRoster().Any(t =>
-                            t.Character == pending.Actor.CharacterObject && t.Number == 1);
+                    bool captive = IsInPlayerCustody(pending.Actor);
                     bool same = ReferenceEquals(PlayerEncounter.Current, pending.Encounter)
                         && ReferenceEquals(PartyBase.MainParty?.MapEvent, pending.Battle);
                     var state = pending.Handoff.Advance(same, InteractionOpen(), captive,
