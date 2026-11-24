@@ -134,7 +134,7 @@ public sealed class ToolMetadataTests
         destructive.Add("reign_test_personal_gossip");
         writes.Add("reign_probe_conversation_clock");
         destructive.Add("reign_probe_conversation_clock");
-        Assert.Equal(133, tools.Length);
+        Assert.Equal(134, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);
