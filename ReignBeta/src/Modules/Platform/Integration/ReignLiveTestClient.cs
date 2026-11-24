@@ -30,6 +30,9 @@ namespace ReignBeta.Platform.Integration
         private static DateTime _nextLiveTargetCountRefreshUtc = DateTime.MinValue;
         private static int _cachedLivePartyTargetCount;
         private static int _cachedLiveEventCount;
+        private static readonly string ReignModuleId = typeof(ReignLiveTestServerClient).Assembly.ManifestModule.ModuleVersionId.ToString("D");
+        private static readonly string CampaignModuleId = typeof(TaleWorlds.CampaignSystem.Campaign).Assembly.ManifestModule.ModuleVersionId.ToString("D");
+        private static readonly string CoreModuleId = typeof(Game).Assembly.ManifestModule.ModuleVersionId.ToString("D");
 
         public static async Task<JObject> SubmitLiveTestHeartbeatAsync(string gameInstanceId, string activeRunId, string activeMode, bool busy)
         {
@@ -37,15 +40,16 @@ namespace ReignBeta.Platform.Integration
             JObject heartbeat;
             using (ReignLog.MeasureWork("diagnostics.heartbeat", 0f))
                 heartbeat = BuildLiveTestHeartbeat(gameInstanceId, activeRunId, activeMode, busy);
+            heartbeat["executionIdentity"] = BuildExecutionIdentity();
             heartbeat["performance"] = await ReignLog.PerformanceSnapshotAsync(performanceGeneration).ConfigureAwait(false);
             return await PostJsonAsync("/tests/live/game/heartbeat", heartbeat).ConfigureAwait(false);
         }
 
-        public static Task<JObject> PollLiveTestCommandAsync(string gameInstanceId)
+        public static Task<JObject> PollLiveTestCommandAsync(string gameInstanceId, string campaignId = null)
         {
             return PostJsonAsync("/tests/live/game/poll", new JObject
             {
-                ["campaignId"] = GetCampaignId(), ["gameInstanceId"] = gameInstanceId ?? string.Empty
+                ["campaignId"] = campaignId ?? GetCampaignId(), ["gameInstanceId"] = gameInstanceId ?? string.Empty
             });
         }
 
@@ -56,14 +60,14 @@ namespace ReignBeta.Platform.Integration
                 + Uri.EscapeDataString(runId ?? string.Empty));
         }
 
-        public static Task<JObject> AcknowledgeLiveTestCommandAsync(string gameInstanceId, string runId, string commandId, string status, string message)
+        public static Task<JObject> AcknowledgeLiveTestCommandAsync(string gameInstanceId, string runId,
+            string commandId, string status, string message,
+            ReignLiveInteractionTestHost.PartyAgencyExecutionStamp assignment = null)
         {
-            return PostJsonAsync("/tests/live/game/ack", new JObject
-            {
-                ["campaignId"] = GetCampaignId(), ["gameInstanceId"] = gameInstanceId ?? string.Empty,
-                ["runId"] = runId ?? string.Empty, ["commandId"] = commandId ?? string.Empty,
-                ["status"] = status ?? "accepted", ["message"] = message ?? string.Empty
-            });
+            JObject request = BuildCommandScope(gameInstanceId, runId, commandId, assignment, assignment);
+            request["status"] = status ?? "accepted";
+            request["message"] = message ?? string.Empty;
+            return PostJsonAsync("/tests/live/game/ack", request);
         }
 
         public static Task<JObject> ReportLiveTestCommandAsync(
@@ -74,16 +78,63 @@ namespace ReignBeta.Platform.Integration
             string message,
             string error,
             JObject result,
-            IEnumerable<string> correlationIds)
+            IEnumerable<string> correlationIds,
+            ReignLiveInteractionTestHost.PartyAgencyExecutionStamp assignment = null,
+            ReignLiveInteractionTestHost.PartyAgencyExecutionStamp execution = null)
         {
-            return PostJsonAsync("/tests/live/game/result", new JObject
+            JObject request = BuildCommandScope(gameInstanceId, runId, commandId, assignment, execution);
+            request["status"] = status ?? "completed";
+            request["message"] = message ?? string.Empty;
+            request["error"] = error ?? string.Empty;
+            request["result"] = result ?? new JObject();
+            request["correlationIds"] = new JArray((correlationIds ?? Enumerable.Empty<string>())
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
+            return PostJsonAsync("/tests/live/game/result", request);
+        }
+
+        private static JObject BuildCommandScope(string gameInstanceId, string runId, string commandId,
+            ReignLiveInteractionTestHost.PartyAgencyExecutionStamp assignment,
+            ReignLiveInteractionTestHost.PartyAgencyExecutionStamp execution)
+        {
+            var request = new JObject
             {
-                ["campaignId"] = GetCampaignId(), ["gameInstanceId"] = gameInstanceId ?? string.Empty,
-                ["runId"] = runId ?? string.Empty, ["commandId"] = commandId ?? string.Empty,
-                ["status"] = status ?? "completed", ["message"] = message ?? string.Empty,
-                ["error"] = error ?? string.Empty, ["result"] = result ?? new JObject(),
-                ["correlationIds"] = new JArray((correlationIds ?? Enumerable.Empty<string>()).Where(value => !string.IsNullOrWhiteSpace(value)))
-            });
+                ["campaignId"] = assignment?.CampaignId ?? GetCampaignId(),
+                ["gameInstanceId"] = assignment?.GameInstanceId ?? gameInstanceId ?? string.Empty,
+                ["runId"] = assignment?.RunId ?? runId ?? string.Empty,
+                ["commandId"] = assignment?.CommandId ?? commandId ?? string.Empty
+            };
+            if (assignment == null)
+                return request;
+            if (execution == null || !execution.CanReplayFor(assignment))
+                throw new InvalidOperationException("Party Agency execution identity does not match the assignment.");
+
+            request["leaseId"] = assignment.ExecutionLeaseId;
+            request["executionObservation"] = new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["campaignId"] = execution.CampaignId,
+                ["gameInstanceId"] = execution.GameInstanceId,
+                ["runId"] = execution.RunId,
+                ["commandId"] = execution.CommandId,
+                ["clientProcessInstanceId"] = execution.ClientProcessInstanceId,
+                ["executionLeaseId"] = execution.ExecutionLeaseId
+            };
+            return request;
+        }
+
+        private static JObject BuildExecutionIdentity()
+        {
+            return new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["clientProcessInstanceId"] = ReignLiveInteractionTestHost.PartyAgencyClientProcessInstanceId,
+                ["moduleIds"] = new JObject
+                {
+                    ["ReignBeta"] = ReignModuleId,
+                    ["TaleWorlds.CampaignSystem"] = CampaignModuleId,
+                    ["TaleWorlds.Core"] = CoreModuleId
+                }
+            };
         }
 
         private static T HeartbeatSection<T>(JObject sections, string name, Func<T> build)

@@ -28,6 +28,7 @@ namespace ReignBeta.Platform.Integration
         private static bool _scopedIngressOpen;
         private static GameScope _currentScope;
         private static object _currentScopeGame;
+        private static readonly AsyncLocal<DispatchOwner> OwnedDispatch = new AsyncLocal<DispatchOwner>();
 
         internal enum ScopedAdmission
         {
@@ -39,6 +40,19 @@ namespace ReignBeta.Platform.Integration
         // One campaign game activation, compared by reference. It holds no game
         // object, so workers may retain it.
         internal sealed class GameScope { }
+
+        private sealed class DispatchOwner
+        {
+            internal readonly GameScope Scope;
+            internal readonly Func<bool> IsCurrent;
+            internal int Ended;
+
+            internal DispatchOwner(GameScope scope, Func<bool> isCurrent)
+            {
+                Scope = scope;
+                IsCurrent = isCurrent;
+            }
+        }
 
         private sealed class ScopedEntry
         {
@@ -137,12 +151,50 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
+        internal static async Task<T> RunOwnedAsync<T>(GameScope scope, Func<bool> ownerIsCurrent, Func<Task<T>> operation)
+        {
+            if (scope == null) throw new ArgumentNullException(nameof(scope));
+            if (ownerIsCurrent == null) throw new ArgumentNullException(nameof(ownerIsCurrent));
+            if (operation == null) throw new ArgumentNullException(nameof(operation));
+
+            DispatchOwner previous = OwnedDispatch.Value;
+            var owner = new DispatchOwner(scope, ownerIsCurrent);
+            OwnedDispatch.Value = owner;
+            try
+            {
+                Task<T> execution = await InvokeAsync(operation).ConfigureAwait(false);
+                return await execution.ConfigureAwait(false);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref owner.Ended, 1);
+                OwnedDispatch.Value = previous;
+            }
+        }
+
+        private static T ExecuteOwnedCallback<T>(DispatchOwner owner, Func<T> callback)
+        {
+            // The queue itself runs under the game thread's execution context.
+            // Reapply ownership to any nested callbacks and async continuations.
+            if (Volatile.Read(ref owner.Ended) != 0 || !ReferenceEquals(CurrentGameScope, owner.Scope)
+                || !owner.IsCurrent())
+                throw new OperationCanceledException("The live-test command no longer owns the loaded campaign.");
+
+            DispatchOwner previous = OwnedDispatch.Value;
+            OwnedDispatch.Value = owner;
+            try { return callback(); }
+            finally { OwnedDispatch.Value = previous; }
+        }
+
         public static Task InvokeAsync(Action action)
         {
             if (action == null)
             {
                 return Task.CompletedTask;
             }
+
+            if (OwnedDispatch.Value != null)
+                return InvokeAsync(() => { action(); return true; });
 
             if (IsMainThread)
             {
@@ -172,6 +224,13 @@ namespace ReignBeta.Platform.Integration
             if (action == null)
             {
                 return Task.FromResult(default(T));
+            }
+
+            DispatchOwner owner = OwnedDispatch.Value;
+            if (owner != null)
+            {
+                Func<T> callback = action;
+                action = () => ExecuteOwnedCallback(owner, callback);
             }
 
             if (IsMainThread)
