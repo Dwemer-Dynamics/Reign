@@ -232,20 +232,21 @@ namespace ReignBeta.Characters.Campaign
             if (!force && day - _lastPollDay < 0.2f) return;
             string campaignId = ReignServerClient.GetCampaignId();
             var fence = ReignServerClient.RequestFence.Capture();
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             bool OwnsPoll() => IsCurrentCampaign && fence.IsCurrentActionPoll()
                 && !ReignCampaignInitializationGate.IsPending;
             if (!OwnsPoll()) return;
             _lastPollDay = day;
             _polling = true;
-            _ = PollAsync(campaignId, OwnsPoll);
+            _ = PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, OwnsPoll);
         }
 
-        private async Task PollAsync(string campaignId, Func<bool> ownsPoll)
+        private async Task PollAsync(string campaignId, string timelineId, string restoreGeneration, Func<bool> ownsPoll)
         {
             try
             {
-                var commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync(campaignId, ownsPoll)
-                    .ConfigureAwait(false);
+                var commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync(campaignId,
+                    timelineId, restoreGeneration, ownsPoll).ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
                     CharacterEditorApplyResult result = await ReignMainThread.InvokeAsync(() =>
@@ -253,8 +254,8 @@ namespace ReignBeta.Characters.Campaign
                     if (result == null) return;
                     string status = result.Errors.Count == 0 ? "completed"
                         : result.Applied.Count > 0 ? "partially_applied" : "failed";
-                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(campaignId, command.CommandId,
-                        status, result.Applied, result.Errors, ownsPoll).ConfigureAwait(false);
+                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(campaignId, timelineId,
+                        restoreGeneration, command, status, result.Applied, result.Errors, ownsPoll).ConfigureAwait(false);
                 }
             }
             catch (ReignRequestOwnerAbandonedException) { }
