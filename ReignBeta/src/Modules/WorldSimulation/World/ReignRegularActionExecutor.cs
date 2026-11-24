@@ -327,7 +327,14 @@ namespace ReignBeta.WorldSimulation.World
             Workshop workshop = ReignObjectResolver.FindWorkshop(ReadStringTerm(action.TermsJson, "workshopId", ReadStringTerm(action.TermsJson, "workshop", string.Empty)));
             Hero to = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "toHeroStringId", string.Empty)) ?? target ?? Hero.MainHero;
             Hero oldOwner = workshop.Owner;
+            if (oldOwner == to)
+                return ReignActionResult.ValidationFailed("The workshop already belongs to the requested recipient.");
+
             ChangeOwnerOfWorkshopAction.ApplyByWar(workshop, to, workshop.WorkshopType);
+            if (workshop.Owner != to)
+                return ReignActionResult.FailTerminal("Native ownership did not move to the requested workshop recipient.",
+                    "workshop_transfer_verification_failed", "state_verification");
+
             return ReignActionResult.Done((oldOwner?.Name?.ToString() ?? "A workshop owner") + " transferred " + workshop.Name + " to " + to.Name + ".")
                 .WithEffect("workshop_transfer", "workshop", ReignObjectResolver.WorkshopId(workshop), workshop.Name.ToString(), "from=" + (oldOwner?.StringId ?? string.Empty) + ";to=" + to.StringId)
                 .WithChangedEntity("hero", to.StringId, to.Name.ToString(), "workshop_received");

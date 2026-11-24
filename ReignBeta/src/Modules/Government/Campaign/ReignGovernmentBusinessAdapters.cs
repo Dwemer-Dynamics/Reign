@@ -22,7 +22,10 @@ namespace ReignBeta.Government.Campaign
             foreach (var existing in _business) NormalizeBusinessPublicText(existing);
             foreach (var resolution in _resolutions.Where(x => x.Status == "debate" || x.Status == "proposed").ToList())
             {
-                if (_business.Any(x => x.Kind == "seasonal" && Same(x.TargetId, resolution.ResolutionId))) continue;
+                if (string.IsNullOrWhiteSpace(resolution.KingdomStringId)
+                    || FindUniqueSeasonalResolution(resolution.ResolutionId) != resolution
+                    || FindSeasonalBusinessForResolution(resolution) != null)
+                    continue;
                 var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
                 if (template == null) continue;
                 _business.Add(new ReignGovernmentBusinessRecord
@@ -50,7 +53,7 @@ namespace ReignBeta.Government.Campaign
         public JArray GetPublicBusinessOptions(ReignGovernmentBusinessRecord record)
         {
             var options = JArray.Parse(record.OptionsJson ?? "[]");
-            var resolution = record.Kind == "seasonal" ? _resolutions.FirstOrDefault(x => Same(x.ResolutionId, record.TargetId)) : null;
+            var resolution = record.Kind == "seasonal" ? FindSeasonalResolutionForBusiness(record) : null;
             var template = ReignGovernmentResolutionCatalog.Find(resolution?.TemplateId);
             foreach (var option in options.OfType<JObject>())
             {
@@ -170,10 +173,29 @@ namespace ReignBeta.Government.Campaign
             record.OptionsJson = GetPublicBusinessOptions(record).ToString(Formatting.None);
         }
 
+        private ReignGovernmentResolutionRecord FindUniqueSeasonalResolution(string resolutionId)
+        {
+            if (string.IsNullOrWhiteSpace(resolutionId)) return null;
+            // Direct decision entry points use the resolution ID, so an ambiguous ID cannot be admitted.
+            var matches = _resolutions.Where(x => Same(x.ResolutionId, resolutionId)).Take(2).ToList();
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
+        private ReignGovernmentResolutionRecord FindSeasonalResolutionForBusiness(ReignGovernmentBusinessRecord record)
+        {
+            if (string.IsNullOrWhiteSpace(record.KingdomStringId)) return null;
+            var resolution = FindUniqueSeasonalResolution(record.TargetId);
+            return resolution != null && Same(resolution.KingdomStringId, record.KingdomStringId) ? resolution : null;
+        }
+
+        private ReignGovernmentBusinessRecord FindSeasonalBusinessForResolution(ReignGovernmentResolutionRecord resolution) =>
+            _business.FirstOrDefault(x => x.Kind == "seasonal" && Same(x.TargetId, resolution.ResolutionId)
+                && Same(x.KingdomStringId, resolution.KingdomStringId));
+
         private bool ValidateSeasonalBusiness(ReignGovernmentBusinessRecord record, out string result)
         {
             result = string.Empty;
-            var resolution = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, record.TargetId));
+            var resolution = FindSeasonalResolutionForBusiness(record);
             if (resolution != null && (resolution.Status == "debate" || resolution.Status == "proposed"))
             {
                 var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
@@ -186,7 +208,12 @@ namespace ReignBeta.Government.Campaign
         }
         private bool ExecuteSeasonalBusiness(ReignGovernmentBusinessRecord record, string optionId, bool overridden, out string result)
         {
-            var resolution = _resolutions.First(x => Same(x.ResolutionId, record.TargetId));
+            var resolution = FindSeasonalResolutionForBusiness(record);
+            if (resolution == null)
+            {
+                CloseInvalidBusiness(record, result = "This seasonal resolution is no longer awaiting a decision.");
+                return false;
+            }
             var kingdom = FindKingdom(record.KingdomStringId);
             _executingSeasonalBusinessId = record.BusinessId;
             try
@@ -210,6 +237,16 @@ namespace ReignBeta.Government.Campaign
                 {
                     var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
                     var route = optionId == "route:0" ? template?.FirstRoute : template?.SecondRoute;
+                    if (route != null && ResolutionRequiresDomesticSettlement(template.Id, route.Action)
+                        && InvalidateResolutionWithoutOwnedSettlement(kingdom, resolution))
+                    {
+                        result = "The recorded vote was not implemented because the named settlement is unavailable "
+                            + "or no longer belongs to this realm. No payment or obligation was created. "
+                            + "The vote remains recorded. A fresh proposal may be introduced at a regular session.";
+                        resolution.Outcome = result;
+                        CloseInvalidBusiness(record, result);
+                        return false;
+                    }
                     // This refusal occurs before AcceptResolution changes the obligation,
                     // transfers gold, or applies any fulfillment consequences.
                     if (route != null && kingdom?.Leader != null && UsesImmediateGold(route.Action)

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using Reign.Mcp.Server;
 using Reign.Core.Contracts.World;
 
@@ -127,6 +128,29 @@ public sealed class KingdomEventScenarioContractTests
         Assert.Contains("_testOrganicTriggerDay = -1", campaignBehavior, StringComparison.Ordinal);
         Assert.DoesNotContain("SyncData(\"_testOrganicTrigger", campaignBehavior, StringComparison.Ordinal);
         Assert.Contains("kingdom_event_no_target_no_record", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("kingdom_event_production_modifier", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("kingdom_event_native_economy_model", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("Campaign.Current?.Models", inGameTests, StringComparison.Ordinal);
+        foreach (string method in new[] { "CalculateTownFoodStocksChange", "CalculateHearthChange",
+            "CalculateSecurityChange", "CalculateProsperityChange", "CalculateDailyConstructionPower", "CalculateLoyaltyChange" })
+            Assert.Contains(method, inGameTests, StringComparison.Ordinal);
+        Assert.Contains("[ThreadStatic] private static ReignKingdomEventRecord _economyProbeOmission;", campaignBehavior, StringComparison.Ordinal);
+        Assert.Contains("owner.ReadEconomyWithTimedEventOmitted(record,", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("ObserveWithoutRandomAdvance(read)", inGameTests, StringComparison.Ordinal);
+        Assert.DoesNotContain("ReignKingdomEventTestControls", campaignBehavior, StringComparison.Ordinal);
+        Assert.DoesNotContain("SyncData(\"_economyProbe", campaignBehavior, StringComparison.Ordinal);
+
+        string clientRoot = Path.Combine(workspace, "ReignBeta");
+        XDocument product = XDocument.Load(Path.Combine(clientRoot, "ReignBeta.csproj"));
+        XDocument testing = XDocument.Load(Path.Combine(clientRoot, "Testing", "ReignBeta.Testing.csproj"));
+        XDocument sources = XDocument.Load(Path.Combine(clientRoot, "Testing", "ReignBeta.Testing.Sources.props"));
+        Assert.Contains(product.Descendants("Compile"), x => (string?)x.Attribute("Remove") == "@(ReignTestingSource)");
+        Assert.Contains(testing.Descendants("Compile"), x => (string?)x.Attribute("Include") == "@(ReignTestingSource)");
+        Assert.Contains(product.Descendants("InternalsVisibleTo"), x => (string?)x.Attribute("Include") == "ReignBeta.Testing");
+        Assert.Contains(sources.Descendants("ReignTestingSource"), x => ((string?)x.Attribute("Include"))
+            ?.EndsWith("\\ReignKingdomEventInGameTests.cs", StringComparison.Ordinal) == true);
+        Assert.DoesNotContain(sources.Descendants("ReignTestingSource"), x => ((string?)x.Attribute("Include"))
+            ?.EndsWith("\\ReignKingdomEventsCampaignBehavior.cs", StringComparison.Ordinal) == true);
     }
 
     private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> response)

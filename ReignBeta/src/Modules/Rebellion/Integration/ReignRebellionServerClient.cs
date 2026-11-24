@@ -31,19 +31,29 @@ namespace ReignBeta.Rebellion.Integration
 
         internal static async Task<ReignRebellionEvaluationResult> EvaluateRebellionsAsync(
             IReadOnlyList<ReignRebellionMovementRecord> movements,
-            IReadOnlyList<ReignRebellionMembershipRecord> memberships)
+            IReadOnlyList<ReignRebellionMembershipRecord> memberships, string generation, Func<bool> requestOwner)
         {
             ReignRebellionEvaluationResult result = new ReignRebellionEvaluationResult();
             try
             {
-                JObject response = await PostJsonAsync("/rebellions/evaluate", BuildRebellionSnapshot(movements, memberships)).ConfigureAwait(false);
+                JObject payload = BuildRebellionSnapshot(movements, memberships);
+                payload["sharedActivityGeneration"] = generation;
+                JObject response = await PostOwnedJsonAsync("/rebellions/evaluate", payload, requestOwner).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = ReadString(response, "error", string.Empty);
-                if (response["updates"] is JArray updates)
+                if (result.Ok && response["updates"] is JArray updates && updates.Count > 0)
                 {
+                    var owner = response["ownership"] as JObject;
+                    if (!MatchesRebellionEvaluationOwner(owner, payload))
+                    {
+                        result.Ok = false;
+                        result.Error = "The rebellion evaluation did not confirm the requested save owner.";
+                        return result;
+                    }
                     result.Updates.AddRange(updates.OfType<JObject>());
                 }
             }
+            catch (ReignRequestOwnerAbandonedException) { }
             catch (Exception ex)
             {
                 result.Error = ex.Message;
@@ -52,6 +62,12 @@ namespace ReignBeta.Rebellion.Integration
 
             return result;
         }
+
+        private static bool MatchesRebellionEvaluationOwner(JObject owner, JObject payload)
+            => owner != null
+                && JToken.DeepEquals(owner["campaignId"], payload["campaignId"])
+                && JToken.DeepEquals(owner["timelineId"], payload["timelineId"])
+                && JToken.DeepEquals(owner["sharedActivityGeneration"], payload["sharedActivityGeneration"]);
 
         public static Task<JObject> CreateNegotiationDraftAsync(JObject draft)
         {

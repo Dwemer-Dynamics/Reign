@@ -123,7 +123,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 5;
             if (spawnStartIndex == 0 || spawnEndIndex == 0 || numberOfEdits < RequiredNumberOfEdits || miSpawnArenaAgents is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(spawnStartIndex), spawnStartIndex),
@@ -187,7 +187,7 @@ namespace ArenaOverhaul.Patches
             bool indexesNotFound = stageDefinitionStartIndex < 0 || stageDefinitionEndIndex < 0 || equipmentDefinitionStartIndex < 0 || equipmentDefinitionEndIndex < 0;
             if (indexesNotFound || numberOfEdits < RequiredNumberOfEdits || miGetChosenEquipment is null || miGetChosenEquipmentStage is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(stageDefinitionStartIndex), stageDefinitionStartIndex),
@@ -273,7 +273,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 5;
             if (numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod, [],
                     [
                         (nameof(miGetAITeamsCount), miGetAITeamsCount),
@@ -320,7 +320,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 3;
             if (spawnAIAgentsStartIndex < 0 || spawnAIAgentsEndIndex < 0 || numberOfEdits < RequiredNumberOfEdits || miSpawnInitialAITeamAgents is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(spawnAIAgentsStartIndex), spawnAIAgentsStartIndex),
@@ -392,7 +392,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 2;
             if (initializationStartIndex < 0 || initializationEndIndex < 0 || numberOfEdits < RequiredNumberOfEdits || miInitializeParticipantCharacters is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(initializationStartIndex), initializationStartIndex),
@@ -444,7 +444,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 2;
             if (numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod, [],
                     [
                         (nameof(miGetTotalParticipantsCount), miGetTotalParticipantsCount),
@@ -488,7 +488,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 3;
             if (numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod, [],
                     [
                         (nameof(miPlayerCharacterGetter), miPlayerCharacterGetter),

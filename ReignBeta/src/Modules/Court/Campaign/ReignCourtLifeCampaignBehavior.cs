@@ -76,6 +76,8 @@ namespace ReignBeta.Court.Campaign
             summary = string.Empty;
             if (matter == null) { summary = "The audience is missing."; return false; }
             if (matter.EffectsCommitted) { summary = matter.DecisionSummary; return true; }
+            if (matter.Source == ReignDocketSource.International
+                && TryReconcileDirectCourtPayment(matter, decision, out bool recovered, out summary)) return recovered;
             if (!TryActivateCourtLifeMatter(matter, out summary)) return false;
             string optionId = decision?.Value<string>("optionId") ?? string.Empty;
             ReignCourtLifeOption option = matter.Options.FirstOrDefault(x => x.OptionId == optionId);

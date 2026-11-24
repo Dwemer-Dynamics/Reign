@@ -48,11 +48,17 @@ namespace ReignBeta.Diplomacy.World
                         ReignServices.AI.DeclareWarWithOrigin(actor, target, "direct",
                             action.Reason, action.ActionId, string.Empty, false);
                     else DeclareWarAction.ApplyByKingdomDecision(actor, target);
+                    if (!actor.IsAtWarWith(target))
+                        return ReignActionResult.FailTerminal("Native diplomacy did not establish war between the kingdoms.",
+                            "declare_war_verification_failed", "state_verification");
                     return ReignActionResult.Done(actor.InformalName + " declared war on " + target.InformalName + ".")
                         .WithEffect("war_declared", "kingdom", target.StringId, target.InformalName.ToString(), "actorKingdomId=" + actor.StringId);
 
                 case ReignWorldActionType.DiplomacyMakePeace:
                     MakePeaceAction.ApplyByKingdomDecision(actor, target, 0, 0);
+                    if (actor.IsAtWarWith(target))
+                        return ReignActionResult.FailTerminal("Native diplomacy did not establish peace between the kingdoms.",
+                            "make_peace_verification_failed", "state_verification");
                     return ReignActionResult.Done(actor.InformalName + " made peace with " + target.InformalName + ".")
                         .WithEffect("peace_made", "kingdom", target.StringId, target.InformalName.ToString(), "actorKingdomId=" + actor.StringId);
 

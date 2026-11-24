@@ -612,43 +612,51 @@ namespace ReignBeta.Government.Testing
                 "A verified action advances only the active resolution with the matching kingdom/action/target tuple, and the harness restores its synthetic records.", null);
             int trackableRoutes = 0;
             const string syntheticKingdomId = "government_test_synthetic_kingdom";
-            foreach (ReignGovernmentResolutionTemplate template in templates)
+            Settlement ownedTarget = kingdom == null ? null : SelectTargetSettlement(kingdom, string.Empty);
+            var originalResolutions = government._resolutions;
+            try
             {
-                ReignGovernmentResolutionRoute[] routes = { template.FirstRoute, template.SecondRoute };
-                for (int routeIndex = 0; routeIndex < routes.Length; routeIndex++)
+                // Local routes require a real owned target. Isolate the synthetic rows before routing
+                // evidence so an active player resolution cannot receive fixture progress.
+                government._resolutions = new List<ReignGovernmentResolutionRecord>();
+                foreach (ReignGovernmentResolutionTemplate template in templates)
                 {
-                    ReignGovernmentResolutionRoute route = routes[routeIndex];
-                    string targetId = "government_test_target_" + template.Id + "_" + routeIndex;
-                    var record = new ReignGovernmentResolutionRecord
+                    ReignGovernmentResolutionRoute[] routes = { template.FirstRoute, template.SecondRoute };
+                    for (int routeIndex = 0; routeIndex < routes.Length; routeIndex++)
                     {
-                        ResolutionId = "government_test_route_" + template.Id + "_" + routeIndex,
-                        KingdomStringId = syntheticKingdomId,
-                        TemplateId = template.Id,
-                        Status = "active",
-                        RouteActionValue = (int)route.Action,
-                        TargetSettlementStringId = targetId,
-                        TargetKingdomStringId = targetId,
-                        TargetClanStringId = targetId,
-                        TargetHeroStringId = targetId,
-                        TargetPolicyStringId = targetId,
-                        RequiredAmount = Math.Max(2, route.Target),
-                        CurrentValue = 0f
-                    };
-                    government._resolutions.Add(record);
-                    try
-                    {
-                        int updated = government.RecordResolutionProgress(syntheticKingdomId, route.Action,
-                            targetId, 1, "Government 208-route tracking contract.");
+                        ReignGovernmentResolutionRoute route = routes[routeIndex];
+                        bool domestic = ResolutionRequiresDomesticSettlement(template.Id, route.Action);
+                        if (domestic && ownedTarget == null) continue;
+                        string targetId = "government_test_target_" + template.Id + "_" + routeIndex;
+                        var record = new ReignGovernmentResolutionRecord
+                        {
+                            ResolutionId = "government_test_route_" + template.Id + "_" + routeIndex,
+                            KingdomStringId = domestic ? kingdom.StringId : syntheticKingdomId,
+                            TemplateId = template.Id,
+                            Status = "active",
+                            RouteActionValue = (int)route.Action,
+                            TargetSettlementStringId = domestic ? ownedTarget.StringId : targetId,
+                            TargetKingdomStringId = targetId,
+                            TargetClanStringId = targetId,
+                            TargetHeroStringId = targetId,
+                            TargetPolicyStringId = targetId,
+                            RequiredAmount = Math.Max(2, route.Target),
+                            CurrentValue = 0f
+                        };
+                        government._resolutions.Clear();
+                        government._resolutions.Add(record);
+                        int updated = government.RecordResolutionProgress(record.KingdomStringId, route.Action,
+                            record.TargetSettlementStringId, 1, "Government 208-route tracking contract.");
                         if (updated == 1 && Math.Abs(record.CurrentValue - 1f) < 0.001f
                             && Same(record.Status, "active")
                             && record.EvidenceJson.IndexOf("208-route", StringComparison.OrdinalIgnoreCase) >= 0)
                             trackableRoutes++;
                     }
-                    finally
-                    {
-                        government._resolutions.Remove(record);
-                    }
                 }
+            }
+            finally
+            {
+                government._resolutions = originalResolutions;
             }
             AddGovernmentAssertion(assertions, "government_all_208_resolution_routes_trackable",
                 trackableRoutes == 208,

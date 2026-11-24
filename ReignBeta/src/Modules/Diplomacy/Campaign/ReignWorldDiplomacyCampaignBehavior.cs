@@ -403,45 +403,53 @@ namespace ReignBeta.Diplomacy.Campaign
         {
             try
             {
-                List<ReignPoliticalPressureNotice> notices =
-                    await ReignDiplomacyServerClient.FetchPoliticalPressureNoticesAsync().ConfigureAwait(false);
-                foreach (ReignPoliticalPressureNotice notice in notices.Where(x => x != null))
+                var owner = await ReignMainThread.InvokeAsync(() => (
+                    Fence: ReignServerClient.RequestFence.Capture(),
+                    CampaignId: ReignServerClient.GetCampaignId(),
+                    TimelineId: ReignServices.WorldHistory?.TimelineId ?? "main",
+                    ConfiguredServer: ReignServerEndpoint.ConfiguredBaseUrl(),
+                    ObservedDay: CampaignTime.Now.ToDays)).ConfigureAwait(false);
+                bool OwnsPoll() => ReferenceEquals(Instance, this) && owner.Fence.IsCurrentActionPoll()
+                    && owner.ConfiguredServer == ReignServerEndpoint.ConfiguredBaseUrl();
+                await ReignRequestOwnership.EnsureAsync(OwnsPoll, "political pressure notice polling").ConfigureAwait(false);
+
+                var pressure = await ReignDiplomacyServerClient.FetchPoliticalPressureNoticesAsync(
+                    owner.CampaignId, owner.TimelineId, owner.Fence.SharedActivityGeneration, owner.ObservedDay, OwnsPoll)
+                    .ConfigureAwait(false);
+                bool OwnsPressure() => OwnsPoll() && ReignHttpTransport.IsAllowedPinnedOrigin(pressure.Origin);
+                foreach (ReignPoliticalPressureNotice notice in pressure.Notices)
                 {
-                    if (_processedPressureNoticeIds.Contains(notice.IncidentId,
-                        StringComparer.OrdinalIgnoreCase))
+                    var applied = await ReignMainThread.InvokeAsync(() =>
                     {
-                        JArray replayReceipts = await ReignMainThread
-                            .InvokeAsync(() => ApplyPoliticalPressureNotice(
-                                notice, displayNotice: false))
-                            .ConfigureAwait(false);
-                        await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
-                            notice.IncidentId, notice.TimelineId, CurrentDay(),
-                            replayReceipts)
-                            .ConfigureAwait(false);
-                        continue;
-                    }
-                    JArray receipts = await ReignMainThread.InvokeAsync(() =>
-                        ApplyPoliticalPressureNotice(notice)).ConfigureAwait(false);
-                    await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
-                        notice.IncidentId, notice.TimelineId, CurrentDay(), receipts)
-                        .ConfigureAwait(false);
+                        ReignRequestOwnership.Ensure(OwnsPressure, "political pressure notice application");
+                        bool display = !_processedPressureNoticeIds.Contains(
+                            notice.IncidentId, StringComparer.OrdinalIgnoreCase);
+                        return (Receipts: ApplyPoliticalPressureNotice(notice, display), Day: CurrentDay());
+                    }).ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(pressure.Origin,
+                        owner.CampaignId, owner.TimelineId, owner.Fence.SharedActivityGeneration, notice.IncidentId,
+                        applied.Day, applied.Receipts, OwnsPressure).ConfigureAwait(false);
                 }
-                List<ReignClanConflictNotice> clanNotices =
-                    await ReignDiplomacyServerClient.FetchClanConflictNoticesAsync().ConfigureAwait(false);
-                foreach (ReignClanConflictNotice notice in clanNotices.Where(x => x != null))
+
+                await ReignRequestOwnership.EnsureAsync(OwnsPoll, "clan conflict notice polling").ConfigureAwait(false);
+                var clan = await ReignDiplomacyServerClient.FetchClanConflictNoticesAsync(
+                    owner.CampaignId, owner.TimelineId, owner.Fence.SharedActivityGeneration).ConfigureAwait(false);
+                bool OwnsClan() => OwnsPoll() && ReignHttpTransport.IsAllowedPinnedOrigin(clan.Origin);
+                foreach (ReignClanConflictNotice notice in clan.Notices)
                 {
-                    bool display = !_processedClanConflictNoticeIds.Contains(
-                        notice.IncidentId, StringComparer.OrdinalIgnoreCase);
-                    if (display)
+                    float day = await ReignMainThread.InvokeAsync(() =>
                     {
-                        await ReignMainThread.InvokeAsync(() =>
-                            ApplyClanConflictNotice(notice)).ConfigureAwait(false);
-                    }
-                    await ReignDiplomacyServerClient.AcknowledgeClanConflictNoticeAsync(
-                        notice.IncidentId, notice.TimelineId, CurrentDay())
-                        .ConfigureAwait(false);
+                        ReignRequestOwnership.Ensure(OwnsClan, "clan conflict notice application");
+                        if (!_processedClanConflictNoticeIds.Contains(notice.IncidentId, StringComparer.OrdinalIgnoreCase))
+                            ApplyClanConflictNotice(notice);
+                        return CurrentDay();
+                    }).ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.AcknowledgeClanConflictNoticeAsync(clan.Origin,
+                        owner.CampaignId, owner.TimelineId, owner.Fence.SharedActivityGeneration,
+                        notice.IncidentId, day, OwnsClan).ConfigureAwait(false);
                 }
             }
+            catch (ReignRequestOwnerAbandonedException) { }
             catch (Exception ex)
             {
                 ReignLog.Warn("Political pressure notice poll failed: " + ex.Message);

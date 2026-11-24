@@ -33,4 +33,6 @@ Every write requires:
 - `ReadOnly = false` and `SafeWritesArmed = true` in the editor;
 - an entity name and ownership tag reserved for this prototype.
 
+For a fresh applied command, the bridge rereads bounded entity state in the armed disposable scene and rejects a stale or unavailable revision. The check uses scene and entity identities, hierarchy, names, prefab names, tags and frames. Exact replay returns the existing receipt after the scope and key checks. It does not run the write again.
+
 The MCP host's approval annotations are supplemental. Enforcement remains inside the bridge.

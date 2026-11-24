@@ -47,7 +47,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 2;
             if (renownAwardStartIndex == 0 || renownAwardEndIndex == 0 || numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(renownAwardStartIndex), renownAwardStartIndex),

@@ -40,6 +40,7 @@ namespace ArenaOverhaul
         public bool OnBeforeInitialModuleScreenSetAsRootWasCalled { get; private set; } = false;
 
         private Harmony? _arenaOverhaulHarmonyInstance;
+        private bool _uiActivationNeedsCleanup;
         public Harmony? ArenaOverhaulHarmonyInstance { get => _arenaOverhaulHarmonyInstance; private set => _arenaOverhaulHarmonyInstance = value; }
 
         protected override void OnSubModuleLoad()
@@ -48,12 +49,20 @@ namespace ArenaOverhaul
             Patched = false;
 
             Extender.Register(typeof(SubModule).Assembly);
-            Extender.Enable();
         }
 
         protected override void OnSubModuleUnloaded()
         {
-            base.OnSubModuleUnloaded();
+            try
+            {
+                DisableArenaUi();
+            }
+            finally
+            {
+                Patched = false;
+                try { HarmonyHelper.RollBack(_arenaOverhaulHarmonyInstance); }
+                finally { base.OnSubModuleUnloaded(); }
+            }
         }
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
@@ -67,22 +76,27 @@ namespace ArenaOverhaul
                 }
                 OnBeforeInitialModuleScreenSetAsRootWasCalled = true;
 
-                Patched = HarmonyHelper.PatchAll(ref _arenaOverhaulHarmonyInstance, "OnSubModuleLoad", "Initialization error - {0}");
-                if (Patched)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(SLoaded.ToLocalizedString(), Color.FromUint(4282569842U)));
-                }
-                else
+                if (!HarmonyHelper.PatchAll(ref _arenaOverhaulHarmonyInstance, "Arena hook installation", "Initialization error - {0}"))
                 {
                     MessageHelper.ErrorMessage(SErrorLoading.ToLocalizedString());
+                    return;
                 }
 
-                AOHotKeyManager ??= HotKeyManager.Create("ArenaOverhaul");
-                if (AOHotKeyManager is not null)
+                try
                 {
-                    var teamPracticeController = AOHotKeyManager.Add<TeamPracticeHotKeyController>();
-                    AOHotKeyManager.Build();
+                    _uiActivationNeedsCleanup = true;
+                    Extender.Enable();
                 }
+                catch
+                {
+                    try { DisableArenaUi(); }
+                    finally { HarmonyHelper.RollBack(_arenaOverhaulHarmonyInstance); }
+                    throw;
+                }
+
+                Patched = true;
+                RegisterOptionalTeamPracticeShortcut();
+                InformationManager.DisplayMessage(new InformationMessage(SLoaded.ToLocalizedString(), Color.FromUint(4282569842U)));
             }
             catch (Exception ex)
             {
@@ -90,10 +104,37 @@ namespace ArenaOverhaul
             }
         }
 
+        private void DisableArenaUi()
+        {
+            if (!_uiActivationNeedsCleanup)
+                return;
+
+            Extender.Disable();
+            _uiActivationNeedsCleanup = false;
+        }
+
+        // Team practice itself does not depend on its optional hero-switch shortcut.
+        private static void RegisterOptionalTeamPracticeShortcut()
+        {
+            try
+            {
+                AOHotKeyManager ??= HotKeyManager.Create("ArenaOverhaul");
+                if (AOHotKeyManager is not null)
+                {
+                    AOHotKeyManager.Add<TeamPracticeHotKeyController>();
+                    AOHotKeyManager.Build();
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.TryLogOptionalIssue($"Optional shortcut unavailable - {ex}", "Arena team-practice shortcut");
+            }
+        }
+
         protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
             base.OnGameStart(game, gameStarterObject);
-            if (game.GameType is Campaign)
+            if (Patched && game.GameType is Campaign)
             {
                 //CampaignGameStarter
                 CampaignGameStarter gameStarter = (CampaignGameStarter) gameStarterObject;
@@ -112,7 +153,7 @@ namespace ArenaOverhaul
 
         public override void OnAfterGameInitializationFinished(Game game, object starterObject)
         {
-            if (game.GameType is not Campaign campaign)
+            if (!Patched || game.GameType is not Campaign)
             {
                 return;
             }
@@ -122,7 +163,8 @@ namespace ArenaOverhaul
 
         public override void OnGameEnd(Game game)
         {
-            CompanionPracticeSettings.UnregisterCompanionPracticeSettings();
+            if (Patched && game.GameType is Campaign)
+                CompanionPracticeSettings.UnregisterCompanionPracticeSettings();
         }
     }
 }

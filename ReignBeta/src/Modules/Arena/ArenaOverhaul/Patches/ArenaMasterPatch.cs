@@ -56,7 +56,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 1;
             if (numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod, [],
                     [
                         (nameof(miSetMissionMode), miSetMissionMode),
@@ -90,7 +90,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 1;
             if (numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod, [],
                     [
                         (nameof(miSetMissionMode), miSetMissionMode),
@@ -252,7 +252,7 @@ namespace ArenaOverhaul.Patches
             if (indexToSetStandardPracticeMode <= 0 || indexOfOnConsequenceNewobjOperand <= 0 || indexToCheckRematchIsAffordable <= 0 || indexToCheckRematchIsAffordable2 <= 0 || indexToResetAfterPracticeTalkFlag <= 0 || indexOfOnClickableConditionNewobjOperand <= 0
                 || numberOfEdits < RequiredNumberOfEdits || miCheckRematchIsAffordable is null || miSetStandardPracticeMode is null || miResetAfterPracticeTalkFlag is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(indexToSetStandardPracticeMode), indexToSetStandardPracticeMode),

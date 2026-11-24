@@ -85,7 +85,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 1;
             if (ldarg2Index == 0 || continueIndex == 0 || numberOfEdits < RequiredNumberOfEdits || miShouldPrizeBeRerolled is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(ldarg2Index), ldarg2Index),
@@ -108,6 +108,11 @@ namespace ArenaOverhaul.Patches
             // Current Bannerlord versions build all three prize caches inside this method.
             // The former CachePossible* methods no longer exist, so adapt their settings at
             // the model call sites instead of patching missing methods.
+            if (miGetRegularRewardItemMinValue == null || miGetRegularRewardItemMaxValue == null
+                || miGetBannerRewardItems == null || miGetCompatibleRegularRewardItems == null
+                || miGetCompatibleEliteRewardItems == null)
+                throw LoggingHelper.MissingRequiredHook(__originalMethod);
+
             int regularCalls = 0;
             int eliteCalls = 0;
             for (int i = 2; i < codes.Count; i++)
@@ -140,10 +145,10 @@ namespace ArenaOverhaul.Patches
                     eliteCalls++;
                 }
             }
-            if (regularCalls != 2 || eliteCalls != 2 || miGetRegularRewardItemMinValue == null || miGetRegularRewardItemMaxValue == null)
+            if (regularCalls != 2 || eliteCalls != 2)
             {
                 LoggingHelper.Log($"Prize call-site hooks: regular={regularCalls}/2, elite={eliteCalls}/2", "GetTournamentPrize compatibility");
-                MessageHelper.ErrorMessage("Arena Overhaul could not apply all tournament prize settings to this Bannerlord version. See the mod log.");
+                throw LoggingHelper.MissingRequiredHook(__originalMethod);
             }
 
             return codes.AsEnumerable();
@@ -161,7 +166,7 @@ namespace ArenaOverhaul.Patches
             int prizeItemNameEndIndex2 = 0;
             if (miTournamentPrizeGetter != null && miItemObjectNameGetter != null)
             {
-                for (int i = 2; i < codes.Count; ++i)
+                for (int i = 2; i + 3 < codes.Count; ++i)
                 {
                     if (numberOfEdits == 0 && codes[i].LoadsConstant("TOURNAMENT_PRIZE") && codes[i + 1].opcode == OpCodes.Ldarg_0 && codes[i + 2].Calls(miTournamentPrizeGetter) && codes[i + 3].Calls(miItemObjectNameGetter))
                     {
@@ -183,29 +188,12 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 2;
             if (prizeItemNameStartIndex1 == 0 || prizeItemNameEndIndex1 == 0 || prizeItemNameStartIndex2 == 0 || prizeItemNameEndIndex2 == 0 || numberOfEdits < RequiredNumberOfEdits || miGetPrizeItemName is null)
             {
-                LoggingHelper.LogNoHooksIssue(
-                    codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
-                    [
-                        (nameof(prizeItemNameStartIndex1), prizeItemNameStartIndex1),
-                        (nameof(prizeItemNameEndIndex1), prizeItemNameEndIndex1),
-                        (nameof(prizeItemNameStartIndex2), prizeItemNameStartIndex2),
-                        (nameof(prizeItemNameEndIndex2), prizeItemNameEndIndex2)
-                    ],
-                    [
-                        (nameof(miTournamentPrizeGetter), miTournamentPrizeGetter),
-                        (nameof(miItemObjectNameGetter), miItemObjectNameGetter),
-                        (nameof(miGetPrizeItemName), miGetPrizeItemName)
-                    ]);
+                LoggingHelper.TryLogOptionalIssue("Using the native prize name because the optional display hook could not be applied.",
+                    $"Transpiler for {__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}");
+                return codes;
             }
-            if (prizeItemNameStartIndex1 > 0 && prizeItemNameEndIndex1 > 0 && prizeItemNameStartIndex2 > 0 && prizeItemNameEndIndex2 > 0)
-            {
-                SetPrizeItemName(codes, prizeItemNameStartIndex2, prizeItemNameEndIndex2);
-                SetPrizeItemName(codes, prizeItemNameStartIndex1, prizeItemNameEndIndex1);
-            }
-            else
-            {
-                MessageHelper.ErrorMessage("Harmony transpiler for FightTournamentGame. GetMenuText could not find code hooks for stating correct prize item name!");
-            }
+            SetPrizeItemName(codes, prizeItemNameStartIndex2, prizeItemNameEndIndex2);
+            SetPrizeItemName(codes, prizeItemNameStartIndex1, prizeItemNameEndIndex1);
 
             return codes.AsEnumerable();
 

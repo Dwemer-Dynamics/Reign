@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -25,6 +27,7 @@ namespace ReignBeta.WorldSimulation.Arrests
     {
         private List<ReignArrestCase> _cases = new List<ReignArrestCase>();
         private float _lastEvidenceReviewDay = -1000f;
+        private ReignServerClient.RequestFence _dailyEvidenceReview;
 
         public static ReignArrestCampaignBehavior Instance => ReignServices.Arrest;
 
@@ -45,6 +48,7 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         public override void SyncData(IDataStore dataStore)
         {
+            if (dataStore.IsLoading) _dailyEvidenceReview = null;
             dataStore.SyncData("_reign_arrest_cases_v1", ref _cases);
             dataStore.SyncData("_reign_arrest_evidence_review_day", ref _lastEvidenceReviewDay);
             NormalizeLoadedState();
@@ -52,6 +56,7 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         private void OnGameLoaded(CampaignGameStarter starter)
         {
+            _dailyEvidenceReview = null;
             ReignArrestCustodyPatches.ResetSovereigntyReleases();
             NormalizeLoadedState();
         }
@@ -230,6 +235,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             if (item == null || accused == null)
                 return ReignActionResult.ValidationFailed("No arrest case was found for this character.");
 
+            (ArrestEffectSyncStatus Status, int? Remainder)? effect = null;
             if (rescind)
             {
                 item.AccusationActive = false;
@@ -237,7 +243,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 item.ReleasedDay = CurrentDay();
                 item.LastOutcome = "accusation_rescinded";
                 AddHistory(item, "rescinded", "The player rescinded the accusation and cleared the accused's name.");
-                SynchronizeCaseEffect(item, accused, true);
+                effect = SynchronizeCaseEffect(item, accused, true);
             }
             if (accused.IsPrisoner && IsPlayerCustody(accused.PartyBelongedToAsPrisoner))
                 EndCaptivityAction.ApplyByReleasedByChoice(accused, Hero.MainHero);
@@ -251,7 +257,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             RecordHistory(item, accused, rescind ? "arrest_accusation_rescinded" : "arrest_released",
                 rescind ? "rescinded" : "released",
                 rescind ? "The player cleared " + accused.Name + " of the arrest accusation."
-                    : "The player released " + accused.Name + " while leaving the accusation on record.");
+                    : "The player released " + accused.Name + " while leaving the accusation on record.", effect);
             return ReignActionResult.Done(rescind
                     ? accused.Name + " was cleared and released."
                     : accused.Name + " was released; the accusation remains on record.")
@@ -448,31 +454,146 @@ namespace ReignBeta.WorldSimulation.Arrests
         {
             ReignArrestCustodyPatches.ClearExpiredSovereigntyReleases();
             float day = CurrentDay();
-            if (day - _lastEvidenceReviewDay < 0.95f) return;
-            _lastEvidenceReviewDay = day;
-            foreach (ReignArrestCase item in _cases.Where(candidate => candidate.AccusationActive).ToList())
+            if (ReignCampaignInitializationGate.IsPending || day - _lastEvidenceReviewDay < 0.95f
+                || _dailyEvidenceReview?.IsCurrent() == true)
+                return;
+            var cases = _cases.Where(item => item.AccusationActive && item.IsOpen).ToList();
+            if (cases.Count == 0)
             {
-                Hero accused = FindHero(item.AccusedHeroStringId);
-                if (accused == null) continue;
-                if (!item.CauseEstablished && item.IsOpen)
-                {
-                    EvaluateCause(item, accused);
-                    if (item.CauseEstablished)
-                    {
-                        item.EvidenceStatus = "established_after_arrest";
-                        item.RelationshipEffectSynchronized = false;
-                        AddHistory(item, "evidence_reclassified", "Later authoritative evidence established cause without revealing it earlier.");
-                        SynchronizeCaseEffect(item, accused, false);
-                        RecordHistory(item, accused, "arrest_evidence_reclassified", "evidence_established",
-                            "Later disclosed evidence established cause in the arrest case against " + accused.Name + ".");
-                    }
-                }
-                if ((!item.RelationshipEffectSynchronized || !item.ReputationSynchronized)
-                    && item.Phase == ReignArrestPhase.Captured)
-                {
-                    SynchronizeCaseEffect(item, accused, false);
-                }
+                _lastEvidenceReviewDay = day;
+                return;
             }
+
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            _dailyEvidenceReview = fence;
+            _ = Task.Run(() => ReviewDailyEvidenceAsync(fence, day, cases));
+        }
+
+        private bool OwnsDailyEvidenceReview(ReignServerClient.RequestFence fence) =>
+            ReferenceEquals(Instance, this) && ReferenceEquals(_dailyEvidenceReview, fence)
+            && !ReignCampaignInitializationGate.IsPending && fence.IsCurrent();
+
+        private async Task ReviewDailyEvidenceAsync(ReignServerClient.RequestFence fence, float day,
+            List<ReignArrestCase> cases)
+        {
+            bool finished = false;
+            try
+            {
+                foreach (ReignArrestCase item in cases)
+                {
+                    var request = await ReignMainThread.InvokeAsync(() =>
+                        CaptureDailyEvidenceRequest(fence, item)).ConfigureAwait(false);
+                    if (request.Payload == null)
+                    {
+                        if (!await ReignMainThread.InvokeAsync(() => OwnsDailyEvidenceReview(fence)).ConfigureAwait(false))
+                            return;
+                        continue;
+                    }
+
+                    JObject response = null;
+                    try
+                    {
+                        response = await ReignServerClient.PostOwnedJsonAsync("/arrests/evidence/evaluate",
+                            request.Payload, request.IsCurrent).ConfigureAwait(false);
+                    }
+                    catch (ReignRequestOwnerAbandonedException)
+                    {
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogEvidenceReviewFailure(request.Payload.Value<string>("accusedHeroId"), ex);
+                    }
+
+                    await ReignMainThread.InvokeAsync(() => request.Complete(response))
+                        .ConfigureAwait(false);
+                }
+                finished = true;
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Daily arrest evidence review deferred: " + ex.Message);
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!ReferenceEquals(_dailyEvidenceReview, fence)) return;
+                    // A save taken while a response is outstanding can review the unfinished day again.
+                    if (finished && OwnsDailyEvidenceReview(fence)) _lastEvidenceReviewDay = day;
+                    _dailyEvidenceReview = null;
+                }).ConfigureAwait(false);
+            }
+        }
+
+        private (JObject Payload, Func<bool> IsCurrent, Action<JObject> Complete)
+            CaptureDailyEvidenceRequest(ReignServerClient.RequestFence fence, ReignArrestCase item)
+        {
+            if (!OwnsDailyEvidenceReview(fence) || !_cases.Contains(item) || !item.AccusationActive || !item.IsOpen)
+                return default;
+
+            Hero accused = FindHero(item.AccusedHeroStringId);
+            if (!MatchesEvidenceSubject(item, accused)) return default;
+            if (item.CauseEstablished)
+            {
+                ContinueDailyArrestMaintenance(item, accused, false);
+                return default;
+            }
+            if (TryGetLocalEspionageEvidence(item, accused, out string evidence))
+            {
+                MarkEstablishedEvidence(item, "established", evidence);
+                ContinueDailyArrestMaintenance(item, accused, true);
+                return default;
+            }
+
+            var identity = DailyEvidenceIdentity(item);
+            Hero player = Hero.MainHero;
+            JObject payload = BuildEvidencePayload(item, accused);
+            payload["campaignId"] = ReignServerClient.GetCampaignId();
+            payload["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
+
+            bool Current() => OwnsDailyEvidenceReview(fence) && _cases.Contains(item)
+                && item.AccusationActive && item.IsOpen && !item.CauseEstablished
+                && identity.Equals(DailyEvidenceIdentity(item))
+                && ReferenceEquals(Hero.MainHero, player)
+                && ReferenceEquals(FindHero(identity.Accused), accused);
+
+            void Complete(JObject response)
+            {
+                if (!Current()) return;
+                try
+                {
+                    ApplyEvidenceResponse(item, response);
+                }
+                catch (Exception ex)
+                {
+                    LogEvidenceReviewFailure(identity.Accused, ex);
+                    MarkUnsupportedEvidence(item);
+                }
+                ContinueDailyArrestMaintenance(item, accused, item.CauseEstablished);
+            }
+
+            return (payload, Current, Complete);
+        }
+
+        private static (string Case, string Accused, string Player, string Category, string Accusation, ReignArrestPhase Phase)
+            DailyEvidenceIdentity(ReignArrestCase item) => (item.CaseId, item.AccusedHeroStringId,
+                item.PlayerHeroStringId, item.ChargeCategory, item.RawAccusation, item.Phase);
+
+        private void ContinueDailyArrestMaintenance(ReignArrestCase item, Hero accused, bool reclassify)
+        {
+            if (reclassify)
+            {
+                item.EvidenceStatus = "established_after_arrest";
+                item.RelationshipEffectSynchronized = false;
+                AddHistory(item, "evidence_reclassified", "Later authoritative evidence established cause without revealing it earlier.");
+                SynchronizeCaseEffect(item, accused, false);
+                RecordHistory(item, accused, "arrest_evidence_reclassified", "evidence_established",
+                    "Later disclosed evidence established cause in the arrest case against " + accused.Name + ".");
+            }
+            if ((!item.RelationshipEffectSynchronized || !item.ReputationSynchronized)
+                && item.Phase == ReignArrestPhase.Captured)
+                SynchronizeCaseEffect(item, accused, false);
         }
 
         private void OnHeroPrisonerTaken(PartyBase captor, Hero prisoner)
@@ -646,45 +767,75 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         private void EvaluateCause(ReignArrestCase item, Hero accused)
         {
-            if (HasExposedAgentEvidence(accused, out string evidence))
+            if (!MatchesEvidenceSubject(item, accused))
             {
-                item.CauseEstablished = true;
-                item.EvidenceStatus = "established";
-                item.EvidenceIdsCsv = evidence;
+                if (item != null) MarkUnsupportedEvidence(item);
+                return;
+            }
+            if (TryGetLocalEspionageEvidence(item, accused, out string evidence))
+            {
+                MarkEstablishedEvidence(item, "established", evidence);
                 return;
             }
             try
             {
-                JObject response = ReignServerClient.EvaluateArrestEvidenceAsync(new JObject
-                {
-                    ["accusedHeroId"] = accused?.StringId ?? string.Empty,
-                    ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
-                    ["accusation"] = item?.RawAccusation ?? string.Empty
-                }).GetAwaiter().GetResult();
-                if (response.Value<bool?>("ok") == true
-                    && response.Value<bool?>("causeEstablished") == true)
-                {
-                    item.CauseEstablished = true;
-                    item.EvidenceStatus = response.Value<string>("evidenceStatus") ?? "established";
-                    item.EvidenceIdsCsv = string.Join(",", (response["evidenceIds"] as JArray
-                        ?? new JArray()).Values<string>());
-                    return;
-                }
+                JObject response = ReignServerClient.EvaluateArrestEvidenceAsync(BuildEvidencePayload(item, accused))
+                    .GetAwaiter().GetResult();
+                ApplyEvidenceResponse(item, response);
             }
             catch (Exception ex)
             {
-                ReignLog.Warn("Arrest evidence review deferred for "
-                    + (accused?.StringId ?? string.Empty) + ": " + ex.Message);
+                LogEvidenceReviewFailure(accused?.StringId, ex);
+                MarkUnsupportedEvidence(item);
             }
+        }
+
+        private static JObject BuildEvidencePayload(ReignArrestCase item, Hero accused) => new JObject
+        {
+            ["accusedHeroId"] = accused?.StringId ?? string.Empty,
+            ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
+            ["accusation"] = item?.RawAccusation ?? string.Empty
+        };
+
+        private static void ApplyEvidenceResponse(ReignArrestCase item, JObject response)
+        {
+            if (response?.Value<bool?>("ok") == true && response.Value<bool?>("causeEstablished") == true
+                && string.Equals(response.Value<string>("accusedHeroId"), item.AccusedHeroStringId, StringComparison.Ordinal))
+            {
+                string evidence = string.Join(",", (response["evidenceIds"] as JArray ?? new JArray()).Values<string>());
+                MarkEstablishedEvidence(item, response.Value<string>("evidenceStatus") ?? "established", evidence);
+            }
+            else
+                MarkUnsupportedEvidence(item);
+        }
+
+        private static void MarkEstablishedEvidence(ReignArrestCase item, string status, string evidence)
+        {
+            item.CauseEstablished = true;
+            item.EvidenceStatus = status;
+            item.EvidenceIdsCsv = evidence;
+        }
+
+        private static void MarkUnsupportedEvidence(ReignArrestCase item)
+        {
             item.CauseEstablished = false;
             item.EvidenceStatus = "unsupported";
             item.EvidenceIdsCsv = string.Empty;
         }
 
-        private bool HasExposedAgentEvidence(Hero accused, out string evidence)
+        private static void LogEvidenceReviewFailure(string accusedId, Exception ex) =>
+            ReignLog.Warn("Arrest evidence review deferred for " + (accusedId ?? string.Empty) + ": " + ex.Message);
+
+        private static bool MatchesEvidenceSubject(ReignArrestCase item, Hero accused) =>
+            !string.IsNullOrWhiteSpace(item?.AccusedHeroStringId)
+            && string.Equals(item.AccusedHeroStringId, accused?.StringId, StringComparison.Ordinal);
+
+        private bool TryGetLocalEspionageEvidence(ReignArrestCase item, Hero accused, out string evidence)
         {
             evidence = string.Empty;
 #if !REIGN_EXCLUDE_COURT
+            if (item?.ChargeCategory != "espionage" || !MatchesEvidenceSubject(item, accused))
+                return false;
             ICourtWorldBridge court = ReignServices.CourtWorld;
             return court != null && court.HasExposedAgentEvidence(accused, out evidence);
 #else
@@ -692,9 +843,18 @@ namespace ReignBeta.WorldSimulation.Arrests
 #endif
         }
 
-        private void SynchronizeCaseEffect(ReignArrestCase item, Hero accused, bool rescind)
+        private enum ArrestEffectSyncStatus
         {
-            if (item == null || accused == null) return;
+            Unverified,
+            Confirmed,
+            TerminalPartial,
+            TerminalUnmeasured
+        }
+
+        private (ArrestEffectSyncStatus Status, int? Remainder) SynchronizeCaseEffect(
+            ReignArrestCase item, Hero accused, bool rescind)
+        {
+            if (item == null || accused == null) return (ArrestEffectSyncStatus.Unverified, null);
             int desiredDelta = RelationshipDelta(item.Severity, item.CauseEstablished);
             JObject payload = new JObject
             {
@@ -718,21 +878,74 @@ namespace ReignBeta.WorldSimulation.Arrests
             {
                 JObject response = ReignServerClient.ApplyArrestCaseEffectAsync(payload)
                     .GetAwaiter().GetResult();
-                if (response.Value<bool?>("ok") == true)
-                {
-                    item.RelationshipDeltaApplied = response.Value<int?>("appliedRelationshipDelta")
-                        ?? desiredDelta;
-                    item.RelationshipEffectSynchronized = true;
-                    item.ReputationSynchronized = true;
-                }
+                return ApplyCaseEffectResponse(item, payload, response, rescind);
             }
             catch (Exception ex)
             {
-                item.RelationshipEffectSynchronized = false;
-                item.ReputationSynchronized = false;
                 ReignLog.Warn("Arrest case social synchronization deferred case=" + item.CaseId
                     + ": " + ex.Message);
+                return MarkCaseEffectUnverified(item, rescind);
             }
+        }
+
+        private static (ArrestEffectSyncStatus Status, int? Remainder) ApplyCaseEffectResponse(
+            ReignArrestCase item, JObject request, JObject response, bool rescind)
+        {
+            if (response?["ok"]?.Type != JTokenType.Boolean
+                || !MatchesCaseEffectIdentity(request, response, "operation")
+                || !MatchesCaseEffectIdentity(request, response, "caseId")
+                || !MatchesCaseEffectIdentity(request, response, "reputationTagId"))
+                return MarkCaseEffectUnverified(item, rescind);
+
+            JToken resolved = response["relationshipEffectResolved"];
+            if (resolved != null && resolved.Type != JTokenType.Boolean)
+                return MarkCaseEffectUnverified(item, rescind);
+
+            JToken amount = response["appliedRelationshipDelta"];
+            int applied = 0;
+            bool hasAmount = amount?.Type == JTokenType.Integer
+                && int.TryParse(amount.ToString(Newtonsoft.Json.Formatting.None), NumberStyles.Integer,
+                    CultureInfo.InvariantCulture, out applied)
+                && applied >= -100 && applied <= 100;
+            bool ok = (bool)response["ok"];
+            bool? effectResolved = (bool?)resolved;
+            if (ok && hasAmount && (rescind ? applied == 0 && effectResolved == true : effectResolved != false))
+            {
+                item.RelationshipDeltaApplied = applied;
+                item.RelationshipEffectSynchronized = true;
+                item.ReputationSynchronized = true;
+                return (ArrestEffectSyncStatus.Confirmed, null);
+            }
+
+            // The legacy server confirmed the reputation update, but its nominal zero did not measure the reversal.
+            bool legacyRescission = ok && effectResolved == null && hasAmount && applied == 0;
+            bool terminalUnmeasured = !ok && effectResolved == false && amount?.Type == JTokenType.Null;
+            bool terminalPartial = !ok && effectResolved == false && hasAmount && applied != 0;
+            if (!rescind || (!legacyRescission && !terminalUnmeasured && !terminalPartial))
+                return MarkCaseEffectUnverified(item, rescind);
+
+            item.RelationshipDeltaApplied = 0;
+            item.RelationshipEffectSynchronized = false;
+            item.ReputationSynchronized = true;
+            return terminalPartial ? (ArrestEffectSyncStatus.TerminalPartial, applied)
+                : (ArrestEffectSyncStatus.TerminalUnmeasured, (int?)null);
+        }
+
+        private static bool MatchesCaseEffectIdentity(JObject request, JObject response, string key)
+        {
+            string expected = (string)request[key];
+            JToken actual = response[key];
+            return !string.IsNullOrEmpty(expected) && actual?.Type == JTokenType.String
+                && string.Equals(expected, (string)actual, StringComparison.Ordinal);
+        }
+
+        private static (ArrestEffectSyncStatus Status, int? Remainder) MarkCaseEffectUnverified(
+            ReignArrestCase item, bool rescind)
+        {
+            if (rescind) item.RelationshipDeltaApplied = 0;
+            item.RelationshipEffectSynchronized = false;
+            item.ReputationSynchronized = false;
+            return (ArrestEffectSyncStatus.Unverified, null);
         }
 
         private static ReignArrestContextKind ResolveContext(Hero accused,
@@ -804,24 +1017,57 @@ namespace ReignBeta.WorldSimulation.Arrests
         }
 
         private static void RecordHistory(ReignArrestCase item, Hero accused, string eventType,
-            string phase, string summary)
+            string phase, string summary, (ArrestEffectSyncStatus Status, int? Remainder)? effect = null)
         {
-            ReignServices.WorldHistory?.RecordReignSystemEvent(
+            var worldHistory = ReignServices.WorldHistory;
+            if (worldHistory == null) return;
+
+            var history = new JObject
+            {
+                ["caseId"] = item?.CaseId ?? string.Empty,
+                ["accusedHeroId"] = accused?.StringId ?? string.Empty,
+                ["accusation"] = item?.RawAccusation ?? string.Empty,
+                ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
+                ["severity"] = item == null ? string.Empty : SeverityName(item.Severity),
+                ["causeEstablished"] = item?.CauseEstablished ?? false,
+                ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
+            };
+            WriteCaseEffectHistory(history, item, effect);
+            worldHistory.RecordReignSystemEvent(
                 eventType, phase, "justice", item?.CaseId ?? string.Empty,
                 summary, "ordinary", Hero.MainHero?.StringId ?? string.Empty,
                 Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
-                new JObject
-                {
-                    ["caseId"] = item?.CaseId ?? string.Empty,
-                    ["accusedHeroId"] = accused?.StringId ?? string.Empty,
-                    ["accusation"] = item?.RawAccusation ?? string.Empty,
-                    ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
-                    ["severity"] = item == null ? string.Empty : SeverityName(item.Severity),
-                    ["causeEstablished"] = item?.CauseEstablished ?? false,
-                    ["relationshipDelta"] = item?.RelationshipDeltaApplied ?? 0,
-                    ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
-                },
-                new JArray(accused?.StringId ?? string.Empty));
+                history, new JArray(accused?.StringId ?? string.Empty));
+        }
+
+        private static void WriteCaseEffectHistory(JObject history, ReignArrestCase item,
+            (ArrestEffectSyncStatus Status, int? Remainder)? effect)
+        {
+            if (effect == null)
+            {
+                history["relationshipDelta"] = item?.RelationshipDeltaApplied ?? 0;
+                return;
+            }
+
+            var (status, remainder) = effect.Value;
+            history["relationshipEffectResolved"] = status == ArrestEffectSyncStatus.Confirmed;
+            history["reputationRescissionConfirmed"] = status != ArrestEffectSyncStatus.Unverified;
+            switch (status)
+            {
+                case ArrestEffectSyncStatus.Confirmed:
+                    history["relationshipDelta"] = 0;
+                    break;
+                case ArrestEffectSyncStatus.TerminalPartial:
+                    history["relationshipEffectStatus"] = "terminal_partial";
+                    history["remainingRelationshipDelta"] = remainder.Value;
+                    break;
+                case ArrestEffectSyncStatus.TerminalUnmeasured:
+                    history["relationshipEffectStatus"] = "terminal_unmeasured";
+                    break;
+                default:
+                    history["relationshipEffectStatus"] = "unverified";
+                    break;
+            }
         }
 
         private static string ReadString(JObject obj, string key, string fallback)

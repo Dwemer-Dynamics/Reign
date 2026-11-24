@@ -61,6 +61,37 @@ namespace ReignBeta.WorldSimulation.World
 
         public bool HasReceipt(string id) => _ledger.Receipts.Any(r => r.Id == id);
         public string ReceiptStatus(string id) => _ledger.Receipts.FirstOrDefault(r => r.Id == id)?.Status ?? "pending";
+        internal const string InternationalCourtPaymentPurpose = "international_court";
+
+        internal GoldPaymentReceipt ReadInternationalCourtReceipt(string id)
+        {
+            var candidates = _ledger.Receipts.Where(receipt => receipt.Id == id).Take(2).ToArray();
+            return candidates.Length == 1 && candidates[0].Purpose == InternationalCourtPaymentPurpose
+                ? candidates[0] : null;
+        }
+
+        internal GoldPaymentReceipt PayInternationalCourt(string id, Hero payer, Hero recipient, int amount,
+            string materialHash, out bool? nativeChangedBalance)
+        {
+            bool? changed = null;
+            Hero ResolveParty(string key) => key == payer.StringId ? payer : recipient;
+            var receipt = _ledger.Transfer(id, payer.StringId, recipient.StringId, amount, InternationalCourtPaymentPurpose, materialHash,
+                key => ResolveParty(key).Gold,
+                (_, _, gold) =>
+                {
+                    int payerBefore = payer.Gold, recipientBefore = recipient.Gold;
+                    try { GiveGoldAction.ApplyBetweenCharacters(payer, recipient, gold, true); }
+                    finally { changed = payer.Gold != payerBefore || recipient.Gold != recipientBefore; }
+                },
+                (key, balance) =>
+                {
+                    Hero hero = ResolveParty(key);
+                    if (hero.Gold != balance) hero.ChangeHeroGold(balance - hero.Gold);
+                });
+            nativeChangedBalance = changed;
+            return receipt;
+        }
+
         public bool Validate(ReignWorldActionRecord action, Hero from, Hero to, int amount, out string reason)
         {
             reason = "";

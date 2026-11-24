@@ -42,7 +42,7 @@ namespace ArenaOverhaul.Helpers
             }
         }
 
-        public static void LogNoHooksIssue(List<CodeInstruction> codes, int numberOfEdits, int requiredNumberOfEdits, MethodBase originalMethod, (string IndexName, int IndexValue)[] indexArgs, (string MethodInfoName, MemberInfo? MemberInfo)[] memberInfoArgs)
+        public static void RejectMissingHooks(List<CodeInstruction> codes, int numberOfEdits, int requiredNumberOfEdits, MethodBase originalMethod, (string IndexName, int IndexValue)[] indexArgs, (string MethodInfoName, MemberInfo? MemberInfo)[] memberInfoArgs)
         {
             StringBuilder issueInfo = new();
             if (indexArgs.Length > 0)
@@ -62,16 +62,26 @@ namespace ArenaOverhaul.Helpers
                     issueInfo.Append($"\n\t{memberInfo.MethodInfoName}={(memberInfo.MemberInfo != null ? memberInfo.MemberInfo.ToString() : "not found")}");
                 }
             }
-            if (Settings.Instance!.LogTechnicalTranspilerInfo)
+            if (Settings.Instance?.LogTechnicalTranspilerInfo == true)
             {
                 LogILAndPatches(codes, issueInfo, originalMethod);
             }
             Log(issueInfo.ToString(), $"Transpiler for {originalMethod.DeclaringType?.Name}.{originalMethod.Name}");
 
-            if (numberOfEdits < requiredNumberOfEdits)
-            {
-                MessageHelper.ErrorMessage($"Harmony transpiler for  {originalMethod.DeclaringType?.Name}. {originalMethod.Name} was not able to make all required changes!");
-            }
+            throw MissingRequiredHook(originalMethod);
+        }
+
+        internal static InvalidOperationException MissingRequiredHook(MethodBase originalMethod)
+        {
+            return new InvalidOperationException(
+                $"Arena Overhaul could not apply all required hooks to {originalMethod.DeclaringType?.Name}.{originalMethod.Name}.");
+        }
+
+        internal static void TryLogOptionalIssue(string message, string section)
+        {
+            try { Log(message, section); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
 
         private static void LogILAndPatches(List<CodeInstruction> codes, StringBuilder issueInfo, MethodBase originalMethod)

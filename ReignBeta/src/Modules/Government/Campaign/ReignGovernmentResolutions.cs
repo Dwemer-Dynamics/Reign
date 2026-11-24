@@ -74,10 +74,15 @@ namespace ReignBeta.Government.Campaign
         {
             result = string.Empty;
             ImportSeasonalBusiness();
-            var hearing = _business.FirstOrDefault(x => x.Kind == "seasonal" && Same(x.TargetId, resolutionId));
+            ReignGovernmentResolutionRecord record = FindUniqueSeasonalResolution(resolutionId);
+            if (record == null || string.IsNullOrWhiteSpace(record.KingdomStringId))
+            {
+                result = "That government resolution is unavailable.";
+                return false;
+            }
+            var hearing = FindSeasonalBusinessForResolution(record);
             if (hearing != null && !Same(_executingSeasonalBusinessId, hearing.BusinessId))
                 return ResolveBusiness(hearing.BusinessId, "route:" + routeIndex, actor, false, out result);
-            ReignGovernmentResolutionRecord record = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, resolutionId));
             ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record?.TemplateId);
             Kingdom kingdom = FindKingdom(record?.KingdomStringId);
             if (record == null || template == null || kingdom == null || !Same(record.Status, "proposed"))
@@ -97,6 +102,12 @@ namespace ReignBeta.Government.Campaign
             }
 
             ReignGovernmentResolutionRoute route = routeIndex == 0 ? template.FirstRoute : template.SecondRoute;
+            if (ResolutionRequiresDomesticSettlement(template.Id, route.Action)
+                && FindOwnedResolutionSettlement(kingdom, record) == null)
+            {
+                result = "The recorded settlement is unavailable or no longer belongs to this realm.";
+                return false;
+            }
             if (UsesImmediateGold(route.Action) && actor.Gold < route.Target)
             {
                 result = "The ruler needs " + route.Target + " denars for that route.";
@@ -137,10 +148,15 @@ namespace ReignBeta.Government.Campaign
         {
             result = string.Empty;
             ImportSeasonalBusiness();
-            var hearing = _business.FirstOrDefault(x => x.Kind == "seasonal" && Same(x.TargetId, resolutionId));
+            ReignGovernmentResolutionRecord record = FindUniqueSeasonalResolution(resolutionId);
+            if (record == null || string.IsNullOrWhiteSpace(record.KingdomStringId))
+            {
+                result = "That government resolution is unavailable.";
+                return false;
+            }
+            var hearing = FindSeasonalBusinessForResolution(record);
             if (hearing != null && !Same(_executingSeasonalBusinessId, hearing.BusinessId))
                 return ResolveBusiness(hearing.BusinessId, "reject", actor, false, out result);
-            ReignGovernmentResolutionRecord record = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, resolutionId));
             ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record?.TemplateId);
             Kingdom kingdom = FindKingdom(record?.KingdomStringId);
             ReignGovernmentStateRecord state = GetGovernment(kingdom);
@@ -266,17 +282,24 @@ namespace ReignBeta.Government.Campaign
         {
             if (amount <= 0) return 0;
             int updated = 0;
+            Kingdom kingdom = null;
             foreach (ReignGovernmentResolutionRecord record in _resolutions.Where(x => Same(x.KingdomStringId, kingdomStringId)
                 && Same(x.Status, "active") && x.RouteActionValue == (int)action).ToList())
             {
-                if (!string.IsNullOrWhiteSpace(targetId) && !ResolutionTargets(record, targetId)) continue;
+                if (ResolutionRequiresDomesticSettlement(record.TemplateId, action))
+                {
+                    if (string.IsNullOrWhiteSpace(targetId) || !Same(record.TargetSettlementStringId, targetId)) continue;
+                    if (InvalidateResolutionWithoutOwnedSettlement(kingdom ??= FindKingdom(record.KingdomStringId), record)) continue;
+                }
+                else if (!string.IsNullOrWhiteSpace(targetId) && !ResolutionTargets(record, targetId))
+                    continue;
                 record.CurrentValue += amount;
                 record.EvidenceJson = MergeEvidence(record.EvidenceJson, evidence);
                 record.Revision++;
                 updated++;
                 if (record.CurrentValue >= record.RequiredAmount)
                 {
-                    Kingdom kingdom = FindKingdom(record.KingdomStringId);
+                    kingdom ??= FindKingdom(record.KingdomStringId);
                     ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record.TemplateId);
                     if (kingdom != null && template != null)
                         CompleteResolution(kingdom, record, template, evidence);
@@ -472,11 +495,15 @@ namespace ReignBeta.Government.Campaign
                     record.ResolvedDay = CurrentDay(); record.Revision++;
                     continue;
                 }
+                if (ResolutionRequiresDomesticSettlement(template.Id, action)
+                    && InvalidateResolutionWithoutOwnedSettlement(kingdom, record))
+                    continue;
 #if !REIGN_EXCLUDE_COURT
                 ApplySpymasterResolutionProgress(kingdom, record, action);
 #endif
                 ApplyPassiveResolutionProgress(record, action);
-                ApplyDailyResolutionCommitment(kingdom, record, template, action);
+                bool expired = record.DueDay >= 0f && CurrentDay() > record.DueDay;
+                if (!expired) ApplyDailyResolutionCommitment(kingdom, record, template, action);
                 float measured = MeasureResolution(record, action);
                 if (UsesWorldMeasurement(action)) record.CurrentValue = measured;
                 if (ResolutionSatisfied(record, action))
@@ -484,7 +511,7 @@ namespace ReignBeta.Government.Campaign
                     CompleteResolution(kingdom, record, template, "The tracked target was reached and validated.");
                     continue;
                 }
-                if (record.DueDay >= 0f && CurrentDay() > record.DueDay)
+                if (expired)
                 {
                     record.Status = "failed";
                     record.Outcome = "The measurable target was not completed before its deadline.";
@@ -495,14 +522,64 @@ namespace ReignBeta.Government.Campaign
             }
         }
 
+        internal static bool ResolutionRequiresDomesticSettlement(string templateId,
+            ReignGovernmentResolutionAction action)
+        {
+            switch (action)
+            {
+                case ReignGovernmentResolutionAction.LoyaltyTarget:
+                case ReignGovernmentResolutionAction.ProsperityTarget:
+                case ReignGovernmentResolutionAction.HearthTarget:
+                case ReignGovernmentResolutionAction.SecurityTarget:
+                case ReignGovernmentResolutionAction.GarrisonMinimum:
+                case ReignGovernmentResolutionAction.GarrisonMaximum:
+                case ReignGovernmentResolutionAction.CreateMilitia:
+                case ReignGovernmentResolutionAction.ChangeConstruction:
+                case ReignGovernmentResolutionAction.HaltConstructionDays:
+                case ReignGovernmentResolutionAction.CompleteConstruction:
+                case ReignGovernmentResolutionAction.ReplaceGovernor:
+                case ReignGovernmentResolutionAction.PatrolDays:
+                case ReignGovernmentResolutionAction.EndVillageRaidsDays:
+                case ReignGovernmentResolutionAction.TaxReliefDays:
+                case ReignGovernmentResolutionAction.WaiveObligationDays:
+                    return true;
+                case ReignGovernmentResolutionAction.RecruitTroops:
+                    return Same(templateId, "R035");
+                case ReignGovernmentResolutionAction.ReduceTariffsDays:
+                    return Same(templateId, "R013") || Same(templateId, "R020") || Same(templateId, "R101");
+                default:
+                    return false;
+            }
+        }
+
+        private static Settlement FindOwnedResolutionSettlement(Kingdom kingdom, ReignGovernmentResolutionRecord record)
+        {
+            if (kingdom == null || string.IsNullOrWhiteSpace(record.TargetSettlementStringId)) return null;
+            Settlement settlement = Settlement.Find(record.TargetSettlementStringId);
+            return settlement?.MapFaction == kingdom ? settlement : null;
+        }
+
+        private static bool InvalidateResolutionWithoutOwnedSettlement(Kingdom kingdom, ReignGovernmentResolutionRecord record)
+        {
+            if (FindOwnedResolutionSettlement(kingdom, record) != null) return false;
+            record.Status = "invalidated";
+            record.Outcome = "The recorded settlement is unavailable or outside the original realm. This obligation is closed without a failure penalty.";
+            record.ResolvedDay = CurrentDay();
+            record.Revision++;
+            return true;
+        }
+
         private void CompleteResolution(Kingdom kingdom, ReignGovernmentResolutionRecord record,
             ReignGovernmentResolutionTemplate template, string evidence)
         {
             if (!Same(record.Status, "active")) return;
+            if (ResolutionRequiresDomesticSettlement(template.Id, (ReignGovernmentResolutionAction)record.RouteActionValue)
+                && InvalidateResolutionWithoutOwnedSettlement(kingdom, record))
+                return;
             ReignGovernmentStateRecord state = GetGovernment(kingdom);
             if (state == null) return;
             ReignGovernmentResolutionReward reward = ReignGovernmentResolutionCatalog.CompletionReward(template.Scale);
-            Settlement settlement = Settlement.Find(record.TargetSettlementStringId);
+            Settlement settlement = FindOwnedResolutionSettlement(kingdom, record);
             if (settlement?.Town != null)
             {
                 settlement.Town.Loyalty = MBMath.ClampFloat(settlement.Town.Loyalty + reward.Loyalty, 0f, 100f);
@@ -534,7 +611,7 @@ namespace ReignBeta.Government.Campaign
             int local = -(int)Math.Round(reward.HearthOrSecurity * multiplier, MidpointRounding.AwayFromZero);
             int relation = -(int)Math.Round(reward.SpeakerRelation * multiplier, MidpointRounding.AwayFromZero);
             int trust = -(int)Math.Round(reward.GovernmentTrust * multiplier, MidpointRounding.AwayFromZero);
-            Settlement settlement = Settlement.Find(record.TargetSettlementStringId);
+            Settlement settlement = FindOwnedResolutionSettlement(kingdom, record);
             if (settlement?.Town != null)
             {
                 settlement.Town.Loyalty = MBMath.ClampFloat(settlement.Town.Loyalty + loyalty, 0f, 100f);
@@ -589,7 +666,7 @@ namespace ReignBeta.Government.Campaign
             if (evidence.Value<int?>("lastCommitmentDay") == day) return;
             evidence["lastCommitmentDay"] = day;
 
-            Settlement settlement = Settlement.Find(record.TargetSettlementStringId);
+            Settlement settlement = FindOwnedResolutionSettlement(kingdom, record);
             if (action == ReignGovernmentResolutionAction.EndVillageRaidsDays
                 && settlement?.Village?.VillageState == Village.VillageStates.Looted)
             {

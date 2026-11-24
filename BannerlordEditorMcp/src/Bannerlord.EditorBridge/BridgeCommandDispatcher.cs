@@ -20,6 +20,8 @@ internal sealed class BridgeCommandDispatcher
     private readonly string _sessionId;
     private readonly Dictionary<string, IdempotencyEntry> _idempotency =
         new Dictionary<string, IdempotencyEntry>(StringComparer.Ordinal);
+    private readonly SceneEntityFreshness _sceneFreshness = new SceneEntityFreshness();
+    private string? _observedEntityState;
     private long _changeCounter;
 
     internal BridgeCommandDispatcher(EditorBridgeController controller, string sessionId)
@@ -49,14 +51,18 @@ internal sealed class BridgeCommandDispatcher
         switch (request.Command)
         {
             case BridgeCommands.EditorGetStatus:
+                RefreshSceneRevision();
                 return Result(request, _controller.CreateStatus(CurrentRevision));
             case BridgeCommands.EditorGetCapabilities:
                 return Result(request, CreateCapabilities());
             case BridgeCommands.SceneInspect:
+                RefreshSceneRevision();
                 return InspectScene(request);
             case BridgeCommands.SceneInspectTerrain:
+                RefreshSceneRevision();
                 return InspectTerrain(request);
             case BridgeCommands.SceneFindEntities:
+                RefreshSceneRevision();
                 return FindEntities(request);
             case BridgeCommands.SceneCreateTestEntity:
             case BridgeCommands.SceneSetTestEntityTransform:
@@ -93,8 +99,19 @@ internal sealed class BridgeCommandDispatcher
             return replay;
         }
 
-        // Replays retain their original request revision. Only a fresh mutation
-        // needs the current revision before it can perform an editor command.
+        // Exact replay retrieves a receipt before any snapshot. Capture only
+        // for a real write that could pass the current revision check.
+        if (!request.DryRun && string.Equals(request.ExpectedSceneRevision, context.CurrentRevision, StringComparison.Ordinal))
+        {
+            if (!RefreshSceneRevision())
+            {
+                return Reject(request, "scene_freshness_unavailable",
+                    "The disposable scene's entity state could not be observed within the write safety bounds.");
+            }
+
+            context.CurrentRevision = CurrentRevision;
+        }
+
         var writeRejection = WriteSafetyValidator.Validate(request, context);
         if (writeRejection is not null)
         {
@@ -124,6 +141,45 @@ internal sealed class BridgeCommandDispatcher
         }
 
         return response;
+    }
+
+    private bool RefreshSceneRevision()
+    {
+        string? fresh = ReadSceneEntityState();
+        if (!string.Equals(_observedEntityState, fresh, StringComparison.Ordinal))
+        {
+            _observedEntityState = fresh;
+            _changeCounter++;
+        }
+
+        return fresh is not null;
+    }
+
+    private string? ReadSceneEntityState()
+    {
+        if (!_controller.BridgeEnabled || _controller.ReadOnly || !_controller.SafeWritesArmed
+            || !WriteSafetyValidator.IsValidModuleId(_controller.TargetModuleId))
+        {
+            return null;
+        }
+
+        try
+        {
+            var scene = _controller.Scene;
+            if (scene is null || !scene.IsEditorScene()
+                || string.IsNullOrWhiteSpace(_controller.DisposableSceneName)
+                || !string.Equals(scene.GetName(), _controller.DisposableSceneName, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return _sceneFreshness.Capture(scene);
+        }
+        catch (Exception)
+        {
+            // A read failure must never let a write reuse an earlier observation.
+            return null;
+        }
     }
 
     private WriteSafetyContext CreateWriteSafetyContext()
@@ -538,6 +594,7 @@ internal sealed class BridgeCommandDispatcher
     private void IncrementRevision(BridgeResponse response)
     {
         _changeCounter++;
+        _observedEntityState = ReadSceneEntityState();
         response.Applied = true;
         response.RequiresSave = true;
         response.SceneRevision = CurrentRevision;
