@@ -50,6 +50,31 @@ public sealed class PortraitProductTransactionTests
     }
 
     [Fact]
+    public void OutfitPairFailureKeepsOldMasterAndCanRetry()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            string master = Path.Combine(root, "custom.png");
+            string receipt = Path.Combine(root, ".outfit_portrait.json");
+            File.WriteAllText(master, "old image");
+            Directory.CreateDirectory(receipt);
+
+            Exception? failure = Record.Exception(() => PortraitProductTransaction.WriteAllBytes(
+                (master, "new image"u8.ToArray()), (receipt, "new operation receipt"u8.ToArray())));
+            Assert.True(failure is IOException or UnauthorizedAccessException, failure?.ToString());
+            Assert.Equal("old image", File.ReadAllText(master));
+            Assert.True(Directory.Exists(receipt));
+            AssertNoTemporaryFiles(root);
+
+            Directory.Delete(receipt);
+            PortraitProductTransaction.WriteAllBytes((master, "new image"u8.ToArray()), (receipt, "new operation receipt"u8.ToArray()));
+            Assert.Equal("new image", File.ReadAllText(master));
+            Assert.Equal("new operation receipt", File.ReadAllText(receipt));
+            AssertNoTemporaryFiles(root);
+        });
+    }
+
+    [Fact]
     public void FailureInstallingFallbackRestoresTheMovedOriginal()
     {
         InFixture(Path.GetTempPath(), root =>

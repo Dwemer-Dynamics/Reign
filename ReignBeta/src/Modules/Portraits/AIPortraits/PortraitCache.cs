@@ -42,7 +42,9 @@ public static class PortraitCache
 
 	private static readonly ConcurrentDictionary<string, string> _seedPortraitPathByIdentity = new ConcurrentDictionary<string, string>();
 
-	private static readonly ConcurrentDictionary<string, object> _productCommitLocks = new ConcurrentDictionary<string, object>();
+	private static readonly ConcurrentDictionary<string, object> _productCommitLocks = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+	private static object ProductCommitLock(string directory) => _productCommitLocks.GetOrAdd(Path.GetFullPath(directory), _ => new object());
 
 	private static readonly PortraitAvailabilityCache _availability = new PortraitAvailabilityCache(
 		System.Diagnostics.Stopwatch.GetTimestamp, System.Diagnostics.Stopwatch.Frequency * 5L,
@@ -296,8 +298,7 @@ public static class PortraitCache
 			if (PortraitRequestScope.Current != null && !Directory.Exists(outputDirectory))
 				throw new InvalidDataException("The originating campaign portrait request was removed before completion.");
 			Directory.CreateDirectory(outputDirectory);
-			object commitLock = _productCommitLocks.GetOrAdd(outputDirectory, _ => new object());
-			lock (commitLock)
+			lock (ProductCommitLock(outputDirectory))
 			{
 				CommitPortraitProduct(outputDirectory, product, replaceExisting);
 			}
@@ -318,6 +319,24 @@ public static class PortraitCache
 			NanoGptClient.ReportPortraitProductError("Portrait replacement failed. " + ex.Message);
 			return false;
 		}
+	}
+
+	internal static string PublishConfirmedOutfitOverride(string id, byte[] image, JObject verifiedReceipt,
+		string outfitOperationId, Func<bool> stillOwnsWorld)
+	{
+		string directory = DirFor(id);
+		string master = Path.Combine(directory, CustomFileName);
+		string receipt = Path.Combine(directory, PortraitDerivativeService.OutfitReceiptFileName);
+		JObject publication = (JObject)verifiedReceipt.DeepClone();
+		publication["reignOutfitOperationId"] = outfitOperationId;
+		lock (ProductCommitLock(directory))
+		{
+			if (!stillOwnsWorld()) throw new OperationCanceledException("The outfit no longer belongs to the loaded campaign.");
+			Directory.CreateDirectory(directory);
+			PortraitProductTransaction.WriteAllBytes((master, image),
+				(receipt, Encoding.UTF8.GetBytes(publication.ToString(Formatting.None))));
+		}
+		return master;
 	}
 
 	public static void MarkPendingGenerationOperation(string id, string heroStringId, string operationId)

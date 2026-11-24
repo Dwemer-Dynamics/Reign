@@ -113,14 +113,22 @@ namespace AIPortraits
         }
 
         internal static void WriteAllBytes(string path, byte[] bytes)
+            => WriteAllBytes((path, bytes));
+
+        internal static void WriteAllBytes(params (string Path, byte[] Bytes)[] files)
         {
-            var item = new FileCommit(path, Guid.NewGuid().ToString("N"));
+            string token = Guid.NewGuid().ToString("N");
+            var items = files.Select(file => new FileCommit(file.Path, token)).ToArray();
             try
             {
-                File.WriteAllBytes(item.TemporaryPath, bytes);
-                Commit(new[] { item }, () => { });
+                for (int index = 0; index < files.Length; index++)
+                    File.WriteAllBytes(items[index].TemporaryPath, files[index].Bytes);
+                Commit(items, () => { });
             }
-            finally { item.Cleanup(false); }
+            finally
+            {
+                foreach (var item in items) item.Cleanup(false);
+            }
         }
 
         private static bool ReplacementUnsupported(Exception ex)

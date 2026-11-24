@@ -156,6 +156,8 @@ namespace ReignBeta.Dialogue.UI
                     attempt.ConfirmationRequested = false;
                     throw new InvalidOperationException(result.Value<string>("error") ?? "The outfit could not be saved.");
                 }
+                if (!string.Equals(result.Value<string>("operationId"), attempt.Id, StringComparison.Ordinal))
+                    throw new InvalidDataException("The confirmation did not identify this outfit attempt.");
                 committed = true;
                 byte[] bytes = Convert.FromBase64String(result.Value<string>("imageBase64"));
                 await ReignOutfitClient.Install(attempt, bytes, result["portraitReceipt"] as JObject).ConfigureAwait(false);
