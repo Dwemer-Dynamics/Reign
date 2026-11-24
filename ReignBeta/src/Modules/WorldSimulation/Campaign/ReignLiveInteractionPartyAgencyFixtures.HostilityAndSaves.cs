@@ -350,12 +350,18 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (!PartyAgencyDisposableCommandAuthorized(command, out string activeSave,
                     out LiveCommandResult failure))
                 return Task.FromResult(failure);
+            string expectedGameInstance = command?.Value<string>("expectedRestartGameInstanceId");
             if (command?.Value<bool?>("restartVerified") != true
-                || string.IsNullOrWhiteSpace(command.Value<string>("restartReceipt")))
+                || string.IsNullOrWhiteSpace(command.Value<string>("restartReceipt"))
+                || string.IsNullOrWhiteSpace(expectedGameInstance))
                 return Task.FromResult(LiveCommandResult.Failed(
-                    "Party Agency save verification requires the guarded MCP checkpoint-and-restart receipt."));
+                    "Party Agency save verification requires the guarded MCP checkpoint-and-restart receipt and its native load."));
             return ReignMainThread.InvokeAsync(() =>
             {
+                if (!string.Equals(_gameInstanceId, expectedGameInstance, StringComparison.Ordinal))
+                    return LiveCommandResult.Failed(
+                        "The Party Agency reload receipt belongs to a different native game instance.");
+
                 string runId = command.Value<string>("runId") ?? _activeRunId ?? string.Empty;
                 string caseId = command.Value<string>("caseId") ?? string.Empty;
                 string variant = command.Value<string>("variant") ?? string.Empty;
@@ -407,6 +413,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["variant"] = variant,
                     ["activeSaveName"] = activeSave,
                     ["restartReceipt"] = command.Value<string>("restartReceipt"),
+                    ["reloadedGameInstanceId"] = _gameInstanceId,
                     ["phase"] = record?.Phase.ToString() ?? string.Empty,
                     ["recordReloaded"] = record != null,
                     ["identityPreserved"] = identity,

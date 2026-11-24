@@ -774,7 +774,8 @@ public static partial class TestingTools
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The Party Agency reload verification does not match its prepared enrollment.");
-        campaignTests.RequireRestartReceipt(campaignTestRunId, campaignId, restartReceipt);
+        string expectedRestartGameInstanceId = campaignTests.RequireRestartedNativeInstance(
+            campaignTestRunId, campaignId, restartReceipt);
         CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
             campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
         JsonElement manifest = LoadPartyAgencyManifest(options);
@@ -789,7 +790,7 @@ public static partial class TestingTools
                 caseId = "PA-NATIVE-017", variant,
                 expectedSaveName = authorization.CurrentSaveName,
                 confirmDisposableCampaign = true,
-                restartVerified = true, restartReceipt, timeoutSeconds = 300
+                restartVerified = true, restartReceipt, expectedRestartGameInstanceId, timeoutSeconds = 300
             },
             PartyAgencySnapshotStep("save_roundtrip", "PA-NATIVE-017", variant,
                 "@party_agency_fixture", "after", testCase.GetProperty("expected"), restartReceipt)

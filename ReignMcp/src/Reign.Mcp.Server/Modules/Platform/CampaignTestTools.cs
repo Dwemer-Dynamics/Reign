@@ -720,6 +720,11 @@ public sealed class CampaignTestService
             ["restartReceipt"] = receipt,
             ["saveName"] = state.CurrentSaveName,
             ["savePointId"] = current.SavePointId,
+            ["restartEvidenceSchema"] = "reign-campaign-checkpoint-restart-v1",
+            ["checkpointAttemptId"] = current.Attempt.Id,
+            ["checkpointSha256"] = current.Sha256,
+            ["checkpointGameInstanceId"] = active.FindString("checkpointGameInstanceId"),
+            ["reloadedGameInstanceId"] = snapshot.FindString("checkpointGameInstanceId"),
             ["controller"] = result.Summary(),
             ["reloadedSnapshot"] = snapshot.Summary()
         };
@@ -781,6 +786,21 @@ public sealed class CampaignTestService
     public CampaignTestAuthorization RequireRestartReceipt(string runId,
         string expectedCampaignId, string restartReceipt)
     {
+        var (state, _, _) = ReadRestartReceipts(runId, expectedCampaignId, restartReceipt);
+        return CampaignTestAuthorization.From(state);
+    }
+
+    internal string RequireRestartedNativeInstance(string runId, string expectedCampaignId, string restartReceipt)
+    {
+        var (_, checkpoint, receipts) = ReadRestartReceipts(runId, expectedCampaignId, restartReceipt);
+        if (receipts.Count != 1)
+            throw new InvalidOperationException("The request did not identify one unambiguous recorded restart.");
+        return CampaignTestCheckpointOwnership.ReadRestartedGameInstance(checkpoint, receipts[0]);
+    }
+
+    private (CampaignTestState State, CampaignCheckpointReceipt Checkpoint, List<JsonElement> Receipts)
+        ReadRestartReceipts(string runId, string expectedCampaignId, string restartReceipt)
+    {
         CampaignTestState state = RequireArmed(runId);
         var checkpoint = VerifyOwnedBytes(state, state.CurrentSaveName);
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
@@ -789,16 +809,18 @@ public sealed class CampaignTestService
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The reload receipt does not belong to the requested campaign test.");
-        bool found = state.Events.Any(item =>
+        var receipts = new List<JsonElement>();
+        foreach (CampaignTestEvent item in state.Events)
         {
-            if (item.Operation != "restart" || item.Evidence is null) return false;
+            if (item.Operation != "restart" || item.Evidence is null) continue;
             JsonElement evidence = JsonSerializer.SerializeToElement(item.Evidence, StateJson);
-            return Text(evidence, "restartReceipt") == restartReceipt
-                && Text(evidence, "savePointId") == checkpoint.SavePointId;
-        });
-        if (!found) throw new InvalidOperationException(
+            if (Text(evidence, "restartReceipt") == restartReceipt
+                && Text(evidence, "savePointId") == checkpoint.SavePointId)
+                receipts.Add(evidence);
+        }
+        if (receipts.Count == 0) throw new InvalidOperationException(
             "The supplied reload receipt was not issued by this guarded campaign test.");
-        return CampaignTestAuthorization.From(state);
+        return (state, checkpoint, receipts);
     }
 
     public async Task<IReadOnlyDictionary<string, object?>> ReportAsync(string runId,

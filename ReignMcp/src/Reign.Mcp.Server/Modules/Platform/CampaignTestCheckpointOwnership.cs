@@ -82,6 +82,21 @@ internal static class CampaignTestCheckpointOwnership
         return new CampaignCheckpointReceipt(attempt, pointId, sha256, DateTime.UtcNow.ToString("O"));
     }
 
+    internal static string ReadRestartedGameInstance(CampaignCheckpointReceipt checkpoint, JsonElement evidence)
+    {
+        string before = Text(evidence, "checkpointGameInstanceId");
+        string after = Text(evidence, "reloadedGameInstanceId");
+        if (Text(evidence, "restartEvidenceSchema") != "reign-campaign-checkpoint-restart-v1"
+            || !SameName(Text(evidence, "saveName"), checkpoint.Attempt.SaveName)
+            || Text(evidence, "savePointId") != checkpoint.SavePointId
+            || Text(evidence, "checkpointAttemptId") != checkpoint.Attempt.Id
+            || !string.Equals(Text(evidence, "checkpointSha256"), checkpoint.Sha256, StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(before) || before != checkpoint.Attempt.GameInstanceId
+            || string.IsNullOrWhiteSpace(after) || after == before)
+            throw new InvalidOperationException("The recorded restart does not establish a different native load of this exact checkpoint.");
+        return after;
+    }
+
     internal static string? NativeHash(string name, string? saveDirectory = null)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length > 64

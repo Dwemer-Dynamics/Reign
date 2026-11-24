@@ -442,6 +442,40 @@ public sealed class StructuredActionToolsTests
             Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller));
     }
 
+    [Theory]
+    [InlineData("valid")]
+    [InlineData("legacy")]
+    [InlineData("foreign_checkpoint")]
+    [InlineData("foreign_save")]
+    [InlineData("foreign_point")]
+    [InlineData("wrong_sha")]
+    [InlineData("wrong_original_load")]
+    [InlineData("same_load")]
+    [InlineData("missing_reload")]
+    public void CampaignCheckpointRestartBindsBytesAndTheTwoNativeLoads(string mutation)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var receipt = state.CheckpointReceipts[0];
+        const string reloaded = "reloaded-game";
+        var evidence = JsonSerializer.SerializeToElement(new
+        {
+            restartEvidenceSchema = mutation == "legacy" ? "" : "reign-campaign-checkpoint-restart-v1",
+            saveName = mutation == "foreign_save" ? "foreign-save" : receipt.Attempt.SaveName,
+            savePointId = mutation == "foreign_point" ? "foreign-point" : receipt.SavePointId,
+            checkpointAttemptId = mutation == "foreign_checkpoint" ? "foreign-attempt" : receipt.Attempt.Id,
+            checkpointSha256 = mutation == "wrong_sha" ? "wrong-sha" : receipt.Sha256,
+            checkpointGameInstanceId = mutation == "wrong_original_load" ? "wrong-game" : receipt.Attempt.GameInstanceId,
+            reloadedGameInstanceId = mutation == "same_load" ? receipt.Attempt.GameInstanceId
+                : mutation == "missing_reload" ? "" : reloaded
+        });
+
+        if (mutation == "valid")
+            Assert.Equal(reloaded, CampaignTestCheckpointOwnership.ReadRestartedGameInstance(receipt, evidence));
+        else
+            Assert.Throws<InvalidOperationException>(() =>
+                CampaignTestCheckpointOwnership.ReadRestartedGameInstance(receipt, evidence));
+    }
+
     private static string PlayerEncounterCase(string args) => "[{\"caseId\":\"entry\",\"phase\":\"fixture\",\"kind\":\"fixture\",\"operationId\":\"entry_1\",\"actionId\":\"fixture.player_settlement_encounter\",\"arguments\":" + args + "}]";
     private static Dictionary<string, object> PlayerEncounterArguments() => new()
     {

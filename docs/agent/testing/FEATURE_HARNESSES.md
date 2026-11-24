@@ -277,7 +277,7 @@ The player may invite an otherwise eligible consenting captive in the main party
 
 ### Party Agency autonomous certification
 
-Compatible enrolled games use version 1 command observations. The game requires an accepted acknowledgement before guarded dispatch. Full enrolled reports include the server-recorded start identity and each result's execution evidence. A replacement transport lease can carry the original result within the same retry generation. An explicit provider retry supersedes earlier execution evidence. The recorded module identities require separate review against the artifacts, and provider provenance requires its own evidence.
+Compatible enrolled games use version 1 command observations. The game requires an accepted acknowledgement before guarded dispatch. Full enrolled reports include the server-recorded start identity and each result's execution evidence. A replacement transport lease can carry the original result within the same retry generation. An explicit provider retry supersedes earlier execution evidence. The recorded module identities require separate review against the artifacts, and provider provenance requires its own evidence. Save/reload verification requires its restart receipt to identify the exact checkpoint attempt and bytes, the original native game instance, and the newly loaded instance. The game checks that newly loaded instance before inspecting the fixture.
 
 1. Query `reign_get_party_agency_test_manifest`; its 40 logical cases and expanded variant instances are the release authority.
 2. Prepare and arm the general campaign-test enrollment first. Party Agency accepts `campaignTestRunId`, never a save name.
