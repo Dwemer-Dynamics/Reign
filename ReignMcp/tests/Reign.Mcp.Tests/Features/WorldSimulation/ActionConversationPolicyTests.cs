@@ -58,10 +58,42 @@ public sealed class ActionConversationPolicyTests
 
     public static IEnumerable<object[]> EveryDefinition() => ReignActionCatalog.All.Select(d => new object[] { d.Id });
 
+    [Theory]
+    [InlineData("npc_life.summon_meeting")]
+    [InlineData("npc_life.change_meeting")]
+    [InlineData("npc_life.cancel_meeting")]
+    public void MeetingRequestsBrowseUnderPersonalRequests(string actionId)
+    {
+        var definition = ReignActionCatalog.Find(actionId)!;
+        Assert.Equal(ActionBrowseCategory.Personal, ReignActionLanguage.BrowseCategory(definition));
+        Assert.Equal("Personal requests", ReignActionLanguage.BrowseCategoryLabel(ActionBrowseCategory.Personal));
+        Assert.True(ReignActionConversationPolicy.Allows(definition, playerActs: false));
+        Assert.False(ReignActionConversationPolicy.Allows(definition, playerActs: true));
+    }
+
+    [Theory]
+    [InlineData("give.prisoner", ActionBrowseCategory.Give)]
+    [InlineData(TavernHouseVisitAction.Id, ActionBrowseCategory.PrivateVisit)]
+    [InlineData("go_to_settlement", ActionBrowseCategory.Campaign)]
+    [InlineData("join_clan", ActionBrowseCategory.Politics)]
+    [InlineData("duel_player", ActionBrowseCategory.Personal)]
+    public void ExistingRoutesKeepTheirBrowseCategory(string actionId, ActionBrowseCategory category)
+        => Assert.Equal(category, ReignActionLanguage.BrowseCategory(ReignActionCatalog.Find(actionId)!));
+
+    [Fact]
+    public void UnrecognizedActionFamiliesStillHaveABrowseCategory()
+    {
+        var definition = new ActionDefinition { Id = "new_action", Family = "new_family" };
+        var category = ReignActionLanguage.BrowseCategory(definition);
+        Assert.Equal(ActionBrowseCategory.Other, category);
+        Assert.Equal("Other actions", ReignActionLanguage.BrowseCategoryLabel(category));
+    }
+
     [Theory, MemberData(nameof(EveryDefinition))]
     public void EveryActionHasImmersiveChoiceAndSentenceWording(string actionId)
     {
         var d = ReignActionCatalog.Find(actionId)!;
+        Assert.False(string.IsNullOrWhiteSpace(ReignActionLanguage.BrowseCategoryLabel(ReignActionLanguage.BrowseCategory(d))));
         foreach (bool playerActs in new[] { false, true })
         {
             Assert.DoesNotMatch(@"(?i)\bplayer\b", ReignActionLanguage.ChoiceLabel(d, playerActs));
