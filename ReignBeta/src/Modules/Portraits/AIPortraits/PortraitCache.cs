@@ -40,7 +40,6 @@ public static class PortraitCache
 {
 	private static readonly ConcurrentDictionary<string, string> _pending = new ConcurrentDictionary<string, string>();
 
-	private static readonly ConcurrentDictionary<string, string> _characterPortraitPathCache = new ConcurrentDictionary<string, string>();
 
 	private static readonly ConcurrentDictionary<string, string> _seedPortraitPathByIdentity = new ConcurrentDictionary<string, string>();
 
@@ -133,23 +132,6 @@ public static class PortraitCache
 
 	public static string BaseCacheRootForDerivatives => BaseCacheRoot;
 
-	private static string[] ServerCharactersDirs
-	{
-		get
-		{
-			string campaignFolder = RequestCampaignFolder;
-			if (Installation.Value != null)
-				return new[] { Path.Combine(Installation.Value.DataRoot, "campaigns", campaignFolder, "characters") };
-			string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-			return new[]
-			{
-				Path.Combine(BasePath.Name, "Modules", "ReignBeta", "server", "app", "data", "campaigns", campaignFolder, "characters"),
-				Path.Combine(desktop, "ReignBeta", "server", "app", "data", "campaigns", campaignFolder, "characters"),
-				Path.Combine(desktop, "ReignServer", "app", "data", "campaigns", campaignFolder, "characters")
-			};
-		}
-	}
-
 	public static string SeedCacheDir => Installation.Value?.SharedPortraitRoot ?? Path.Combine(BaseCacheRoot, "_shared");
 
 	internal static string RequestCampaignFolder => PortraitRequestScope.Current?.CampaignFolder ?? ReignCampaignIdentity.CurrentCampaignFolderName();
@@ -221,7 +203,7 @@ public static class PortraitCache
 
 		try
 		{
-			_characterPortraitPathCache.Clear();
+
 			result.Indexed = PortraitIndex.EnsureCollisionSafetyForCampaign();
 			WriteSeedMarker(result);
 			result.Ok = true;
@@ -295,7 +277,8 @@ public static class PortraitCache
 			{
 				return true;
 			}
-			return TryGetCharacterPortraitPath(id, requireCustom: true, out var _);
+			return ReignCampaignPortraitClient.TryGetSettled(id, out var stored)
+				&& stored == ReignCampaignPortraitClient.Lookup.Custom;
 		}
 		return false;
 	}
@@ -315,7 +298,7 @@ public static class PortraitCache
 			WriteAtomic(DiskPath(id), pngBytes);
 		}
 		InvalidateAvailability(id);
-		_characterPortraitPathCache.Clear();
+
 		PortraitDerivativeService.Invalidate(id);
 		bool prepared = await PortraitDerivativeService.EnsureForSourceAsync(id, DiskPath(id), highPriority: true, force: true).ConfigureAwait(false);
 		if (prepared)
@@ -386,7 +369,7 @@ public static class PortraitCache
 			}
 
 			InvalidateAvailability(id);
-			_characterPortraitPathCache.Clear();
+
 			PortraitDerivativeService.Invalidate(id);
 			// The refresh is already published on the server. The legacy registration route
 			// would replace its operation receipt with path-only metadata.
@@ -502,6 +485,41 @@ public static class PortraitCache
 	private static (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) LocalPublicationPaths(string directory) =>
 		(Path.Combine(directory, PortraitFileName), Path.Combine(directory, CustomFileName),
 			Path.Combine(directory, GenerationReceiptFileName), Path.Combine(directory, PortraitDerivativeService.OutfitReceiptFileName));
+
+	internal static byte[] CaptureOutfitSource(string id,
+		out (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) basis)
+	{
+		string directory = DirFor(id);
+		object gate = ProductCommitLock(directory);
+		if (!Monitor.TryEnter(gate)) throw new IOException("The portrait is currently being replaced.");
+		try
+		{
+			RequireRecoverableLocalProduct(directory);
+			byte[] image = GetDiskBytes(id);
+			basis = PortraitProductTransaction.ReadPublicationBasis(LocalPublicationPaths(directory));
+			return image;
+		}
+		finally { Monitor.Exit(gate); }
+	}
+
+	internal static bool InstallMissingCampaignPortrait(string id, byte[] image, bool custom,
+		JObject receipt, Func<bool> stillOwnsWorld)
+	{
+		string directory = DirFor(id);
+		lock (ProductCommitLock(directory))
+		{
+			if (!stillOwnsWorld() || IsPending(id) || PortraitProductTransaction.HasRecoveryJournal(directory)
+				|| File.Exists(Path.Combine(directory, PendingGenerationFileName))) return false;
+			var paths = LocalPublicationPaths(directory);
+			if (PortraitProductTransaction.ReadPublicationBasis(paths) != default) return false;
+			Directory.CreateDirectory(directory);
+			var products = new List<(string Path, byte[] Bytes)> { (custom ? paths.Custom : paths.Master, image) };
+			if (receipt != null) products.Add((custom ? paths.OutfitReceipt : paths.GenerationReceipt,
+				Encoding.UTF8.GetBytes(receipt.ToString(Formatting.None))));
+			PortraitProductTransaction.WriteRecoverable(directory, RecoverablePortraitFiles, products.ToArray());
+			return true;
+		}
+	}
 
 	internal static (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) CaptureOutfitPublicationBasis(string id)
 	{
@@ -1161,7 +1179,7 @@ public static class PortraitCache
 	public static void ClearMemoryCache()
 	{
 		_availability.Clear();
-		_characterPortraitPathCache.Clear();
+
 		_seedPortraitPathByIdentity.Clear();
 		PortraitDerivativeService.ClearReadyCache();
 	}
@@ -1408,7 +1426,8 @@ public static class PortraitCache
 			return true;
 		}
 
-		return TryGetCharacterPortraitPath(id, requireCustom: false, out path);
+		ReignCampaignPortraitClient.Queue(id);
+		return false;
 	}
 
 	private static bool IsCampaignSpecificPlayerIdentity(string id)
@@ -1416,33 +1435,6 @@ public static class PortraitCache
 		string identity = ExtractParenthesizedId(id);
 		return string.Equals(identity, "main_hero", StringComparison.OrdinalIgnoreCase)
 			|| string.Equals(identity, "player_hero", StringComparison.OrdinalIgnoreCase);
-	}
-
-	private static bool TryGetCharacterPortraitPath(string id, bool requireCustom, out string path)
-	{
-		path = null;
-		if (string.IsNullOrWhiteSpace(id) || !HasAnyServerCharactersDir())
-		{
-			return false;
-		}
-
-		string cacheKey = MemoryKey(id) + (requireCustom ? "|custom" : "|any");
-		if (_characterPortraitPathCache.TryGetValue(cacheKey, out var cachedPath) && File.Exists(cachedPath))
-		{
-			if (!requireCustom || string.Equals(Path.GetFileName(cachedPath), CustomFileName, StringComparison.OrdinalIgnoreCase))
-			{
-				path = cachedPath;
-				return true;
-			}
-		}
-
-		if (TryGetCharacterPortraitPathDirect(id, requireCustom, out path))
-		{
-			_characterPortraitPathCache[cacheKey] = path;
-			return true;
-		}
-
-		return false;
 	}
 
 	private static bool TryGetSeedPortraitPath(string id, bool requireCustom, out string path)
@@ -1563,79 +1555,6 @@ public static class PortraitCache
 		return false;
 	}
 
-	private static bool TryGetCharacterPortraitPathDirect(string id, bool requireCustom, out string path)
-	{
-		path = null;
-		string extractedId = ExtractParenthesizedId(id);
-		string[] candidates = new[]
-		{
-			id,
-			CharacterCacheId.Sanitize(id),
-			extractedId,
-			CharacterCacheId.Sanitize(extractedId)
-		};
-
-		foreach (string serverCharactersDir in ServerCharactersDirs)
-		{
-			if (!Directory.Exists(serverCharactersDir))
-			{
-				continue;
-			}
-
-			foreach (string candidate in candidates)
-			{
-				if (string.IsNullOrWhiteSpace(candidate))
-				{
-					continue;
-				}
-
-				string folder = Path.Combine(serverCharactersDir, ReignCampaignIdentity.SafePathSegment(candidate, "unknown"));
-				if (TryGetPortraitInCharacterFolder(folder, requireCustom, out path))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	private static bool TryGetPortraitInCharacterFolder(string characterDir, bool requireCustom, out string path)
-	{
-		path = null;
-		if (string.IsNullOrWhiteSpace(characterDir) || !Directory.Exists(characterDir))
-		{
-			return false;
-		}
-
-		string portraitDir = Path.Combine(characterDir, "portraits");
-		if (!Directory.Exists(portraitDir))
-		{
-			return false;
-		}
-
-		string customPath = Path.Combine(portraitDir, CustomFileName);
-		if (File.Exists(customPath))
-		{
-			path = customPath;
-			return true;
-		}
-
-		if (requireCustom)
-		{
-			return false;
-		}
-
-		string generatedPath = Path.Combine(portraitDir, PortraitFileName);
-		if (File.Exists(generatedPath))
-		{
-			path = generatedPath;
-			return true;
-		}
-
-		return false;
-	}
-
 	private static string ExtractParenthesizedId(string cacheKey)
 	{
 		if (string.IsNullOrWhiteSpace(cacheKey))
@@ -1663,16 +1582,4 @@ public static class PortraitCache
 		return string.Equals(left ?? string.Empty, right ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 	}
 
-	private static bool HasAnyServerCharactersDir()
-	{
-		foreach (string serverCharactersDir in ServerCharactersDirs)
-		{
-			if (Directory.Exists(serverCharactersDir))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
 }

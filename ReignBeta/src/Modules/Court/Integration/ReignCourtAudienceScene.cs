@@ -40,6 +40,7 @@ namespace ReignBeta.Court.Integration
         public string CharacterCode = "";
         public double Age;
         public byte[] Portrait;
+        public Func<Task<byte[]>> RetrieveStoredPortrait;
     }
 
     internal sealed class CourtSceneSnapshot

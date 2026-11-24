@@ -1,4 +1,5 @@
 using System.IO;
+using ReignBeta.Portraits.Integration;
 using TaleWorlds.CampaignSystem;
 
 namespace AIPortraits;
@@ -11,7 +12,9 @@ public static class CharacterCacheId
 		{
 			return null;
 		}
-		return Build(CacheDisplayName(hero), hero.CharacterObject.StringId);
+		string id = Build(CacheDisplayName(hero), hero.CharacterObject.StringId);
+		ReignCampaignPortraitClient.RememberHero(id, hero.StringId);
+		return id;
 	}
 
 	public static string ForCharacter(CharacterObject character)
@@ -23,7 +26,9 @@ public static class CharacterCacheId
 		string name = character.HeroObject != null
 			? CacheDisplayName(character.HeroObject)
 			: character.Name?.ToString();
-		return Build(name, character.StringId);
+		string id = Build(name, character.StringId);
+		ReignCampaignPortraitClient.RememberHero(id, character.HeroObject?.StringId);
+		return id;
 	}
 
 	private static string CacheDisplayName(Hero hero)

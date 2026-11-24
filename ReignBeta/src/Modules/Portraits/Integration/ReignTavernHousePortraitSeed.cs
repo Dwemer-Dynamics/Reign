@@ -38,6 +38,8 @@ namespace ReignBeta.Portraits.Integration
             bool repairSeed = portraitExists && RequiresSeedRepair(seedReceiptPath, person.CastId, sourcePath, cacheDirectory);
             if (portraitExists && !repairSeed) { person.PortraitComplete = true; return true; }
             if (PortraitCache.IsPending(cacheKey)) return false;
+            if (!repairSeed && (!ReignCampaignPortraitClient.TryGetSettled(cacheKey, out var stored)
+                || stored != ReignCampaignPortraitClient.Lookup.Missing)) return false;
             var info = new FileInfo(sourcePath);
             if (info.Length < 24 || info.Length > 32L * 1024 * 1024 || !File.Exists(sourceManifestPath)) return false;
             if (!PortraitCache.TryMarkPending(cacheKey)) return false;

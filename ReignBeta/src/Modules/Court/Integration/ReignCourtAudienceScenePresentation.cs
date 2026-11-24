@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.UI.EventArt;
@@ -49,32 +50,49 @@ namespace ReignBeta.Court.Integration
             try
             {
                 CourtSceneSnapshot scene = _snapshot();
-                string cached = ReignCourtAudienceScene.CachedPath(scene);
+                bool lookupNeeded = scene.People.Any(person => person.RetrieveStoredPortrait != null);
+                string cached = lookupNeeded ? "" : ReignCourtAudienceScene.CachedPath(scene);
                 if (!string.IsNullOrEmpty(cached))
                 { _state.Publish(revision, cached, _owns(), _persist, ShowPath); return; }
                 _show(ReignEventArtTextureFactory.BuildCourtPetitionReferenceImageId(scene.CultureId));
-                if (ReignBetaSettings.Instance?.CastleChatImageGeneration == false) { _state.Disable(revision); return; }
+                bool allowGeneration = ReignBetaSettings.Instance?.CastleChatImageGeneration != false;
+                if (!allowGeneration && !lookupNeeded) { _state.Disable(revision); return; }
                 _begin();
-                _ = PrepareAsync(scene, revision);
+                _ = PrepareAsync(scene, revision, allowGeneration);
             }
             catch (Exception ex) { _state.Fail(revision, ex.Message); ReignLog.Warn("Court scene preparation: " + Error); }
         }
 
-        private async Task PrepareAsync(CourtSceneSnapshot scene, int revision)
+        private async Task PrepareAsync(CourtSceneSnapshot scene, int revision, bool allowGeneration)
         {
+            Task EnsureCurrent() => ReignMainThread.InvokeAsync(() =>
+            {
+                if (!_owns() || !_currentAudience(scene))
+                    throw new OperationCanceledException("The campaign or audience changed.");
+            });
+
             try
             {
-                string path = await Task.Run(() => ReignCourtAudienceScene.PrepareAsync(scene,
-                    person => ReignCourtAudienceReferenceCapture.ReadAsync(person, scene.Folder, _owns),
-                    ReignServerClient.PostCastleSceneAsync,
-                    () => ReignMainThread.InvokeAsync(() =>
+                string path = await Task.Run(async () =>
+                {
+                    foreach (var person in scene.People.Where(value => value.RetrieveStoredPortrait != null))
                     {
-                        if (!_owns() || !_currentAudience(scene))
-                            throw new OperationCanceledException("The campaign or audience changed.");
-                    }))).ConfigureAwait(false);
+                        await EnsureCurrent().ConfigureAwait(false);
+                        person.Portrait = await person.RetrieveStoredPortrait().ConfigureAwait(false);
+                        if (person.Portrait != null)
+                            person.ReferenceStamp = ReignCourtAudienceScene.Hash(person.Portrait);
+                    }
+                    await EnsureCurrent().ConfigureAwait(false);
+                    if (!allowGeneration) return ReignCourtAudienceScene.CachedPath(scene);
+                    return await ReignCourtAudienceScene.PrepareAsync(scene,
+                        person => ReignCourtAudienceReferenceCapture.ReadAsync(person, scene.Folder, _owns),
+                        ReignServerClient.PostCastleSceneAsync, EnsureCurrent).ConfigureAwait(false);
+                }).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    _state.Publish(revision, path, _owns() && _currentAudience(scene), _persist, ShowPath);
+                    if (!_owns() || !_currentAudience(scene)) return;
+                    if (!allowGeneration && string.IsNullOrEmpty(path)) _state.Disable(revision);
+                    else _state.Publish(revision, path, true, _persist, ShowPath);
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ReignBeta.Portraits.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using static AIPortraits.PortraitMessages;
@@ -211,7 +212,14 @@ public static class MemoryService
 			byte[] diskBytes2 = PortraitCache.GetDiskBytes(id2);
 			if (diskBytes == null || diskBytes2 == null)
 			{
-				Msg("Both characters need AI portraits before creating a memory.", 4294945280u);
+				bool playerMissing = diskBytes == null
+					&& ReignCampaignPortraitClient.TryGetSettled(id, out var playerStored)
+					&& playerStored == ReignCampaignPortraitClient.Lookup.Missing;
+				bool npcMissing = diskBytes2 == null
+					&& ReignCampaignPortraitClient.TryGetSettled(id2, out var npcStored)
+					&& npcStored == ReignCampaignPortraitClient.Lookup.Missing;
+				Msg(playerMissing || npcMissing ? "Both characters need AI portraits before creating a memory."
+					: "The stored portraits aren't available yet. Please try again.", 4294945280u);
 				return;
 			}
 			byte[] reference = MemoryReferenceComposer.ComposeTwoPortraitReference(diskBytes, diskBytes2);

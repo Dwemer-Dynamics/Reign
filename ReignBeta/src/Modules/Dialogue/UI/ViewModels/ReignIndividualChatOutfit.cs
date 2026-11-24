@@ -71,12 +71,25 @@ namespace ReignBeta.Dialogue.UI
             RefreshOutfit("changing");
             try
             {
-                byte[] before = await Task.Run(() =>
+                byte[] CaptureBefore()
                 {
-                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject())) return PortraitCache.GetDiskBytes(attempt.CacheKey);
-                }).ConfigureAwait(false);
+                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
+                        return PortraitCache.CaptureOutfitSource(attempt.CacheKey, out attempt.LocalPublicationBasis);
+                }
+                byte[] before = await Task.Run(CaptureBefore, token).ConfigureAwait(false);
+                if (before == null || before.Length == 0)
+                {
+                    if (!await ReignMainThread.InvokeAsync(() => OutfitCurrent(attempt)).ConfigureAwait(false)) return;
+                    ReignCampaignPortraitClient.Lookup stored;
+                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
+                        stored = await ReignCampaignPortraitClient.FindAsync(attempt.CacheKey).ConfigureAwait(false);
+                    token.ThrowIfCancellationRequested();
+                    before = await Task.Run(CaptureBefore, token).ConfigureAwait(false);
+                    if (before == null || before.Length == 0)
+                        throw new InvalidOperationException(stored == ReignCampaignPortraitClient.Lookup.Missing
+                            ? "Use Look at them to create a portrait first." : "The stored portrait isn't available yet.");
+                }
                 token.ThrowIfCancellationRequested();
-                if (before == null || before.Length == 0) throw new InvalidOperationException("Use Look at them to create a portrait first.");
                 attempt.SourceHash = ReignOutfitClient.Hash(before);
                 Directory.CreateDirectory(attempt.DirectoryPath);
                 File.WriteAllBytes(attempt.BeforePath, before);

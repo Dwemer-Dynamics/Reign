@@ -18,7 +18,9 @@ namespace ReignBeta.Portraits.Integration
 
         public static bool IsEncyclopediaOpenQueued => _queuedEncyclopediaHero != null;
 
-        public static void RequestPortrait(Hero hero)
+        public static void RequestPortrait(Hero hero) => RequestPortrait(hero, allowLookup: true);
+
+        private static void RequestPortrait(Hero hero, bool allowLookup)
         {
             string key = hero == null ? null : CharacterCacheId.ForHero(hero);
             if (hero != null && !PortraitCache.IsPending(key)
@@ -33,7 +35,29 @@ namespace ReignBeta.Portraits.Integration
                     }));
                 return;
             }
+            if (allowLookup && hero != null && !PortraitCache.IsPending(key)
+                && (!ReignCampaignPortraitClient.TryGetSettled(key, out var stored)
+                    || stored == ReignCampaignPortraitClient.Lookup.Unavailable))
+            {
+                _ = ResumePortraitRequestAsync(hero, key);
+                return;
+            }
             RequestPortraitChoice(hero, "");
+        }
+
+        private static async Task ResumePortraitRequestAsync(Hero hero, string key)
+        {
+            var scope = ReignMainThread.CurrentGameScope;
+            if (scope == null) return;
+            var fence = ReignServerClient.RequestFence.Capture();
+            try
+            {
+                await ReignCampaignPortraitClient.FindAsync(key).ConfigureAwait(false);
+                await ReignRequestOwnership.InvokeScopedAsync(scope, fence.IsCurrentActionPoll,
+                    () => RequestPortrait(hero, allowLookup: false), "stored portrait choice").ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { ReignLog.Exception("Stored portrait choice", ex); }
         }
 
         private static void RequestPortraitChoice(Hero hero, string mode)
@@ -122,6 +146,23 @@ namespace ReignBeta.Portraits.Integration
             {
                 message = "You're still picturing " + hero.Name + "...";
                 return false;
+            }
+            if (refreshMode.Length == 0)
+            {
+                bool settled = ReignCampaignPortraitClient.TryGetSettled(cacheKey, out var stored);
+                if (settled && (stored == ReignCampaignPortraitClient.Lookup.Generated
+                    || stored == ReignCampaignPortraitClient.Lookup.Custom))
+                {
+                    color = 0xFF00DD55;
+                    message = "You already have a vivid image of " + hero.Name + ".";
+                    return false;
+                }
+                if (!settled || stored != ReignCampaignPortraitClient.Lookup.Missing)
+                {
+                    message = settled ? "Couldn't check for " + hero.Name + "'s stored portrait. Please try again."
+                        : "Checking for " + hero.Name + "'s stored portrait.";
+                    return false;
+                }
             }
 
             if (!ReignCampaignIdentity.HasActiveCampaign() || ReignCampaignInitializationGate.IsPending)

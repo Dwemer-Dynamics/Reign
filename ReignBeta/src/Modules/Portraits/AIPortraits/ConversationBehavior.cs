@@ -59,11 +59,9 @@ public class ConversationBehavior : CampaignBehaviorBase
 		{
 			return false;
 		}
-		if (PortraitCache.ExistsOnDisk(CharacterCacheId.ForHero(Hero.MainHero)))
-		{
-			return PortraitCache.ExistsOnDisk(CharacterCacheId.ForHero(conversationHero));
-		}
-		return false;
+		bool playerReady = PortraitCache.ExistsOnDisk(CharacterCacheId.ForHero(Hero.MainHero));
+		bool conversationReady = PortraitCache.ExistsOnDisk(CharacterCacheId.ForHero(conversationHero));
+		return playerReady && conversationReady;
 	}
 
 	private void LookConsequence()

@@ -466,8 +466,10 @@ namespace ReignBeta.Characters.Campaign
                 string key = CharacterCacheId.ForHero(hero);
                 if (PortraitCache.ExistsOnDisk(key)) { person.PortraitComplete = true; continue; }
                 if (PortraitCache.IsPending(key) || _portraitRetryUtc.TryGetValue(person.Id, out DateTime retry) && DateTime.UtcNow < retry) continue;
-                _portraitRetryUtc[person.Id] = DateTime.UtcNow.AddMinutes(5);
-                ReignPortraitBridge.TryRequestPortrait(hero, out string message, out uint color);
+                if (!ReignCampaignPortraitClient.TryGetSettled(key, out var stored)
+                    || stored != ReignCampaignPortraitClient.Lookup.Missing) continue;
+                if (ReignPortraitBridge.TryRequestPortrait(hero, out _, out _))
+                    _portraitRetryUtc[person.Id] = DateTime.UtcNow.AddMinutes(5);
                 break;
             }
         }
