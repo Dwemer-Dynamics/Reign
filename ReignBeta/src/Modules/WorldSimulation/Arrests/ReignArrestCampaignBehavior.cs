@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -234,6 +235,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             if (item == null || accused == null)
                 return ReignActionResult.ValidationFailed("No arrest case was found for this character.");
 
+            (ArrestEffectSyncStatus Status, int? Remainder)? effect = null;
             if (rescind)
             {
                 item.AccusationActive = false;
@@ -241,7 +243,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 item.ReleasedDay = CurrentDay();
                 item.LastOutcome = "accusation_rescinded";
                 AddHistory(item, "rescinded", "The player rescinded the accusation and cleared the accused's name.");
-                SynchronizeCaseEffect(item, accused, true);
+                effect = SynchronizeCaseEffect(item, accused, true);
             }
             if (accused.IsPrisoner && IsPlayerCustody(accused.PartyBelongedToAsPrisoner))
                 EndCaptivityAction.ApplyByReleasedByChoice(accused, Hero.MainHero);
@@ -255,7 +257,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             RecordHistory(item, accused, rescind ? "arrest_accusation_rescinded" : "arrest_released",
                 rescind ? "rescinded" : "released",
                 rescind ? "The player cleared " + accused.Name + " of the arrest accusation."
-                    : "The player released " + accused.Name + " while leaving the accusation on record.");
+                    : "The player released " + accused.Name + " while leaving the accusation on record.", effect);
             return ReignActionResult.Done(rescind
                     ? accused.Name + " was cleared and released."
                     : accused.Name + " was released; the accusation remains on record.")
@@ -841,9 +843,18 @@ namespace ReignBeta.WorldSimulation.Arrests
 #endif
         }
 
-        private void SynchronizeCaseEffect(ReignArrestCase item, Hero accused, bool rescind)
+        private enum ArrestEffectSyncStatus
         {
-            if (item == null || accused == null) return;
+            Unverified,
+            Confirmed,
+            TerminalPartial,
+            TerminalUnmeasured
+        }
+
+        private (ArrestEffectSyncStatus Status, int? Remainder) SynchronizeCaseEffect(
+            ReignArrestCase item, Hero accused, bool rescind)
+        {
+            if (item == null || accused == null) return (ArrestEffectSyncStatus.Unverified, null);
             int desiredDelta = RelationshipDelta(item.Severity, item.CauseEstablished);
             JObject payload = new JObject
             {
@@ -867,21 +878,74 @@ namespace ReignBeta.WorldSimulation.Arrests
             {
                 JObject response = ReignServerClient.ApplyArrestCaseEffectAsync(payload)
                     .GetAwaiter().GetResult();
-                if (response.Value<bool?>("ok") == true)
-                {
-                    item.RelationshipDeltaApplied = response.Value<int?>("appliedRelationshipDelta")
-                        ?? desiredDelta;
-                    item.RelationshipEffectSynchronized = true;
-                    item.ReputationSynchronized = true;
-                }
+                return ApplyCaseEffectResponse(item, payload, response, rescind);
             }
             catch (Exception ex)
             {
-                item.RelationshipEffectSynchronized = false;
-                item.ReputationSynchronized = false;
                 ReignLog.Warn("Arrest case social synchronization deferred case=" + item.CaseId
                     + ": " + ex.Message);
+                return MarkCaseEffectUnverified(item, rescind);
             }
+        }
+
+        private static (ArrestEffectSyncStatus Status, int? Remainder) ApplyCaseEffectResponse(
+            ReignArrestCase item, JObject request, JObject response, bool rescind)
+        {
+            if (response?["ok"]?.Type != JTokenType.Boolean
+                || !MatchesCaseEffectIdentity(request, response, "operation")
+                || !MatchesCaseEffectIdentity(request, response, "caseId")
+                || !MatchesCaseEffectIdentity(request, response, "reputationTagId"))
+                return MarkCaseEffectUnverified(item, rescind);
+
+            JToken resolved = response["relationshipEffectResolved"];
+            if (resolved != null && resolved.Type != JTokenType.Boolean)
+                return MarkCaseEffectUnverified(item, rescind);
+
+            JToken amount = response["appliedRelationshipDelta"];
+            int applied = 0;
+            bool hasAmount = amount?.Type == JTokenType.Integer
+                && int.TryParse(amount.ToString(Newtonsoft.Json.Formatting.None), NumberStyles.Integer,
+                    CultureInfo.InvariantCulture, out applied)
+                && applied >= -100 && applied <= 100;
+            bool ok = (bool)response["ok"];
+            bool? effectResolved = (bool?)resolved;
+            if (ok && hasAmount && (rescind ? applied == 0 && effectResolved == true : effectResolved != false))
+            {
+                item.RelationshipDeltaApplied = applied;
+                item.RelationshipEffectSynchronized = true;
+                item.ReputationSynchronized = true;
+                return (ArrestEffectSyncStatus.Confirmed, null);
+            }
+
+            // The legacy server confirmed the reputation update, but its nominal zero did not measure the reversal.
+            bool legacyRescission = ok && effectResolved == null && hasAmount && applied == 0;
+            bool terminalUnmeasured = !ok && effectResolved == false && amount?.Type == JTokenType.Null;
+            bool terminalPartial = !ok && effectResolved == false && hasAmount && applied != 0;
+            if (!rescind || (!legacyRescission && !terminalUnmeasured && !terminalPartial))
+                return MarkCaseEffectUnverified(item, rescind);
+
+            item.RelationshipDeltaApplied = 0;
+            item.RelationshipEffectSynchronized = false;
+            item.ReputationSynchronized = true;
+            return terminalPartial ? (ArrestEffectSyncStatus.TerminalPartial, applied)
+                : (ArrestEffectSyncStatus.TerminalUnmeasured, (int?)null);
+        }
+
+        private static bool MatchesCaseEffectIdentity(JObject request, JObject response, string key)
+        {
+            string expected = (string)request[key];
+            JToken actual = response[key];
+            return !string.IsNullOrEmpty(expected) && actual?.Type == JTokenType.String
+                && string.Equals(expected, (string)actual, StringComparison.Ordinal);
+        }
+
+        private static (ArrestEffectSyncStatus Status, int? Remainder) MarkCaseEffectUnverified(
+            ReignArrestCase item, bool rescind)
+        {
+            if (rescind) item.RelationshipDeltaApplied = 0;
+            item.RelationshipEffectSynchronized = false;
+            item.ReputationSynchronized = false;
+            return (ArrestEffectSyncStatus.Unverified, null);
         }
 
         private static ReignArrestContextKind ResolveContext(Hero accused,
@@ -953,24 +1017,57 @@ namespace ReignBeta.WorldSimulation.Arrests
         }
 
         private static void RecordHistory(ReignArrestCase item, Hero accused, string eventType,
-            string phase, string summary)
+            string phase, string summary, (ArrestEffectSyncStatus Status, int? Remainder)? effect = null)
         {
-            ReignServices.WorldHistory?.RecordReignSystemEvent(
+            var worldHistory = ReignServices.WorldHistory;
+            if (worldHistory == null) return;
+
+            var history = new JObject
+            {
+                ["caseId"] = item?.CaseId ?? string.Empty,
+                ["accusedHeroId"] = accused?.StringId ?? string.Empty,
+                ["accusation"] = item?.RawAccusation ?? string.Empty,
+                ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
+                ["severity"] = item == null ? string.Empty : SeverityName(item.Severity),
+                ["causeEstablished"] = item?.CauseEstablished ?? false,
+                ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
+            };
+            WriteCaseEffectHistory(history, item, effect);
+            worldHistory.RecordReignSystemEvent(
                 eventType, phase, "justice", item?.CaseId ?? string.Empty,
                 summary, "ordinary", Hero.MainHero?.StringId ?? string.Empty,
                 Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
-                new JObject
-                {
-                    ["caseId"] = item?.CaseId ?? string.Empty,
-                    ["accusedHeroId"] = accused?.StringId ?? string.Empty,
-                    ["accusation"] = item?.RawAccusation ?? string.Empty,
-                    ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
-                    ["severity"] = item == null ? string.Empty : SeverityName(item.Severity),
-                    ["causeEstablished"] = item?.CauseEstablished ?? false,
-                    ["relationshipDelta"] = item?.RelationshipDeltaApplied ?? 0,
-                    ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
-                },
-                new JArray(accused?.StringId ?? string.Empty));
+                history, new JArray(accused?.StringId ?? string.Empty));
+        }
+
+        private static void WriteCaseEffectHistory(JObject history, ReignArrestCase item,
+            (ArrestEffectSyncStatus Status, int? Remainder)? effect)
+        {
+            if (effect == null)
+            {
+                history["relationshipDelta"] = item?.RelationshipDeltaApplied ?? 0;
+                return;
+            }
+
+            var (status, remainder) = effect.Value;
+            history["relationshipEffectResolved"] = status == ArrestEffectSyncStatus.Confirmed;
+            history["reputationRescissionConfirmed"] = status != ArrestEffectSyncStatus.Unverified;
+            switch (status)
+            {
+                case ArrestEffectSyncStatus.Confirmed:
+                    history["relationshipDelta"] = 0;
+                    break;
+                case ArrestEffectSyncStatus.TerminalPartial:
+                    history["relationshipEffectStatus"] = "terminal_partial";
+                    history["remainingRelationshipDelta"] = remainder.Value;
+                    break;
+                case ArrestEffectSyncStatus.TerminalUnmeasured:
+                    history["relationshipEffectStatus"] = "terminal_unmeasured";
+                    break;
+                default:
+                    history["relationshipEffectStatus"] = "unverified";
+                    break;
+            }
         }
 
         private static string ReadString(JObject obj, string key, string fallback)
