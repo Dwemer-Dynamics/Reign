@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
 using ReignBeta.World;
 using Helpers;
@@ -15,6 +18,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Characters.Family;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
@@ -26,6 +30,9 @@ namespace ReignBeta.Characters.Campaign
         private List<ReignConceptionRecord> _conceptions = new List<ReignConceptionRecord>();
         private List<ReignParentageRecord> _parentage = new List<ReignParentageRecord>();
         private bool _reconcilingPregnancyRestrictions;
+        private int _managedBirthReportOffset;
+        private readonly ConcurrentDictionary<ReignConceptionRecord, byte> _managedBirthReportsInFlight =
+            new ConcurrentDictionary<ReignConceptionRecord, byte>();
 
         public static ReignFamilyCampaignBehavior Instance => ReignServices.Family;
 
@@ -59,9 +66,9 @@ namespace ReignBeta.Characters.Campaign
         private void PruneConceptionHistory()
         {
             _conceptions = (_conceptions ?? new List<ReignConceptionRecord>())
-                .Where(x => x != null && string.Equals(x.Status, "active", StringComparison.OrdinalIgnoreCase))
+                .Where(x => x != null && (string.Equals(x.Status, "active", StringComparison.OrdinalIgnoreCase) || HasPendingManagedBirth(x)))
                 .Concat((_conceptions ?? new List<ReignConceptionRecord>())
-                    .Where(x => x != null && !string.Equals(x.Status, "active", StringComparison.OrdinalIgnoreCase))
+                    .Where(x => x != null && !string.Equals(x.Status, "active", StringComparison.OrdinalIgnoreCase) && !HasPendingManagedBirth(x))
                     .OrderByDescending(x => x.ConceptionDay)
                     .Take(128))
                 .Distinct()
@@ -156,7 +163,13 @@ namespace ReignBeta.Characters.Campaign
             }
         }
 
-        public bool TryStartManagedConception(string conceptionId, Hero mother, Hero biologicalFather, Hero legalFather, float conceptionDay, float dueDay, float secrecy, bool playerInvolved, out string error)
+        public bool TryStartManagedConception(string conceptionId, Hero mother, Hero biologicalFather, Hero legalFather,
+            float conceptionDay, float dueDay, float secrecy, bool playerInvolved, out string error)
+            => TryStartManagedConception(conceptionId, mother, biologicalFather, legalFather,
+                conceptionDay, dueDay, secrecy, playerInvolved, out error, null);
+
+        internal bool TryStartManagedConception(string conceptionId, Hero mother, Hero biologicalFather, Hero legalFather,
+            float conceptionDay, float dueDay, float secrecy, bool playerInvolved, out string error, string intendedLegalFatherId)
         {
             error = string.Empty;
             if (mother == null || biologicalFather == null || !mother.IsFemale || biologicalFather.IsFemale || mother.Age < 18f || mother.Age > 45f || !mother.IsAlive || !biologicalFather.IsAlive)
@@ -176,6 +189,8 @@ namespace ReignBeta.Characters.Campaign
                 MotherId = mother.StringId,
                 BiologicalFatherId = biologicalFather.StringId,
                 LegalFatherId = (legalFather ?? biologicalFather).StringId,
+                IntendedLegalFatherId = string.IsNullOrWhiteSpace(intendedLegalFatherId)
+                    ? (legalFather ?? biologicalFather).StringId : intendedLegalFatherId,
                 ConceptionDay = conceptionDay,
                 DueDay = dueDay > conceptionDay ? dueDay : conceptionDay + 36f,
                 Secrecy = secrecy,
@@ -275,6 +290,13 @@ namespace ReignBeta.Characters.Campaign
         {
             if (ReignCampaignInitializationGate.IsPending) return;
             ReconcilePregnancyRestrictions("hourly");
+            var pending = _conceptions.Where(HasPendingManagedBirth).ToList();
+            if (pending.Count == 0) return;
+            int start = _managedBirthReportOffset % pending.Count;
+            int batch = Math.Min(3, pending.Count);
+            _managedBirthReportOffset = (start + batch) % pending.Count;
+            for (int index = 0; index < batch; index++)
+                _ = SendManagedBirthReportAsync(pending[(start + index) % pending.Count]);
         }
 
         private void OnGameLoaded(CampaignGameStarter starter)
@@ -620,16 +642,80 @@ namespace ReignBeta.Characters.Campaign
                 ConceptionId = record.ConceptionId
             };
             _parentage.Add(parentage);
+            RunManagedBirthFollowUp(record, "capture birth report", () =>
+            {
+                JObject observed = ReignRelationshipDirectorClient.CaptureConceptionReport(record, "born", record.ChildId);
+                if (!string.IsNullOrWhiteSpace(record.IntendedLegalFatherId))
+                    observed["intendedLegalFatherId"] = record.IntendedLegalFatherId;
+                observed["legalFatherId"] = parentage.LegalFatherId;
+                observed["reportOrigin"] = ManagedBirthReportOrigin((string)observed["campaignId"]);
+                record.PendingManagedBirthReportJson = observed.ToString(Formatting.None);
+            });
 
             RunManagedBirthFollowUp(record, "clear pregnancy", () => mother.IsPregnant = false);
             if (parentage.BastardSurname.Length > 0)
                 RunManagedBirthFollowUp(record, "name child", () => ApplyBastardName(child, parentage.BastardSurname));
             RunManagedBirthFollowUp(record, "dispatch birth event",
                 () => CampaignEventDispatcher.Instance.OnGivenBirth(mother, new List<Hero> { child }, 0));
-            _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "born", record.ChildId);
+            if (HasPendingManagedBirth(record)) _ = SendManagedBirthReportAsync(record);
             if (record.PlayerInvolved)
                 RunManagedBirthFollowUp(record, "display birth notice",
                     () => InformationManager.DisplayMessage(new InformationMessage(mother.Name + " has given birth.")));
+        }
+
+        private static bool HasPendingManagedBirth(ReignConceptionRecord record)
+            => record?.Status == "born" && !string.IsNullOrWhiteSpace(record.PendingManagedBirthReportJson);
+
+        private static string ManagedBirthReportOrigin(string campaign)
+        {
+            var aligned = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            return aligned != null && aligned.CampaignId == campaign
+                ? aligned.Origin
+                : ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl());
+        }
+
+        private async System.Threading.Tasks.Task SendManagedBirthReportAsync(ReignConceptionRecord record)
+        {
+            if (!HasPendingManagedBirth(record) || !_managedBirthReportsInFlight.TryAdd(record, 0)) return;
+            try
+            {
+                string retainedPayload = record.PendingManagedBirthReportJson;
+                JObject payload = JObject.Parse(retainedPayload);
+                string campaign = (string)payload["campaignId"];
+                string timeline = (string)payload["timelineId"];
+                string conception = (string)payload["conceptionId"];
+                string child = (string)payload["childId"];
+                string origin = (string)payload["reportOrigin"];
+                payload.Remove("reportOrigin");
+                string configuredServer = ReignServerEndpoint.ConfiguredBaseUrl();
+                var fence = ReignServerClient.RequestFence.Capture();
+                bool OwnsReport() => ReferenceEquals(Instance, this) && fence.IsCurrentActionPoll()
+                    && configuredServer == ReignServerEndpoint.ConfiguredBaseUrl()
+                    && origin == ManagedBirthReportOrigin(campaign) && ReignHttpTransport.IsAllowedPinnedOrigin(origin)
+                    && HasPendingManagedBirth(record) && _conceptions.Contains(record)
+                    && record.PendingManagedBirthReportJson == retainedPayload
+                    && record.ConceptionId == conception && record.ChildId == child
+                    && campaign == ReignServerClient.GetCampaignId()
+                    && timeline == (ReignServices.WorldHistory?.TimelineId ?? "main");
+                if (string.IsNullOrWhiteSpace(conception) || string.IsNullOrWhiteSpace(child)
+                    || (string)payload["status"] != "born") return;
+                if (campaign != ReignServerClient.GetCampaignId() || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")
+                    || origin != ManagedBirthReportOrigin(campaign))
+                {
+                    ReignLog.Warn("Managed birth report is retained for its original campaign, timeline, and server.");
+                    return;
+                }
+                if (!OwnsReport()) return;
+                payload["sharedActivityGeneration"] = fence.SharedActivityGeneration;
+                if (await ReignRelationshipDirectorClient.AcknowledgeManagedBirthAsync(origin, payload, OwnsReport).ConfigureAwait(false))
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (OwnsReport()) record.PendingManagedBirthReportJson = string.Empty;
+                    }).ConfigureAwait(false);
+            }
+            catch (ReignRequestOwnerAbandonedException) { }
+            catch (Exception ex) { ReignLog.Warn("Managed birth report remains pending: " + ex.Message); }
+            finally { _managedBirthReportsInFlight.TryRemove(record, out _); }
         }
 
         private static void FailManagedDelivery(ReignConceptionRecord record, Hero mother)

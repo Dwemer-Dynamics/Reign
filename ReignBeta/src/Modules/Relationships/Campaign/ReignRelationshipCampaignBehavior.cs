@@ -839,7 +839,8 @@ namespace ReignBeta.Relationships.Campaign
                             action.Payload?.Value<float?>("conceptionDay") ?? (float)CampaignTime.Now.ToDays,
                             action.Payload?.Value<float?>("dueDay") ?? (float)CampaignTime.Now.ToDays + 36f,
                             action.Payload?.Value<float?>("secrecy") ?? 0f,
-                            action.Payload?.Value<bool?>("playerInvolved") == true, out error))
+                            action.Payload?.Value<bool?>("playerInvolved") == true, out error,
+                            action.Payload?.Value<string>("legalFatherId")))
                     {
                         if (IsObsoleteManagedConceptionError(error, mother, bio))
                             status = "obsolete";

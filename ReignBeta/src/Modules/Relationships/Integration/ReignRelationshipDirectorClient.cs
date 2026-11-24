@@ -130,7 +130,7 @@ namespace ReignBeta.Relationships.Integration
                 Hero legal = FindLivingHero(result.LegalFatherId) ?? bio;
                 string error = string.Empty;
                 if (ReignServices.Family != null
-                    && ReignServices.Family.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
+                    && ReignServices.Family.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error, result.LegalFatherId))
                 {
                     ReignLog.Info("Verified player conception succeeded at chance=" + result.Chance.ToString("P2") + ".");
                 }
@@ -141,24 +141,41 @@ namespace ReignBeta.Relationships.Integration
             }).ConfigureAwait(false);
         }
 
+        internal static JObject CaptureConceptionReport(ReignConceptionRecord record, string status, string childId)
+            => new JObject
+            {
+                ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
+                ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
+                ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
+                ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
+                ["contextSource"] = record.ContextSource,
+                ["childId"] = childId ?? string.Empty,["motherId"] = record.MotherId,["biologicalFatherId"] = record.BiologicalFatherId,
+                ["legalFatherId"] = record.LegalFatherId,["worldDay"] = CurrentDirectorDay(),["isIllegitimate"] = record.IsIllegitimate
+                };
+
         public static async Task ReportConceptionAsync(ReignConceptionRecord record, string status, string childId)
         {
             if (record == null) return;
             try
             {
-                await PostJsonAsync("/family/conception/report", new JObject
-                {
-                    ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
-                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
-                    ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
-                    ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
-                    ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
-                    ["contextSource"] = record.ContextSource,
-                    ["childId"] = childId ?? string.Empty,["motherId"] = record.MotherId,["biologicalFatherId"] = record.BiologicalFatherId,
-                    ["legalFatherId"] = record.LegalFatherId,["worldDay"] = CurrentDirectorDay(),["isIllegitimate"] = record.IsIllegitimate
-                }).ConfigureAwait(false);
+                await PostJsonAsync("/family/conception/report", CaptureConceptionReport(record, status, childId))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Conception report failed: " + ex.Message); }
+        }
+
+        internal static async Task<bool> AcknowledgeManagedBirthAsync(string origin, JObject payload, Func<bool> ownsReport)
+        {
+            JObject response = await SendPinnedJsonAsync(origin, "/family/conception/report", payload, ownsReport).ConfigureAwait(false);
+            return response?["ok"]?.Type == JTokenType.Boolean && (bool)response["ok"]
+                && response["status"]?.Type == JTokenType.String && (string)response["status"] == "born"
+                && response["conceptionId"]?.Type == JTokenType.String && (string)response["conceptionId"] == (string)payload["conceptionId"]
+                && response["childId"]?.Type == JTokenType.String && (string)response["childId"] == (string)payload["childId"]
+                && response["campaignId"]?.Type == JTokenType.String && (string)response["campaignId"] == (string)payload["campaignId"]
+                && response["timelineId"]?.Type == JTokenType.String && (string)response["timelineId"] == (string)payload["timelineId"]
+                && response["sharedActivityGeneration"]?.Type == JTokenType.String
+                && (string)response["sharedActivityGeneration"] == (string)payload["sharedActivityGeneration"];
         }
 
         internal static JObject CaptureMarriageDirectorSnapshot() => BuildRelationshipDirectorSnapshot();
