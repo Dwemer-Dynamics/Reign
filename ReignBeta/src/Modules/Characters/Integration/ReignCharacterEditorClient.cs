@@ -12,12 +12,14 @@ namespace ReignBeta.Characters.Integration
 {
     internal static class ReignCharacterEditorClient
     {
-        public static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync()
+        internal static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync(
+            string campaignId, Func<bool> ownsPoll)
         {
             List<ReignCharacterEditorCommand> result = new List<ReignCharacterEditorCommand>();
             try
             {
-                JObject response = await PostJsonAsync("/character-editor/native/poll", new JObject { ["campaignId"] = GetCampaignId() }).ConfigureAwait(false);
+                JObject response = await PostOwnedJsonAsync("/character-editor/native/poll",
+                    new JObject { ["campaignId"] = campaignId }, ownsPoll).ConfigureAwait(false);
                 foreach (JObject row in (response["commands"] as JArray ?? new JArray()).OfType<JObject>())
                 {
                     result.Add(new ReignCharacterEditorCommand
@@ -30,20 +32,23 @@ namespace ReignBeta.Characters.Integration
                     });
                 }
             }
+            catch (ReignRequestOwnerAbandonedException) { throw; }
             catch (Exception ex) { ReignLog.Warn("Character editor command poll failed: " + ex.Message); }
             return result;
         }
 
-        public static async Task ReportCharacterEditorCommandAsync(string commandId, string status, IList<string> applied, IList<string> errors)
+        internal static async Task ReportCharacterEditorCommandAsync(string campaignId, string commandId,
+            string status, IList<string> applied, IList<string> errors, Func<bool> ownsPoll)
         {
             try
             {
-                await PostJsonAsync("/character-editor/native/report", new JObject
+                await PostOwnedJsonAsync("/character-editor/native/report", new JObject
                 {
-                    ["campaignId"] = GetCampaignId(), ["commandId"] = commandId ?? string.Empty, ["status"] = status ?? "failed",
+                    ["campaignId"] = campaignId, ["commandId"] = commandId ?? string.Empty, ["status"] = status ?? "failed",
                     ["applied"] = new JArray(applied ?? new List<string>()), ["errors"] = new JArray(errors ?? new List<string>())
-                }).ConfigureAwait(false);
+                }, ownsPoll).ConfigureAwait(false);
             }
+            catch (ReignRequestOwnerAbandonedException) { throw; }
             catch (Exception ex) { ReignLog.Warn("Character editor command report failed: " + ex.Message); }
         }
 

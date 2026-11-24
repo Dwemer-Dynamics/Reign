@@ -230,22 +230,34 @@ namespace ReignBeta.Characters.Campaign
             if (!IsCurrentCampaign || _polling || Hero.MainHero == null) return;
             float day = (float)CampaignTime.Now.ToDays;
             if (!force && day - _lastPollDay < 0.2f) return;
-            _lastPollDay = day; _polling = true; _ = PollAsync();
+            string campaignId = ReignServerClient.GetCampaignId();
+            var fence = ReignServerClient.RequestFence.Capture();
+            bool OwnsPoll() => IsCurrentCampaign && fence.IsCurrentActionPoll()
+                && !ReignCampaignInitializationGate.IsPending;
+            if (!OwnsPoll()) return;
+            _lastPollDay = day;
+            _polling = true;
+            _ = PollAsync(campaignId, OwnsPoll);
         }
 
-        private async Task PollAsync()
+        private async Task PollAsync(string campaignId, Func<bool> ownsPoll)
         {
             try
             {
-                List<ReignCharacterEditorCommand> commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync().ConfigureAwait(false);
+                var commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync(campaignId, ownsPoll)
+                    .ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
                     CharacterEditorApplyResult result = await ReignMainThread.InvokeAsync(() =>
-                        IsCurrentCampaign ? Apply(command) : null).ConfigureAwait(false);
-                    if (result == null) return; // Never apply old-campaign commands to a new save.
-                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(command.CommandId, result.Errors.Count == 0 ? "completed" : result.Applied.Count > 0 ? "partially_applied" : "failed", result.Applied, result.Errors).ConfigureAwait(false);
+                        ownsPoll() ? Apply(command) : null).ConfigureAwait(false);
+                    if (result == null) return;
+                    string status = result.Errors.Count == 0 ? "completed"
+                        : result.Applied.Count > 0 ? "partially_applied" : "failed";
+                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(campaignId, command.CommandId,
+                        status, result.Applied, result.Errors, ownsPoll).ConfigureAwait(false);
                 }
             }
+            catch (ReignRequestOwnerAbandonedException) { }
             catch (Exception ex) { ReignLog.Warn("Character editor campaign poll failed: " + ex.Message); }
             finally { _polling = false; }
         }
