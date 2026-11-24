@@ -110,6 +110,30 @@ public sealed class ReignWorldHistoryOutboxTests
     }
 
     [Fact]
+    public void Ready_system_history_publishes_head_only_after_scoped_queue_admission()
+    {
+        string workspace = TestOptions.FindWorkspace();
+        string client = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+            "ReignWorldHistoryClient.cs", "/src/Modules/WorldSimulation/Integration/"));
+        int stageStart = client.IndexOf("internal static bool TryStageReadySystemEvent", StringComparison.Ordinal);
+        int legacyStart = client.IndexOf("internal static void Enqueue", stageStart, StringComparison.Ordinal);
+        string stage = client[stageStart..legacyStart];
+        int owner = stage.IndexOf("epoch != _epoch || campaignId != _campaignId || timelineId != _timelineId", StringComparison.Ordinal);
+        int retained = stage.IndexOf("Pending.Enqueue(envelope);", StringComparison.Ordinal);
+        int published = stage.IndexOf("publishHead();", StringComparison.Ordinal);
+        Assert.Contains("lock (StateLock)", stage);
+        Assert.True(owner >= 0 && owner < retained && retained < published);
+
+        string behavior = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+            "ReignWorldHistoryCampaignBehavior.cs", "/src/Modules/WorldSimulation/Campaign/"));
+        Assert.Contains("stageReadySystemFact: true", behavior);
+        Assert.Contains("long sequence = publishAfterStage ? checked(_sequence + 1) : ++_sequence;", behavior);
+        Assert.Contains("if (!publishAfterStage) PublishHead();", behavior);
+        Assert.Contains("evt, stagedCampaign, stagedTimeline, stagedEpoch, PublishHead", behavior);
+        Assert.Contains("beforeEnqueue: e => _publicNewsAttempts[eventId]", behavior);
+    }
+
+    [Fact]
     public void Failed_rewrites_preserve_the_original_bytes_and_remove_only_the_owned_scratch_file()
     {
         var root = Path.Combine(Path.GetTempPath(), "reign-outbox-" + Guid.NewGuid().ToString("N"));

@@ -186,6 +186,45 @@ namespace ReignBeta.WorldSimulation.Integration
             (item.Value<string>("eventType") == "public_announcement" && item.Value<string>("source") == "reign_public_news"
                 || Reign.Core.Contracts.World.ReignPublicNews.IsNativePublicDiplomacy(item.Value<string>("eventType"), item.Value<string>("source"), item.Value<string>("disseminationClass")));
 
+        internal static long CaptureQueueEpoch() => Interlocked.Read(ref _epoch);
+
+        internal static bool HasExactQueueKey(string key) =>
+            !string.IsNullOrWhiteSpace(key) && SafeSegment(key, string.Empty) == key;
+
+        internal static bool UsesOrdinarySystemQueue(string eventType) =>
+            !string.IsNullOrWhiteSpace(eventType) && eventType != "public_announcement"
+            && !RoutineEventTypes.Contains(eventType);
+
+        // A ready native system event is complete before admission. Keep its scope
+        // check, staging and head publication together while resets are excluded.
+        internal static bool TryStageReadySystemEvent(JObject historyEvent, string campaignId,
+            string timelineId, long epoch, Action publishHead)
+        {
+            if (historyEvent == null || publishHead == null
+                || historyEvent.Value<string>("source") != "reign_system"
+                || !UsesOrdinarySystemQueue(historyEvent.Value<string>("eventType"))
+                || historyEvent.Value<bool?>("isComplete") != true
+                || historyEvent.Value<long?>("sequence") is not long sequence || sequence <= 0
+                || !HasExactQueueKey(campaignId) || !HasExactQueueKey(timelineId)) return false;
+            string eventId = historyEvent.Value<string>("eventId");
+            if (string.IsNullOrWhiteSpace(eventId)) return false;
+
+            var envelope = (JObject)historyEvent.DeepClone();
+            lock (StateLock)
+            {
+                if (epoch != _epoch || campaignId != _campaignId || timelineId != _timelineId) return false;
+                envelope["_reignCampaignId"] = _campaignId;
+                envelope["_reignTimelineId"] = _timelineId;
+                envelope["_reignHistoryEpoch"] = _epoch;
+                Pending.Enqueue(envelope);
+                if (!string.IsNullOrWhiteSpace(envelope["payload"]?.Value<string>("playerHeroId")))
+                    SharedPending[eventId] = envelope;
+                publishHead();
+            }
+            Kick();
+            return true;
+        }
+
         internal static void Enqueue(JObject historyEvent)
         {
             if (historyEvent == null || string.IsNullOrWhiteSpace(historyEvent.Value<string>("eventId")))
