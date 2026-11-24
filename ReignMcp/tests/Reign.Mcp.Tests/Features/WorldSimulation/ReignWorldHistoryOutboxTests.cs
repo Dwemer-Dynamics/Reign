@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using ReignBeta.WorldSimulation.Integration;
 
@@ -56,6 +57,51 @@ public sealed class ReignWorldHistoryOutboxTests
             Assert.False(File.Exists(path));
             var recovery = Assert.Single(Directory.GetFiles(root));
             Assert.Equal("complete recovery copy", File.ReadAllText(recovery));
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Keeps_the_exact_ordered_prefix_in_memory_until_the_append_succeeds()
+    {
+        var pending = new ConcurrentQueue<string>(new[] { "first", "second", "later" });
+        Assert.Throws<IOException>(() => ReignWorldHistoryOutbox.PersistQueuePrefix(pending, 2, staged =>
+        {
+            Assert.Equal(new[] { "first", "second" }, staged);
+            Assert.Equal(new[] { "first", "second", "later" }, pending.ToArray());
+            throw new IOException("an isolated append failed");
+        }));
+        Assert.Equal(new[] { "first", "second", "later" }, pending.ToArray());
+
+        int count = ReignWorldHistoryOutbox.PersistQueuePrefix(pending, 2, staged =>
+        {
+            Assert.Equal(new[] { "first", "second" }, staged);
+            pending.Enqueue("concurrent producer");
+            Assert.True(pending.TryPeek(out string? head));
+            Assert.Equal("first", head);
+        });
+        Assert.Equal(2, count);
+        Assert.Equal(new[] { "later", "concurrent producer" }, pending.ToArray());
+    }
+
+    [Fact]
+    public void A_torn_last_line_cannot_swallow_the_first_complete_replay_record()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "reign-outbox-tail-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(root);
+            var path = Path.Combine(root, "pending.jsonl");
+            const string first = "{\"eventId\":\"prior\"}", torn = "{\"eventId\":";
+            File.WriteAllText(path, first + "\n" + torn, new UTF8Encoding(false));
+            const string replay = "{\"eventId\":\"retry\"}";
+            const string later = "{\"eventId\":\"later\"}";
+            ReignWorldHistoryOutbox.AppendRecords(path, replay + "\n");
+            ReignWorldHistoryOutbox.AppendRecords(path, later + "\n");
+            Assert.Equal(new[] { first, torn, replay, later }, File.ReadAllLines(path));
         }
         finally
         {
