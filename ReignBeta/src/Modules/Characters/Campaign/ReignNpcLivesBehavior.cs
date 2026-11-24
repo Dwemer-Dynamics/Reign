@@ -206,13 +206,14 @@ namespace ReignBeta.Characters.Campaign
                 && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
             return new JObject
             {
-                ["schema"] = "reign-npc-lives-checkpoint-v1",
+                ["schema"] = "reign-npc-lives-checkpoint-v2",
                 ["campaignId"] = _campaign,
                 ["timelineId"] = _timeline,
                 ["snapshotReady"] = snapshotReady,
                 ["mutationInFlight"] = _checkpointMutationInFlight,
                 ["pendingReceipts"] = _outbox.Count,
-                ["dueNativeRewards"] = snapshotReady ? CountCheckpointLifeRewards() : 0
+                ["dueNativeRewards"] = snapshotReady ? CountCheckpointLifeRewards() : 0,
+                ["dueNativePersonalTravel"] = snapshotReady ? CountDuePersonalTravel() : 0
             };
         }
 
