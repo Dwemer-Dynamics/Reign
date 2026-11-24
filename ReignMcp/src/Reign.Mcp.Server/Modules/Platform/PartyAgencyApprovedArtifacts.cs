@@ -1,8 +1,11 @@
+using System.Globalization;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Reign.Core.Contracts.Platform;
 
 namespace Reign.Mcp.Server;
 
@@ -31,6 +34,44 @@ public sealed record PartyAgencyApprovedArtifactWitness(
             LinuxSourceFingerprintSha256, LinuxManifestSha256, Client.Sha256, Server.Sha256];
         return digests.All(PartyAgencyApprovedArtifacts.IsSha256);
     }
+}
+
+public sealed record PartyAgencyInstalledArtifactWitness(
+    string Schema, string RunId, string CampaignId, string CampaignTestRunId, string TimelineId,
+    string DisposableSaveName, string CapturedUtc, string ApprovedWitnessSha256, string InstallationRecordSha256,
+    string LinuxRuntimeVersion, PartyAgencyApprovedModule Client, PartyAgencyApprovedModule Server,
+    PartyAgencyApprovedModule CampaignSystem, PartyAgencyApprovedModule Core)
+{
+    internal const string WitnessSchema = "reign-party-agency-installed-artifacts-v1";
+
+    internal bool BelongsTo(PartyAgencyCertificationState state, PartyAgencyApprovedArtifactWitness approval) =>
+        Schema == WitnessSchema && RunId == state.RunId && CampaignId == state.CampaignId
+        && CampaignTestRunId == state.CampaignTestRunId
+        && !string.IsNullOrWhiteSpace(TimelineId) && TimelineId == state.TimelineId
+        && !string.IsNullOrWhiteSpace(DisposableSaveName) && DisposableSaveName == state.DisposableSaveName
+        && approval.BelongsTo(RunId, CampaignId, CampaignTestRunId)
+        && ReadTimestamp(CapturedUtc, out var captured) && ReadTimestamp(approval.CapturedUtc, out var approved)
+        && approved <= captured
+        && ApprovedWitnessSha256 == PartyAgencyApprovedArtifacts.ApprovalWitnessSha256(approval)
+        && PartyAgencyApprovedArtifacts.IsSha256(InstallationRecordSha256)
+        && PartyAgencyApprovedArtifacts.IsRuntimeVersion(LinuxRuntimeVersion)
+        && Client == approval.Client && Server == approval.Server
+        && IsLicensedModule(CampaignSystem, "TaleWorlds.CampaignSystem")
+        && IsLicensedModule(Core, "TaleWorlds.Core");
+
+    internal bool MatchesInstallation(PartyAgencyInstalledArtifactWitness current) =>
+        (this with { CapturedUtc = current.CapturedUtc }) == current;
+
+    internal bool CapturedBeforeIssuance(string originalObservedUtc) =>
+        ReadTimestamp(CapturedUtc, out var captured)
+        && ReadTimestamp(originalObservedUtc, out var issued) && captured <= issued;
+
+    private static bool ReadTimestamp(string input, out DateTimeOffset timestamp) =>
+        DateTimeOffset.TryParseExact(input, "O", CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp);
+
+    private static bool IsLicensedModule(PartyAgencyApprovedModule? module, string name) =>
+        module is not null && module.AssemblyName == name && module.Mvid != Guid.Empty
+        && PartyAgencyApprovedArtifacts.IsSha256(module.Sha256);
 }
 
 internal static class PartyAgencyApprovedArtifacts
@@ -100,6 +141,95 @@ internal static class PartyAgencyApprovedArtifacts
             Text(linuxReport.Root, "RunId"), linuxFingerprint, manifest.Sha256, client, server);
     }
 
+    // Measure installed files separately from the approved build. This receipt
+    // does not claim those bytes were mapped into the original process.
+    internal static PartyAgencyInstalledArtifactWitness CaptureInstalled(PartyAgencyCertificationState state)
+    {
+        var approval = state.ApprovedArtifactWitness;
+        if (approval is null || !approval.BelongsTo(state.RunId, state.CampaignId, state.CampaignTestRunId)
+            || string.IsNullOrWhiteSpace(state.TimelineId) || string.IsNullOrWhiteSpace(state.DisposableSaveName))
+            throw new InvalidDataException("Installed artifact evidence requires an approved guarded enrollment.");
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("Installed artifact capture requires the registered Windows Bannerlord installation.");
+
+        string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        using var record = new BoundJson(ReignInstallation.GetDefaultRecordPath(profile), maxBytes: 64 * 1024);
+        if (Text(record.Root, "schema") != ReignInstallation.SchemaName)
+            throw new InvalidDataException("No supported registered Reign installation is available.");
+        var install = record.Root.Deserialize<ReignInstallation>(
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
+            ?? throw new InvalidDataException("The Reign installation record is empty.");
+        install.Validate();
+        if (install.ServerMode != "dwemerdistro-wsl")
+            throw new InvalidDataException("Installed artifact evidence requires the registered dedicated WSL server.");
+
+        const string manifestName = "reign-linux-artifact.json";
+        string runtimeRoot = Path.GetDirectoryName(install.ServerRoot)
+            ?? throw new InvalidDataException("The registered runtime root is missing.");
+        string versionPath = Path.Combine(runtimeRoot, "current-version");
+        string version = ReadRuntimeVersion(versionPath);
+        using var activation = new BoundJson(Path.Combine(install.ServerRoot, manifestName), approval.LinuxManifestSha256);
+        using var retained = new BoundJson(Path.Combine(runtimeRoot, "versions", version, manifestName), activation.Sha256);
+        if (Text(activation.Root, "schema") != "reign-linux-artifact-v1"
+            || Digest(activation.Root, "sourceFingerprint") != approval.LinuxSourceFingerprintSha256
+            || Digest(Property(activation.Root, "files"), ServerArtifact) != approval.Server.Sha256)
+            throw new InvalidDataException("The active Linux manifest does not bind the approved server assembly.");
+
+        const string shipping = "Win64_Shipping_Client";
+        string clientBin = Path.Combine(install.ModuleRoot, "bin", shipping);
+        string gameBin = Path.Combine(install.BannerlordRoot, "bin", shipping);
+        var client = ReadManagedArtifact(Path.Combine(clientBin, "ReignBeta.dll"), "ReignBeta", approval.Client.Sha256);
+        var server = ReadManagedArtifact(Path.Combine(install.ServerRoot, ServerArtifact), "ReignServer", approval.Server.Sha256);
+        var campaignSystem = ReadManagedArtifact(Path.Combine(gameBin, "TaleWorlds.CampaignSystem.dll"), "TaleWorlds.CampaignSystem");
+        var core = ReadManagedArtifact(Path.Combine(gameBin, "TaleWorlds.Core.dll"), "TaleWorlds.Core");
+        if (ReadRuntimeVersion(versionPath) != version)
+            throw new InvalidDataException("The active Linux runtime changed during installed artifact capture.");
+
+        var witness = new PartyAgencyInstalledArtifactWitness(PartyAgencyInstalledArtifactWitness.WitnessSchema,
+            state.RunId, state.CampaignId, state.CampaignTestRunId, state.TimelineId, state.DisposableSaveName,
+            DateTimeOffset.UtcNow.ToString("O"), ApprovalWitnessSha256(approval), record.Sha256,
+            version, client, server, campaignSystem, core);
+        if (!witness.BelongsTo(state, approval))
+            throw new InvalidDataException("The installed managed identities do not match the approved enrollment.");
+        return witness;
+    }
+
+    internal static PartyAgencyInstalledArtifactWitness? ReadInstalledWitness(
+        string path, PartyAgencyCertificationState state)
+    {
+        var approval = state.ApprovedArtifactWitness;
+        if (approval is null) return null;
+        try
+        {
+            using var document = new BoundJson(path, maxBytes: 64 * 1024);
+            var witness = document.Root.Deserialize<PartyAgencyInstalledArtifactWitness>(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            return witness is not null && witness.BelongsTo(state, approval)
+                ? witness : throw new InvalidDataException("Installed artifact evidence belongs to a different certification.");
+        }
+        catch (FileNotFoundException) { return null; }
+        catch (DirectoryNotFoundException) { return null; }
+    }
+
+    internal static string ApprovalWitnessSha256(PartyAgencyApprovedArtifactWitness approval) =>
+        Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(approval)));
+
+    internal static bool IsRuntimeVersion(string? value) =>
+        value is { Length: <= 40 } && Regex.IsMatch(value, @"\A[0-9]{14}-[0-9]+\z");
+
+    private static string ReadRuntimeVersion(string path)
+    {
+        using var stream = OpenPhysicalRead(path);
+        if (stream.Length is < 1 or > 128)
+            throw new InvalidDataException("The registered runtime version marker exceeds its size bound.");
+        byte[] bytes = new byte[(int)stream.Length];
+        stream.ReadExactly(bytes);
+        string version = Encoding.UTF8.GetString(bytes).Trim();
+        if (!IsRuntimeVersion(version))
+            throw new InvalidDataException("The registered runtime version marker is invalid.");
+        return version;
+    }
+
     internal static void ValidateReviewBinding(JsonElement candidate, JsonElement review, string candidateHash)
     {
         if (Text(candidate, "Schema") != "reign-deployment-authority-content-v1"
@@ -119,13 +249,13 @@ internal static class PartyAgencyApprovedArtifacts
             throw new InvalidDataException("The retained deployment review does not cover the exact candidate paths.");
     }
 
-    internal static PartyAgencyApprovedModule ReadManagedArtifact(string path, string assemblyName, string approvedSha256)
+    internal static PartyAgencyApprovedModule ReadManagedArtifact(string path, string assemblyName, string? approvedSha256 = null)
     {
         using var stream = OpenPhysicalRead(path);
         using var pe = new PEReader(stream, PEStreamOptions.PrefetchEntireImage | PEStreamOptions.LeaveOpen);
         // The PE reader owns one buffered image for both the SHA and managed metadata.
         string sha256 = Convert.ToHexStringLower(SHA256.HashData(pe.GetEntireImage().GetContent().AsSpan()));
-        if (sha256 != approvedSha256)
+        if (approvedSha256 is not null && sha256 != approvedSha256)
             throw new InvalidDataException("The approved managed assembly bytes changed.");
         if (!pe.HasMetadata)
             throw new InvalidDataException("The approved artifact is not a managed assembly.");
@@ -187,12 +317,12 @@ internal static class PartyAgencyApprovedArtifacts
         public JsonElement Root => _document.RootElement;
         public string Sha256 { get; }
 
-        public BoundJson(string path, string? expectedSha256 = null)
+        public BoundJson(string path, string? expectedSha256 = null, int maxBytes = 64 * 1024 * 1024)
         {
             _stream = OpenPhysicalRead(path);
             try
             {
-                if (_stream.Length > 64L * 1024 * 1024)
+                if (_stream.Length > maxBytes)
                     throw new InvalidDataException("Approved JSON evidence exceeds its read bound.");
                 byte[] bytes = new byte[(int)_stream.Length];
                 _stream.ReadExactly(bytes);

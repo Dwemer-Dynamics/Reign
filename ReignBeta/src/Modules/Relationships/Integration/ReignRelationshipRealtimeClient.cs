@@ -72,19 +72,33 @@ namespace ReignBeta.Relationships.Integration
             }
         }
 
-        internal static async Task PullRelationshipNativeTargetsAsync()
+        internal static async Task PullRelationshipNativeTargetsAsync(Func<bool> requestOwner = null)
         {
-            string campaignId = GetCampaignId();
-            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             try
             {
-                JObject response = await PostJsonAsync("/relationships/ambient/native_sync/pull", new JObject
+                var scope = await ReignMainThread.InvokeAsync(() =>
                 {
-                    ["campaignId"] = campaignId,
-                    ["timelineId"] = timelineId,
-                    ["limit"] = RelationshipNativePullBatchSize,
-                    ["worldDay"] = ReignRelationshipDirectorClient.CurrentDirectorDay()
+                    ReignRequestOwnership.Ensure(requestOwner, "capturing native relationship targets");
+                    return (Fence: RequestFence.Capture(), Behavior: ReignServices.Relationship,
+                        Campaign: GetCampaignId(), Timeline: ReignServices.WorldHistory?.TimelineId ?? "main",
+                        Endpoint: ReignServerEndpoint.ConfiguredBaseUrl(),
+                        WorldDay: ReignRelationshipDirectorClient.CurrentDirectorDay());
                 }).ConfigureAwait(false);
+
+                bool Owns() => scope.Behavior != null && ReferenceEquals(scope.Behavior, ReignServices.Relationship)
+                    && scope.Fence.IsCurrentActionPoll()
+                    && string.Equals(scope.Endpoint, ReignServerEndpoint.ConfiguredBaseUrl(), StringComparison.Ordinal)
+                    && ReignRequestOwnership.IsCurrent(requestOwner);
+                JObject response = await PostOwnedJsonAsync("/relationships/ambient/native_sync/pull", new JObject
+                {
+                    ["campaignId"] = scope.Campaign,
+                    ["timelineId"] = scope.Timeline,
+                    ["limit"] = RelationshipNativePullBatchSize,
+                    ["worldDay"] = scope.WorldDay
+                }, Owns).ConfigureAwait(false);
+                if (response?.Value<bool?>("ok") != true)
+                    throw new InvalidOperationException(response?.Value<string>("error")
+                        ?? "Native relationship pull was rejected.");
                 List<ReignNativeRelationSyncTarget> targets =
                     (response["targets"] as JArray ?? new JArray()).OfType<JObject>()
                     .Select(row => new ReignNativeRelationSyncTarget
@@ -95,11 +109,16 @@ namespace ReignBeta.Relationships.Integration
                         TargetRelation = row.Value<int?>("targetRelation") ?? 0,
                         Revision = row.Value<int?>("revision") ?? 1
                     }).ToList();
-                RelationshipNativePullIntervalMs = targets.Count >= RelationshipNativePullBatchSize
-                    ? 15
-                    : targets.Count > 0 ? 50 : 10000;
-                ReignServices.Relationship?.MergeNativeSyncTargets(timelineId, targets);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    ReignRequestOwnership.Ensure(Owns, "applying native relationship targets");
+                    scope.Behavior.MergeNativeSyncTargets(scope.Timeline, targets);
+                    RelationshipNativePullIntervalMs = targets.Count >= RelationshipNativePullBatchSize
+                        ? 15
+                        : targets.Count > 0 ? 50 : 10000;
+                }).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 RelationshipNativePullIntervalMs = 2000;

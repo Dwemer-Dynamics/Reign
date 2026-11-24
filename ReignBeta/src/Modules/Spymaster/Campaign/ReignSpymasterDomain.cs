@@ -62,6 +62,7 @@ namespace ReignBeta.Spymaster.Campaign
     public sealed class ReignSpymasterSettlementEffect
     {
         public string EffectId = "spy_effect_" + Guid.NewGuid().ToString("N");
+        public string ForeignAgentActionId = string.Empty;
         public string SettlementStringId = string.Empty;
         public string EffectType = string.Empty;
         public string SourceKingdomStringId = string.Empty;
