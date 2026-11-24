@@ -92,13 +92,16 @@ public static class PortraitCache
 		return false;
 	}
 
-	internal static byte[] ReadAdmittedPortraitBytes(string id, Func<byte[]> read)
+	internal static T ReadAdmittedPortrait<T>(string id, Func<T> read) where T : class
 	{
 		object gate = ProductCommitLock(DirFor(id));
 		if (!Monitor.TryEnter(gate)) return null;
 		try { return AllowsLocalPortraitRead(id) ? read() : null; }
 		finally { Monitor.Exit(gate); }
 	}
+
+	internal static byte[] ReadAdmittedPortraitBytes(string id, Func<byte[]> read) =>
+		ReadAdmittedPortrait(id, read);
 
 	internal static string ScopedTextureKey(string id) =>
 		id + "|campaign:" + RequestCampaignFolder + "|save:" + ReignSaveSyncCoordinator.CampaignGeneration;
@@ -522,19 +525,20 @@ public static class PortraitCache
 		string receipt = Path.Combine(directory, PortraitDerivativeService.OutfitReceiptFileName);
 		JObject publication = (JObject)verifiedReceipt.DeepClone();
 		publication["reignOutfitOperationId"] = outfitOperationId;
+		byte[] publicationBytes = Encoding.UTF8.GetBytes(publication.ToString(Formatting.None));
 		lock (ProductCommitLock(directory))
 		{
 			if (!stillOwnsWorld()) throw new OperationCanceledException("The outfit no longer belongs to the loaded campaign.");
 			RequireRecoverableLocalProduct(directory);
 			if (File.Exists(master) && File.Exists(receipt)
-				&& JObject.Parse(File.ReadAllText(receipt)).Value<string>("reignOutfitOperationId") == outfitOperationId
+				&& File.ReadAllBytes(receipt).SequenceEqual(publicationBytes)
 				&& HashEquals(verifiedReceipt["master"]?.Value<string>("sha256"), File.ReadAllBytes(master)))
 				return master;
 			if (PortraitProductTransaction.ReadPublicationBasis(LocalPublicationPaths(directory)) != expected)
 				throw new IOException("A newer local portrait publication superseded this confirmation.");
 			Directory.CreateDirectory(directory);
 			PortraitProductTransaction.WriteRecoverable(directory, RecoverablePortraitFiles, (master, image),
-				(receipt, Encoding.UTF8.GetBytes(publication.ToString(Formatting.None))));
+				(receipt, publicationBytes));
 		}
 		return master;
 	}
@@ -1221,10 +1225,7 @@ public static class PortraitCache
 			{
 				try
 				{
-					if (!File.Exists(Path.Combine(text, "custom.png")))
-					{
-						Directory.Delete(text, recursive: true);
-					}
+					ClearSettledPortraitDirectory(text, includeCustom: false);
 				}
 				catch
 				{
@@ -1256,7 +1257,7 @@ public static class PortraitCache
 			{
 				try
 				{
-					Directory.Delete(path, recursive: true);
+					ClearSettledPortraitDirectory(path, includeCustom: true);
 				}
 				catch
 				{
@@ -1276,6 +1277,20 @@ public static class PortraitCache
 		}
 		_availability.Clear();
 		Debug.Print("[AIPortraits] All portrait cache folders cleared, including custom.png overrides.");
+	}
+
+	private static void ClearSettledPortraitDirectory(string directory, bool includeCustom)
+	{
+		object gate = ProductCommitLock(directory);
+		if (!Monitor.TryEnter(gate)) return;
+		try
+		{
+			if ((File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0
+				|| PortraitProductTransaction.HasRecoveryJournal(directory)) return;
+			if (includeCustom || !File.Exists(Path.Combine(directory, CustomFileName)))
+				Directory.Delete(directory, recursive: true);
+		}
+		finally { Monitor.Exit(gate); }
 	}
 
 	public static bool IsPending(string id)

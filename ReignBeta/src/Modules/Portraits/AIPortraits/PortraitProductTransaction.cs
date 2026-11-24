@@ -142,6 +142,7 @@ namespace AIPortraits
         // hold the same per-directory product lock across recovery and reads
         // or publication. The generic path also serves WSL and remains separate.
         internal const string RecoveryMarkerName = ".reign_portrait_transaction_v1";
+        internal const string CommittedRecoveryMarkerName = RecoveryMarkerName + ".committed";
         private const int MaxRecoveryFiles = 32;
         private const int MaxRecoveryMarkerBytes = 32768;
 
@@ -165,6 +166,7 @@ namespace AIPortraits
             internal string Backup(string directory) => Destination(directory) + ".bak." + Token;
             internal string BeforeImage(string directory, string id) => Destination(directory) + ".pre." + id;
             internal string RestoreImage(string directory, string id) => Destination(directory) + ".undo." + id;
+            internal string DisplacedImage(string directory, string id) => Destination(directory) + ".post." + id;
         }
 
         internal static void WriteRecoverable(string directory, IReadOnlyCollection<string> managedNames,
@@ -212,6 +214,7 @@ namespace AIPortraits
                 throw new IOException("An earlier portrait publication could not be recovered.");
 
             string marker = System.IO.Path.Combine(directory, RecoveryMarkerName);
+            string committedMarker = System.IO.Path.Combine(directory, CommittedRecoveryMarkerName);
             string id = Guid.NewGuid().ToString("N");
             var entries = new List<RecoveryFile>(items.Length);
             foreach (var item in items)
@@ -245,7 +248,7 @@ namespace AIPortraits
                     throw new IOException("The current portrait changed before publication.");
                 foreach (var item in items) item.OwnedByJournal = true;
                 publishingMarker = true;
-                string preparedDigest = PublishRecoveryMarker(marker, id, entries, committed: false);
+                string preparedDigest = PublishRecoveryMarker(marker, id, entries);
 
                 for (int index = 0; index < items.Length; index++)
                 {
@@ -262,7 +265,9 @@ namespace AIPortraits
                     throw new IOException("The complete portrait publication did not match its staged files.");
                 if (RecoveryDigest(marker) != preparedDigest)
                     throw new IOException("The portrait publication marker changed before commitment.");
-                PublishRecoveryMarker(marker, id, entries, committed: true);
+                // WSL cannot use ReplaceFile. Both phases are the same flushed
+                // manifest, and moving to an absent name is atomic on its share.
+                File.Move(marker, committedMarker);
             }
             catch (Exception failure)
             {
@@ -288,35 +293,44 @@ namespace AIPortraits
         {
             try
             {
-                string marker = System.IO.Path.Combine(ResolveRecoveryDirectory(directory), RecoveryMarkerName);
-                return RequireRegularRecoveryFile(marker);
+                string root = ResolveRecoveryDirectory(directory);
+                return RequireRegularRecoveryFile(System.IO.Path.Combine(root, RecoveryMarkerName))
+                    || RequireRegularRecoveryFile(System.IO.Path.Combine(root, CommittedRecoveryMarkerName));
             }
             catch (IOException) { return true; }
             catch (UnauthorizedAccessException) { return true; }
             catch (ArgumentException) { return true; }
             catch (NotSupportedException) { return true; }
         }
+
         // False means neither a reader nor a new writer may use this product.
-        internal static bool TryRecover(string directory, IReadOnlyCollection<string> managedNames)
+        internal static bool TryRecover(string directory, IReadOnlyCollection<string> managedNames,
+            Action<string, string>? recoveryRename = null)
         {
             try
             {
                 directory = ResolveRecoveryDirectory(directory);
                 var names = ValidateManagedNames(managedNames);
-                string marker = System.IO.Path.Combine(directory, RecoveryMarkerName);
-                if (!RequireRegularRecoveryFile(marker)) return true;
+                string preparedMarker = System.IO.Path.Combine(directory, RecoveryMarkerName);
+                string committedMarker = System.IO.Path.Combine(directory, CommittedRecoveryMarkerName);
+                bool prepared = RequireRegularRecoveryFile(preparedMarker);
+                bool committed = RequireRegularRecoveryFile(committedMarker);
+                if (prepared && committed) return false;
+                if (!prepared && !committed) return true;
 
+                string marker = committed ? committedMarker : preparedMarker;
                 string? markerDigest = RecoveryDigest(marker);
                 if (markerDigest == null) return false;
-                var (id, committed, entries) = ReadRecoveryMarker(marker, names);
+                var (id, entries) = ReadRecoveryMarker(marker, names);
                 if (RecoveryDigest(marker) != markerDigest || !HasExactRecoverySpellings(directory, id, entries)
                     || !CheckRecoveryFiles(directory, id, committed, entries)) return false;
+                if (recoveryRename == null && UsesWslRename(directory)) recoveryRename = File.Move;
                 if (!committed)
                 {
                     // Preflight every destination and backup before changing any
                     // file. Recover in reverse write order and recheck each path.
                     foreach (var entry in entries.AsEnumerable().Reverse())
-                        if (!RestoreRecoveryFile(directory, id, entry)) return false;
+                        if (!RestoreRecoveryFile(directory, id, entry, recoveryRename)) return false;
                 }
 
                 if (entries.Any(entry => RecoveryDigest(entry.Destination(directory)) != (committed ? entry.After : entry.Before)))
@@ -326,7 +340,8 @@ namespace AIPortraits
                     if (!DeleteRecoveryFile(entry.Staged(directory), entry.After)
                         || !DeleteRecoveryFile(entry.Backup(directory), entry.Before)
                         || !DeleteRecoveryFile(entry.BeforeImage(directory, id), entry.Before)
-                        || !DeleteRecoveryFile(entry.RestoreImage(directory, id), entry.Before)) return false;
+                        || !DeleteRecoveryFile(entry.RestoreImage(directory, id), entry.Before)
+                        || !DeleteRecoveryFile(entry.DisplacedImage(directory, id), entry.After)) return false;
                 }
                 return DeleteRecoveryFile(marker, markerDigest);
             }
@@ -340,7 +355,7 @@ namespace AIPortraits
 
         private static bool HasExactRecoverySpellings(string directory, string id, IEnumerable<RecoveryFile> entries)
         {
-            var exact = new HashSet<string>(StringComparer.Ordinal) { RecoveryMarkerName };
+            var exact = new HashSet<string>(StringComparer.Ordinal) { RecoveryMarkerName, CommittedRecoveryMarkerName };
             foreach (var entry in entries)
             {
                 exact.Add(entry.Name);
@@ -348,6 +363,7 @@ namespace AIPortraits
                 exact.Add(System.IO.Path.GetFileName(entry.Backup(directory)));
                 exact.Add(System.IO.Path.GetFileName(entry.BeforeImage(directory, id)));
                 exact.Add(System.IO.Path.GetFileName(entry.RestoreImage(directory, id)));
+                exact.Add(System.IO.Path.GetFileName(entry.DisplacedImage(directory, id)));
             }
 
             var aliases = new HashSet<string>(exact, StringComparer.OrdinalIgnoreCase);
@@ -364,53 +380,77 @@ namespace AIPortraits
                 string? backup = RecoveryDigest(entry.Backup(directory));
                 string? staged = RecoveryDigest(entry.Staged(directory));
                 string? restore = RecoveryDigest(entry.RestoreImage(directory, id));
+                string? displaced = RecoveryDigest(entry.DisplacedImage(directory, id));
                 if ((original != null && original != entry.Before) || (backup != null && backup != entry.Before)
-                    || (staged != null && staged != entry.After) || (restore != null && restore != entry.Before))
+                    || (staged != null && staged != entry.After) || (restore != null && restore != entry.Before)
+                    || (displaced != null && (committed || entry.Before == null || displaced != entry.After)))
                     return false;
                 if (committed)
                 {
                     if (current != entry.After) return false;
                 }
-                else if (current != entry.Before && (!CanRevertRecoveryFile(entry, current, backup)
+                else if (current != entry.Before && (!CanRevertRecoveryFile(entry, current, backup, displaced)
                     || (entry.Before != null && original != entry.Before)))
                     return false;
             }
             return true;
         }
 
-        private static bool RestoreRecoveryFile(string directory, string id, RecoveryFile entry)
+        private static bool RestoreRecoveryFile(string directory, string id, RecoveryFile entry,
+            Action<string, string>? recoveryRename)
         {
             string target = entry.Destination(directory);
+            string displacedPath = entry.DisplacedImage(directory, id);
             string? current = RecoveryDigest(target);
             if (current == entry.Before) return true;
-            if (!CanRevertRecoveryFile(entry, current, RecoveryDigest(entry.Backup(directory)))) return false;
+            string? displaced = RecoveryDigest(displacedPath);
+            if (!CanRevertRecoveryFile(entry, current, RecoveryDigest(entry.Backup(directory)), displaced)) return false;
 
             if (entry.Before == null)
-            {
-                File.Delete(target);
-                return true;
-            }
+                return DeleteRecoveryFile(target, entry.After);
+
             string restore = entry.RestoreImage(directory, id);
             string? staged = RecoveryDigest(restore);
             if (staged != null && staged != entry.Before) return false;
             if (staged == null) CopyRecoveryImage(entry.BeforeImage(directory, id), restore, entry.Before);
-            if (RecoveryDigest(target) != current) return false;
-            if (current == null) File.Move(restore, target);
-            else File.Replace(restore, target, null);
+            if (RecoveryDigest(target) != current || RecoveryDigest(restore) != entry.Before) return false;
+
+            if (recoveryRename == null)
+            {
+                if (current == null) File.Move(restore, target);
+                else File.Replace(restore, target, null);
+            }
+            else
+            {
+                if (current != null)
+                {
+                    // Move the exact after-image aside first. The resulting
+                    // absence remains attributable through that immutable file.
+                    if (displaced != null || RecoveryDigest(displacedPath) != null) return false;
+                    recoveryRename(target, displacedPath);
+                    if (RecoveryDigest(displacedPath) != entry.After || RecoveryDigest(target) != null) return false;
+                }
+                else if (!CanRevertRecoveryFile(entry, null, RecoveryDigest(entry.Backup(directory)),
+                    RecoveryDigest(displacedPath))) return false;
+                if (RecoveryDigest(restore) != entry.Before) return false;
+                recoveryRename(restore, target);
+            }
             return RecoveryDigest(target) == entry.Before;
         }
 
-        private static bool CanRevertRecoveryFile(RecoveryFile entry, string? current, string? backup)
+        private static bool CanRevertRecoveryFile(RecoveryFile entry, string? current, string? backup, string? displaced)
             => current == entry.After
-                // A failed replacement can move the destination out first.
+                // A forward or reverse rename can move the destination first.
                 // Absence alone does not show that this transaction removed it.
-                || (current == null && entry.Before != null && backup == entry.Before);
+                || (current == null && entry.Before != null && (backup == entry.Before || displaced == entry.After));
 
         private static string ResolveRecoveryDirectory(string directory)
         {
             string full = System.IO.Path.GetFullPath(directory);
-            if (full == System.IO.Path.GetPathRoot(full) || full.StartsWith(@"\", StringComparison.Ordinal))
-                throw new IOException("Recoverable portrait publication requires a local product directory.");
+            char separator = System.IO.Path.DirectorySeparatorChar;
+            if (full.TrimEnd(separator) == System.IO.Path.GetPathRoot(full)?.TrimEnd(separator)
+                || (full.StartsWith(@"\\", StringComparison.Ordinal) && !IsLocalWslProductDirectory(full)))
+                throw new IOException("Recoverable portrait publication requires a local product directory or recognized WSL share.");
             try
             {
                 const FileAttributes directoryBits = FileAttributes.Directory | FileAttributes.ReparsePoint;
@@ -422,6 +462,19 @@ namespace AIPortraits
             return full.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
         }
 
+        private static bool IsLocalWslProductDirectory(string full)
+        {
+            if (!UsesWslRename(full)) return false;
+            int start = full.IndexOf(System.IO.Path.DirectorySeparatorChar, 2) + 1;
+            int end = full.IndexOf(System.IO.Path.DirectorySeparatorChar, start);
+            if (start <= 2 || end <= start || end == full.Length - 1) return false;
+            string distro = full.Substring(start, end - start);
+            return distro.Length <= 64 && IsAsciiNameLetter(distro[0])
+                && distro.All(character => IsAsciiNameLetter(character) || character == '.' || character == '_' || character == '-');
+        }
+
+        private static bool IsAsciiNameLetter(char value) =>
+            (value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') || (value >= '0' && value <= '9');
         private static HashSet<string> ValidateManagedNames(IReadOnlyCollection<string> names)
         {
             var exact = new HashSet<string>(names, StringComparer.Ordinal);
@@ -502,16 +555,15 @@ namespace AIPortraits
             catch (UnauthorizedAccessException) { }
         }
 
-        private static string PublishRecoveryMarker(string marker, string id, List<RecoveryFile> entries, bool committed)
+        private static string PublishRecoveryMarker(string marker, string id, List<RecoveryFile> entries)
         {
-            string stagedMarker = marker + "." + id + (committed ? ".commit" : ".prepare");
+            string stagedMarker = marker + "." + id + ".prepare";
             using (var stream = OpenNewDurableFile(stagedMarker))
             {
                 using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
                 {
                     writer.Write(RecoveryMarkerName);
                     writer.Write(id);
-                    writer.Write(committed);
                     writer.Write(entries.Count);
                     foreach (var entry in entries)
                     {
@@ -527,21 +579,19 @@ namespace AIPortraits
             // never authority to change the current product.
             string digest = RecoveryDigest(stagedMarker)
                 ?? throw new IOException("The staged portrait recovery marker is missing.");
-            if (committed) File.Replace(stagedMarker, marker, null);
-            else File.Move(stagedMarker, marker);
+            File.Move(stagedMarker, marker);
             return digest;
         }
 
-        private static (string Id, bool Committed, List<RecoveryFile> Entries) ReadRecoveryMarker(string marker, HashSet<string> names)
+        private static (string Id, List<RecoveryFile> Entries) ReadRecoveryMarker(string marker, HashSet<string> names)
         {
             using var stream = File.OpenRead(marker);
             if (stream.Length > MaxRecoveryMarkerBytes) throw new InvalidDataException("Oversized portrait recovery marker.");
             using var reader = new BinaryReader(stream, Encoding.UTF8);
             string schema = reader.ReadString();
             string id = reader.ReadString();
-            byte phase = reader.ReadByte();
             int count = reader.ReadInt32();
-            if (schema != RecoveryMarkerName || !IsRecoveryId(id) || phase > 1 || count <= 0 || count > names.Count)
+            if (schema != RecoveryMarkerName || !IsRecoveryId(id) || count <= 0 || count > names.Count)
                 throw new InvalidDataException("Invalid portrait recovery marker.");
             var seen = new HashSet<string>(StringComparer.Ordinal);
             var entries = new List<RecoveryFile>(count);
@@ -557,7 +607,7 @@ namespace AIPortraits
                 entries.Add(new RecoveryFile(name, token, before.Length == 0 ? null : before, after));
             }
             if (stream.Position != stream.Length) throw new InvalidDataException("Unexpected portrait recovery marker bytes.");
-            return (id, phase == 1, entries);
+            return (id, entries);
         }
 
         private static bool IsRecoveryId(string value)

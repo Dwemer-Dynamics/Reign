@@ -330,7 +330,29 @@ public sealed class PortraitProductTransactionTests
             PortraitProductTransaction.WriteAllBytes(pending, "updated"u8.ToArray());
             Assert.Equal("updated", File.ReadAllText(pending));
             AssertNoTemporaryFiles(root);
-            output.WriteLine("Actual WSL share: complete portrait/custom/source/receipt/derivative replacement, rollback and pending marker replacement passed without a provider or campaign.");
+            string custom = Path.Combine(root, "custom.png");
+            string receipt = Path.Combine(root, ".outfit_portrait.json");
+            PortraitProductTransaction.WriteRecoverable(root, RecoverableNames,
+                (custom, "committed WSL master"u8.ToArray()), (receipt, "committed WSL receipt"u8.ToArray()));
+            Assert.Equal("committed WSL master", File.ReadAllText(custom));
+            Assert.Equal("committed WSL receipt", File.ReadAllText(receipt));
+            AssertNoRecoveryFiles(root);
+
+            var nextCustom = Stage(root, "custom.png", "uncommitted WSL master", null);
+            var nextReceipt = Stage(root, ".outfit_portrait.json", "uncommitted WSL receipt", null);
+            Assert.Throws<InvalidDataException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { nextCustom, nextReceipt }, RecoverableNames, () =>
+                {
+                    Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
+                    Assert.Equal("uncommitted WSL master", File.ReadAllText(custom));
+                    Assert.Equal("uncommitted WSL receipt", File.ReadAllText(receipt));
+                    throw new InvalidDataException("Injected failure before commitment.");
+                }));
+            Assert.Equal("committed WSL master", File.ReadAllText(custom));
+            Assert.Equal("committed WSL receipt", File.ReadAllText(receipt));
+            Assert.False(PortraitProductTransaction.HasRecoveryJournal(root));
+            AssertNoRecoveryFiles(root);
+            output.WriteLine("Actual WSL share: journalled portrait publication and rollback used native calls on an isolated directory.");
         });
     }
 
@@ -451,12 +473,23 @@ public sealed class PortraitProductTransactionTests
             Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
                 new[] { custom, receipt }, RecoverableNames, () => File.WriteAllText(custom.BackupPath, "unknown backup")));
 
-            Assert.True(File.Exists(Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName)));
+            string preparedMarker = Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName);
+            string committedMarker = Path.Combine(root, PortraitProductTransaction.CommittedRecoveryMarkerName);
+            Assert.False(File.Exists(preparedMarker));
+            Assert.True(File.Exists(committedMarker));
+            Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
             Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
             Assert.Equal("unknown backup", File.ReadAllText(custom.BackupPath));
+
+            File.Copy(committedMarker, preparedMarker);
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal(File.ReadAllBytes(committedMarker), File.ReadAllBytes(preparedMarker));
+            File.Delete(preparedMarker);
             Assert.Equal("new master", File.ReadAllText(custom.Path));
             Assert.Equal("new receipt", File.ReadAllText(receipt.Path));
 
+            // One per-file cleanup may already have finished before a restart.
+            File.Delete(receipt.BackupPath);
             File.WriteAllText(custom.BackupPath, "old master");
             Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
             Assert.Equal("new master", File.ReadAllText(custom.Path));
@@ -508,12 +541,60 @@ public sealed class PortraitProductTransactionTests
             AssertNoRecoveryFiles(root);
         });
     }
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void WslStyleRestoreResumesAfterEachRenameBoundary(int faultAfter)
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var custom = Stage(root, "custom.png", "new master", "old master");
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt",
+                (source, destination, backup) =>
+                {
+                    File.WriteAllText(destination, "unowned until repaired");
+                    throw new IOException("Interrupted publication.");
+                });
+            Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { custom, receipt }, RecoverableNames, () => { }));
+            File.WriteAllText(receipt.Path, "old receipt");
+            int renames = 0;
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames, (source, destination) =>
+            {
+                File.Move(source, destination);
+                if (++renames == faultAfter) throw new IOException("Interrupted after the rename.");
+            }));
+            Assert.Equal(faultAfter, renames);
+            Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
+            string displaced = Assert.Single(Directory.GetFiles(root, "custom.png.post.*"));
+            Assert.Equal("new master", File.ReadAllText(displaced));
+
+            if (faultAfter == 1)
+            {
+                Assert.False(File.Exists(custom.Path));
+                // Absence after moving the after-image is meaningful only
+                // when the known displaced image (or original forward backup) remains.
+                File.Delete(custom.BackupPath);
+                File.WriteAllText(displaced, "unowned image");
+                Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames, File.Move));
+                Assert.False(File.Exists(custom.Path));
+                Assert.Equal("unowned image", File.ReadAllText(displaced));
+                File.WriteAllText(displaced, "new master");
+            }
+            else Assert.Equal("old master", File.ReadAllText(custom.Path));
+
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames, File.Move));
+            Assert.Equal("old master", File.ReadAllText(custom.Path));
+            Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
+            AssertNoRecoveryFiles(root);
+        });
+    }
     private static void AssertNoRecoveryFiles(string root)
     {
         AssertNoTemporaryFiles(root);
         Assert.DoesNotContain(Directory.GetFiles(root), path =>
             Path.GetFileName(path).StartsWith(PortraitProductTransaction.RecoveryMarkerName, StringComparison.Ordinal)
-            || path.Contains(".pre.") || path.Contains(".undo."));
+            || path.Contains(".pre.") || path.Contains(".undo.") || path.Contains(".post."));
     }
     private static void VerifyCompleteProduct(string root, Action<string, string, string>? replace)
     {
