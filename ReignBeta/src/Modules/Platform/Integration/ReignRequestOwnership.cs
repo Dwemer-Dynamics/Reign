@@ -15,10 +15,29 @@ namespace ReignBeta.Platform.Integration
     // game-thread callback that performs the effect.
     internal static class ReignRequestOwnership
     {
-        internal static async Task EnsureAsync(Func<bool> requestOwner, string stage)
+        internal static async Task EnsureAsync(Func<bool> requestOwner, string stage, ReignMainThread.GameScope scope = null)
         {
+            if (scope != null)
+            {
+                await InvokeScopedAsync(scope, requestOwner, () => { }, stage).ConfigureAwait(false);
+                return;
+            }
             if (requestOwner != null && !await ReignMainThread.InvokeAsync(requestOwner).ConfigureAwait(false))
                 throw new ReignRequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
+        }
+
+        internal static async Task InvokeScopedAsync(ReignMainThread.GameScope scope, Func<bool> owner, Action action, string stage)
+        {
+            var admission = ReignMainThread.TryInvokeScoped(scope, owner, action, out Task completion);
+            if (admission == ReignMainThread.ScopedAdmission.Busy)
+                throw new ReignRequestOwnerAbandonedException("The game-thread queue is busy before " + stage + ".");
+            if (admission == ReignMainThread.ScopedAdmission.Closed)
+                throw new ReignRequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
+            try { await completion.ConfigureAwait(false); }
+            catch (OperationCanceledException)
+            {
+                throw new ReignRequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
+            }
         }
 
         internal static void Ensure(Func<bool> requestOwner, string stage)

@@ -50,6 +50,170 @@ public sealed class PortraitProductTransactionTests
     }
 
     [Fact]
+    public void LateCompletionCannotReleaseAReplacedPendingSlot()
+    {
+        var pending = new System.Collections.Concurrent.ConcurrentDictionary<string, string>();
+        const string key = "campaign|character";
+        Assert.True(pending.TryAdd(key, "old refresh"));
+
+        // The player clears the local product and starts either another refresh
+        // or ordinary generation for the same cache key.
+        Assert.True(pending.TryRemove(key, out _));
+        Assert.True(pending.TryAdd(key, "new refresh"));
+        Assert.False(PortraitProductTransaction.RemovePendingReservation(pending, key, "old refresh"));
+        Assert.False(PortraitProductTransaction.RemovePendingReservation(pending, key, string.Empty));
+        Assert.Equal("new refresh", pending[key]);
+
+        Assert.True(PortraitProductTransaction.RemovePendingReservation(pending, key, "new refresh"));
+        Assert.True(pending.TryAdd(key, string.Empty));
+        Assert.False(PortraitProductTransaction.RemovePendingReservation(pending, key, "old refresh"));
+        Assert.True(PortraitProductTransaction.RemovePendingReservation(pending, key, string.Empty));
+    }
+
+    [Fact]
+    public void AbsentPortraitBasisDoesNotConferPendingMarkerOwnership()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var paths = (Master: Path.Combine(root, "portrait.png"), Custom: Path.Combine(root, "custom.png"),
+                GenerationReceipt: Path.Combine(root, ".ai_generation.json"), OutfitReceipt: Path.Combine(root, ".outfit_portrait.json"));
+            string marker = Path.Combine(root, ".portrait_generation_pending.json");
+            var absentBasis = PortraitProductTransaction.ReadPublicationBasis(paths);
+            bool OwnsMarker(string text) => text == "original operation";
+
+            Assert.False(PortraitProductTransaction.CurrentFileMatches(marker, OwnsMarker));
+            PortraitProductTransaction.WriteAllBytes(marker, "replacement operation"u8.ToArray());
+            Assert.Equal(absentBasis, PortraitProductTransaction.ReadPublicationBasis(paths));
+            Assert.False(PortraitProductTransaction.CurrentFileMatches(marker, OwnsMarker));
+
+            PortraitProductTransaction.WriteAllBytes(marker, "original operation"u8.ToArray());
+            Assert.True(PortraitProductTransaction.CurrentFileMatches(marker, OwnsMarker));
+        });
+    }
+
+    [Fact]
+    public void CompletedLegacyOperationCanRetireAliasButNotANewerMarker()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+            "Portraits", "AIPortraits", "PortraitCache.cs"));
+        Assert.Contains("completed.WireCampaignId == ReignServerClient.GetCampaignId() && completed.WireCacheKey == id", source);
+        Assert.Contains("completed.WireOperationId, completed.WireHeroId, allowLegacyIdentity: true", source);
+        Assert.Contains("Guid.ParseExact(current, \"N\") == expectedOperation : current == operationId", source);
+        Assert.Contains("expectedHero == null || hero == expectedHero", source);
+        Assert.Contains("ClearPendingGenerationOperation(cacheKey, OperationId, heroId, directory, folder)", source);
+
+        InFixture(Path.GetTempPath(), root =>
+        {
+            string path = Path.Combine(root, ".portrait_generation_pending.json");
+            object ownerLock = new();
+            const string operation = "abcdef0123456789abcdef0123456789";
+            const string newer = "fedcba9876543210fedcba9876543210";
+            void Write(string guid, string hero)
+            {
+                var marker = new Newtonsoft.Json.Linq.JObject
+                {
+                    ["schema"] = "reign-portrait-generation-pending-v1",
+                    ["campaignId"] = "LEGACY-FOLDER",
+                    ["cacheKey"] = "portrait-key",
+                    ["heroStringId"] = hero,
+                    ["generationOperationId"] = guid
+                };
+                lock (ownerLock) File.WriteAllText(path, marker.ToString());
+            }
+            bool Owns(string text)
+            {
+                var marker = Newtonsoft.Json.Linq.JObject.Parse(text);
+                return marker.Value<string>("schema") == "reign-portrait-generation-pending-v1"
+                    && string.Equals(marker.Value<string>("campaignId"), "legacy-folder", StringComparison.OrdinalIgnoreCase)
+                    && marker.Value<string>("cacheKey") == "portrait-key"
+                    && marker.Value<string>("heroStringId") == "exact-hero"
+                    && Guid.TryParseExact(marker.Value<string>("generationOperationId"), "N", out Guid current)
+                    && current == Guid.ParseExact(operation, "N");
+            }
+
+            Write(newer, "exact-hero");
+            byte[] newerMarker = File.ReadAllBytes(path);
+            Assert.False(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, Owns));
+            Assert.Equal(newerMarker, File.ReadAllBytes(path));
+
+            Write(operation.ToUpperInvariant(), "different-hero");
+            Assert.False(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, Owns));
+            Assert.True(File.Exists(path));
+
+            Write(operation.ToUpperInvariant(), "exact-hero");
+            Assert.True(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, Owns));
+            Assert.False(File.Exists(path));
+        });
+    }
+
+    [Fact]
+    public void CompletedOperationRetiresOnlyItsCurrentMarker()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            string path = Path.Combine(root, ".portrait_generation_pending.json");
+            object ownerLock = new();
+            void Write(string marker)
+            {
+                lock (ownerLock)
+                    PortraitProductTransaction.WriteAllBytes(path, System.Text.Encoding.UTF8.GetBytes(marker));
+            }
+
+            const string completed = "exact campaign hero and completed operation";
+            bool IsCompleted(string marker)
+            {
+                Assert.True(System.Threading.Monitor.IsEntered(ownerLock));
+                return marker == completed;
+            }
+
+            Write("newer operation");
+            Assert.False(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, IsCompleted));
+            Assert.Equal("newer operation", File.ReadAllText(path));
+            Write("unreadable marker contents");
+            Assert.False(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, IsCompleted));
+            Assert.Equal("unreadable marker contents", File.ReadAllText(path));
+
+            Write(completed);
+            Assert.True(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, IsCompleted));
+            Assert.False(File.Exists(path));
+            Assert.False(PortraitProductTransaction.DeleteIfCurrent(path, ownerLock, IsCompleted));
+        });
+    }
+
+    [Fact]
+    public void LateRefreshCannotPublishOverSameImageOutfit()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var paths = (Master: Path.Combine(root, "portrait.png"), Custom: Path.Combine(root, "custom.png"),
+                GenerationReceipt: Path.Combine(root, ".ai_generation.json"), OutfitReceipt: Path.Combine(root, ".outfit_portrait.json"));
+            byte[] image = "same image"u8.ToArray();
+            PortraitProductTransaction.WriteAllBytes((paths.Custom, image), (paths.OutfitReceipt, "first operation"u8.ToArray()));
+            var before = PortraitProductTransaction.ReadPublicationBasis(paths);
+
+            PortraitProductTransaction.WriteAllBytes((paths.Custom, image), (paths.OutfitReceipt, "later operation"u8.ToArray()));
+            int publications = 0;
+            void Publish()
+            {
+                publications++;
+                File.WriteAllText(paths.Master, "queued refresh");
+            }
+
+            Assert.False(PortraitProductTransaction.PublishIfCurrent(before, paths, Publish));
+            Assert.Equal(0, publications);
+            Assert.False(File.Exists(paths.Master));
+            Assert.Equal("later operation", File.ReadAllText(paths.OutfitReceipt));
+
+            var current = PortraitProductTransaction.ReadPublicationBasis(paths);
+            Assert.Equal(before.Custom, current.Custom);
+            Assert.True(PortraitProductTransaction.PublishIfCurrent(current, paths, Publish));
+            Assert.Equal(1, publications);
+            Assert.Equal("queued refresh", File.ReadAllText(paths.Master));
+            Assert.False(PortraitProductTransaction.PublishIfCurrent(current, paths, Publish));
+        });
+    }
+
+    [Fact]
     public void OutfitPairFailureKeepsOldMasterAndCanRetry()
     {
         InFixture(Path.GetTempPath(), root =>

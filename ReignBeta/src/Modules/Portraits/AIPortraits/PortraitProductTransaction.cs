@@ -1,8 +1,10 @@
 #nullable enable
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace AIPortraits
 {
@@ -128,6 +130,48 @@ namespace AIPortraits
             finally
             {
                 foreach (var item in items) item.Cleanup(false);
+            }
+        }
+
+        internal static (string? Master, string? Custom, string? GenerationReceipt, string? OutfitReceipt)
+            ReadPublicationBasis((string Master, string Custom, string GenerationReceipt, string OutfitReceipt) paths)
+            => (ReadDigestOrAbsent(paths.Master), ReadDigestOrAbsent(paths.Custom), ReadDigestOrAbsent(paths.GenerationReceipt),
+                ReadDigestOrAbsent(paths.OutfitReceipt));
+
+        internal static bool PublishIfCurrent(
+            (string? Master, string? Custom, string? GenerationReceipt, string? OutfitReceipt) expected,
+            (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) paths, Action publish)
+        {
+            if (ReadPublicationBasis(paths) != expected) return false;
+            publish();
+            return true;
+        }
+
+        private static string? ReadDigestOrAbsent(string path)
+        {
+            try
+            {
+                using var stream = File.OpenRead(path);
+                using var hash = SHA256.Create();
+                return Convert.ToBase64String(hash.ComputeHash(stream));
+            }
+            catch (FileNotFoundException) { return null; }
+            catch (DirectoryNotFoundException) { return null; }
+        }
+
+        internal static bool RemovePendingReservation(ConcurrentDictionary<string, string> pending, string key, string owner)
+            => ((ICollection<KeyValuePair<string, string>>)pending).Remove(new KeyValuePair<string, string>(key, owner));
+
+        internal static bool CurrentFileMatches(string path, Func<string, bool> isCurrent)
+            => File.Exists(path) && isCurrent(File.ReadAllText(path));
+
+        internal static bool DeleteIfCurrent(string path, object gate, Func<string, bool> isCurrent)
+        {
+            lock (gate)
+            {
+                if (!CurrentFileMatches(path, isCurrent)) return false;
+                File.Delete(path);
+                return true;
             }
         }
 

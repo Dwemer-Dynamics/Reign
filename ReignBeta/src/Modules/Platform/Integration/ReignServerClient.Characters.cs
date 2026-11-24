@@ -480,7 +480,16 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        public static async Task<ReignPortraitGenerationResult> GeneratePortraitAsync(string cacheKey, string heroStringId, string prompt, byte[] sourceImagePng, string outputSizeOverride = null, AIPortraits.PortraitPromptContext promptContext = null, string promptPurpose = "portrait", string generationOperationId = null, string portraitRefreshMode = "")
+        public static Task<ReignPortraitGenerationResult> GeneratePortraitAsync(string cacheKey, string heroStringId, string prompt,
+            byte[] sourceImagePng, string outputSizeOverride = null, AIPortraits.PortraitPromptContext promptContext = null,
+            string promptPurpose = "portrait", string generationOperationId = null, string portraitRefreshMode = "")
+            => GeneratePortraitAsync(cacheKey, heroStringId, prompt, sourceImagePng, outputSizeOverride, promptContext,
+                promptPurpose, generationOperationId, portraitRefreshMode, null, null);
+
+        internal static async Task<ReignPortraitGenerationResult> GeneratePortraitAsync(string cacheKey, string heroStringId,
+            string prompt, byte[] sourceImagePng, string outputSizeOverride, AIPortraits.PortraitPromptContext promptContext,
+            string promptPurpose, string generationOperationId, string portraitRefreshMode, Func<bool> requestOwner,
+            ReignMainThread.GameScope requestScope)
         {
             ReignPortraitGenerationResult result = new ReignPortraitGenerationResult();
             bool portraitProduct = string.IsNullOrWhiteSpace(promptPurpose)
@@ -554,7 +563,7 @@ namespace ReignBeta.Platform.Integration
                     + " requestChars=" + requestChars);
 
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostJsonAsync("/portraits/generate", payload).ConfigureAwait(false);
+                JObject response = await PostPortraitRequestAsync("/portraits/generate", payload, requestOwner, requestScope).ConfigureAwait(false);
                 timer.Stop();
                 PopulatePortraitGenerationResult(result, response);
                 result.ClientTotalMs = timer.ElapsedMilliseconds;
@@ -570,6 +579,11 @@ namespace ReignBeta.Platform.Integration
                     + " timing=" + result.TimingSummary);
                 return result;
             }
+            catch (ReignRequestOwnerAbandonedException ex)
+            {
+                result.Error = ex.Message;
+                return result;
+            }
             catch (Exception ex)
             {
                 bool unknownOutcome = ex is ReignHttpTransport.UnknownMutationOutcomeException;
@@ -577,7 +591,7 @@ namespace ReignBeta.Platform.Integration
                     && !string.IsNullOrWhiteSpace(generationOperationId))
                 {
                     ReignPortraitGenerationResult recovered = await RecoverPortraitGenerationAsync(
-                        cacheKey, heroStringId, generationOperationId, 180000).ConfigureAwait(false);
+                        cacheKey, heroStringId, generationOperationId, 180000, requestOwner, requestScope).ConfigureAwait(false);
                     if (recovered != null && recovered.Ok && recovered.ProductAccepted)
                     {
                         ReignLog.Info("Recovered completed portrait operation after the generation response was unavailable operation="
@@ -606,11 +620,16 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        public static async Task<ReignPortraitGenerationResult> RecoverPortraitGenerationAsync(
-            string cacheKey,
-            string heroStringId,
-            string generationOperationId,
-            int maxWaitMs = 0)
+        private static Task<JObject> PostPortraitRequestAsync(string route, JObject payload, Func<bool> requestOwner,
+            ReignMainThread.GameScope requestScope)
+            => requestOwner == null ? PostJsonAsync(route, payload) : PostOwnedJsonAsync(route, payload, requestOwner, requestScope);
+
+        public static Task<ReignPortraitGenerationResult> RecoverPortraitGenerationAsync(
+            string cacheKey, string heroStringId, string generationOperationId, int maxWaitMs = 0)
+            => RecoverPortraitGenerationAsync(cacheKey, heroStringId, generationOperationId, maxWaitMs, null, null);
+
+        internal static async Task<ReignPortraitGenerationResult> RecoverPortraitGenerationAsync(string cacheKey,
+            string heroStringId, string generationOperationId, int maxWaitMs, Func<bool> requestOwner, ReignMainThread.GameScope requestScope)
         {
             ReignPortraitGenerationResult result = new ReignPortraitGenerationResult
             {
@@ -621,13 +640,13 @@ namespace ReignBeta.Platform.Integration
             {
                 do
                 {
-                    JObject response = await PostJsonAsync("/portraits/generate/status", new JObject
+                    JObject response = await PostPortraitRequestAsync("/portraits/generate/status", new JObject
                     {
                         ["campaignId"] = GetCampaignId(),
                         ["cacheKey"] = cacheKey ?? string.Empty,
                         ["heroStringId"] = heroStringId ?? string.Empty,
                         ["generationOperationId"] = generationOperationId ?? string.Empty
-                    }).ConfigureAwait(false);
+                    }, requestOwner, requestScope).ConfigureAwait(false);
                     PopulatePortraitGenerationResult(result, response);
                     result.ClientTotalMs = timer.ElapsedMilliseconds;
                     if (string.Equals(result.GenerationStatus, "completed", StringComparison.OrdinalIgnoreCase)
@@ -645,6 +664,13 @@ namespace ReignBeta.Platform.Integration
                 result.GenerationStatus = "pending";
                 result.GenerationMayStillComplete = true;
                 result.Error = "Reign is still waiting for the portrait provider. The completed portrait will be recovered instead of generating it again.";
+                return result;
+            }
+            catch (ReignRequestOwnerAbandonedException ex)
+            {
+                result.GenerationStatus = "owner_closed";
+                result.GenerationMayStillComplete = true;
+                result.Error = ex.Message;
                 return result;
             }
             catch (Exception ex)
@@ -668,6 +694,12 @@ namespace ReignBeta.Platform.Integration
             result.TimingSummary = FormatTimingSummary(response["timing"] as JObject);
             result.GenerationOperationId = response.Value<string>("generationOperationId")
                 ?? result.GenerationOperationId ?? string.Empty;
+            string WireString(string name) => response[name]?.Type == JTokenType.String
+                ? response[name].Value<string>() : string.Empty;
+            result.WireOperationId = WireString("generationOperationId");
+            result.WireCampaignId = WireString("campaignId");
+            result.WireHeroId = WireString("heroStringId");
+            result.WireCacheKey = WireString("cacheKey");
             result.GenerationStatus = response.Value<string>("generationStatus") ?? string.Empty;
             result.Recovered = response.Value<bool?>("recovered") == true;
             result.GenerationMayStillComplete = string.Equals(result.GenerationStatus, "pending", StringComparison.OrdinalIgnoreCase);

@@ -138,7 +138,17 @@ namespace ReignBeta.Portraits.Integration
             JObject snapshot = ReignServerClient.BuildNativePortraitSnapshot(hero);
             PortraitPromptContext context = PortraitPromptContext.FromHero(hero);
             PortraitIndex.Register(PortraitRequestRegistry.GetCodeFor(hero), cacheKey);
-            if (!PortraitCache.TryMarkPending(cacheKey))
+            PortraitCache.RefreshApplication refresh = null;
+            if (refreshMode.Length != 0)
+            {
+                try { refresh = PortraitCache.CaptureRefreshApplication(campaignId, cacheKey, heroId, refreshMode); }
+                catch (Exception ex)
+                {
+                    message = "The current portrait could not be claimed for refresh. " + ex.Message;
+                    return false;
+                }
+            }
+            if (!(refresh == null ? PortraitCache.TryMarkPending(cacheKey) : refresh.TryMarkPending()))
             {
                 message = "You're still picturing " + heroName + "...";
                 return false;
@@ -148,7 +158,7 @@ namespace ReignBeta.Portraits.Integration
             byte[] reference = refreshMode == "reflect_years" ? PortraitCache.GetDiskBytes(cacheKey) : null;
             if (refreshMode == "reflect_years" && (hero.Age < 18 || reference == null))
             {
-                PortraitCache.MarkComplete(cacheKey);
+                refresh.Complete();
                 message = "An existing adult portrait is required to reflect on the years.";
                 return false;
             }
@@ -159,10 +169,14 @@ namespace ReignBeta.Portraits.Integration
                     try
                     {
                         var product = await NanoGptClient.GeneratePortraitProductAsync(
-                            NanoGptClient.BuildPrompt(context), reference, null, cacheKey, heroId, context, refreshMode: refreshMode).ConfigureAwait(false);
-                        bool saved = product != null && await PortraitCache.SavePortraitProductAsync(cacheKey, product, replaceExisting: refreshMode.Length != 0).ConfigureAwait(false);
+                            NanoGptClient.BuildPrompt(context), reference, null, cacheKey, heroId, context, refreshMode: refreshMode,
+                            refreshOperationId: refresh?.OperationId,
+                            requestOwner: refresh == null ? (Func<bool>)null : refresh.IsCurrentOwner,
+                            requestScope: refresh?.GameScope).ConfigureAwait(false);
+                        bool saved = product != null && await PortraitCache.SavePortraitProductAsync(cacheKey, product,
+                            replaceExisting: refresh != null, refresh: refresh).ConfigureAwait(false);
                         string error = NanoGptClient.LastErrorForDisplay;
-                        await ReignMainThread.InvokeAsync(() =>
+                        void ShowResult()
                         {
                             if (ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
                             if (saved)
@@ -175,10 +189,17 @@ namespace ReignBeta.Portraits.Integration
                                 ? "[AIPortraits] Portrait ready for " + heroName + "."
                                 : "[AIPortraits] Portrait generation failed: " + (error ?? "See the server image-generation log."),
                                 Color.FromUint(saved ? 0xFF00DD55u : 0xFFFF5500u)));
-                        }).ConfigureAwait(false);
+                        }
+                        if (refresh == null) await ReignMainThread.InvokeAsync(ShowResult).ConfigureAwait(false);
+                        else await ReignRequestOwnership.InvokeScopedAsync(refresh.GameScope, refresh.IsCurrentOwner,
+                            ShowResult, "portrait result notification").ConfigureAwait(false);
                     }
                     catch (Exception ex) { ReignLog.Warn("Background portrait failed: " + ex.Message); }
-                    finally { PortraitCache.MarkComplete(cacheKey); }
+                    finally
+                    {
+                        if (refresh == null) PortraitCache.MarkComplete(cacheKey);
+                        else refresh.Complete();
+                    }
                 }
             });
             color = 0xFF00AAFF;

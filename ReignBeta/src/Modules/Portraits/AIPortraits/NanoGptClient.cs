@@ -122,15 +122,24 @@ namespace AIPortraits
             return result?.ImageBytes;
         }
 
-        public static async Task<ReignPortraitGenerationResult> GeneratePortraitProductAsync(
+        public static Task<ReignPortraitGenerationResult> GeneratePortraitProductAsync(
+            string prompt, byte[] sourceImagePng, string outputSizeOverride, string cacheKey, string heroStringId,
+            PortraitPromptContext promptContext, CancellationToken ct = default, string refreshMode = "")
+            => GeneratePortraitProductAsync(prompt, sourceImagePng, outputSizeOverride, cacheKey, heroStringId, promptContext,
+                refreshMode, null, null, null, ct);
+
+        internal static async Task<ReignPortraitGenerationResult> GeneratePortraitProductAsync(
             string prompt,
             byte[] sourceImagePng,
             string outputSizeOverride,
             string cacheKey,
             string heroStringId,
             PortraitPromptContext promptContext,
-            CancellationToken ct = default,
-            string refreshMode = "")
+            string refreshMode,
+            string refreshOperationId,
+            Func<bool> requestOwner,
+            ReignMainThread.GameScope requestScope,
+            CancellationToken ct = default)
         {
             await Throttle.WaitAsync(ct);
             try
@@ -144,7 +153,10 @@ namespace AIPortraits
                     return null;
                 }
 
-                string generationOperationId = Guid.NewGuid().ToString("N");
+                if (refreshOperationId != null && (requestOwner == null || requestScope == null))
+                    throw new InvalidOperationException("The portrait refresh has no live request owner.");
+                await ReignRequestOwnership.EnsureAsync(requestOwner, "portrait refresh preparation", requestScope).ConfigureAwait(false);
+                string generationOperationId = refreshOperationId ?? Guid.NewGuid().ToString("N");
                 if (!string.IsNullOrWhiteSpace(cacheKey)
                     && PortraitCache.TryGetPendingGenerationOperation(cacheKey, out string pendingHeroId, out string pendingOperationId))
                 {
@@ -152,9 +164,16 @@ namespace AIPortraits
                         cacheKey,
                         string.IsNullOrWhiteSpace(pendingHeroId) ? heroStringId : pendingHeroId,
                         pendingOperationId,
-                        180000).ConfigureAwait(false);
+                        180000, requestOwner, requestScope).ConfigureAwait(false);
                     if (recovered != null && recovered.Ok && recovered.ProductAccepted)
                     {
+                        if (refreshOperationId != null && pendingOperationId != refreshOperationId)
+                        {
+                            if (recovered.WireOperationId == pendingOperationId)
+                                PortraitCache.RetireCompletedGenerationOperation(cacheKey, recovered);
+                            SetLastError("An earlier portrait completed without this refresh's local ownership. Start a new refresh.");
+                            return null;
+                        }
                         TaleWorlds.Library.Debug.Print("[AIPortraits] Recovered completed portrait operation " + pendingOperationId + ".");
                         return recovered;
                     }
@@ -167,10 +186,15 @@ namespace AIPortraits
                 }
 
                 if (!string.IsNullOrWhiteSpace(cacheKey))
-                    PortraitCache.MarkPendingGenerationOperation(cacheKey, heroStringId, generationOperationId);
+                {
+                    if (requestOwner == null) PortraitCache.MarkPendingGenerationOperation(cacheKey, heroStringId, generationOperationId);
+                    else await PortraitCache.MarkOwnedPendingGenerationOperationAsync(cacheKey, heroStringId, generationOperationId,
+                        requestOwner, requestScope).ConfigureAwait(false);
+                }
 
                 _lastImageProviderRequestLog.Value = "POST /portraits/generate via Bannerlord Reign local server. Source image bytes and API keys are omitted from game logs.";
-                ReignPortraitGenerationResult result = await ReignServerClient.GeneratePortraitAsync(cacheKey, heroStringId, prompt, sourceImagePng, outputSizeOverride, promptContext, "portrait", generationOperationId, refreshMode).ConfigureAwait(false);
+                ReignPortraitGenerationResult result = await ReignServerClient.GeneratePortraitAsync(cacheKey, heroStringId, prompt,
+                    sourceImagePng, outputSizeOverride, promptContext, "portrait", generationOperationId, refreshMode, requestOwner, requestScope).ConfigureAwait(false);
                 if (result == null || !result.Ok || result.ImageBytes == null || result.ImageBytes.Length == 0)
                 {
                     if (result == null || !result.GenerationMayStillComplete)
@@ -197,6 +221,11 @@ namespace AIPortraits
                     + " serverMs=" + result.ServerDurationMs
                     + " timing=" + result.TimingSummary);
                 return result;
+            }
+            catch (ReignRequestOwnerAbandonedException ex)
+            {
+                SetLastError(ex.Message);
+                return null;
             }
             catch (OperationCanceledException)
             {

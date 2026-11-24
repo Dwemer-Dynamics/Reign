@@ -244,6 +244,10 @@ namespace ReignBeta.Platform.Integration
         public byte[] SourceImageBytes { get; set; }
         public PortraitFaceFocus FaceFocus { get; set; }
         public string GenerationOperationId { get; set; } = string.Empty;
+        internal string WireOperationId { get; set; } = string.Empty;
+        internal string WireCampaignId { get; set; } = string.Empty;
+        internal string WireHeroId { get; set; } = string.Empty;
+        internal string WireCacheKey { get; set; } = string.Empty;
         public string GenerationStatus { get; set; } = string.Empty;
         public bool GenerationMayStillComplete { get; set; }
         public bool Recovered { get; set; }
