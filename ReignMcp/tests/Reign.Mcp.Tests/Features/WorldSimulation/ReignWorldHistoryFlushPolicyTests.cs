@@ -69,9 +69,11 @@ public sealed class ReignWorldHistoryFlushPolicyTests
             "ReignWorldHistoryClient.cs",
             "/src/Modules/WorldSimulation/"));
 
-        Assert.Contains("newlyQueued.Count < uploadBatchSize", source,
+        Assert.Contains("PersistPendingPrefix(path, uploadBatchSize, epoch)", source,
             StringComparison.Ordinal);
-        Assert.DoesNotContain("newlyQueued.Count < 100", source,
+        Assert.Contains("PersistPendingPrefix(path, uploadBatchSize - stagedCount, epoch)", source,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("PersistPendingPrefix(path, 100,", source,
             StringComparison.Ordinal);
     }
 
