@@ -926,22 +926,19 @@ namespace ReignBeta.WorldSimulation.Campaign
             return null;
         }
 
-        private static readonly System.Threading.AsyncLocal<PartyAgencyExecutionStamp> PartyAgencySendExecution =
-            new System.Threading.AsyncLocal<PartyAgencyExecutionStamp>();
 
         private static async Task<LiveCommandResult> ExecuteObservedPartyAgencyCommandAsync(
             JObject command, PartyAgencyExecutionStamp execution, string operation)
         {
-            var previous = PartyAgencySendExecution.Value;
-            PartyAgencySendExecution.Value = string.Equals(operation, "send", StringComparison.Ordinal)
-                ? execution : null;
+            var previous = ReignServerClient.PartyAgencySendOrigin.Value;
+            ReignServerClient.PartyAgencySendOrigin.Value = string.Equals(operation, "send", StringComparison.Ordinal)
+                ? payload => AttachPartyAgencySendOrigin(payload, execution) : (Action<JObject>)null;
             try { return await ExecuteCommandAsync(command).ConfigureAwait(false); }
-            finally { PartyAgencySendExecution.Value = previous; }
+            finally { ReignServerClient.PartyAgencySendOrigin.Value = previous; }
         }
 
-        internal static void AttachPartyAgencySendOrigin(JObject payload)
+        private static void AttachPartyAgencySendOrigin(JObject payload, PartyAgencyExecutionStamp execution)
         {
-            var execution = PartyAgencySendExecution.Value;
             if (execution == null || !IsCurrentPartyAgencyExecution(execution)) return;
             payload["partyAgencySendOrigin"] = new JObject
             {
