@@ -374,12 +374,13 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        // Records local provenance only for the two terminal-report import routes. A
-        // redirected response, a path-prefixed base URL or an unobservable final target
-        // proves no origin; such a record stays a pending candidate, never another server's.
+        // Record local provenance for responses followed by a pinned acknowledgment.
+        // Redirected or unobservable final targets and path-prefixed bases prove no origin.
         internal static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
         {
-            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal))) return parsed;
+            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal)
+                || route.StartsWith("/political-pressure/notices?", StringComparison.Ordinal)
+                || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal))) return parsed;
             string origin = PinnableOrigin(baseUrl);
             Uri final = response?.RequestMessage?.RequestUri;
             if (final == null || !Uri.TryCreate(requestUrl, UriKind.Absolute, out Uri requested)
@@ -402,7 +403,11 @@ namespace ReignBeta.Platform.Integration
             if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri uri) || uri.UserInfo.Length > 0
                 || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)) return string.Empty;
             string origin = uri.GetLeftPart(UriPartial.Authority);
-            return string.Equals(origin, trimmed, StringComparison.OrdinalIgnoreCase) ? origin : string.Empty;
+            // Uri canonicalizes an explicit default port out of the origin.
+            string explicitDefaultPort = origin + ":" + uri.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return string.Equals(origin, trimmed, StringComparison.OrdinalIgnoreCase)
+                || uri.IsDefaultPort && string.Equals(explicitDefaultPort, trimmed, StringComparison.OrdinalIgnoreCase)
+                ? origin : string.Empty;
         }
 
         // A pinned origin stays usable only while it is one of the currently allowed endpoints.

@@ -16,6 +16,7 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Economy;
 
 namespace ReignBeta.KingdomEvents.Campaign
 {
@@ -223,7 +224,12 @@ namespace ReignBeta.KingdomEvents.Campaign
                         : active && Math.Abs((record.EndDay - record.StartDay) - TimedEventDurationDays) < 0.001f,
                         "The timed event has the expected 30-day active or expired state.", null);
                     AddKingdomEventAssertion(assertions, "kingdom_event_production_modifier", contribution,
-                        "Every current applicable holding in the target kingdom receives the exact production model contribution, including ownership-following lookup.", snapshot["contributions"]);
+                        "The timed getter returns the exact configured contribution for the current target holdings.", snapshot["contributions"]);
+#if !REIGN_EXCLUDE_VERIFICATION
+                    JObject economy = KingdomEventNativeEconomy(kingdomEvents, ledger, record, definition, target, expectExpired);
+                    AddKingdomEventAssertion(assertions, "kingdom_event_native_economy_model", economy.Value<bool>("passed"),
+                        "The registered native economy model was sampled with the exact event present, omitted, and restored.", economy);
+#endif
                 }
                 else
                 {
@@ -267,6 +273,11 @@ namespace ReignBeta.KingdomEvents.Campaign
                         "The native war, peace, or player-safe NPC succession outcome matches the production record.", null);
                 }
             }
+#if !REIGN_EXCLUDE_VERIFICATION
+            else if (definition?.Timed == true)
+                AddKingdomEventAssertion(assertions, "kingdom_event_native_economy_model", false,
+                    "An exact timed record and its current target are required for native economy evidence.", null);
+#endif
             JObject result = KingdomEventTestResult(runId, verifyReload ? "verify_reload" : "observe", assertions);
             result["record"] = record == null ? JValue.CreateNull() : JObject.FromObject(record);
             result["before"] = JObject.Parse(string.IsNullOrWhiteSpace(ledger.BeforeSnapshotJson) ? "{}" : ledger.BeforeSnapshotJson);
@@ -571,6 +582,170 @@ namespace ReignBeta.KingdomEvents.Campaign
                 }
             };
         }
+
+#if !REIGN_EXCLUDE_VERIFICATION
+        [ThreadStatic] private static ReignKingdomEventsCampaignBehavior _economyProbeOwner;
+        [ThreadStatic] private static ReignKingdomEventRecord _economyProbeOmission;
+
+        internal static bool IsEconomyProbeOmission(ReignKingdomEventsCampaignBehavior owner,
+            ReignKingdomEventRecord record)
+            => ReferenceEquals(_economyProbeOwner, owner) && ReferenceEquals(_economyProbeOmission, record);
+
+        private static (float Current, float WithoutEvent, float Restored) SampleNativeEconomy(
+            ReignKingdomEventsCampaignBehavior owner, ReignKingdomEventRecord record, Func<float> read)
+        {
+            if (_economyProbeOwner != null)
+                throw new InvalidOperationException("A kingdom event economy probe is already active.");
+            float current = ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read);
+            float without;
+            _economyProbeOwner = owner;
+            _economyProbeOmission = record;
+            try
+            {
+                without = ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read);
+            }
+            finally
+            {
+                _economyProbeOmission = null;
+                _economyProbeOwner = null;
+            }
+            return (current, without, ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read));
+        }
+
+        private static JObject KingdomEventNativeEconomy(ReignKingdomEventsCampaignBehavior owner,
+            ReignKingdomEventTestLedger ledger, ReignKingdomEventRecord record,
+            ReignKingdomEventDefinition definition, Kingdom target, bool expectExpired)
+        {
+            var models = TaleWorlds.CampaignSystem.Campaign.Current?.Models;
+            if (models == null || !ReferenceEquals(ReignServices.KingdomEvents, owner)
+                || !record.WasForced || !Same(ledger.EventId, record.EventId)
+                || !Same(record.ArchetypeId, definition.Id) || !Same(record.KingdomStringId, target.StringId)
+                || !Same(ledger.CampaignId, ReignCampaignIdentity.CurrentCampaignId())
+                || owner._events.Count(x => x != null && Same(x.EventId, record.EventId)) != 1)
+                return new JObject { ["passed"] = false, ["reason"] = "missing_model_or_run_identity" };
+
+            float day = CurrentDay();
+            if (record.IsActiveAt(day) && owner._events.Any(x => x != null && !ReferenceEquals(x, record)
+                && x.IsActiveAt(day) && Same(x.KingdomStringId, record.KingdomStringId)))
+                return new JObject { ["passed"] = false, ["reason"] = "overlapping_timed_event" };
+
+            var towns = Town.AllFiefs.Where(x => x?.OwnerClan?.Kingdom == target)
+                .OrderBy(x => x.StringId, StringComparer.Ordinal);
+            var villages = Settlement.All.Where(x => x?.IsVillage == true && x.MapFaction == target)
+                .Select(x => x.Village).Where(x => x != null).OrderBy(x => x.StringId, StringComparer.Ordinal);
+            float expected = expectExpired ? 0f : definition.Magnitude;
+
+            switch (definition.Id)
+            {
+                case "famine": case "bountiful_harvest":
+                    if (models.SettlementFoodModel is ReignSettlementFoodModel food)
+                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                            x => food.CalculateTownFoodStocksChange(x, false, false).ResultNumber,
+                            nameof(food.CalculateTownFoodStocksChange));
+                    break;
+                case "pestilence": case "population_boom":
+                    if (models.SettlementProsperityModel is ReignSettlementProsperityModel hearth)
+                        return NativeEconomyEvidence(owner, record, expected, villages, x => x.StringId,
+                            x => hearth.CalculateHearthChange(x, false).ResultNumber,
+                            nameof(hearth.CalculateHearthChange), x => x.Hearth);
+                    break;
+                case "crime_wave": case "law_and_order":
+                    if (models.SettlementSecurityModel is ReignSettlementSecurityModel security)
+                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                            x => security.CalculateSecurityChange(x, false).ResultNumber,
+                            nameof(security.CalculateSecurityChange));
+                    break;
+                case "trade_collapse": case "trade_boom":
+                    if (models.SettlementProsperityModel is ReignSettlementProsperityModel prosperity)
+                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                            x => prosperity.CalculateProsperityChange(x, false).ResultNumber,
+                            nameof(prosperity.CalculateProsperityChange));
+                    break;
+                case "construction_stagnation": case "golden_age":
+                    if (models.BuildingConstructionModel is ReignBuildingConstructionModel construction)
+                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                            x => construction.CalculateDailyConstructionPower(x, false).ResultNumber,
+                            nameof(construction.CalculateDailyConstructionPower));
+                    break;
+                case "political_unrest": case "national_unity":
+                    if (models.SettlementLoyaltyModel is ReignSettlementLoyaltyModel loyalty)
+                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                            x => loyalty.CalculateLoyaltyChange(x, false).ResultNumber,
+                            nameof(loyalty.CalculateLoyaltyChange));
+                    break;
+            }
+            return new JObject { ["passed"] = false, ["reason"] = "registered_economy_adapter_unavailable" };
+        }
+
+        private static JObject NativeEconomyEvidence<T>(ReignKingdomEventsCampaignBehavior owner,
+            ReignKingdomEventRecord record, float expected, IEnumerable<T> holdings, Func<T, string> id,
+            Func<T, float> read, string model, Func<T, float> hearth = null)
+        {
+            var samples = new JArray();
+            int observed = 0;
+            bool consistent = true;
+            foreach (T holding in holdings)
+            {
+                string status;
+                var sample = new JObject { ["holdingId"] = id(holding) };
+                try
+                {
+                    var (current, without, restored) = SampleNativeEconomy(owner, record, () => read(holding));
+                    status = NativeEconomyOutcome(current, without, restored, expected, hearth?.Invoke(holding));
+                    if (status != "non_finite")
+                    {
+                        sample["current"] = current;
+                        sample["withoutEvent"] = without;
+                        sample["restored"] = restored;
+                        sample["difference"] = current - without;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    status = "measurement_failed";
+                    sample["errorType"] = ex.GetType().Name;
+                }
+                sample["status"] = status;
+                samples.Add(sample);
+                if (status == "observed") observed++;
+                consistent &= status == "observed" || status == "unchanged" || status == "hearth_floor_limited";
+            }
+            return new JObject
+            {
+                ["passed"] = samples.Count > 0 && consistent && (expected == 0f || observed > 0),
+                ["eventId"] = record.EventId,
+                ["model"] = model,
+                ["expectedDirection"] = Math.Sign(expected),
+                ["observedCount"] = observed,
+                ["samples"] = samples
+            };
+        }
+
+        private static string NativeEconomyOutcome(float current, float without, float restored, float expected,
+            float? hearth)
+        {
+            const float tolerance = 0.0001f;
+            float difference = current - without;
+            if (float.IsNaN(difference) || float.IsInfinity(difference) || float.IsNaN(restored)
+                || float.IsInfinity(restored))
+                return "non_finite";
+            if (Math.Abs(current - restored) > tolerance)
+                return "unstable";
+            if (Math.Abs(difference) <= tolerance)
+                return "unchanged";
+            if (expected != 0f && Math.Sign(difference) == Math.Sign(expected))
+                return "observed";
+            // Pestilence caps the event's loss at the hearth floor. The uncapped ordinary
+            // loss can be greater even though the event still behaves as configured.
+            if (expected < 0f && hearth.HasValue)
+            {
+                float floor = Math.Min(0f, ReignEconomyCampaignBehavior.MinimumVillageHearth - hearth.Value);
+                if (without < floor && Math.Abs(current - floor) <= tolerance)
+                    return "hearth_floor_limited";
+            }
+            return "unexpected_direction";
+        }
+#endif
 
         private static bool KingdomEventContributionsMatch(ReignKingdomEventsCampaignBehavior kingdomEvents, ReignKingdomEventDefinition definition, Kingdom kingdom, float expected)
         {

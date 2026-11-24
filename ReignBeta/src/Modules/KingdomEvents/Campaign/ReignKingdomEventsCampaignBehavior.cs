@@ -572,6 +572,9 @@ namespace ReignBeta.KingdomEvents.Campaign
             }
             float day = CurrentDay();
             ReignKingdomEventRecord active = _events.LastOrDefault(record => record != null
+#if !REIGN_EXCLUDE_VERIFICATION
+                && !ReignKingdomEventTestControls.IsEconomyProbeOmission(this, record)
+#endif
                 && record.IsActiveAt(day)
                 && Same(record.KingdomStringId, kingdom.StringId));
             return active != null && archetypeIds.Any(id => Same(id, active.ArchetypeId))

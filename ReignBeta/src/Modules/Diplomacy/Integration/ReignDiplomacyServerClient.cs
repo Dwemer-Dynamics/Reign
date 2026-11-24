@@ -233,21 +233,27 @@ namespace ReignBeta.Diplomacy.Integration
             }).ConfigureAwait(false);
         }
 
-        public static async Task<List<ReignPoliticalPressureNotice>> FetchPoliticalPressureNoticesAsync()
+        internal static async Task<(List<ReignPoliticalPressureNotice> Notices, string Origin)> FetchPoliticalPressureNoticesAsync(
+            string campaignId, string timelineId, string generation, double requestedDay, Func<bool> ownsPoll)
         {
-            List<ReignPoliticalPressureNotice> results = new List<ReignPoliticalPressureNotice>();
-            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
-            string pressureCampaignId = GetCampaignId();
-            double pressureRequestedDay = CampaignTime.Now.ToDays;
-            string route = "/political-pressure/notices?campaignId=" + Uri.EscapeDataString(pressureCampaignId)
-                + "&timelineId=" + Uri.EscapeDataString(timelineId) + "&limit=5";
-            JObject response = await GetJsonAsync(route).ConfigureAwait(false);
-            if (response.Value<bool?>("ok") != true || !(response["notices"] is JArray notices)) return results;
+            var results = new List<ReignPoliticalPressureNotice>();
+            JObject response = await GetJsonAsync(NoticeRoute("/political-pressure/notices", campaignId, timelineId, generation, 5))
+                .ConfigureAwait(false);
+            string origin = ResponseOrigin(response);
+            if (!ReignHttpTransport.IsAllowedPinnedOrigin(origin)
+                || !MatchesNoticeOwner(response, campaignId, timelineId, generation) || !(response["notices"] is JArray notices))
+                return (results, null);
             if (response["readinessPressure"] is JObject pressureSnapshot)
-                await ReignMainThread.InvokeAsync(() => ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.AcceptPressure(
-                    pressureSnapshot, pressureCampaignId, timelineId, pressureRequestedDay)).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    ReignRequestOwnership.Ensure(() => ownsPoll() && ReignHttpTransport.IsAllowedPinnedOrigin(origin),
+                        "military readiness update");
+                    ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.AcceptPressure(
+                        pressureSnapshot, campaignId, timelineId, requestedDay);
+                }).ConfigureAwait(false);
             foreach (JObject item in notices.OfType<JObject>())
             {
+                if (!MatchesNoticeRow(item, campaignId, timelineId)) continue;
                 ReignPoliticalPressureNotice notice = new ReignPoliticalPressureNotice
                 {
                     NewsDescription = ReadString(item, "news_description", string.Empty),
@@ -289,7 +295,7 @@ namespace ReignBeta.Diplomacy.Integration
                 }
                 results.Add(notice);
             }
-            return results;
+            return (results, origin);
         }
 
         private static string[] ReadPoliticalPressurePetitioners(JObject item, string key)
@@ -305,29 +311,27 @@ namespace ReignBeta.Diplomacy.Integration
             catch (JsonException) { return new string[0]; }
         }
 
-        public static async Task AcknowledgePoliticalPressureNoticeAsync(string incidentId,
-            string timelineId, float worldDay, JArray effectReceipts)
+        internal static Task AcknowledgePoliticalPressureNoticeAsync(string origin, string campaignId,
+            string timelineId, string generation, string incidentId, float worldDay, JArray effectReceipts, Func<bool> ownsPoll)
         {
-            if (string.IsNullOrWhiteSpace(incidentId)) return;
-            await PostJsonAsync("/political-pressure/acknowledge", new JObject
-            {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = timelineId ?? "main",
-                ["incidentId"] = incidentId, ["worldDay"] = worldDay,
-                ["effectReceipts"] = effectReceipts ?? new JArray()
-            }).ConfigureAwait(false);
+            JObject payload = NoticeAcknowledgment(campaignId, timelineId, generation, incidentId, worldDay);
+            payload["effectReceipts"] = effectReceipts ?? new JArray();
+            return AcknowledgeNoticeAsync(origin, "/political-pressure/acknowledge", payload, ownsPoll);
         }
 
-        public static async Task<List<ReignClanConflictNotice>> FetchClanConflictNoticesAsync()
+        internal static async Task<(List<ReignClanConflictNotice> Notices, string Origin)> FetchClanConflictNoticesAsync(
+            string campaignId, string timelineId, string generation)
         {
-            List<ReignClanConflictNotice> results = new List<ReignClanConflictNotice>();
-            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
-            string route = "/clan-conflicts/notices?campaignId=" + Uri.EscapeDataString(GetCampaignId())
-                + "&timelineId=" + Uri.EscapeDataString(timelineId) + "&limit=10";
-            JObject response = await GetJsonAsync(route).ConfigureAwait(false);
-            if (response.Value<bool?>("ok") != true || !(response["notices"] is JArray notices))
-                return results;
+            var results = new List<ReignClanConflictNotice>();
+            JObject response = await GetJsonAsync(NoticeRoute("/clan-conflicts/notices", campaignId, timelineId, generation, 10))
+                .ConfigureAwait(false);
+            string origin = ResponseOrigin(response);
+            if (!ReignHttpTransport.IsAllowedPinnedOrigin(origin)
+                || !MatchesNoticeOwner(response, campaignId, timelineId, generation) || !(response["notices"] is JArray notices))
+                return (results, null);
             foreach (JObject item in notices.OfType<JObject>())
             {
+                if (!MatchesNoticeRow(item, campaignId, timelineId)) continue;
                 ReignClanConflictNotice notice = new ReignClanConflictNotice
                 {
                     NewsDescription = ReadString(item, "news_description", string.Empty),
@@ -358,18 +362,46 @@ namespace ReignBeta.Diplomacy.Integration
                     if (name.Type == JTokenType.String) notice.InvolvedB.Add(name.ToString());
                 results.Add(notice);
             }
-            return results;
+            return (results, origin);
         }
 
-        public static async Task AcknowledgeClanConflictNoticeAsync(string incidentId,
-            string timelineId, float worldDay)
-        {
-            if (string.IsNullOrWhiteSpace(incidentId)) return;
-            await PostJsonAsync("/clan-conflicts/acknowledge", new JObject
+        internal static Task AcknowledgeClanConflictNoticeAsync(string origin, string campaignId,
+            string timelineId, string generation, string incidentId, float worldDay, Func<bool> ownsPoll)
+            => AcknowledgeNoticeAsync(origin, "/clan-conflicts/acknowledge",
+                NoticeAcknowledgment(campaignId, timelineId, generation, incidentId, worldDay), ownsPoll);
+
+        private static string NoticeRoute(string route, string campaignId, string timelineId, string generation, int limit)
+            => route + "?campaignId=" + Uri.EscapeDataString(campaignId)
+                + "&timelineId=" + Uri.EscapeDataString(timelineId)
+                + "&sharedActivityGeneration=" + Uri.EscapeDataString(generation) + "&limit=" + limit;
+
+        private static string NoticeString(JObject source, string field)
+            => source?[field] is JValue value && value.Type == JTokenType.String ? (string)value.Value : null;
+
+        private static bool MatchesNoticeOwner(JObject response, string campaignId, string timelineId, string generation)
+            => response?["ok"]?.Type == JTokenType.Boolean && (bool)response["ok"]
+                && response["ownership"] is JObject owner
+                && NoticeString(owner, "campaignId") == campaignId
+                && NoticeString(owner, "timelineId") == timelineId
+                && NoticeString(owner, "sharedActivityGeneration") == generation;
+
+        private static bool MatchesNoticeRow(JObject row, string campaignId, string timelineId)
+            => NoticeString(row, "campaign_id") == campaignId && NoticeString(row, "timeline_id") == timelineId
+                && !string.IsNullOrWhiteSpace(NoticeString(row, "incident_id"));
+
+        private static JObject NoticeAcknowledgment(string campaignId, string timelineId, string generation, string incidentId, float worldDay)
+            => new JObject
             {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = timelineId ?? "main",
+                ["campaignId"] = campaignId, ["timelineId"] = timelineId, ["sharedActivityGeneration"] = generation,
                 ["incidentId"] = incidentId, ["worldDay"] = worldDay
-            }).ConfigureAwait(false);
+            };
+
+        private static async Task AcknowledgeNoticeAsync(string origin, string route, JObject payload, Func<bool> ownsPoll)
+        {
+            JObject result = await SendPinnedJsonAsync(origin, route, payload, ownsPoll).ConfigureAwait(false);
+            if (result["ok"]?.Type != JTokenType.Boolean || !(bool)result["ok"]
+                || NoticeString(result, "incidentId") != NoticeString(payload, "incidentId"))
+                ReignLog.Warn("The server did not acknowledge the exact notice for its original save owner.");
         }
 
         public static async Task<ReignRandomDiplomacyTestResult> QueueRandomDiplomacyPopupTestAsync()

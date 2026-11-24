@@ -127,6 +127,16 @@ public sealed class KingdomEventScenarioContractTests
         Assert.Contains("_testOrganicTriggerDay = -1", campaignBehavior, StringComparison.Ordinal);
         Assert.DoesNotContain("SyncData(\"_testOrganicTrigger", campaignBehavior, StringComparison.Ordinal);
         Assert.Contains("kingdom_event_no_target_no_record", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("kingdom_event_production_modifier", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("kingdom_event_native_economy_model", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("Campaign.Current?.Models", inGameTests, StringComparison.Ordinal);
+        foreach (string method in new[] { "CalculateTownFoodStocksChange", "CalculateHearthChange",
+            "CalculateSecurityChange", "CalculateProsperityChange", "CalculateDailyConstructionPower", "CalculateLoyaltyChange" })
+            Assert.Contains(method, inGameTests, StringComparison.Ordinal);
+        Assert.Contains("[ThreadStatic] private static ReignKingdomEventRecord _economyProbeOmission;", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("ObserveWithoutRandomAdvance(read)", inGameTests, StringComparison.Ordinal);
+        Assert.Contains("IsEconomyProbeOmission(this, record)", campaignBehavior, StringComparison.Ordinal);
+        Assert.DoesNotContain("SyncData(\"_economyProbe", campaignBehavior, StringComparison.Ordinal);
     }
 
     private sealed class StubHandler(Func<HttpRequestMessage, HttpResponseMessage> response)
