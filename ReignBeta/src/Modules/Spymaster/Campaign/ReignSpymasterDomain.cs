@@ -79,6 +79,9 @@ namespace ReignBeta.Spymaster.Campaign
         public bool IsNotable;
         public bool Activated;
         public bool Exposed;
+        public string AssignmentId = string.Empty;
+        public string AssignmentTimelineId = string.Empty;
+        public bool ExposurePending;
         public float ExposedDay = -1f;
         public float RecruitedDay;
         public float NextActionDay;

@@ -337,8 +337,17 @@ namespace ReignBeta.WorldSimulation.World
         {
             Hero prisoner = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "prisonerHeroStringId", action.TargetHeroStringId));
             Hero facilitator = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "toHeroStringId", string.Empty)) ?? actor ?? Hero.MainHero;
+            TroopRoster originalRoster = prisoner.PartyBelongedToAsPrisoner?.PrisonRoster;
+            CharacterObject prisonerCharacter = prisoner.CharacterObject;
             EndCaptivityAction.ApplyByReleasedByChoice(prisoner, facilitator);
-            return ReignActionResult.Done(prisoner.Name + " was released or transferred by agreement.")
+            if (prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner != null
+                || (originalRoster?.GetTroopCount(prisonerCharacter) ?? 0) != 0)
+            {
+                return ReignActionResult.FailTerminal("Native release did not clear the prisoner's custody.",
+                    "prisoner_release_verification_failed", "state_verification");
+            }
+
+            return ReignActionResult.Done(prisoner.Name + " was released from captivity by agreement.")
                 .WithEffect("prisoner_release", "hero", prisoner.StringId, prisoner.Name.ToString(), "facilitator=" + facilitator.StringId)
                 .WithChangedEntity("hero", prisoner.StringId, prisoner.Name.ToString(), "released_from_captivity");
         }

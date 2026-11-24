@@ -273,6 +273,39 @@ namespace ReignBeta.Spymaster.Campaign
                     && court.EnsureSpymasterState().ForeignAgents.Count == 1 && court.EnsureSpymasterState().ForeignAgents[0].Activated,
                     "Foreign-agent activation is upserted and action IDs prevent duplicate save/load outcomes.", JObject.FromObject(court.EnsureSpymasterState()));
 
+                var typedAgent = (JObject)agentResponse["agents"][0].DeepClone();
+                typedAgent["assignmentId"] = "spytest-original";
+                typedAgent["exposureRevision"] = 0;
+                var typedResponse = new JObject
+                {
+                    ["ok"] = true, ["schema"] = ReignCourtCampaignBehavior.ForeignAgentAssignmentSchema, ["timelineId"] = "main",
+                    ["agents"] = new JArray(typedAgent)
+                };
+                court.ApplyForeignAgentResponse(typedResponse, CurrentDayFloat());
+                var exposedForeignAgent = court.EnsureSpymasterState().ForeignAgents.Single();
+                exposedForeignAgent.Exposed = true;
+                exposedForeignAgent.Activated = false;
+                exposedForeignAgent.ExposedDay = CurrentDayFloat();
+                exposedForeignAgent.ExposurePending = true;
+                var restoredAgent = JsonConvert.DeserializeObject<ReignForeignAgentRecord>(JsonConvert.SerializeObject(exposedForeignAgent));
+                var staleAction = (JObject)agentResponse["actions"][0].DeepClone();
+                staleAction["actionId"] = "spytest-stale-action-" + normalizedRunId;
+                staleAction["assignmentId"] = typedAgent["assignmentId"];
+                staleAction["exposureRevision"] = 0;
+                typedResponse["actions"] = new JArray(staleAction);
+                court.ApplyForeignAgentResponse(typedResponse, CurrentDayFloat());
+                AddSpyAssertion(assertions, "foreign_agent_exposure_survives_stale_snapshot_and_action",
+                    restoredAgent.Exposed && restoredAgent.ExposurePending && restoredAgent.AssignmentId == "spytest-original"
+                    && exposedForeignAgent.Exposed && !exposedForeignAgent.Activated && exposedForeignAgent.ExposurePending
+                    && court.EnsureSpymasterState().Effects.Count == effectsBeforeAgent + 1,
+                    "A retained local exposure and its pending receipt survive an older active snapshot and block its unapplied action.", JObject.FromObject(exposedForeignAgent));
+                typedAgent["assignmentId"] = "spytest-new";
+                court.ApplyForeignAgentResponse(typedResponse, CurrentDayFloat());
+                AddSpyAssertion(assertions, "foreign_agent_new_occurrence_keeps_ordinary_activation",
+                    exposedForeignAgent.AssignmentId == "spytest-new" && exposedForeignAgent.Activated && !exposedForeignAgent.Exposed
+                    && !exposedForeignAgent.ExposurePending && court.EnsureSpymasterState().Effects.Count == effectsBeforeAgent + 1,
+                    "A distinct current occurrence is admitted and cannot inherit an old assignment action.", JObject.FromObject(exposedForeignAgent));
+
                 ReignSpymasterMission memory = NewTestMission(normalizedRunId, "person_relationships", spymaster, foreignNoble, null);
                 memory.GoldCost = 2250; memory.SuccessChance = 47f; memory.DetectionChance = 31f; memory.OutcomeRoll = 46f;
                 memory.TargetNoticed = true; memory.PlayerIdentified = false; memory.ResultSummary = "Complete historical result";

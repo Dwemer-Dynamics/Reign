@@ -878,37 +878,39 @@ namespace ReignBeta.Court.UI
             }
         }
 
-        private void ConfirmNobleReversal(ReignNobleDocketMatter matter)
+        private bool CheckNobleJudgmentOwner(Func<bool> ownsJudgment)
         {
+            if (ownsJudgment()) return true;
+            StatusText = "The hearing or Court session changed. Reopen the judgment in history.";
+            return false;
+        }
+
+        private void ConfirmNobleReversal(ReignNobleDocketMatter matter, Func<bool> ownsJudgment)
+        {
+            if (!CheckNobleJudgmentOwner(ownsJudgment)) return;
             InformationManager.ShowInquiry(new InquiryData("Reverse noble judgment",
                 "Reverse this formal judgment? Safe social and relation effects will be compensated, native family or gold changes will remain, and your credibility will suffer.",
                 true, true, "Reverse", "Cancel", () =>
                 {
+                    if (!CheckNobleJudgmentOwner(ownsJudgment)) return;
                     bool ok = _court.TryReverseNobleJudgment(matter.MatterId, out string receipt);
                     StatusText = receipt;
                     if (ok) RefreshAll();
                 }, null), true);
         }
 
-        private void ConfirmMurderExecution(ReignNobleDocketMatter matter)
+        private void ConfirmMurderExecution(ReignNobleDocketMatter matter, Func<bool> ownsJudgment)
         {
+            if (!CheckNobleJudgmentOwner(ownsJudgment)) return;
             InformationManager.ShowInquiry(new InquiryData("Irreversible execution",
                 "Execute the convicted prisoner now? The character will actually die. This cannot be reversed, even if later evidence proves the judgment wrong.",
                 true, true, "Execute", "Cancel", () =>
                 {
+                    if (!CheckNobleJudgmentOwner(ownsJudgment)) return;
                     bool ok = _court.TryExecuteMurderSentence(matter.MatterId, out string receipt);
                     StatusText = receipt;
                     if (ok) RefreshAll();
                 }, null), true);
-        }
-
-        private void RequestNobleCourtStay(ReignNobleDocketMatter matter,
-            ReignNobleMatterParticipant participant)
-        {
-            bool ok = _court.TryRequestCourtStay(matter.MatterId, participant.HeroId,
-                out string receipt);
-            StatusText = receipt;
-            if (ok) RefreshAll();
         }
 
         private async void BeginAudience(CourtMatter matter, Hero speaker)

@@ -43,6 +43,7 @@ namespace ReignBeta.Characters.Campaign
         private Dictionary<string, double> _shownUntil = new Dictionary<string, double>(StringComparer.Ordinal);
         internal int _epoch;
         internal bool _busy, _initialized;
+        private bool _checkpointMutationInFlight;
         private double _real, _nextEvaluation;
         internal double _nextPoll;
         // Process-local announcement delivery hold armed by the test harness; never saved.
@@ -76,7 +77,7 @@ namespace ReignBeta.Characters.Campaign
             if (store.IsLoading)
             {
                 _meetingMovement.Clear();
-                _epoch++; _initialized = _busy = false; Generation = ""; _nextPoll = _nextEvaluation = 0;
+                _epoch++; _initialized = _busy = _checkpointMutationInFlight = false; Generation = ""; _nextPoll = _nextEvaluation = 0;
                 if (_chunks == null || _chunks.Count == 0) return;
                 var saved = JObject.Parse(ReignSavePayloadCodec.Decode(_chunks));
                 if (saved.Value<int>("version") != 1) throw new InvalidOperationException("Unsupported NPC Lives save format.");
@@ -103,7 +104,7 @@ namespace ReignBeta.Characters.Campaign
             if (!Ready() || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
             string campaign = ReignServerClient.GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (_campaign != campaign || _timeline != timeline)
-            { _epoch++; _busy = _initialized = false; _campaign = campaign; _timeline = timeline; Generation = ""; _nextPoll = _nextEvaluation = 0; }
+            { _epoch++; _busy = _initialized = _checkpointMutationInFlight = false; _campaign = campaign; _timeline = timeline; Generation = ""; _nextPoll = _nextEvaluation = 0; }
             if (ReignTestHarness.Current.OwnsAutomationSession && !NpcLivesTestOwnsSession
                 && !ReignTestHarness.Current.OwnsPassiveWorldSession) return;
             if (_initialized) { AdvanceCommunicationHosts(); AdvanceLifeTravel(); }
@@ -130,7 +131,10 @@ namespace ReignBeta.Characters.Campaign
         }
         private void Request(string route, JObject payload, string operation = "")
         {
-            _busy = true; NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
+            _busy = true;
+            // The state endpoint is read-only, including after the initial snapshot.
+            _checkpointMutationInFlight = route != "state";
+            NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
             _ = Run();
             async Task Run()
             {
@@ -169,7 +173,7 @@ namespace ReignBeta.Characters.Campaign
                     }).ConfigureAwait(false);
                 }
                 catch (Exception ex) { ReignLog.Warn("NPC Lives request awaiting retry: " + ex.Message); }
-                finally { await ReignMainThread.InvokeAsync(() => { if (Current(owner, epoch)) _busy = false; }).ConfigureAwait(false); }
+                finally { await ReignMainThread.InvokeAsync(() => { if (Current(owner, epoch)) _busy = _checkpointMutationInFlight = false; }).ConfigureAwait(false); }
             }
         }
         internal void QueueLifeOperation(string route, JObject p, string operation)
@@ -196,6 +200,43 @@ namespace ReignBeta.Characters.Campaign
                 RefreshStoryLocationMenu(hadStoryLocations);
             }).ConfigureAwait(false);
         }
+        internal JObject PassiveCheckpointSnapshot()
+        {
+            bool snapshotReady = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
+                && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
+            return new JObject
+            {
+                ["schema"] = "reign-npc-lives-checkpoint-v1",
+                ["campaignId"] = _campaign,
+                ["timelineId"] = _timeline,
+                ["snapshotReady"] = snapshotReady,
+                ["mutationInFlight"] = _checkpointMutationInFlight,
+                ["pendingReceipts"] = _outbox.Count,
+                ["dueNativeRewards"] = snapshotReady ? CountCheckpointLifeRewards() : 0
+            };
+        }
+
+        private int CountCheckpointLifeRewards()
+        {
+            var ids = new List<string>();
+            foreach (var effect in State.Effects)
+            {
+                if (effect == null || effect.Status != "pending" || effect.Kind != "skill_xp"
+                    || ReignActionService.HeroById(effect.HeroId)?.IsAlive != true) continue;
+                if (effect.Amount == 0 || _nativeEffects.Contains(effect.Id)
+                    || effect.Amount > 0 && !string.IsNullOrEmpty(effect.Skill) && ResolveLifeRewardSkill(effect.Skill) != null)
+                    ids.Add(effect.Id);
+            }
+            if (ids.Count == 0) return 0;
+            string operation = LifeRewardReceiptOperationId(ids);
+            return _acceptedOperations.Contains(operation) || _failedOperations.ContainsKey(operation) ? 0 : ids.Count;
+        }
+
+        private static SkillObject ResolveLifeRewardSkill(string name) =>
+            typeof(DefaultSkills).GetProperty(name, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)?.GetValue(null) as SkillObject;
+
+        private static string LifeRewardReceiptOperationId(IEnumerable<string> ids) => "xp_ack:" + string.Join("|", ids);
+
         private void ApplyLifeRewards()
         {
             var receipts = new JArray();
@@ -206,7 +247,7 @@ namespace ReignBeta.Characters.Campaign
                 if (effect.Amount == 0) _nativeEffects.Add(effect.Id);
                 if (!_nativeEffects.Contains(effect.Id))
                 {
-                    var skill = typeof(DefaultSkills).GetProperty(effect.Skill, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)?.GetValue(null) as SkillObject;
+                    var skill = ResolveLifeRewardSkill(effect.Skill);
                     if (skill == null || effect.Amount <= 0) { ReignLog.Warn("Unsupported personal-story reward: " + effect.Skill); continue; }
                     hero.AddSkillXp(skill, effect.Amount);
                     _nativeEffects.Add(effect.Id);
@@ -216,7 +257,7 @@ namespace ReignBeta.Characters.Campaign
             }
             if (receipts.Count == 0) return;
             var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation); p["receipts"] = receipts;
-            QueueLifeOperation("acknowledge", p, "xp_ack:" + string.Join("|", receipts.OfType<JObject>().Select(r => r.Value<string>("id"))));
+            QueueLifeOperation("acknowledge", p, LifeRewardReceiptOperationId(receipts.OfType<JObject>().Select(r => r.Value<string>("id"))));
         }
         private void PresentLifeInvitation(string requested)
         {

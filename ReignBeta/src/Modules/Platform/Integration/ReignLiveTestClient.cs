@@ -192,6 +192,7 @@ namespace ReignBeta.Platform.Integration
                 ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.Court.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
                 ["relationshipClient"] = HeartbeatSection(sections, "relationships", () => BuildRelationshipOutboxDiagnostics()),
                 ["personalGossip"] = HeartbeatSection(sections, "gossip", () => PersonalGossipRuntimeStatus()),
+                ["npcLives"] = HeartbeatSection(sections, "npcLives", () => ReignServices.NpcLives?.PassiveCheckpointSnapshot() ?? new JObject()),
                 ["worldHistory"] = new JObject
                 {
                     ["pendingCount"] = ReignWorldHistoryTransport.PendingCount(),
