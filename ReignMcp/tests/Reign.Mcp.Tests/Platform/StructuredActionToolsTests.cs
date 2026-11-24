@@ -476,6 +476,112 @@ public sealed class StructuredActionToolsTests
                 CampaignTestCheckpointOwnership.ReadRestartedGameInstance(receipt, evidence));
     }
 
+    [Theory]
+    [InlineData("ordinary")]
+    [InlineData("matching_stage")]
+    [InlineData("missing_stage")]
+    [InlineData("foreign_run")]
+    [InlineData("foreign_command")]
+    [InlineData("foreign_receipt")]
+    [InlineData("foreign_lease")]
+    [InlineData("wrong_generation")]
+    [InlineData("different_agreement")]
+    [InlineData("different_agreement_revision")]
+    [InlineData("different_hero")]
+    [InlineData("different_phase")]
+    public void CampaignCheckpointStageReceiptMustEchoTheExactStageAndAgreement(string mutation)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var receipt = state.CheckpointReceipts[0];
+        var stage = FixturePartyAgencyStage(receipt.Attempt.GameInstanceId);
+        var attempt = receipt.Attempt with { PartyAgencyStage = mutation == "ordinary" ? null : stage };
+        var echoed = mutation switch
+        {
+            "ordinary" or "missing_stage" => null,
+            "foreign_run" => stage with { LiveRunId = "foreign-run" },
+            "foreign_command" => stage with { CommandId = "foreign-command" },
+            "foreign_receipt" => stage with { ReceiptId = "foreign-receipt" },
+            "foreign_lease" => stage with { ExecutionLeaseId = "foreign-lease" },
+            "wrong_generation" => stage with { RetryGeneration = stage.RetryGeneration + 1 },
+            "different_agreement" => stage with { Agreement = stage.Agreement with { AgreementId = "other-agreement" } },
+            "different_agreement_revision" => stage with { Agreement = stage.Agreement with { AgreementRevision = 3 } },
+            "different_hero" => stage with { Agreement = stage.Agreement with { HeroId = "other-hero" } },
+            "different_phase" => stage with { Agreement = stage.Agreement with { Phase = "Returning" } },
+            _ => stage
+        };
+        var controller = FixtureCall(new
+        {
+            ok = true,
+            postSaveRuntimeQuiesced = true,
+            save = new
+            {
+                ok = true,
+                saveName = attempt.SaveName,
+                nativeSave = new { succeeded = true, saveName = attempt.SaveName },
+                saveFinalization = new { succeeded = true, completedSaveName = attempt.SaveName },
+                checkpointOwnership = new
+                {
+                    id = attempt.Id, runId = attempt.RunId, gameInstanceId = attempt.GameInstanceId,
+                    saveName = attempt.SaveName, savePointId = receipt.SavePointId, sha256 = receipt.Sha256,
+                    partyAgencyStage = echoed is null ? (JsonElement?)null
+                        : JsonSerializer.SerializeToElement(echoed, JsonSerializerOptions.Web)
+                }
+            }
+        });
+
+        if (mutation is "ordinary" or "matching_stage")
+            Assert.Equal(attempt, CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller).Attempt);
+        else
+            Assert.Throws<InvalidOperationException>(() => CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller));
+    }
+
+    [Fact]
+    public void CampaignCheckpointStageReservationSurvivesCurrentCheckpointReplacement()
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var current = state.CheckpointReceipts[0];
+        var attempt = current.Attempt with
+        {
+            SourceSaveName = state.CurrentSaveName,
+            PartyAgencyStage = FixturePartyAgencyStage(current.Attempt.GameInstanceId)
+        };
+        CampaignTestCheckpointOwnership.ReservePartyAgencyStageReceipt(state, attempt);
+        state.PendingCheckpoint = attempt;
+        var restored = JsonSerializer.Deserialize<CampaignTestState>(JsonSerializer.Serialize(state))!;
+        Assert.Equal(attempt, restored.PendingCheckpoint);
+        restored.PendingCheckpoint = null;
+        // A later ordinary save replaces the only Current checkpoint receipt.
+        restored.CheckpointReceipts[0] = current;
+        Assert.Throws<InvalidOperationException>(() =>
+            CampaignTestCheckpointOwnership.ReservePartyAgencyStageReceipt(restored, attempt));
+        Assert.Single(restored.PartyAgencyCheckpointStageReceiptIds);
+    }
+
+    [Theory]
+    [InlineData("different_source")]
+    [InlineData("different_destination")]
+    [InlineData("different_native_load")]
+    public void CampaignCheckpointStageRequiresTheOwnedCurrentOnItsRecordedNativeLoad(string mutation)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var current = state.CheckpointReceipts[0];
+        var attempt = current.Attempt with
+        {
+            SourceSaveName = mutation == "different_source" ? state.BaselineSaveName : state.CurrentSaveName,
+            SaveName = mutation == "different_destination" ? "some_milestone" : state.CurrentSaveName,
+            PartyAgencyStage = FixturePartyAgencyStage(
+                mutation == "different_native_load" ? "other-native-load" : current.Attempt.GameInstanceId)
+        };
+        Assert.Throws<InvalidOperationException>(() =>
+            CampaignTestCheckpointOwnership.ReservePartyAgencyStageReceipt(state, attempt));
+        Assert.Empty(state.PartyAgencyCheckpointStageReceiptIds);
+    }
+
+    private static PartyAgencyCheckpointStage FixturePartyAgencyStage(string gameInstanceId) =>
+        new("certification-run", "PA-NATIVE-017", "Completed", "stage-live-run", "stage-command",
+            "party_agency_save_stage_123", gameInstanceId, "issued-lease", 2,
+            new PartyAgencyCheckpointAgreement("party_guest_456", 2, "hero", "clan", "kingdom", "source", "Completed"));
+
     private static string PlayerEncounterCase(string args) => "[{\"caseId\":\"entry\",\"phase\":\"fixture\",\"kind\":\"fixture\",\"operationId\":\"entry_1\",\"actionId\":\"fixture.player_settlement_encounter\",\"arguments\":" + args + "}]";
     private static Dictionary<string, object> PlayerEncounterArguments() => new()
     {

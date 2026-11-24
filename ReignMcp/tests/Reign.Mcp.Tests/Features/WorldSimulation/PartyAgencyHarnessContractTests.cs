@@ -6,6 +6,80 @@ namespace Reign.Mcp.Tests;
 public sealed class PartyAgencyHarnessContractTests
 {
     [Theory]
+    [InlineData("valid")]
+    [InlineData("legacy")]
+    [InlineData("foreign_campaign")]
+    [InlineData("foreign_run")]
+    [InlineData("duplicate_stage")]
+    [InlineData("wrong_player_load")]
+    [InlineData("wrong_lease")]
+    [InlineData("superseded_execution")]
+    [InlineData("wrong_phase")]
+    [InlineData("wrong_native_command")]
+    [InlineData("wrong_save")]
+    public void PartyAgencyCheckpointRequiresOneExactAcceptedNativeStage(string mutation)
+    {
+        const string receipt = "party_agency_save_stage_fba930e74e0144a0917b3a91e2e579dd";
+        var command = new
+        {
+            operation = "party_agency_stage_save_phase", status = "completed",
+            commandId = "native-command", caseId = "PA-NATIVE-017", variant = "Active",
+            executionRetryGeneration = mutation == "superseded_execution" ? 2 : 1,
+            executionEvidence = new
+            {
+                status = "pending_artifact_review",
+                executionObservation = new
+                {
+                    commandId = "native-command", campaignId = "target-campaign",
+                    runId = "stage-run", gameInstanceId = "game-before",
+                    leaseId = "original-execution-lease", executionRetryGeneration = 1
+                }
+            },
+            result = new
+            {
+                ok = false, saveRoundtripStageReady = true, receiptId = receipt,
+                operation = "party_agency_stage_save_phase", caseId = "PA-NATIVE-017", variant = "Active",
+                activeSaveName = mutation == "wrong_save" ? "other-Current" : "Test_Current",
+                stagedLiveRunId = "stage-run",
+                stagedCommandId = mutation == "wrong_native_command" ? "other-command" : "native-command",
+                stagedGameInstanceId = mutation == "wrong_player_load" ? "other-game" : "game-before",
+                stagedExecutionLeaseId = mutation == "wrong_lease" ? "current-transport-lease" : "original-execution-lease",
+                stagedRetryGeneration = 1,
+                stagedAgreement = new
+                {
+                    agreementId = "exact-agreement", agreementRevision = 3, heroId = "fixture-guest",
+                    originalClanId = "guest-clan", originalKingdomId = "", sourcePartyId = "guest-party",
+                    phase = mutation == "wrong_phase" ? "Departing" : "Active"
+                }
+            }
+        };
+        JsonElement report = JsonSerializer.SerializeToElement(new
+        {
+            mode = "party_agency", campaignId = "target-campaign", runId = "stage-run", gameInstanceId = "game-before",
+            executionObservationVersion = mutation == "legacy" ? 0 : 1,
+            enrollment = new
+            {
+                campaignId = mutation == "foreign_campaign" ? "other-campaign" : "target-campaign",
+                campaignTestRunId = "campaign-test", certificationRunId = mutation == "foreign_run" ? "other-run" : "cert-run",
+                disposableSaveName = "Test_Current"
+            },
+            commands = mutation == "duplicate_stage" ? new[] { command, command } : new[] { command }
+        });
+        var observed = TestingTools.ReadPartyAgencyCheckpointStage(report, "target-campaign",
+            "campaign-test", "cert-run", "stage-run", "Active", "Test_Current");
+        if (mutation == "valid")
+        {
+            Assert.NotNull(observed);
+            Assert.Equal("original-execution-lease", observed.ExecutionLeaseId);
+            Assert.Equal("exact-agreement", observed.Agreement.AgreementId);
+            Assert.Equal(3, observed.Agreement.AgreementRevision);
+        }
+        else
+        {
+            Assert.Null(observed);
+        }
+    }
+    [Theory]
     [InlineData(true, true, 1, true, false, true)]
     [InlineData(true, true, 1, false, true, true)]
     [InlineData(true, true, 1, false, false, false)]
@@ -296,12 +370,12 @@ public sealed class PartyAgencyHarnessContractTests
             StringComparison.Ordinal);
         Assert.Contains("affectedSaveRoundtripStateDriver", source,
             StringComparison.Ordinal);
-        Assert.Contains("splitSaveRoundtripEvidence", source,
-            StringComparison.Ordinal);
-        Assert.Contains("transcriptReports.All", source,
-            StringComparison.Ordinal);
-        Assert.Contains("candidate.Data.HasValue && ContainsPartyAgencyTranscriptTurn", source,
-            StringComparison.Ordinal);
+        Assert.Contains("Party Agency save/reload requires a checkpoint bound to a stage in this certification run.",
+            source, StringComparison.Ordinal);
+        Assert.Contains("VerifyPartyAgencyBoundRoundtripAsync(api, state, execution, report.Data.Value",
+            source, StringComparison.Ordinal);
+        Assert.Contains("ReadPartyAgencyLiveReport(api, state.CampaignId, stage.LiveRunId",
+            source, StringComparison.Ordinal);
         Assert.Contains("affectedSimultaneousReviewQueue", source,
             StringComparison.Ordinal);
         Assert.Contains("affectedDepartureLanguage", source,

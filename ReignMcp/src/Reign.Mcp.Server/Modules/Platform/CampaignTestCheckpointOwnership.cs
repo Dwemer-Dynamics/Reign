@@ -1,12 +1,24 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Reign.Mcp.Server;
 
 public sealed record CampaignCheckpointAttempt(string Id, string RunId, string CampaignId,
     string TimelineId, string BaselineSaveName, string SaveName, string SourceSaveName,
     string SourcePointId, string GameInstanceId, string PreviousDestinationPointId,
-    string PreviousDestinationSha256, string StartedUtc);
+    string PreviousDestinationSha256, string StartedUtc)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PartyAgencyCheckpointStage? PartyAgencyStage { get; init; }
+}
+
+public sealed record PartyAgencyCheckpointStage(string CertificationRunId, string CaseId,
+    string Variant, string LiveRunId, string CommandId, string ReceiptId, string GameInstanceId,
+    string ExecutionLeaseId, int RetryGeneration, PartyAgencyCheckpointAgreement Agreement);
+
+public sealed record PartyAgencyCheckpointAgreement(string AgreementId, int AgreementRevision,
+    string HeroId, string OriginalClanId, string OriginalKingdomId, string SourcePartyId, string Phase);
 
 public sealed record CampaignCheckpointReceipt(CampaignCheckpointAttempt Attempt, string SavePointId,
     string Sha256, string CompletedUtc);
@@ -48,6 +60,18 @@ internal static class CampaignTestCheckpointOwnership
             && receipt.Sha256.Length == 64 && receipt.Sha256.All(char.IsAsciiHexDigit));
     }
 
+    internal static void ReservePartyAgencyStageReceipt(CampaignTestState state, CampaignCheckpointAttempt attempt)
+    {
+        if (attempt.PartyAgencyStage is not { } stage) return;
+        if (!SameName(attempt.SaveName, state.CurrentSaveName)
+            || !SameName(attempt.SourceSaveName, state.CurrentSaveName)
+            || string.IsNullOrWhiteSpace(stage.GameInstanceId)
+            || stage.GameInstanceId != attempt.GameInstanceId)
+            throw new InvalidOperationException("The Party Agency stage did not run in the native instance of the loaded run-owned Current checkpoint.");
+        if (string.IsNullOrWhiteSpace(stage.ReceiptId) || !state.PartyAgencyCheckpointStageReceiptIds.Add(stage.ReceiptId))
+            throw new InvalidOperationException("The Party Agency stage receipt is missing or already bound to a checkpoint attempt.");
+    }
+
     internal static void RequireVacant(string name, string? nativeHash, bool registered)
     {
         if (nativeHash is not null || registered)
@@ -71,6 +95,11 @@ internal static class CampaignTestCheckpointOwnership
             || Text(ownership, "gameInstanceId") != attempt.GameInstanceId
             || !SameName(Text(ownership, "saveName"), attempt.SaveName))
             throw new InvalidOperationException("The controller did not return a successful native receipt for this exact checkpoint attempt.");
+
+        if (attempt.PartyAgencyStage is { } stage
+            && (!ownership.TryGetProperty("partyAgencyStage", out var nativeStage)
+                || !JsonElement.DeepEquals(nativeStage, JsonSerializer.SerializeToElement(stage, JsonSerializerOptions.Web))))
+            throw new InvalidOperationException("The native checkpoint receipt did not echo the exact Party Agency stage and agreement.");
 
         string pointId = Text(ownership, "savePointId");
         string sha256 = Text(ownership, "sha256");

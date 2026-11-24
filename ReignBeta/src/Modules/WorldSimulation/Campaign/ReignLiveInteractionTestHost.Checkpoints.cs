@@ -55,6 +55,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("A valid save name is required.");
 
             JObject ownership = command["checkpointOwnership"] as JObject;
+            JToken partyAgencyStage = ownership?["partyAgencyStage"];
+            bool hasPartyAgencyStage = partyAgencyStage != null && partyAgencyStage.Type != JTokenType.Null;
             if (saveName.StartsWith("ReignTest_", StringComparison.OrdinalIgnoreCase) || ownership != null)
             {
                 if (ownership == null || requested != saveName
@@ -177,6 +179,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return false;
                 if (ownership != null && !ValidCheckpointDestination(ownership, saveName))
                     return false;
+                if (hasPartyAgencyStage && !PartyAgencyCheckpointMatchesStage(partyAgencyStage as JObject, saveName))
+                    return false;
                 if (ownership != null)
                     expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation().Value<long>("sequence") + 1L;
                 // Save Sync registers before Bannerlord's completion callback
@@ -251,6 +255,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                             ["gameInstanceId"] = ownership.Value<string>("gameInstanceId"),
                             ["saveName"] = saveName, ["savePointId"] = point, ["sha256"] = hash
                         };
+                        if (hasPartyAgencyStage)
+                            checkpointReceipt["partyAgencyStage"] = partyAgencyStage.DeepClone();
                     }
                     _lastAutomationSaveName = saveName;
                     _lastAutomationSaveCompletedUtc = DateTime.UtcNow;
