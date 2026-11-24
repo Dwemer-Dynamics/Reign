@@ -47,7 +47,10 @@ public sealed class ReignWorldHistoryEventProofTests
     public void Proof_refuses_a_close_but_different_world_day()
     {
         JObject reply = Observed();
-        reply["event"]!["world_day"] = Math.BitIncrement(15.25d);
+        var observedEvent = (JObject)reply["event"]!;
+        double adjacentDay = Math.BitIncrement(15.25d);
+        Assert.True(observedEvent.Remove("world_day"));
+        observedEvent.Add("world_day", new JValue(adjacentDay));
         Assert.False(Create(Event()).Matches(reply));
     }
 
