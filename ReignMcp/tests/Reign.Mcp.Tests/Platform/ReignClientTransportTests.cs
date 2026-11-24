@@ -45,6 +45,7 @@ public sealed class ReignClientTransportTests
         }
         string report = await output;
         Assert.True(process.ExitCode == 0, report + await error);
-        Assert.Equal(15, report.Split('\n').Count(line => line.StartsWith("PASS ", StringComparison.Ordinal)));
+        Assert.Equal(16, report.Split('\n').Count(line => line.StartsWith("PASS ", StringComparison.Ordinal)));
+        Assert.Contains("PASS closed game scope sends no portrait request", report, StringComparison.Ordinal);
     }
 }
