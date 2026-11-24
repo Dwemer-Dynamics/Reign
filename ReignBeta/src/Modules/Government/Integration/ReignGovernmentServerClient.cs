@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using Reign.Core.Contracts.Government;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
@@ -19,28 +17,12 @@ namespace ReignBeta.Government.Integration
         internal static Task<JObject> RequestGovernmentSpeakerStatementAsync(
             Kingdom kingdom,
             ReignGovernmentPartyRecord party,
-            IReadOnlyList<ReignGovernmentResolutionRecord> resolutions)
+            JArray rows)
         {
             ReignGovernmentCampaignBehavior behavior = ReignServices.Government;
             Hero speaker = string.IsNullOrWhiteSpace(party?.SpeakerHeroStringId) ? null
                 : Hero.FindFirst(x => string.Equals(x.StringId, party.SpeakerHeroStringId,
                     System.StringComparison.OrdinalIgnoreCase));
-            var rows = new JArray();
-            foreach (ReignGovernmentResolutionRecord record in resolutions
-                ?? new List<ReignGovernmentResolutionRecord>())
-            {
-                ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record.TemplateId);
-                if (template == null) continue;
-                rows.Add(new JObject
-                {
-                    ["resolutionId"] = record.ResolutionId,
-                    ["title"] = template.Title,
-                    ["evidenceTag"] = template.EvidenceTag,
-                    ["firstRoute"] = template.FirstRoute.Description,
-                    ["secondRoute"] = template.SecondRoute.Description,
-                    ["targetName"] = GovernmentResolutionTargetName(record)
-                });
-            }
             JObject payload = new JObject
             {
                 ["campaignId"] = GetCampaignId(),
@@ -57,12 +39,12 @@ namespace ReignBeta.Government.Integration
                     ["seatCount"] = party?.SeatCount ?? 0
                 },
                 ["speaker"] = speaker == null ? null : BuildHeroProfile(speaker),
-                ["resolutions"] = rows
+                ["resolutions"] = rows.DeepClone()
             };
             return PostJsonAsync("/government/meeting/speaker-statement", payload);
         }
 
-        private static string GovernmentResolutionTargetName(ReignGovernmentResolutionRecord record)
+        internal static string GovernmentResolutionTargetName(ReignGovernmentResolutionRecord record)
         {
             Settlement settlement = Settlement.Find(record?.TargetSettlementStringId);
             if (settlement != null) return settlement.Name?.ToString() ?? settlement.StringId;

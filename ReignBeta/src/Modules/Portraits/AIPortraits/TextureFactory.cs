@@ -278,8 +278,9 @@ public static class TextureFactory
 		{
 			return null;
 		}
+		if (!MemoryService.IsMemoryKey(id) && !PortraitCache.AllowsLocalPortraitRead(id)) return null;
 		TextureLruCache cache = CacheFor(tier);
-		string cacheKey = id + "|tier:" + tier;
+		string cacheKey = PortraitCache.ScopedTextureKey(id) + "|tier:" + tier;
 		if (cache.TryGet(cacheKey, out var value))
 		{
 			return value;
@@ -329,8 +330,9 @@ public static class TextureFactory
 		{
 			return GetOrBuild(id, tier);
 		}
+		if (!MemoryService.IsMemoryKey(id) && !PortraitCache.AllowsLocalPortraitRead(id)) return null;
 		int num = (int)Math.Round(targetAspect * 1000f);
-		string text = id + "|tier:" + tier + (contain ? "|contain:" : "|aspect:") + num;
+		string text = PortraitCache.ScopedTextureKey(id) + "|tier:" + tier + (contain ? "|contain:" : "|aspect:") + num;
 		TextureLruCache cache = CacheFor(tier);
 		if (cache.TryGet(text, out var value))
 		{
@@ -373,11 +375,16 @@ public static class TextureFactory
 		if (string.IsNullOrEmpty(id))
 			return null;
 		if (targetAspect <= 0.01f || float.IsNaN(targetAspect) || float.IsInfinity(targetAspect)) targetAspect = 1f;
-		string key = id + "|framed-bust-v1:" + (int)Math.Round(targetAspect * 1000f);
+		return PortraitCache.ReadAdmittedPortrait(id, () => BuildAdmittedFramedBust(id, targetAspect));
+	}
+
+	private static TaleWorlds.TwoDimension.Texture BuildAdmittedFramedBust(string id, float targetAspect)
+	{
+		string key = PortraitCache.ScopedTextureKey(id) + "|framed-bust-v1:" + (int)Math.Round(targetAspect * 1000f);
 		if (_portraitCache.TryGet(key, out var cached)) return cached;
-		if (!PortraitDerivativeService.TryGetDerivativePath(id, PortraitQualityTier.Zoom, out string path)) return null;
 		try
 		{
+			if (!PortraitDerivativeService.TryGetDerivativePath(id, PortraitQualityTier.Zoom, out string path)) return null;
 			var manifestPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), PortraitDerivativeService.ManifestFileName);
 			var focus = File.Exists(manifestPath)
 				? Newtonsoft.Json.JsonConvert.DeserializeObject<ReignPortraits.PortraitDerivativeManifestV2>(File.ReadAllText(manifestPath)) : null;
@@ -405,11 +412,13 @@ public static class TextureFactory
 
 	public static bool TryGetThumbnail(string id, float targetAspect, out TaleWorlds.TwoDimension.Texture texture)
 	{
-		return _thumbnailCache.TryGet(ThumbnailKey(id, targetAspect), out texture);
+		texture = string.IsNullOrWhiteSpace(id) ? null : PortraitCache.ReadAdmittedPortrait(id,
+			() => _thumbnailCache.TryGet(ThumbnailKey(id, targetAspect), out var cached) ? cached : null);
+		return texture != null;
 	}
 
 	private static string ThumbnailKey(string id, float targetAspect) =>
-		id + "|tier:" + PortraitQualityTier.Thumbnail + "|aspect:" + (int)Math.Round(targetAspect * 1000f);
+		PortraitCache.ScopedTextureKey(id) + "|tier:" + PortraitQualityTier.Thumbnail + "|aspect:" + (int)Math.Round(targetAspect * 1000f);
 
 	/// <summary>Smallest portrait derivative only. File IO and PNG work stay off the UI thread.</summary>
 	public static async Task<TaleWorlds.TwoDimension.Texture> GetOrBuildThumbnailAsync(
@@ -417,7 +426,7 @@ public static class TextureFactory
 	{
 		if (string.IsNullOrWhiteSpace(id) || cancellation.IsCancellationRequested) return null;
 		string key = ThumbnailKey(id, targetAspect);
-		if (_thumbnailCache.TryGet(key, out var cached)) return cached;
+		if (TryGetThumbnail(id, targetAspect, out var cached)) return cached;
 		bool entered = false;
 		try
 		{
@@ -433,11 +442,14 @@ public static class TextureFactory
 			if (bytes == null || cancellation.IsCancellationRequested) return null;
 			return await ReignMainThread.InvokeAsync(() =>
 			{
-				if (cancellation.IsCancellationRequested) return null;
-				if (_thumbnailCache.TryGet(key, out var existing)) return existing;
-				var texture = BuildTexture(key, bytes, "GetOrBuildThumbnailAsync");
-				if (texture != null) _thumbnailCache.Add(key, texture);
-				return texture;
+				if (cancellation.IsCancellationRequested || key != ThumbnailKey(id, targetAspect)) return null;
+				return PortraitCache.ReadAdmittedPortrait(id, () =>
+				{
+					if (_thumbnailCache.TryGet(key, out var existing)) return existing;
+					var texture = BuildTexture(key, bytes, "GetOrBuildThumbnailAsync");
+					if (texture != null) _thumbnailCache.Add(key, texture);
+					return texture;
+				});
 			}).ConfigureAwait(false);
 		}
 		catch (OperationCanceledException) { return null; }
@@ -598,20 +610,17 @@ public static class TextureFactory
 		{
 			return MemoryService.GetMemoryBytes(id);
 		}
-		if (!PortraitDerivativeService.TryGetDerivativePath(id, tier, out string path))
+		return PortraitCache.ReadAdmittedPortraitBytes(id, () =>
 		{
-			return null;
-		}
-		try
-		{
-			return File.ReadAllBytes(path);
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] Derivative read failed for " + id + ": " + ex.Message);
-			QueueRepair(id);
-			return null;
-		}
+			if (!PortraitDerivativeService.TryGetDerivativePath(id, tier, out string path)) return null;
+			try { return File.ReadAllBytes(path); }
+			catch (Exception ex)
+			{
+				Debug.Print("[AIPortraits] Derivative read failed for " + id + ": " + ex.Message);
+				QueueRepair(id);
+				return null;
+			}
+		});
 	}
 
 	private static void QueueRepair(string id)

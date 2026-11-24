@@ -21,6 +21,8 @@ namespace ReignBeta.Family
         [SaveableField(15)] public bool FatherExposed;
         [SaveableField(16)] public string KnowledgeJson = "{}";
         [SaveableField(17)] public string ContextSource = string.Empty;
+        [SaveableField(18)] public string PendingManagedBirthReportJson = string.Empty;
+        [SaveableField(19)] public string IntendedLegalFatherId = string.Empty;
     }
 
     public sealed class ReignParentageRecord

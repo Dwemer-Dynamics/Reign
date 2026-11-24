@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using ReignBeta.WorldSimulation.Integration;
 
@@ -61,6 +62,75 @@ public sealed class ReignWorldHistoryOutboxTests
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    [Fact]
+    public void Keeps_the_exact_ordered_prefix_in_memory_until_the_append_succeeds()
+    {
+        var pending = new ConcurrentQueue<string>(new[] { "first", "second", "later" });
+        Assert.Throws<IOException>(() => ReignWorldHistoryOutbox.PersistQueuePrefix(pending, 2, staged =>
+        {
+            Assert.Equal(new[] { "first", "second" }, staged);
+            Assert.Equal(new[] { "first", "second", "later" }, pending.ToArray());
+            throw new IOException("an isolated append failed");
+        }));
+        Assert.Equal(new[] { "first", "second", "later" }, pending.ToArray());
+
+        int count = ReignWorldHistoryOutbox.PersistQueuePrefix(pending, 2, staged =>
+        {
+            Assert.Equal(new[] { "first", "second" }, staged);
+            pending.Enqueue("concurrent producer");
+            Assert.True(pending.TryPeek(out string? head));
+            Assert.Equal("first", head);
+        });
+        Assert.Equal(2, count);
+        Assert.Equal(new[] { "later", "concurrent producer" }, pending.ToArray());
+    }
+
+    [Fact]
+    public void A_torn_last_line_cannot_swallow_the_first_complete_replay_record()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "reign-outbox-tail-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(root);
+            var path = Path.Combine(root, "pending.jsonl");
+            const string first = "{\"eventId\":\"prior\"}", torn = "{\"eventId\":";
+            File.WriteAllText(path, first + "\n" + torn, new UTF8Encoding(false));
+            const string replay = "{\"eventId\":\"retry\"}";
+            const string later = "{\"eventId\":\"later\"}";
+            ReignWorldHistoryOutbox.AppendRecords(path, replay + "\n");
+            ReignWorldHistoryOutbox.AppendRecords(path, later + "\n");
+            Assert.Equal(new[] { first, torn, replay, later }, File.ReadAllLines(path));
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Ready_system_history_publishes_head_only_after_scoped_queue_admission()
+    {
+        string workspace = TestOptions.FindWorkspace();
+        string client = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+            "ReignWorldHistoryClient.cs", "/src/Modules/WorldSimulation/Integration/"));
+        int stageStart = client.IndexOf("internal static bool TryStageReadySystemEvent", StringComparison.Ordinal);
+        int legacyStart = client.IndexOf("internal static void Enqueue", stageStart, StringComparison.Ordinal);
+        string stage = client[stageStart..legacyStart];
+        int owner = stage.IndexOf("epoch != _epoch || campaignId != _campaignId || timelineId != _timelineId", StringComparison.Ordinal);
+        int retained = stage.IndexOf("Pending.Enqueue(envelope);", StringComparison.Ordinal);
+        int published = stage.IndexOf("publishHead();", StringComparison.Ordinal);
+        Assert.Contains("lock (StateLock)", stage);
+        Assert.True(owner >= 0 && owner < retained && retained < published);
+
+        string behavior = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+            "ReignWorldHistoryCampaignBehavior.cs", "/src/Modules/WorldSimulation/Campaign/"));
+        Assert.Contains("stageReadySystemFact: true", behavior);
+        Assert.Contains("long sequence = publishAfterStage ? checked(_sequence + 1) : ++_sequence;", behavior);
+        Assert.Contains("if (!publishAfterStage) PublishHead();", behavior);
+        Assert.Contains("evt, stagedCampaign, stagedTimeline, stagedEpoch, PublishHead", behavior);
+        Assert.Contains("beforeEnqueue: e => _publicNewsAttempts[eventId]", behavior);
     }
 
     [Fact]

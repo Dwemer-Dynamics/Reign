@@ -501,13 +501,14 @@ namespace ReignBeta.Platform.Integration
         // native preflight effect and before transport dispatch. A request that
         // already left may finish: its original-payload conversation journal
         // acknowledgement is durable and does not depend on the owner.
-        internal static Task<JObject> PostOwnedJsonAsync(string route, JObject payload, Func<bool> requestOwner)
+        internal static Task<JObject> PostOwnedJsonAsync(string route, JObject payload, Func<bool> requestOwner,
+            ReignMainThread.GameScope requestScope = null)
         {
-            return PostJsonCoreAsync(route, payload, null, requestOwner);
+            return PostJsonCoreAsync(route, payload, null, requestOwner, requestScope);
         }
 
         private static async Task<JObject> PostJsonCoreAsync(string route, JObject payload,
-            Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner)
+            Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner, ReignMainThread.GameScope requestScope = null)
         {
             bool conversationInput = payload != null && (route == "/dialogue/respond" || route == "/party-chat/respond"
                 || route == "/events/social/respond" || route == "/events/social/turn" || route == "/events/social/turn-plan"
@@ -515,11 +516,25 @@ namespace ReignBeta.Platform.Integration
                 || route == "/castle-chat/scene/generate" || route == "/family-chambers/scene/generate");
             bool approachObservation = payload != null && route == "/npc-lives/open";
             if (conversationInput) ReignConversationInputJournal.Prepare(payload);
-            await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
-            await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
+            if (requestScope == null)
+            {
+                await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
+                await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
+            }
+            else
+            {
+                // An explicit scoped portrait starts in a ready game. A new readiness wait could
+                // belong to a successor after teardown, so require readiness in the original scope.
+                await ReignRequestOwnership.InvokeScopedAsync(requestScope, requestOwner, () =>
+                {
+                    if (ReignSaveSyncCoordinator.IsAlignmentPending || ReignCampaignInitializationGate.IsPending)
+                        throw new ReignRequestOwnerAbandonedException("The loaded campaign is no longer ready for the portrait request.");
+                }, "portrait readiness").ConfigureAwait(false);
+            }
             if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                 throw new OperationCanceledException("Request belongs to a previous loaded save.");
-            await EnsureRequestOwnerAsync(requestOwner, "pregnancy context synchronization").ConfigureAwait(false);
+            if (requestScope == null)
+                await EnsureRequestOwnerAsync(requestOwner, "pregnancy context synchronization").ConfigureAwait(false);
             if (conversationInput || approachObservation || route == "/correspondence/send" || route == "/memory/conversation/start" || route == "/party-banter/start")
                 await ReignPregnancyContextClient.SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false);
             if (route == "/world-history/ingest-batch" && !ReignWorldHistoryTransport.IsCurrentRequest(payload))
@@ -527,10 +542,10 @@ namespace ReignBeta.Platform.Integration
             ReignPersonalGossipClient.PersonalGossipPresenceSnapshot gossipSnapshot = null;
             if (conversationInput || approachObservation || payload != null && route == "/correspondence/send")
             {
-                await EnsureRequestOwnerAsync(requestOwner, "public announcement synchronization").ConfigureAwait(false);
+                await EnsureRequestOwnerAsync(requestOwner, "public announcement synchronization", requestScope).ConfigureAwait(false);
                 if (ReignServices.WorldDiplomacy != null)
                     await ReignServices.WorldDiplomacy.SynchronizePublicAnnouncementsForDialogueAsync().ConfigureAwait(false);
-                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
+                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh", requestScope).ConfigureAwait(false);
                 gossipSnapshot = await ReignPersonalGossipClient.RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
                 if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                     throw new OperationCanceledException("Request belongs to a previous loaded save.");
@@ -572,7 +587,7 @@ namespace ReignBeta.Platform.Integration
             }
             else if (payload?["gossipPresence"] is JObject pendingGossip && pendingGossip.Count == 0)
             {
-                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
+                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh", requestScope).ConfigureAwait(false);
                 gossipSnapshot = await ReignPersonalGossipClient.RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
             }
             if (gossipSnapshot != null)
@@ -600,12 +615,12 @@ namespace ReignBeta.Platform.Integration
                         catch (ReignRequestOwnerAbandonedException) { }
                         catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
                     }
-                }).ConfigureAwait(false);
+                }, requestScope: requestScope).ConfigureAwait(false);
         }
 
         // Request-owner helpers for the route clients (see ReignRequestOwnership).
-        private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
-            ReignRequestOwnership.EnsureAsync(requestOwner, stage);
+        private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage, ReignMainThread.GameScope scope = null) =>
+            ReignRequestOwnership.EnsureAsync(requestOwner, stage, scope);
 
         internal static void EnsureRequestOwner(Func<bool> requestOwner, string stage) =>
             ReignRequestOwnership.Ensure(requestOwner, stage);

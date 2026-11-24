@@ -646,9 +646,21 @@ public sealed class CampaignTestService
             });
     }
 
-    public async Task<IReadOnlyDictionary<string, object?>> CheckpointAsync(string runId,
+    public Task<IReadOnlyDictionary<string, object?>> CheckpointAsync(string runId,
         string confirmation, string milestoneLabel, int saveTimeoutSeconds,
-        int catchUpTimeoutSeconds, CancellationToken cancellationToken)
+        int catchUpTimeoutSeconds, CancellationToken cancellationToken) =>
+        CheckpointCoreAsync(runId, confirmation, milestoneLabel, saveTimeoutSeconds,
+            catchUpTimeoutSeconds, cancellationToken);
+
+    internal Task<IReadOnlyDictionary<string, object?>> CheckpointPartyAgencyPhaseAsync(string runId,
+        string campaignId, string confirmation, PartyAgencyCheckpointStage stage, int saveTimeoutSeconds,
+        int catchUpTimeoutSeconds, CancellationToken ct) =>
+        CheckpointCoreAsync(runId, confirmation, "", saveTimeoutSeconds, catchUpTimeoutSeconds, ct, stage, campaignId);
+
+    private async Task<IReadOnlyDictionary<string, object?>> CheckpointCoreAsync(string runId,
+        string confirmation, string milestoneLabel, int saveTimeoutSeconds, int catchUpTimeoutSeconds,
+        CancellationToken cancellationToken, PartyAgencyCheckpointStage? partyAgencyStage = null,
+        string? expectedCampaignId = null)
     {
         RequireControl(confirmation, "save Reign campaign-test checkpoint");
         saveTimeoutSeconds = InputGuard.Range(saveTimeoutSeconds, nameof(saveTimeoutSeconds), 180, 900);
@@ -656,6 +668,8 @@ public sealed class CampaignTestService
             nameof(catchUpTimeoutSeconds), 60, 3600);
         using var operation = AcquireSaveOperation(runId);
         CampaignTestState state = RequireArmed(runId);
+        if (partyAgencyStage is not null && state.CampaignId != expectedCampaignId)
+            throw new InvalidOperationException("The Party Agency stage does not belong to the enrolled campaign.");
         ControllerCall snapshot = await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
         string saveName = state.CurrentSaveName;
         if (!string.IsNullOrWhiteSpace(milestoneLabel))
@@ -667,7 +681,7 @@ public sealed class CampaignTestService
             if (saveName.Length > 64) throw new ArgumentException("The milestone save name exceeds 64 characters.", nameof(milestoneLabel));
         }
         CampaignCheckpointAttempt attempt = await BeginCheckpointAsync(state, snapshot, saveName,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken, partyAgencyStage).ConfigureAwait(false);
         ControllerCall result = await RunControllerAsync(new[] { "world-test", "checkpoint",
             "--campaign", state.CampaignId, "--timeline", state.TimelineId,
             "--save", saveName, "--save-timeout", saveTimeoutSeconds.ToString(),
@@ -720,6 +734,11 @@ public sealed class CampaignTestService
             ["restartReceipt"] = receipt,
             ["saveName"] = state.CurrentSaveName,
             ["savePointId"] = current.SavePointId,
+            ["restartEvidenceSchema"] = "reign-campaign-checkpoint-restart-v1",
+            ["checkpointAttemptId"] = current.Attempt.Id,
+            ["checkpointSha256"] = current.Sha256,
+            ["checkpointGameInstanceId"] = active.FindString("checkpointGameInstanceId"),
+            ["reloadedGameInstanceId"] = snapshot.FindString("checkpointGameInstanceId"),
             ["controller"] = result.Summary(),
             ["reloadedSnapshot"] = snapshot.Summary()
         };
@@ -781,6 +800,26 @@ public sealed class CampaignTestService
     public CampaignTestAuthorization RequireRestartReceipt(string runId,
         string expectedCampaignId, string restartReceipt)
     {
+        var (state, _, _) = ReadRestartReceipts(runId, expectedCampaignId, restartReceipt);
+        return CampaignTestAuthorization.From(state);
+    }
+
+    internal (CampaignCheckpointReceipt Checkpoint, string ReloadedGameInstanceId)
+        RequirePartyAgencyRestartProof(string runId, string expectedCampaignId, string restartReceipt)
+    {
+        var (state, checkpoint, receipts) = ReadRestartReceipts(runId, expectedCampaignId, restartReceipt);
+        if (receipts.Count != 1)
+            throw new InvalidOperationException("The request did not identify one unambiguous recorded restart.");
+        if (state.CampaignId != expectedCampaignId || checkpoint.Attempt.PartyAgencyStage is not { } stage
+            || stage.GameInstanceId != checkpoint.Attempt.GameInstanceId
+            || !state.PartyAgencyCheckpointStageReceiptIds.Contains(stage.ReceiptId))
+            throw new InvalidOperationException("The reloaded Current checkpoint is missing its durable Party Agency stage binding.");
+        return (checkpoint, ReadRestartedGameInstance(checkpoint, receipts[0]));
+    }
+
+    private (CampaignTestState State, CampaignCheckpointReceipt Checkpoint, List<JsonElement> Receipts)
+        ReadRestartReceipts(string runId, string expectedCampaignId, string restartReceipt)
+    {
         CampaignTestState state = RequireArmed(runId);
         var checkpoint = VerifyOwnedBytes(state, state.CurrentSaveName);
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
@@ -789,16 +828,18 @@ public sealed class CampaignTestService
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The reload receipt does not belong to the requested campaign test.");
-        bool found = state.Events.Any(item =>
+        var receipts = new List<JsonElement>();
+        foreach (CampaignTestEvent item in state.Events)
         {
-            if (item.Operation != "restart" || item.Evidence is null) return false;
+            if (item.Operation != "restart" || item.Evidence is null) continue;
             JsonElement evidence = JsonSerializer.SerializeToElement(item.Evidence, StateJson);
-            return Text(evidence, "restartReceipt") == restartReceipt
-                && Text(evidence, "savePointId") == checkpoint.SavePointId;
-        });
-        if (!found) throw new InvalidOperationException(
+            if (Text(evidence, "restartReceipt") == restartReceipt
+                && Text(evidence, "savePointId") == checkpoint.SavePointId)
+                receipts.Add(evidence);
+        }
+        if (receipts.Count == 0) throw new InvalidOperationException(
             "The supplied reload receipt was not issued by this guarded campaign test.");
-        return CampaignTestAuthorization.From(state);
+        return (state, checkpoint, receipts);
     }
 
     public async Task<IReadOnlyDictionary<string, object?>> ReportAsync(string runId,
@@ -961,7 +1002,8 @@ public sealed class CampaignTestService
     }
 
     private async Task<CampaignCheckpointAttempt> BeginCheckpointAsync(CampaignTestState state,
-        ControllerCall source, string destination, CancellationToken cancellationToken)
+        ControllerCall source, string destination, CancellationToken cancellationToken,
+        PartyAgencyCheckpointStage? partyAgencyStage = null)
     {
         RequireDistinctBaseline(state.BaselineSaveName, destination);
         string instanceId = source.FindString("checkpointGameInstanceId");
@@ -997,11 +1039,15 @@ public sealed class CampaignTestService
         var attempt = new CampaignCheckpointAttempt(Guid.NewGuid().ToString("N"), state.RunId,
             state.CampaignId, state.TimelineId, state.BaselineSaveName, destination, sourceName,
             source.FindString("checkpointSavePointId"), instanceId, receipt?.SavePointId ?? "",
-            receipt?.Sha256 ?? "", DateTime.UtcNow.ToString("O"));
+            receipt?.Sha256 ?? "", DateTime.UtcNow.ToString("O"))
+        {
+            PartyAgencyStage = partyAgencyStage
+        };
         lock (StateGate)
         {
             var latest = ReadState(state.RunId);
             RequireResolved(latest);
+            ReservePartyAgencyStageReceipt(latest, attempt);
             latest.PendingCheckpoint = attempt;
             latest.Status = "checkpoint_pending";
             AddEvent(latest, "checkpoint_intent", "Persisted checkpoint intent before issuing native SaveAs.", attempt);
@@ -1016,6 +1062,15 @@ public sealed class CampaignTestService
         CampaignCheckpointReceipt? receipt = null;
         bool notSubmitted = !result.Ok && result.Data is { ValueKind: JsonValueKind.Object } root
             && Text(root, "checkpointNotSubmitted") == attempt.Id;
+        if (notSubmitted && attempt.PartyAgencyStage is not null)
+        {
+            // The exact no-submit witness alone cannot release a consumed stage.
+            // Recheck the previous registered point and native bytes before reopening it.
+            CampaignCheckpointReceipt? prior = Find(state, attempt.SaveName);
+            notSubmitted = prior is not null && prior.SavePointId == attempt.PreviousDestinationPointId
+                && string.Equals(prior.Sha256, attempt.PreviousDestinationSha256, StringComparison.OrdinalIgnoreCase)
+                && await StillMatchesPriorCheckpointAsync(state, prior, cancellationToken).ConfigureAwait(false);
+        }
         if (result.Ok)
         {
             try
@@ -1057,6 +1112,8 @@ public sealed class CampaignTestService
                         : "Checkpoint completion could not be established. The intent remains unresolved.",
                     result.Summary());
             }
+            if (notSubmitted && attempt.PartyAgencyStage is { } stage)
+                state.PartyAgencyCheckpointStageReceiptIds.Remove(stage.ReceiptId);
             if (receipt is not null || notSubmitted)
                 state.PendingCheckpoint = null;
             state.Status = receipt is not null ? "checkpoint_verified"
@@ -1064,6 +1121,15 @@ public sealed class CampaignTestService
             WriteState(state);
             return state;
         }
+    }
+
+    private async Task<bool> StillMatchesPriorCheckpointAsync(CampaignTestState state,
+        CampaignCheckpointReceipt prior, CancellationToken cancellationToken)
+    {
+        var (point, _) = await ReadCheckpointSlotAsync(state.CampaignId, prior.Attempt.SaveName, cancellationToken)
+            .ConfigureAwait(false);
+        return point.HasValue && MatchesPoint(point.Value, prior)
+            && string.Equals(NativeHash(prior.Attempt.SaveName), prior.Sha256, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task RequireRegisteredPointAsync(CampaignTestState state,
@@ -1566,6 +1632,7 @@ public sealed record CampaignTestState
     public string UpdatedUtc { get; set; } = "";
     public List<string> Checkpoints { get; set; } = [];
     public List<CampaignCheckpointReceipt> CheckpointReceipts { get; set; } = [];
+    public HashSet<string> PartyAgencyCheckpointStageReceiptIds { get; set; } = [];
     public CampaignCheckpointAttempt? PendingCheckpoint { get; set; }
     public List<CampaignTestEvent> Events { get; set; } = [];
 }

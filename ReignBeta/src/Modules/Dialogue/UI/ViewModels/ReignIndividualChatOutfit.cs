@@ -58,7 +58,9 @@ namespace ReignBeta.Dialogue.UI
             if (description.Length == 0 || description.Length > ReignOutfitClient.MaxDescriptionLength)
             { RefreshOutfit("input", "Describe the clothes using 1 to 4000 characters."); return; }
             if (!CanChangeOutfit) { ExecuteCancelOutfit(); return; }
-            var attempt = ReignOutfitClient.Create(_hero);
+            ReignOutfitAttempt attempt;
+            try { attempt = ReignOutfitClient.Create(_hero); }
+            catch (IOException ex) { RefreshOutfit("input", ex.Message); return; }
             _outfitAttempt = attempt;
             _outfitCancellation = new CancellationTokenSource();
             CancellationToken token = _outfitCancellation.Token;
@@ -69,12 +71,25 @@ namespace ReignBeta.Dialogue.UI
             RefreshOutfit("changing");
             try
             {
-                byte[] before = await Task.Run(() =>
+                byte[] CaptureBefore()
                 {
-                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject())) return PortraitCache.GetDiskBytes(attempt.CacheKey);
-                }).ConfigureAwait(false);
+                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
+                        return PortraitCache.CaptureOutfitSource(attempt.CacheKey, out attempt.LocalPublicationBasis);
+                }
+                byte[] before = await Task.Run(CaptureBefore, token).ConfigureAwait(false);
+                if (before == null || before.Length == 0)
+                {
+                    if (!await ReignMainThread.InvokeAsync(() => OutfitCurrent(attempt)).ConfigureAwait(false)) return;
+                    ReignCampaignPortraitClient.Lookup stored;
+                    using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
+                        stored = await ReignCampaignPortraitClient.FindAsync(attempt.CacheKey).ConfigureAwait(false);
+                    token.ThrowIfCancellationRequested();
+                    before = await Task.Run(CaptureBefore, token).ConfigureAwait(false);
+                    if (before == null || before.Length == 0)
+                        throw new InvalidOperationException(stored == ReignCampaignPortraitClient.Lookup.Missing
+                            ? "Use Look at them to create a portrait first." : "The stored portrait isn't available yet.");
+                }
                 token.ThrowIfCancellationRequested();
-                if (before == null || before.Length == 0) throw new InvalidOperationException("Use Look at them to create a portrait first.");
                 attempt.SourceHash = ReignOutfitClient.Hash(before);
                 Directory.CreateDirectory(attempt.DirectoryPath);
                 File.WriteAllBytes(attempt.BeforePath, before);
@@ -140,9 +155,12 @@ namespace ReignBeta.Dialogue.UI
             JObject request = attempt.Identity;
             request["npc"] = ReignOutfitClient.Profile(_hero);
             request["player"] = ReignOutfitClient.Profile(Hero.MainHero);
-            byte[] current = PortraitCache.GetDiskBytes(attempt.CacheKey);
-            if (!attempt.ConfirmationRequested && (current == null || ReignOutfitClient.Hash(current) != attempt.SourceHash))
-            { RefreshOutfit("failed", "The portrait changed. Cancel and try again."); return; }
+            if (!attempt.ConfirmationRequested)
+            {
+                byte[] current = PortraitCache.GetDiskBytes(attempt.CacheKey);
+                if (current == null || ReignOutfitClient.Hash(current) != attempt.SourceHash)
+                { RefreshOutfit("failed", "The portrait changed. Cancel and try again."); return; }
+            }
             request["sourceSha256"] = attempt.SourceHash;
             attempt.ConfirmationRequested = true;
             RefreshOutfit("saving", "Saving changes...");
@@ -152,11 +170,23 @@ namespace ReignBeta.Dialogue.UI
                 JObject result = await ReignOutfitClient.Request(attempt, "confirm", request).ConfigureAwait(false);
                 if (result.Value<string>("status") != "committed")
                 {
-                    // A server rejection proves that this confirmation did not commit.
-                    attempt.ConfirmationRequested = false;
+                    // A matching pending journal still owns this confirmation.
+                    if (result.Value<string>("status") != "recovery_required" || result.Value<string>("operationId") != attempt.Id)
+                        attempt.ConfirmationRequested = false;
                     throw new InvalidOperationException(result.Value<string>("error") ?? "The outfit could not be saved.");
                 }
+                if (!string.Equals(result.Value<string>("operationId"), attempt.Id, StringComparison.Ordinal))
+                    throw new InvalidDataException("The confirmation did not identify this outfit attempt.");
                 committed = true;
+                if (result.Value<bool?>("cleanupPending") == true)
+                {
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (OutfitCurrent(attempt))
+                            RefreshOutfit("commit_retry", "The outfit was saved. Confirm again to finish its storage cleanup.");
+                    }).ConfigureAwait(false);
+                    return;
+                }
                 byte[] bytes = Convert.FromBase64String(result.Value<string>("imageBase64"));
                 await ReignOutfitClient.Install(attempt, bytes, result["portraitReceipt"] as JObject).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>

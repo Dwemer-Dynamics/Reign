@@ -69,6 +69,7 @@ public sealed class ToolMetadataTests
             ,"reign_prepare_party_agency_test"
             ,"reign_carry_forward_party_agency_passes"
             ,"reign_start_party_agency_test"
+            ,"reign_checkpoint_party_agency_save_roundtrip"
             ,"reign_verify_party_agency_save_roundtrip"
             ,"reign_prepare_arrest_certification"
             ,"reign_run_arrest_certification_contract"
@@ -111,6 +112,7 @@ public sealed class ToolMetadataTests
             ,"reign_cleanup_campaign_test"
             ,"reign_start_action_batch"
             ,"reign_start_party_agency_test"
+            ,"reign_checkpoint_party_agency_save_roundtrip"
             ,"reign_verify_party_agency_save_roundtrip"
             ,"reign_start_arrest_certification_case"
             ,"reign_start_rebellion_certification_case"
@@ -132,7 +134,7 @@ public sealed class ToolMetadataTests
         destructive.Add("reign_test_personal_gossip");
         writes.Add("reign_probe_conversation_clock");
         destructive.Add("reign_probe_conversation_clock");
-        Assert.Equal(133, tools.Length);
+        Assert.Equal(134, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

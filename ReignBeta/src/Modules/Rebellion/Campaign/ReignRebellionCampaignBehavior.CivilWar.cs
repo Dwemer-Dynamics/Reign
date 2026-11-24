@@ -57,7 +57,9 @@ namespace ReignBeta.Rebellion.Campaign
             finally { _preparationInNativeTransition = priorTransition; }
             if (!IsCivilWar(movement))
             {
-                result = "The declaration could not create a valid rebel kingdom.";
+                result = Same(movement.ExecutionPhase, "outbreak_recovery_pending")
+                    ? "The declaration stopped after native campaign changes may have begun. This rebellion is held for review."
+                    : "The declaration could not create a valid rebel kingdom.";
                 return false;
             }
             if (preparedPlot != null && !Same(preparedPlot.Status, "active_rebellion"))
@@ -257,10 +259,15 @@ namespace ReignBeta.Rebellion.Campaign
 
         private void StartCivilWar(ReignRebellionMovementRecord movement)
         {
-            Kingdom parent = FindKingdom(movement?.ParentKingdomStringId);
-            Clan leaderClan = FindClan(movement?.LeaderClanStringId);
-            if (movement == null || parent == null || leaderClan?.Leader == null || leaderClan.Leader.IsDead
-                || leaderClan.Leader.IsPrisoner || leaderClan.Kingdom != parent)
+            if (movement == null || movement.ResolutionApplied || !Same(movement.Stage, "declared")
+                || !Same(movement.ExecutionPhase, "idle") || !string.IsNullOrWhiteSpace(movement.RebelKingdomStringId)) return;
+            Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
+            Clan leaderClan = FindClan(movement.LeaderClanStringId);
+            Hero founder = leaderClan?.Leader;
+            Hero challengedRuler = parent?.Leader;
+            if (!string.Equals(founder?.StringId, movement.LeaderHeroStringId, StringComparison.Ordinal)
+                || !string.Equals(challengedRuler?.StringId, movement.OriginalRulerHeroStringId, StringComparison.Ordinal)
+                || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent))
             {
                 ResolveWithoutMutation(movement, "failed_preflight");
                 return;
@@ -274,40 +281,105 @@ namespace ReignBeta.Rebellion.Campaign
                     member.OriginalKingdomStringId = clan.Kingdom?.StringId ?? string.Empty;
                 RememberOriginalKingdom(movement, clan.StringId, member.OriginalKingdomStringId);
             }
-            movement.ExecutionPhase = "preflight_complete";
             movement.ExecutionSnapshotJson = BuildExecutionSnapshot(movement, parent).ToString(Newtonsoft.Json.Formatting.None);
             movement.OriginalParentStrongholdIdsCsv = string.Join(",", Settlement.All
                 .Where(x => x?.IsFortification == true && x.MapFaction == parent).Select(x => x.StringId));
-            // Plan against final clan allegiance before native clan-change and
-            // war-declaration handlers can imprison newly hostile residents.
-            if (!EvacuateResidentsBeforeOutbreak(movement, parent))
+            // Keep unverified effects attached to the same movement across saves.
+            // Re-entry is allowed only from the untouched declaration above.
+            movement.ExecutionPhase = "outbreak_applying";
+            string step = "resident_escape";
+            Kingdom rebels;
+            try
             {
-                ResolveWithoutMutation(movement, "failed_resident_escape");
+                if (!EvacuateResidentsBeforeOutbreak(movement, parent, out bool nativeEscapeAttempted))
+                {
+                    if (nativeEscapeAttempted) HoldOutbreak(movement, "resident_escape_unverified");
+                    else ResolveWithoutMutation(movement, "failed_resident_escape");
+                    return;
+                }
+
+                step = "realm_creation";
+                if (!HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent))
+                {
+                    HoldOutbreak(movement, "outbreak_authority_changed");
+                    return;
+                }
+
+                rebels = CreateRebelKingdom(movement, parent, challengedRuler, leaderClan, founder);
+                if (rebels == null || rebels.IsEliminated || rebels.RulingClan != leaderClan
+                    || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                {
+                    HoldOutbreak(movement, "rebel_realm_unverified");
+                    return;
+                }
+
+                var rebelMembers = MembersOf(movement).Where(x => Same(x.Side, "rebel")).ToList();
+                foreach (ReignRebellionMembershipRecord member in rebelMembers)
+                {
+                    step = "clan_transfer:" + member.ClanStringId;
+                    Clan clan = FindClan(member.ClanStringId);
+                    if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                    {
+                        HoldOutbreak(movement, "outbreak_authority_changed");
+                        return;
+                    }
+                    if (clan == null || clan.IsEliminated || (clan.Kingdom != parent && clan.Kingdom != rebels))
+                    {
+                        HoldOutbreak(movement, "outbreak_clan_authority_changed:" + member.ClanStringId);
+                        return;
+                    }
+                    if (clan.Kingdom == parent) MoveClanToKingdom(clan, rebels);
+                    if (clan.Kingdom != rebels)
+                    {
+                        HoldOutbreak(movement, step);
+                        return;
+                    }
+                    member.IsCommitted = true;
+                    member.LastSwitchDay = CurrentDay();
+                }
+
+                step = "war_declaration";
+                if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                {
+                    HoldOutbreak(movement, "outbreak_authority_changed");
+                    return;
+                }
+                movement.OriginalRebelStrongholdIdsCsv = string.Join(",", Settlement.All
+                    .Where(x => x?.IsFortification == true && x.MapFaction == rebels).Select(x => x.StringId));
+                if (rebels.RulingClan != leaderClan
+                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                {
+                    HoldOutbreak(movement, "outbreak_allegiance_unverified");
+                    return;
+                }
+                if (!rebels.IsAtWarWith(parent))
+                {
+                    if (ReignServices.AI != null)
+                        ReignServices.AI.DeclareWarWithOrigin(rebels, parent, "rebellion",
+                            "Civil war began.", movement.MovementId, string.Empty, true);
+                    else DeclareWarAction.ApplyByRebellion(rebels, parent);
+                }
+                step = "war_stance_verification";
+                if (rebels.IsEliminated || parent.IsEliminated || !rebels.IsAtWarWith(parent))
+                {
+                    HoldOutbreak(movement, "war_stance_unverified");
+                    return;
+                }
+                if (parent.Leader != challengedRuler || rebels.RulingClan != leaderClan
+                    || leaderClan.Leader != founder || leaderClan.Kingdom != rebels
+                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                {
+                    HoldOutbreak(movement, "outbreak_allegiance_unverified");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                HoldOutbreak(movement, step);
+                ReignLog.Warn("Rebellion outbreak native transition failed: " + ex.Message);
                 return;
             }
-            Kingdom rebels = CreateRebelKingdom(movement);
-            if (rebels == null)
-            {
-                ResolveWithoutMutation(movement, "failed_to_create_rebel_kingdom");
-                return;
-            }
-            foreach (ReignRebellionMembershipRecord member in MembersOf(movement).Where(x => Same(x.Side, "rebel")).ToList())
-            {
-                Clan clan = FindClan(member.ClanStringId);
-                if (clan != null && clan.Kingdom != rebels) MoveClanToKingdom(clan, rebels);
-                member.IsCommitted = true;
-                member.LastSwitchDay = CurrentDay();
-            }
-            movement.OriginalRebelStrongholdIdsCsv = string.Join(",", Settlement.All
-                .Where(x => x?.IsFortification == true && x.MapFaction == rebels).Select(x => x.StringId));
-            if (!rebels.IsAtWarWith(parent))
-            {
-                if (ReignServices.AI != null)
-                    ReignServices.AI.DeclareWarWithOrigin(rebels, parent, "rebellion",
-                        "Civil war began.", movement.MovementId, string.Empty, true);
-                else DeclareWarAction.ApplyByRebellion(rebels, parent);
-            }
-            movement.RebelKingdomStringId = rebels.StringId;
+
             movement.Stage = "civil_war";
             movement.CivilWarStartedDay = CurrentDay();
             movement.UpdatedDay = CurrentDay();
@@ -318,8 +390,18 @@ namespace ReignBeta.Rebellion.Campaign
                 + rebels.InformalName + " has begun a rebellion against " + parent.InformalName + "."));
         }
 
-        private bool EvacuateResidentsBeforeOutbreak(ReignRebellionMovementRecord movement, Kingdom parent)
+        private void HoldOutbreak(ReignRebellionMovementRecord movement, string reason)
         {
+            movement.ExecutionPhase = "outbreak_recovery_pending";
+            movement.ResolutionCause = reason;
+            movement.UpdatedDay = CurrentDay();
+            ReignLog.Warn("Rebellion " + movement.MovementId + " outbreak held at " + reason + ".");
+        }
+
+        private bool EvacuateResidentsBeforeOutbreak(ReignRebellionMovementRecord movement, Kingdom parent,
+            out bool nativeEscapeAttempted)
+        {
+            nativeEscapeAttempted = false;
             var rebelClans = new HashSet<string>(MembersOf(movement)
                 .Where(x => Same(x.Side, "rebel")).Select(x => x.ClanStringId), StringComparer.OrdinalIgnoreCase);
             List<Settlement> holdings = Settlement.All.Where(x => x?.IsFortification == true
@@ -357,7 +439,8 @@ namespace ReignBeta.Rebellion.Campaign
                     ["destinationSettlementId"] = escape.DestinationSettlementId,
                     ["side"] = escape.IsRebel ? "rebel" : "loyalist",
                     ["roll"] = escape.Roll,
-                    ["escaped"] = false
+                    ["escaped"] = false,
+                    ["nativeAttempted"] = false
                 };
                 outcomes.Add(outcome);
                 if (!escape.Escapes) continue; // The native declaration owns capture.
@@ -375,10 +458,21 @@ namespace ReignBeta.Rebellion.Campaign
                 {
                     Hero.CharacterStates previousState = hero.HeroState;
                     bool preserveDormantState = hero.IsNotSpawned || hero.IsDisabled;
-                    if (hero.GovernorOf != null) ChangeGovernorAction.RemoveGovernorOf(hero);
+                    outcome["previousHeroState"] = previousState.ToString();
+                    outcome["originalGovernorshipId"] = hero.GovernorOf?.StringId ?? string.Empty;
+                    outcome["nativeAttempted"] = true;
+                    nativeEscapeAttempted = true;
+                    if (hero.GovernorOf != null)
+                    {
+                        SaveResidentEscapeProgress(movement, outcomes, false);
+                        ChangeGovernorAction.RemoveGovernorOf(hero);
+                    }
                     Settlement destination = holdings.FirstOrDefault(x => Same(x.StringId, escape.DestinationSettlementId)
                         && x.MapFaction == parent && x.SiegeEvent == null && x.Party.MapEvent == null
                         && rebelClans.Contains(x.OwnerClan?.StringId ?? string.Empty) == escape.IsRebel);
+                    outcome["destinationSettlementId"] = destination?.StringId ?? string.Empty;
+                    outcome["wentIntoHiding"] = destination == null;
+                    SaveResidentEscapeProgress(movement, outcomes, false);
                     if (destination != null && preserveDormantState)
                     {
                         // Native TeleportHeroAction activates dormant heroes.
@@ -394,9 +488,6 @@ namespace ReignBeta.Rebellion.Campaign
                             : hero.CurrentSettlement == destination && (!preserveDormantState || hero.HeroState == previousState));
                     if (!escaped) throw new InvalidOperationException("Native resident relocation was not applied.");
                     outcome["escaped"] = true;
-                    outcome["destinationSettlementId"] = destination?.StringId ?? string.Empty;
-                    outcome["wentIntoHiding"] = destination == null;
-                    outcome["previousHeroState"] = previousState.ToString();
                     outcome["heroState"] = hero.HeroState.ToString();
                 }
                 catch (Exception ex)
@@ -408,41 +499,56 @@ namespace ReignBeta.Rebellion.Campaign
                     break;
                 }
             }
-            JObject snapshot = ParseObject(movement.ExecutionSnapshotJson);
-            snapshot["residentEscape"] = new JObject
-            {
-                ["loyalistEscapePercent"] = ReignRebellionResidentEscape.LoyalistEscapePercent,
-                ["completed"] = success,
-                ["outcomes"] = outcomes
-            };
-            movement.ExecutionSnapshotJson = snapshot.ToString(Newtonsoft.Json.Formatting.None);
+            SaveResidentEscapeProgress(movement, outcomes, success);
             ReignLog.Info("Rebellion " + movement.MovementId + " evacuated "
                 + outcomes.Count(x => x.Value<bool>("escaped")) + " of " + plan.Count
                 + " threatened residents before declaration.");
             return success;
         }
 
-        private Kingdom CreateRebelKingdom(ReignRebellionMovementRecord movement)
+        private static void SaveResidentEscapeProgress(ReignRebellionMovementRecord movement, JArray outcomes, bool complete)
         {
-            Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
-            Clan leaderClan = FindClan(movement.LeaderClanStringId);
-            if (parent == null || leaderClan?.Leader == null) return null;
-            Kingdom existing = FindKingdom(movement.RebelKingdomStringId);
-            if (existing != null && !existing.IsEliminated) return existing;
+            JObject snapshot = ParseObject(movement.ExecutionSnapshotJson);
+            snapshot["residentEscape"] = new JObject
+            {
+                ["loyalistEscapePercent"] = ReignRebellionResidentEscape.LoyalistEscapePercent,
+                ["completed"] = complete,
+                ["outcomes"] = outcomes
+            };
+            movement.ExecutionSnapshotJson = snapshot.ToString(Newtonsoft.Json.Formatting.None);
+        }
+
+        private static bool HasOutbreakAuthority(Kingdom parent, Hero challengedRuler,
+            Clan leaderClan, Hero founder, Kingdom founderKingdom)
+        {
+            return parent != null && !parent.IsEliminated && challengedRuler != null && !challengedRuler.IsDead
+                && parent.Leader == challengedRuler && leaderClan != null && !leaderClan.IsEliminated
+                && leaderClan.Kingdom == founderKingdom && founder != null && !founder.IsDead
+                && !founder.IsPrisoner && leaderClan.Leader == founder;
+        }
+
+        private Kingdom CreateRebelKingdom(ReignRebellionMovementRecord movement, Kingdom parent,
+            Hero challengedRuler, Clan leaderClan, Hero founder)
+        {
             string id = TaleWorlds.CampaignSystem.Campaign.Current.CampaignObjectManager
                 .FindNextUniqueStringId<Kingdom>("reign_rebels_" + SafeId(parent.StringId));
+            if (!HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent)) return null;
+            movement.RebelKingdomStringId = id;
             Kingdom rebels = Kingdom.CreateKingdom(id);
+            if (rebels == null || rebels.IsEliminated
+                || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent)) return null;
             TextObject name = new TextObject("{=ReignRebelRealm}{CLAN} Rebellion");
             name.SetTextVariable("CLAN", leaderClan.Name);
             TextObject informal = new TextObject(name.ToString());
             rebels.InitializeKingdom(name, informal, parent.Culture, leaderClan.Banner ?? parent.Banner,
                 parent.Color2, parent.Color, leaderClan.HomeSettlement ?? parent.InitialHomeSettlement,
                 parent.EncyclopediaText, parent.FormalName, parent.EncyclopediaRulerTitle);
+            if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent)) return null;
             ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);
+            if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
             rebels.RulingClan = leaderClan;
             foreach (PolicyObject policy in parent.ActivePolicies.ToList())
                 if (!rebels.HasPolicy(policy)) rebels.AddPolicy(policy);
-            movement.RebelKingdomStringId = rebels.StringId;
             return rebels;
         }
 

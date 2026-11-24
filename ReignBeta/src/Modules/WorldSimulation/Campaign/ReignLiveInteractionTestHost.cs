@@ -84,6 +84,8 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static string _manipulationFixtureWealthEvidenceBasis = string.Empty;
         private static readonly List<string> TemporaryWildernessHeroIds = new List<string>();
         private static readonly Dictionary<string, LiveCommandResult> CompletedCommandResults = new Dictionary<string, LiveCommandResult>(StringComparer.OrdinalIgnoreCase);
+        internal static string PartyAgencyClientProcessInstanceId { get; } = Guid.NewGuid().ToString("N");
+        private static readonly PartyAgencyExecutionCache PartyAgencyCompletedCommands = new PartyAgencyExecutionCache();
         private static readonly Dictionary<string, JObject> PartyAgencyBaselines =
             new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
         private static readonly Dictionary<string, JObject> PartyAgencyNativeEvidence =
@@ -95,7 +97,8 @@ namespace ReignBeta.WorldSimulation.Campaign
         internal static bool OwnsAutomationSession => IsBusy || (_armed && !string.IsNullOrWhiteSpace(_activeRunId));
         internal static bool OwnsPassiveWorldSession => _armed && _activeMode == "passive_world"
             && !string.IsNullOrWhiteSpace(_activeRunId);
-        public static int CompletedCommandCacheCount => CompletedCommandResults.Count;
+        public static int CompletedCommandCacheCount =>
+            CompletedCommandResults.Count + PartyAgencyCompletedCommands.Count;
 
         public static string[] GetSupportedModes()
         {
@@ -146,6 +149,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 _armed = false;
                 _heartbeatAcceptedForObservedCampaign = false;
                 CompletedCommandResults.Clear();
+                PartyAgencyCompletedCommands.Clear();
                 ResetLocalSession(false);
                 ReignLog.Info("Live interaction heartbeat observed campaign instance="
                     + _gameInstanceId + " campaign=" + ReignCampaignIdentity.CurrentCampaignId() + ".");
@@ -264,22 +268,49 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             try
             {
-                JObject response = await ReignLiveTestServerClient.PollLiveTestCommandAsync(_gameInstanceId).ConfigureAwait(false);
+                ReignMainThread.GameScope pollNativeScope = ReignMainThread.CurrentGameScope;
+                string pollCampaignId = ReignServerClient.GetCampaignId();
+                string pollGameInstanceId = _gameInstanceId;
+                JObject response = await ReignLiveTestServerClient.PollLiveTestCommandAsync(pollGameInstanceId, pollCampaignId).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true || response.Value<bool?>("found") != true) return;
                 JObject command = response["command"] as JObject;
                 if (command == null) return;
                 _commandInFlight = true;
                 string runId = command.Value<string>("runId") ?? string.Empty;
                 string commandId = command.Value<string>("commandId") ?? string.Empty;
-                if (CompletedCommandResults.TryGetValue(commandId, out LiveCommandResult completed)
-                    || TryGetDurableSocialBalanceResult(command, out completed))
+                JObject run = response["run"] as JObject;
+                PartyAgencyExecutionStamp execution = null;
+                if (IsObservedPartyAgencyCommand(run, command))
+                {
+                    execution = new PartyAgencyExecutionStamp(pollNativeScope, pollCampaignId,
+                        pollGameInstanceId, PartyAgencyClientProcessInstanceId, runId, commandId,
+                        command.Value<string>("leaseId") ?? string.Empty,
+                        command.Value<int?>("executionRetryGeneration") ?? 0);
+                    if (!execution.MatchesIssuedScope(run.Value<string>("campaignId"),
+                            run.Value<string>("gameInstanceId"), run.Value<string>("runId"))
+                        || !IsCurrentPartyAgencyExecution(execution))
+                        return;
+                }
+
+                LiveCommandResult completed;
+                bool hasCompleted = execution == null
+                    ? CompletedCommandResults.TryGetValue(commandId, out completed)
+                        || TryGetDurableSocialBalanceResult(command, out completed)
+                    : PartyAgencyCompletedCommands.TryGet(execution, out completed);
+                if (hasCompleted)
                 {
                     if (completed.Status == "completed")
                         ActivateHarnessRun(command);
-                    await ReportCommandResultAsync(runId, commandId, completed).ConfigureAwait(false);
+                    await ReportCommandResultAsync(runId, commandId, completed, execution).ConfigureAwait(false);
                     return;
                 }
-                await ReignLiveTestServerClient.AcknowledgeLiveTestCommandAsync(_gameInstanceId, runId, commandId, "accepted", "Command accepted by the loaded campaign.").ConfigureAwait(false);
+                JObject acknowledgment = await ReignLiveTestServerClient.AcknowledgeLiveTestCommandAsync(
+                    execution?.GameInstanceId ?? _gameInstanceId, runId, commandId,
+                    "accepted", "Command accepted by the loaded campaign.", execution).ConfigureAwait(false);
+                if (execution != null && (!HasAcceptedPartyAgencyAcknowledgment(acknowledgment, execution)
+                    || !IsCurrentPartyAgencyExecution(execution)))
+                    return;
+
                 string operation = command.Value<string>("operation") ?? string.Empty;
                 if (operation.Equals("world_advance", StringComparison.OrdinalIgnoreCase))
                 {
@@ -291,18 +322,37 @@ namespace ReignBeta.WorldSimulation.Campaign
                 LiveCommandResult result;
                 try
                 {
-                    result = await ExecuteCommandAsync(command).ConfigureAwait(false);
+                    if (execution == null)
+                        result = await ExecuteCommandAsync(command).ConfigureAwait(false);
+                    else
+                        result = await ReignMainThread.RunOwnedAsync(pollNativeScope,
+                            () => IsCurrentPartyAgencyExecution(execution),
+                            () => ExecuteObservedPartyAgencyCommandAsync(command, execution, operation)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     ReignLog.Exception("Live interaction command execution", ex);
                     result = LiveCommandResult.Failed(ex.Message);
                 }
-                if (result.Status == "completed")
-                    ActivateHarnessRun(command);
-                RememberCommandResult(commandId, result);
-                RememberDurableSocialBalanceResult(command, result);
-                await ReportCommandResultAsync(runId, commandId, result).ConfigureAwait(false);
+                if (execution == null)
+                {
+                    if (result.Status == "completed")
+                        ActivateHarnessRun(command);
+                    RememberCommandResult(commandId, result);
+                    RememberDurableSocialBalanceResult(command, result);
+                }
+                else
+                {
+                    if (!IsCurrentPartyAgencyExecution(execution))
+                        return;
+
+                    if (result.Status == "completed")
+                        ActivateHarnessRun(command);
+                    result.PartyAgencyExecution = execution;
+                    PartyAgencyCompletedCommands.Remember(result);
+                }
+
+                await ReportCommandResultAsync(runId, commandId, result, execution).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -315,10 +365,52 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
         }
 
-        private static Task<JObject> ReportCommandResultAsync(string runId, string commandId, LiveCommandResult result)
+        private static Task<JObject> ReportCommandResultAsync(string runId, string commandId,
+            LiveCommandResult result, PartyAgencyExecutionStamp assignment)
         {
+            PartyAgencyExecutionStamp execution = result.PartyAgencyExecution;
+            if (assignment != null && (execution == null || !execution.CanReplayFor(assignment)
+                || !IsCurrentPartyAgencyExecution(assignment)))
+                return Task.FromResult<JObject>(null);
+
             return ReignLiveTestServerClient.ReportLiveTestCommandAsync(
-                _gameInstanceId, runId, commandId, result.Status, result.Message, result.Error, result.Data, result.CorrelationIds);
+                execution?.GameInstanceId ?? _gameInstanceId, runId, commandId, result.Status,
+                result.Message, result.Error, result.Data, result.CorrelationIds, assignment, execution);
+        }
+
+        private static bool IsObservedPartyAgencyCommand(JObject run, JObject command)
+        {
+            JToken schemaVersion = command["executionObservationVersion"];
+            return string.Equals(run?.Value<string>("mode"), "party_agency", StringComparison.OrdinalIgnoreCase)
+                && schemaVersion?.Type == JTokenType.Integer
+                && schemaVersion.Value<long>() == 1;
+        }
+
+        private static bool HasAcceptedPartyAgencyAcknowledgment(JObject response, PartyAgencyExecutionStamp execution)
+        {
+            if (response?["ok"]?.Type != JTokenType.Boolean || !response.Value<bool>("ok"))
+                return false;
+            if (response.TryGetValue("idempotent", out JToken idempotent)
+                && (idempotent.Type != JTokenType.Boolean || idempotent.Value<bool>()))
+                return false;
+
+            JObject command = response["command"] as JObject;
+            JObject run = response["run"] as JObject;
+            return command != null && run != null
+                && string.Equals(run.Value<string>("mode"), "party_agency", StringComparison.OrdinalIgnoreCase)
+                && execution.MatchesIssuedScope(run.Value<string>("campaignId"),
+                    run.Value<string>("gameInstanceId"), run.Value<string>("runId"))
+                && string.Equals(execution.RunId, command.Value<string>("runId"), StringComparison.OrdinalIgnoreCase)
+                && string.Equals(execution.CommandId, command.Value<string>("commandId"), StringComparison.OrdinalIgnoreCase)
+                && string.Equals(execution.ExecutionLeaseId, command.Value<string>("leaseId"), StringComparison.Ordinal)
+                && execution.RetryGeneration == (command.Value<int?>("executionRetryGeneration") ?? 0)
+                && string.Equals(command.Value<string>("status"), "accepted", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsCurrentPartyAgencyExecution(PartyAgencyExecutionStamp execution)
+        {
+            return execution.IsCurrent(ReignMainThread.CurrentGameScope, ReignServerClient.GetCampaignId(),
+                _gameInstanceId, PartyAgencyClientProcessInstanceId);
         }
 
         private static void ActivateHarnessRun(JObject command)
@@ -834,8 +926,129 @@ namespace ReignBeta.WorldSimulation.Campaign
             return null;
         }
 
+
+        private static async Task<LiveCommandResult> ExecuteObservedPartyAgencyCommandAsync(
+            JObject command, PartyAgencyExecutionStamp execution, string operation)
+        {
+            var previous = ReignServerClient.PartyAgencySendOrigin.Value;
+            ReignServerClient.PartyAgencySendOrigin.Value = string.Equals(operation, "send", StringComparison.Ordinal)
+                ? payload => AttachPartyAgencySendOrigin(payload, execution) : (Action<JObject>)null;
+            try { return await ExecuteCommandAsync(command).ConfigureAwait(false); }
+            finally { ReignServerClient.PartyAgencySendOrigin.Value = previous; }
+        }
+
+        private static void AttachPartyAgencySendOrigin(JObject payload, PartyAgencyExecutionStamp execution)
+        {
+            if (execution == null || !IsCurrentPartyAgencyExecution(execution)) return;
+            payload["partyAgencySendOrigin"] = new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["runId"] = execution.RunId,
+                ["commandId"] = execution.CommandId,
+                ["gameInstanceId"] = execution.GameInstanceId,
+                ["clientProcessInstanceId"] = execution.ClientProcessInstanceId,
+                ["executionLeaseId"] = execution.ExecutionLeaseId,
+                ["retryGeneration"] = execution.RetryGeneration
+            };
+        }
+
+        internal sealed class PartyAgencyExecutionStamp
+        {
+            private readonly ReignMainThread.GameScope _nativeScope;
+
+            internal PartyAgencyExecutionStamp(ReignMainThread.GameScope nativeScope, string campaignId,
+                string gameInstanceId, string clientProcessInstanceId, string runId, string commandId,
+                string executionLeaseId, int retryGeneration = 0)
+            {
+                _nativeScope = nativeScope;
+                CampaignId = campaignId;
+                GameInstanceId = gameInstanceId;
+                ClientProcessInstanceId = clientProcessInstanceId;
+                RunId = runId;
+                CommandId = commandId;
+                ExecutionLeaseId = executionLeaseId;
+                RetryGeneration = retryGeneration;
+            }
+
+            internal string CampaignId { get; }
+            internal string GameInstanceId { get; }
+            internal string ClientProcessInstanceId { get; }
+            internal string RunId { get; }
+            internal string CommandId { get; }
+            internal string ExecutionLeaseId { get; }
+            internal int RetryGeneration { get; }
+
+            internal bool IsCurrent(ReignMainThread.GameScope nativeScope, string campaignId,
+                string gameInstanceId, string clientProcessInstanceId)
+            {
+                return _nativeScope != null && ReferenceEquals(_nativeScope, nativeScope)
+                    && string.Equals(CampaignId, campaignId, StringComparison.Ordinal)
+                    && string.Equals(GameInstanceId, gameInstanceId, StringComparison.Ordinal)
+                    && string.Equals(ClientProcessInstanceId, clientProcessInstanceId, StringComparison.Ordinal);
+            }
+
+            internal bool MatchesIssuedScope(string campaignId, string gameInstanceId, string runId)
+            {
+                return !string.IsNullOrWhiteSpace(CampaignId) && !string.IsNullOrWhiteSpace(GameInstanceId)
+                    && !string.IsNullOrWhiteSpace(RunId) && !string.IsNullOrWhiteSpace(CommandId)
+                    && !string.IsNullOrWhiteSpace(ExecutionLeaseId) && RetryGeneration >= 0
+                    && string.Equals(CampaignId, campaignId, StringComparison.Ordinal)
+                    && string.Equals(GameInstanceId, gameInstanceId, StringComparison.Ordinal)
+                    && string.Equals(RunId, runId, StringComparison.OrdinalIgnoreCase);
+            }
+
+            internal bool CanReplayFor(PartyAgencyExecutionStamp assignment)
+            {
+                // A retry can use a different transport lease. Retain the original
+                // lease on the cached result rather than restamping its execution.
+                return IsCurrent(assignment._nativeScope, assignment.CampaignId,
+                        assignment.GameInstanceId, assignment.ClientProcessInstanceId)
+                    && MatchesIssuedScope(assignment.CampaignId, assignment.GameInstanceId, assignment.RunId)
+                    && string.Equals(CommandId, assignment.CommandId, StringComparison.OrdinalIgnoreCase)
+                    && RetryGeneration == assignment.RetryGeneration;
+            }
+        }
+
+        private sealed class PartyAgencyExecutionCache
+        {
+            private const int Capacity = 100;
+            private readonly List<LiveCommandResult> _completed = new List<LiveCommandResult>();
+
+            internal int Count
+            {
+                get { lock (_completed) return _completed.Count; }
+            }
+
+            internal void Clear()
+            {
+                lock (_completed) _completed.Clear();
+            }
+
+            internal bool TryGet(PartyAgencyExecutionStamp assignment, out LiveCommandResult result)
+            {
+                lock (_completed)
+                {
+                    result = _completed.Find(entry => entry.PartyAgencyExecution.CanReplayFor(assignment));
+                    return result != null;
+                }
+            }
+
+            internal void Remember(LiveCommandResult result)
+            {
+                lock (_completed)
+                {
+                    if (_completed.Exists(entry => entry.PartyAgencyExecution.CanReplayFor(result.PartyAgencyExecution)))
+                        return;
+                    _completed.Add(result);
+                    if (_completed.Count > Capacity)
+                        _completed.RemoveAt(0);
+                }
+            }
+        }
+
         private sealed class LiveCommandResult
         {
+            internal PartyAgencyExecutionStamp PartyAgencyExecution;
             public string Status = "completed";
             public string Message = string.Empty;
             public string Error = string.Empty;

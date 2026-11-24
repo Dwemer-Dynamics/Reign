@@ -213,10 +213,14 @@ namespace ReignBeta.Diplomacy.Campaign
 
         private async Task EvaluatePoliticalPressureAsync(float requestedDay)
         {
+            var fence = ReignServerClient.RequestFence.Capture();
+            string server = ReignServerEndpoint.ConfiguredBaseUrl();
+            bool OwnsProducer() => ReferenceEquals(Instance, this) && fence.IsCurrentActionPoll()
+                && server == ReignServerEndpoint.ConfiguredBaseUrl();
             try
             {
                 ReignDiplomacyEvaluationResult result =
-                    await ReignDiplomacyServerClient.EvaluatePoliticalPressureAsync()
+                    await ReignDiplomacyServerClient.EvaluatePoliticalPressureAsync(fence.SharedActivityGeneration, OwnsProducer)
                         .ConfigureAwait(false);
                 if (!result.Ok)
                 {
@@ -225,7 +229,10 @@ namespace ReignBeta.Diplomacy.Campaign
                             ? result.Status : result.Error));
                     return;
                 }
-                _lastPressureGenerationDay = requestedDay;
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (OwnsProducer()) _lastPressureGenerationDay = requestedDay;
+                }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -244,7 +251,9 @@ namespace ReignBeta.Diplomacy.Campaign
                 if (pendingDay - _lastPressureGenerationDay >= 0.9f)
                 {
                     await ReignMainThread.InvokeAsync(() =>
-                        TrySchedulePoliticalPressureGeneration(pendingDay))
+                    {
+                        if (OwnsProducer()) TrySchedulePoliticalPressureGeneration(pendingDay);
+                    })
                         .ConfigureAwait(false);
                 }
             }

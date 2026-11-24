@@ -14,6 +14,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
 using ReignBeta.Portraits.UI;
 
 namespace ReignBeta.Court.Integration
@@ -60,6 +61,18 @@ namespace ReignBeta.Court.Integration
                 byte[] portrait = PortraitCache.GetDiskBytes(portraitKey);
                 if (portrait == null || portrait.Length == 0)
                 {
+                    var stored = await ReignCampaignPortraitClient.FindAsync(portraitKey).ConfigureAwait(false);
+                    portrait = PortraitCache.GetDiskBytes(portraitKey);
+                    if (portrait != null && portrait.Length > 0)
+                    {
+                        portraits.Add(portrait);
+                        continue;
+                    }
+                    if (stored != ReignCampaignPortraitClient.Lookup.Missing)
+                    {
+                        session.ImageStatus = "failed";
+                        return string.Empty;
+                    }
                     ReignLog.Info("Castle scene is preparing a missing portrait master for hero=" + hero.StringId);
                     JObject portraitResponse = await ReignServerClient.GenerateSharedPortraitAsync(portraitKey).ConfigureAwait(false);
                     if (portraitResponse.Value<bool?>("ok") == true)
@@ -142,8 +155,13 @@ namespace ReignBeta.Court.Integration
                 byte[] portrait = PortraitCache.GetDiskBytes(key);
                 if (portrait == null || portrait.Length == 0)
                 {
-                    JObject generated = await ReignServerClient.GenerateSharedPortraitAsync(key).ConfigureAwait(false);
-                    if (generated.Value<bool?>("ok") == true) { PortraitCache.ClearMemoryCache(); portrait = PortraitCache.GetDiskBytes(key); }
+                    var stored = await ReignCampaignPortraitClient.FindAsync(key).ConfigureAwait(false);
+                    portrait = PortraitCache.GetDiskBytes(key);
+                    if ((portrait == null || portrait.Length == 0) && stored == ReignCampaignPortraitClient.Lookup.Missing)
+                    {
+                        JObject generated = await ReignServerClient.GenerateSharedPortraitAsync(key).ConfigureAwait(false);
+                        if (generated.Value<bool?>("ok") == true) { PortraitCache.ClearMemoryCache(); portrait = PortraitCache.GetDiskBytes(key); }
+                    }
                 }
                 if (portrait != null && portrait.Length > 0)
                 {

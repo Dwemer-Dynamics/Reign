@@ -288,15 +288,16 @@ public static class PortraitDerivativeService
 
 	private static bool Prepare(WorkItem item)
 	{
-		if (!item.Force && TryGetReadySet(item.SourcePath, item.OutputDirectory, out var _))
+		lock (PortraitCache.ProductCommitLock(item.OutputDirectory))
 		{
-			return true;
-		}
+			if (!PortraitCache.RecoverLocalPortraitProduct(item.OutputDirectory)) return false;
+			if (!item.Force && TryGetReadySet(item.SourcePath, item.OutputDirectory, out var _)) return true;
 
-		return string.Equals(Path.GetFileName(item.SourcePath), PortraitCache.PortraitFileName, StringComparison.OrdinalIgnoreCase)
-			|| IsOutfitCustomSource(item.SourcePath, item.OutputDirectory)
-			? PrepareV2(item)
-			: PrepareLegacy(item);
+			return string.Equals(Path.GetFileName(item.SourcePath), PortraitCache.PortraitFileName, StringComparison.OrdinalIgnoreCase)
+				|| IsOutfitCustomSource(item.SourcePath, item.OutputDirectory)
+				? PrepareV2(item)
+				: PrepareLegacy(item);
+		}
 	}
 
 	private static bool IsOutfitCustomSource(string sourcePath, string outputDirectory)

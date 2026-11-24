@@ -378,9 +378,13 @@ namespace ReignBeta.Platform.Integration
         // Redirected or unobservable final targets and path-prefixed bases prove no origin.
         internal static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
         {
-            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal)
+            if (parsed == null || !(route == "/dialogue/respond"
+                || (route == "/arrests/case/apply" && parsed["operation"]?.Type == JTokenType.String
+                    && parsed.Value<string>("operation") == "inspect")
+                || route.StartsWith("/actions/next?", StringComparison.Ordinal)
                 || route.StartsWith("/political-pressure/notices?", StringComparison.Ordinal)
-                || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal))) return parsed;
+                || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal)
+                || route == "/relationships/director/poll_actions")) return parsed;
             string origin = PinnableOrigin(baseUrl);
             Uri final = response?.RequestMessage?.RequestUri;
             if (final == null || !Uri.TryCreate(requestUrl, UriKind.Absolute, out Uri requested)
@@ -463,7 +467,7 @@ namespace ReignBeta.Platform.Integration
         // response is parsed, before it is returned.
         internal static async Task<JObject> PostAsync(string route, JObject payload,
             Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner, bool encodeOffThread,
-            Func<JObject, Task> onAccepted, HttpClient requestClient = null)
+            Func<JObject, Task> onAccepted, HttpClient requestClient = null, ReignMainThread.GameScope requestScope = null)
         {
             bool liveTestRoute = route.StartsWith(
                 "/tests/live/", StringComparison.OrdinalIgnoreCase);
@@ -491,7 +495,7 @@ namespace ReignBeta.Platform.Integration
                     Stopwatch timer = Stopwatch.StartNew();
                     if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                         throw new OperationCanceledException("Request belongs to a previous loaded save.");
-                    await EnsureRequestOwnerAsync(requestOwner, "request encoding").ConfigureAwait(false);
+                    await EnsureRequestOwnerAsync(requestOwner, "request encoding", requestScope).ConfigureAwait(false);
                     using (ReignJsonHttpContent content = encodeOffThread
                         ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
                         : new ReignJsonHttpContent(payload ?? new JObject()))
@@ -499,7 +503,7 @@ namespace ReignBeta.Platform.Integration
                     {
                         if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                             throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
-                        await EnsureRequestOwnerAsync(requestOwner, "transport dispatch").ConfigureAwait(false);
+                        await EnsureRequestOwnerAsync(requestOwner, "transport dispatch", requestScope).ConfigureAwait(false);
                         request.Content = content;
                         try
                         {
@@ -611,7 +615,7 @@ namespace ReignBeta.Platform.Integration
             }
         }
 
-        private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
-            ReignRequestOwnership.EnsureAsync(requestOwner, stage);
+        private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage, ReignMainThread.GameScope scope = null) =>
+            ReignRequestOwnership.EnsureAsync(requestOwner, stage, scope);
     }
 }

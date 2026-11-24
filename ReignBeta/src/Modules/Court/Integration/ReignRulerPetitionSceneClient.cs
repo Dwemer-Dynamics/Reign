@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using ReignBeta.Portraits.Integration;
 using AIPortraits;
 using ReignBeta.Court;
 using ReignBeta.UI.ViewModels;
@@ -82,6 +85,7 @@ namespace ReignBeta.Court.Integration
                 }
             }
             else throw new InvalidOperationException("Unknown court audience type.");
+            string campaignFolder = PortraitCache.RequestCampaignFolder;
             foreach (string id in ids.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 if (id == Hero.MainHero?.StringId) continue;
@@ -103,6 +107,8 @@ namespace ReignBeta.Court.Integration
                 {
                     Id = hero.StringId, Name = hero.Name?.ToString() ?? hero.StringId, Age = ReignCourtAudienceScene.ReferenceAge(hero.Age),
                     CharacterCode = code, Portrait = portrait,
+                    RetrieveStoredPortrait = !hero.IsChild && portrait == null
+                        ? () => RetrieveStoredPortraitAsync(campaignId, campaignFolder, portraitKey) : null,
                     ReferenceStamp = portrait?.Length > 0 ? ReignCourtAudienceScene.Hash(portrait)
                         : ReignCourtAudienceScene.Hash(Encoding.UTF8.GetBytes(code ?? ""))
                 });
@@ -110,6 +116,18 @@ namespace ReignBeta.Court.Integration
             scene.TimelineId = string.IsNullOrWhiteSpace(scene.TimelineId) ? "main" : scene.TimelineId;
             scene.People = ReignCourtAudienceScene.CompleteCast(scene.People);
             return scene;
+        }
+
+        private static async Task<byte[]> RetrieveStoredPortraitAsync(string campaign, string folder, string key)
+        {
+            using (new PortraitRequestScope(campaign, folder, new JObject()))
+            {
+                var result = await ReignCampaignPortraitClient.FindAsync(key).ConfigureAwait(false);
+                byte[] portrait = PortraitCache.GetDiskBytes(key);
+                if (portrait == null && result != ReignCampaignPortraitClient.Lookup.Missing)
+                    throw new InvalidOperationException("The stored court portrait isn't available yet.");
+                return portrait;
+            }
         }
 
         private static string FindModuleRoot()

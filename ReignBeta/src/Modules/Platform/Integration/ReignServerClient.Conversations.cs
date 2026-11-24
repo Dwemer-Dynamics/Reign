@@ -53,6 +53,7 @@ namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
+        internal static readonly AsyncLocal<Action<JObject>> PartyAgencySendOrigin = new AsyncLocal<Action<JObject>>();
         internal static bool IsDelimitedSpeechOnlyResponse(JObject response) =>
             response?["conversationExchange"]?["acceptedUnit"]?["outputContract"]?.Value<string>() == "ollama_delimited_speech";
 
@@ -435,6 +436,7 @@ namespace ReignBeta.Platform.Integration
                 }
                 await EnsureRequestOwnerAsync(requestOwner, "party chat context selection").ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "party_chat", speaker, activeHeroes ?? new List<Hero>()).ConfigureAwait(false);
+                PartyAgencySendOrigin.Value?.Invoke(payload);
                 Stopwatch timer = Stopwatch.StartNew();
                 JObject response = await ReignWandererClient.PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft,
                     requestOwner).ConfigureAwait(false);
@@ -994,6 +996,7 @@ namespace ReignBeta.Platform.Integration
                     await EnsureRequestOwnerAsync(requestOwner, "context bundle selection").ConfigureAwait(false);
                     await AttachContextBundlesAsync(payload, "dialogue", hero, new List<Hero> { hero }).ConfigureAwait(false);
                 }
+                PartyAgencySendOrigin.Value?.Invoke(payload);
                 Stopwatch timer = Stopwatch.StartNew();
                 JObject response = await ReignWandererClient.PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft, requestOwner).ConfigureAwait(false);
                 timer.Stop();

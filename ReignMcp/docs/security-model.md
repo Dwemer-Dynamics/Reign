@@ -503,7 +503,14 @@ fixture uses foreign dungeon custody, retaining all disposable-save and reload g
 Party Agency preparation is non-mutating and binds one certification run to
 the campaign-test enrollment's immutable baseline, exact run-owned Current
 save, and concrete source, client, server, provider, catalog, and Bannerlord
-fingerprints. `reign_start_party_agency_test` requires verification control,
+fingerprints. Preparing a new run with captureApprovedArtifacts verifies the
+fixed local promoted deployment authority and both bound original build
+reports, then retains the build DLL identity and SHA-256 digests in that run.
+Caller labels cannot supply approval. Earlier runs cannot adopt a later
+authority snapshot. This reads qualified artifacts without accessing the game
+installation or licensed DLLs. Installed and loaded identity remains pending
+evidence and prevents release.
+`reign_start_party_agency_test` requires verification control,
 the exact confirmation `start Reign Party Agency test on disposable save`, and
 fresh proof that the enrolled Current save is actually loaded. Its case text is
 read only from the workspace-confined versioned manifest. Guest invitations,

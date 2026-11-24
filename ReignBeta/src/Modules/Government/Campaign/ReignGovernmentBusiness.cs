@@ -80,7 +80,9 @@ namespace ReignBeta.Government.Campaign
         {
             ReignGovernmentBusinessRecord record = AuthorizedBusiness(businessId, actor, out result);
             if (record == null) return false;
-            if (!GovernmentBusinessRules.CanRecommend(record.Status) || !BusinessOptions(record).Any(x => Same(x.Value<string>("id"), optionId)))
+            if (!GovernmentBusinessRules.CanRecommend(record.Status) || !(IsConstructionBusiness(record)
+                ? CanSelectBusinessOption(record, optionId)
+                : BusinessOptions(record).Any(x => Same(x.Value<string>("id"), optionId))))
             { result = "That recommendation is not available at this stage."; return false; }
             if (!IsGovernmentRulerPresent(businessId)) { result = "The ruler must attend at the capital to declare the Crown position."; return false; }
             record.CrownActorHeroId = actor.StringId; record.CrownOptionId = optionId;
@@ -141,10 +143,14 @@ namespace ReignBeta.Government.Campaign
             { result = "The ruler must attend and personally approve this matter."; return false; }
             if (present && rulerRequested)
             {
-                if (string.IsNullOrEmpty(record.RecommendedOptionId) && record.FrozenAuthorityLevel < 5)
-                { result = "Declare the Crown's choice before calling the vote."; return false; }
-                if (!string.IsNullOrEmpty(record.RecommendedOptionId))
-                    RecordGovernmentCrownPosition(record.BusinessId, kingdom.Leader.StringId, record.RecommendedOptionId, "ruler", out result);
+                string recommendation = PublicBusinessRecommendation(record);
+                if (string.IsNullOrEmpty(recommendation) && record.FrozenAuthorityLevel < 5)
+                { result = "Declare an available Crown choice before calling the vote."; return false; }
+                if (!string.IsNullOrEmpty(recommendation))
+                {
+                    if (!RecordGovernmentCrownPosition(record.BusinessId, kingdom.Leader.StringId, recommendation, "ruler", out result))
+                        return false;
+                }
                 else { record.CrownVoteStatus = "abstained"; record.CrownOptionId = ""; record.CrownVoteSource = "ruler"; record.CrownActorHeroId = kingdom.Leader.StringId; }
             }
             else if (!present)
@@ -155,7 +161,8 @@ namespace ReignBeta.Government.Campaign
                 if (record.FrozenAuthorityLevel >= 2 && (record.CrownVoteStatus == "unrecorded" || record.CrownVoteStatus == "pending")) RequestGovernmentCrownDeputy(record);
                 if (record.CrownVoteStatus == "pending") { result = "Awaiting the Chancellor's recorded decision."; return false; }
             }
-            var options = BusinessOptions(record);
+            var options = LiveBusinessOptions(record);
+            var liveOptionIds = new HashSet<string>(options.Select(x => x.Value<string>("id")), StringComparer.Ordinal);
             var ballots = new JArray();
             var currentSeats = GetSeats(record.KingdomStringId);
             foreach (var frozen in JArray.Parse(record.FrozenSeatsJson).OfType<JObject>())
@@ -167,12 +174,12 @@ namespace ReignBeta.Government.Campaign
                 if (seat != null && member?.IsAlive == true && member == Hero.MainHero)
                 {
                     var submitted = _participation.Ballots.FirstOrDefault(x => x.BusinessId == record.BusinessId && x.HeroId == memberId);
-                    option = submitted != null && !submitted.Abstain && options.Any(x => x.Value<string>("id") == submitted.OptionId) ? submitted.OptionId : "";
+                    option = submitted != null && !submitted.Abstain && liveOptionIds.Contains(submitted.OptionId) ? submitted.OptionId : "";
                 }
                 else if (seat != null && member?.IsAlive == true && !member.IsPrisoner && AppliedPoliticalProfile(memberId) != null)
                 {
                     option = AgreedVoteOption(record.BusinessId, memberId);
-                    if (string.IsNullOrEmpty(option)) option = options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
+                    if (!liveOptionIds.Contains(option)) option = options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
                         .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault()?.Value<string>("id") ?? "";
                 }
                 ballots.Add(new JObject { ["memberHeroId"] = memberId, ["partyId"] = frozen.Value<string>("partyId"),
@@ -181,10 +188,10 @@ namespace ReignBeta.Government.Campaign
                     ["name"] = member?.Name?.ToString() ?? "Vacant seat",
                     ["absentee"] = !GetBusinessAttendance(record.BusinessId).Any(x => Same(x.HeroStringId, memberId) && x.Status == "present") });
             }
-            if (record.CrownVoteStatus == "recorded") ballots.Add(new JObject { ["memberHeroId"] = "crown", ["actorHeroId"] = record.CrownActorHeroId,
+            if (record.CrownVoteStatus == "recorded" && liveOptionIds.Contains(record.CrownOptionId)) ballots.Add(new JObject { ["memberHeroId"] = "crown", ["actorHeroId"] = record.CrownActorHeroId,
                 ["optionId"] = record.CrownOptionId, ["weight"] = GovernmentSessionRules.CrownWeight(record.FrozenAuthorityLevel), ["source"] = record.CrownVoteSource });
             var weighted = ballots.OfType<JObject>().Select(x => new GovernmentWeightedBallot { VoterId = x.Value<string>("memberHeroId"), OptionId = x.Value<string>("optionId"), Weight = x.Value<decimal>("weight") });
-            string winner = GovernmentSessionRules.Winner(weighted, options.Select(x => x.Value<string>("id")), record.StatusQuoOptionId);
+            string winner = GovernmentSessionRules.Winner(weighted, liveOptionIds, record.StatusQuoOptionId);
             if (string.IsNullOrEmpty(winner)) { result = "Every voting share abstained; the matter remains pending."; return false; }
             record.VotesJson = ballots.ToString(Formatting.None); record.WinningOptionId = winner;
             record.AuthorityLevelAtDecision = record.FrozenAuthorityLevel; record.DecisionRulerHeroStringId = kingdom.Leader.StringId;
@@ -255,7 +262,7 @@ namespace ReignBeta.Government.Campaign
                     var decision = NativeBusinessDecision(record);
                     var rulerSeat = GetSeats(record.KingdomStringId).FirstOrDefault(x => Same(x.HeroStringId, kingdom.Leader.StringId))
                         ?? new ReignGovernmentSeatRecord { HeroStringId = kingdom.Leader.StringId, PartyId = GetGovernment(kingdom)?.DominantPartyId ?? "" };
-                    var choice = BusinessOptions(record).OrderByDescending(x => decision != null ? NativeClanPreference(decision, kingdom.RulingClan, x) + PersonalBusinessAlignment(record, kingdom.Leader, x)
+                    var choice = LiveBusinessOptions(record).OrderByDescending(x => decision != null ? NativeClanPreference(decision, kingdom.RulingClan, x) + PersonalBusinessAlignment(record, kingdom.Leader, x)
                         : BusinessOptionScore(record, rulerSeat, kingdom.Leader, x, false))
                         .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault();
                     if (choice != null) RecordGovernmentCrownPosition(record.BusinessId, kingdom.Leader.StringId, choice.Value<string>("id"), "ruler", out _);
@@ -286,8 +293,11 @@ namespace ReignBeta.Government.Campaign
             if (seats.Any(x => Same(x.HeroStringId, petitioner.StringId))) record.SponsorHeroStringId = petitioner.StringId;
             else
             {
-                var requested = BusinessOptions(record).FirstOrDefault(x => Same(x.Value<string>("id"), record.RequestedOptionId));
-                var alternatives = BusinessOptions(record).Where(x => !Same(x.Value<string>("id"), record.RequestedOptionId)).ToList();
+                var liveOptions = LiveBusinessOptions(record);
+                var requested = liveOptions.FirstOrDefault(x => Same(x.Value<string>("id"), record.RequestedOptionId));
+                if (requested == null && IsNamedConstruction(FindSeasonalResolutionForBusiness(record)))
+                    requested = liveOptions.FirstOrDefault(x => x.Value<bool?>("affirmative") == true);
+                var alternatives = liveOptions.Where(x => !ReferenceEquals(x, requested)).ToList();
                 record.SponsorHeroStringId = GovernmentBusinessRules.SelectSponsor(seats.Select(seat =>
                 {
                     Hero member = FindHero(seat.HeroStringId);

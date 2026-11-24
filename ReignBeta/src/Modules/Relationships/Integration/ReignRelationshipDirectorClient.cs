@@ -130,7 +130,7 @@ namespace ReignBeta.Relationships.Integration
                 Hero legal = FindLivingHero(result.LegalFatherId) ?? bio;
                 string error = string.Empty;
                 if (ReignServices.Family != null
-                    && ReignServices.Family.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
+                    && ReignServices.Family.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error, result.LegalFatherId))
                 {
                     ReignLog.Info("Verified player conception succeeded at chance=" + result.Chance.ToString("P2") + ".");
                 }
@@ -141,24 +141,41 @@ namespace ReignBeta.Relationships.Integration
             }).ConfigureAwait(false);
         }
 
+        internal static JObject CaptureConceptionReport(ReignConceptionRecord record, string status, string childId)
+            => new JObject
+            {
+                ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
+                ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
+                ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
+                ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
+                ["contextSource"] = record.ContextSource,
+                ["childId"] = childId ?? string.Empty,["motherId"] = record.MotherId,["biologicalFatherId"] = record.BiologicalFatherId,
+                ["legalFatherId"] = record.LegalFatherId,["worldDay"] = CurrentDirectorDay(),["isIllegitimate"] = record.IsIllegitimate
+                };
+
         public static async Task ReportConceptionAsync(ReignConceptionRecord record, string status, string childId)
         {
             if (record == null) return;
             try
             {
-                await PostJsonAsync("/family/conception/report", new JObject
-                {
-                    ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
-                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
-                    ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
-                    ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
-                    ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
-                    ["contextSource"] = record.ContextSource,
-                    ["childId"] = childId ?? string.Empty,["motherId"] = record.MotherId,["biologicalFatherId"] = record.BiologicalFatherId,
-                    ["legalFatherId"] = record.LegalFatherId,["worldDay"] = CurrentDirectorDay(),["isIllegitimate"] = record.IsIllegitimate
-                }).ConfigureAwait(false);
+                await PostJsonAsync("/family/conception/report", CaptureConceptionReport(record, status, childId))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Conception report failed: " + ex.Message); }
+        }
+
+        internal static async Task<bool> AcknowledgeManagedBirthAsync(string origin, JObject payload, Func<bool> ownsReport)
+        {
+            JObject response = await SendPinnedJsonAsync(origin, "/family/conception/report", payload, ownsReport).ConfigureAwait(false);
+            return response?["ok"]?.Type == JTokenType.Boolean && (bool)response["ok"]
+                && response["status"]?.Type == JTokenType.String && (string)response["status"] == "born"
+                && response["conceptionId"]?.Type == JTokenType.String && (string)response["conceptionId"] == (string)payload["conceptionId"]
+                && response["childId"]?.Type == JTokenType.String && (string)response["childId"] == (string)payload["childId"]
+                && response["campaignId"]?.Type == JTokenType.String && (string)response["campaignId"] == (string)payload["campaignId"]
+                && response["timelineId"]?.Type == JTokenType.String && (string)response["timelineId"] == (string)payload["timelineId"]
+                && response["sharedActivityGeneration"]?.Type == JTokenType.String
+                && (string)response["sharedActivityGeneration"] == (string)payload["sharedActivityGeneration"];
         }
 
         internal static JObject CaptureMarriageDirectorSnapshot() => BuildRelationshipDirectorSnapshot();
@@ -461,6 +478,90 @@ namespace ReignBeta.Relationships.Integration
                 ReignLog.Warn("Native relationship bulk-sync report failed: " + ex.Message);
                 return false;
             }
+        }
+
+        internal sealed class DirectorActionOwner
+        {
+            private readonly RequestFence _fence = RequestFence.Capture();
+            private readonly string _campaign = GetCampaignId();
+            internal readonly string Timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            private readonly string _configuredServer = ReignServerEndpoint.ConfiguredBaseUrl();
+            private readonly double _observedDay = CurrentDirectorDay();
+
+            internal bool IsCurrent() => _fence.IsCurrentActionPoll()
+                && string.Equals(_configuredServer, ReignServerEndpoint.ConfiguredBaseUrl(), StringComparison.Ordinal);
+
+            internal JObject Envelope() => new JObject
+            {
+                ["campaignId"] = _campaign, ["timelineId"] = Timeline,
+                ["sharedActivityGeneration"] = _fence.SharedActivityGeneration
+            };
+
+            internal JObject Request() => new JObject
+            {
+                ["campaignId"] = _campaign, ["worldDay"] = _observedDay, ["ownership"] = Envelope()
+            };
+
+            internal bool Matches(JObject response) => JToken.DeepEquals(Envelope(), response?["ownership"]);
+        }
+
+        internal static async Task<(List<ReignDirectorAction> Actions, string Origin)> PollOwnedDirectorActionsAsync(
+            DirectorActionOwner owner, Func<bool> ownsRequest)
+        {
+            JObject response = await PostOwnedJsonAsync("/relationships/director/poll_actions",
+                owner.Request(), ownsRequest).ConfigureAwait(false);
+            string origin = ResponseOrigin(response);
+            if (response?["ok"]?.Type != JTokenType.Boolean || response.Value<bool>("ok") != true
+                || !owner.Matches(response) || !ReignHttpTransport.IsAllowedPinnedOrigin(origin)
+                || !(response["actions"] is JArray rows))
+                throw new InvalidOperationException("Relationship director poll did not confirm the captured save and endpoint.");
+            var actions = new List<ReignDirectorAction>();
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (JObject row in rows.OfType<JObject>())
+            {
+                string id = row["director_action_id"]?.Type == JTokenType.String ? (string)row["director_action_id"] : null;
+                if (string.IsNullOrWhiteSpace(id) || id.StartsWith("native_target:", StringComparison.OrdinalIgnoreCase)
+                    || !ids.Add(id) || !(row["payload"] is JObject payload))
+                    throw new InvalidOperationException("Relationship director poll supplied an invalid action identity.");
+                if (payload.TryGetValue("timelineId", out JToken timeline)
+                    && (timeline.Type != JTokenType.String || (string)timeline != owner.Timeline))
+                    throw new InvalidOperationException("Relationship director poll supplied an action from another timeline.");
+                actions.Add(new ReignDirectorAction
+                {
+                    DirectorActionId = id, ActionType = row.Value<string>("action_type") ?? string.Empty,
+                    ActorId = row.Value<string>("actor_id") ?? string.Empty, TargetId = row.Value<string>("target_id") ?? string.Empty,
+                    Payload = payload
+                });
+            }
+            if (actions.Count != rows.Count)
+                throw new InvalidOperationException("Relationship director poll supplied an invalid action entry.");
+            return (actions, origin);
+        }
+
+        internal static async Task ReportOwnedDirectorActionsAsync(DirectorActionOwner owner, string origin,
+            JArray receipts, Func<bool> ownsRequest)
+        {
+            JObject request = owner.Request();
+            request["receipts"] = receipts.DeepClone();
+            JObject response = await SendPinnedJsonAsync(origin, "/relationships/director/report_actions",
+                request, ownsRequest).ConfigureAwait(false);
+            if (!owner.Matches(response) || response["ok"]?.Type != JTokenType.Boolean
+                || !(response["results"] is JArray results) || results.Count != receipts.Count)
+                throw new InvalidOperationException("Relationship director report did not confirm the captured save and receipt batch.");
+
+            for (int i = 0; i < receipts.Count; i++)
+            {
+                JToken result = results[i];
+                if (!(result is JObject) || result["directorActionId"]?.Type != JTokenType.String
+                    || (string)result["directorActionId"] != (string)receipts[i]["directorActionId"]
+                    || result["ok"]?.Type != JTokenType.Boolean)
+                    throw new InvalidOperationException("Relationship director report did not identify each native receipt.");
+            }
+            bool accepted = results.All(result => (bool)result["ok"]);
+            if (accepted != (bool)response["ok"])
+                throw new InvalidOperationException("Relationship director report returned inconsistent receipt results.");
+            if (!accepted)
+                ReignLog.Warn("The relationship director rejected one or more native receipts for the captured save.");
         }
 
         public static async Task<List<ReignDirectorAction>> PollRelationshipDirectorActionsAsync()

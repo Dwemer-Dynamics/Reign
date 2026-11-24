@@ -175,9 +175,11 @@ public sealed class RebellionResidentEscapeTests
             "ReignRebellionCampaignBehavior.cs", "/src/Modules/Rebellion/Campaign/"));
         string start = source[source.IndexOf("private void StartCivilWar", StringComparison.Ordinal)..];
         start = start[..start.IndexOf("private bool EvacuateResidentsBeforeOutbreak", StringComparison.Ordinal)];
-        int evacuation = start.IndexOf("EvacuateResidentsBeforeOutbreak(movement, parent)", StringComparison.Ordinal);
-        Assert.True(evacuation > 0 && evacuation < start.IndexOf("CreateRebelKingdom(movement)", StringComparison.Ordinal));
+        int evacuation = start.IndexOf("EvacuateResidentsBeforeOutbreak(movement, parent, out ", StringComparison.Ordinal);
+        Assert.True(evacuation > 0);
+        Assert.True(evacuation < start.IndexOf("CreateRebelKingdom(movement, parent,", StringComparison.Ordinal));
         Assert.True(evacuation < start.IndexOf("MoveClanToKingdom(clan, rebels)", StringComparison.Ordinal));
         Assert.True(evacuation < start.IndexOf("DeclareWarWithOrigin", StringComparison.Ordinal));
+        Assert.True(evacuation < start.IndexOf("DeclareWarAction.ApplyByRebellion", StringComparison.Ordinal));
     }
 }

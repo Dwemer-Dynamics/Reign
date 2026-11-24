@@ -62,7 +62,7 @@ namespace ReignBeta.Government.Campaign
             {
                 var business = _business.FirstOrDefault(b => b.BusinessId == ReignActionService.Arg(c, "businessId") && b.KingdomStringId == seat.KingdomStringId);
                 if (business == null || !Reign.Core.Contracts.Government.GovernmentBusinessRules.CanRecommend(business.Status)) errors.Add("This proposal is no longer awaiting a vote.");
-                else if (!BusinessOptions(business).Any(o => o.Value<string>("id") == ReignActionService.Arg(c, "optionId"))) errors.Add("That exact voting option is unavailable.");
+                else if (!CanSelectBusinessOption(business, ReignActionService.Arg(c, "optionId"))) errors.Add("That exact voting option is unavailable.");
                 else if (!GetParticipationAccess(business.KingdomStringId, member, business.BusinessId).Ballot) errors.Add("This member is not on the matter's frozen voting roll.");
                 string existing = GovernmentTerms(c.ActorId, true).Where(x => x.Id != c.Id && x.ActionId == "government.support_vote"
                     && ReignActionService.Arg(x, "businessId") == business?.BusinessId).Select(x => ReignActionService.Arg(x, "optionId")).FirstOrDefault() ?? "";

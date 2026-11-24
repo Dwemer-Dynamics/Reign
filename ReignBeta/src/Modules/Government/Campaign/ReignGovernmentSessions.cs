@@ -137,10 +137,11 @@ namespace ReignBeta.Government.Campaign
             record.Status = extraordinary ? "hearing" : "presented";
             AssignDocket(record);
             var positions = new JArray();
+            var choices = LiveBusinessOptions(record);
             foreach (var seat in seats)
             {
                 var member = FindHero(seat.HeroStringId);
-                var ranked = BusinessOptions(record).OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true)).ToList();
+                var ranked = choices.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true)).ToList();
                 string optionId = member != Hero.MainHero && AppliedPoliticalProfile(member.StringId) != null && ranked.Count > 0 && (ranked.Count == 1 || BusinessOptionScore(record, seat, member, ranked[0], true)
                     - BusinessOptionScore(record, seat, member, ranked[1], true) >= 8) ? ranked[0].Value<string>("id") : "";
                 string agreed = AgreedVoteOption(record.BusinessId, seat.HeroStringId);
@@ -201,7 +202,7 @@ namespace ReignBeta.Government.Campaign
             reason = "The Crown position cannot be recorded for this matter.";
             var record = _business.FirstOrDefault(x => Same(x.BusinessId, businessId));
             if (record == null || GovernmentBusinessRules.IsClosed(record.Status) || record.ExecutionApplied
-                || !GovernmentBusinessRules.CanRecommend(record.Status) || !BusinessOptions(record).Any(x => x.Value<string>("id") == optionId)) return false;
+                || !GovernmentBusinessRules.CanRecommend(record.Status) || !CanSelectBusinessOption(record, optionId)) return false;
             var kingdom = FindKingdom(record.KingdomStringId);
             bool ruler = source == "ruler" && Same(kingdom?.Leader?.StringId, actorHeroId) && IsGovernmentRulerPresent(businessId);
             bool deputy = source == "chancellor" && record.FrozenAuthorityLevel >= 2 && !IsGovernmentRulerPresent(businessId)
@@ -219,7 +220,7 @@ namespace ReignBeta.Government.Campaign
             var record = _business.FirstOrDefault(x => Same(x.BusinessId, businessId));
             if (record == null || !GovernmentBusinessRules.CanRecommend(record.Status) || record.FrozenAuthorityLevel == 0
                 || !GetSeats(record.KingdomStringId).Any(x => Same(x.HeroStringId, memberHeroId))) return false;
-            if (!string.IsNullOrEmpty(optionId) && !BusinessOptions(record).Any(x => x.Value<string>("id") == optionId)) return false;
+            if (!string.IsNullOrEmpty(optionId) && !CanSelectBusinessOption(record, optionId)) return false;
             var positions = JArray.Parse(record.PublicPositionsJson);
             var row = positions.OfType<JObject>().FirstOrDefault(x => x.Value<string>("memberHeroId") == memberHeroId);
             if (row == null) return false;
@@ -255,11 +256,14 @@ namespace ReignBeta.Government.Campaign
             }
             var frozen = JArray.Parse(record.FrozenSeatsJson).OfType<JObject>().ToList();
             var occupied = new HashSet<string>(GetSeats(record.KingdomStringId).Where(x => FindHero(x.HeroStringId)?.IsAlive == true).Select(x => x.HeroStringId), StringComparer.Ordinal);
+            var liveIds = new HashSet<string>(LiveBusinessOptions(record).Select(x => x.Value<string>("id")), StringComparer.Ordinal);
+            bool HasLiveDeclaration(JObject position) => occupied.Contains(position.Value<string>("memberHeroId"))
+                && liveIds.Contains(position.Value<string>("optionId"));
             return new JArray(JArray.Parse(record.PublicPositionsJson).OfType<JObject>().Select(position => new JObject
             {
                 ["memberHeroId"] = position.Value<string>("memberHeroId"), ["name"] = FindHero(position.Value<string>("memberHeroId"))?.Name?.ToString() ?? "Vacant seat",
-                ["position"] = occupied.Contains(position.Value<string>("memberHeroId")) ? position.Value<string>("position") : "Undecided",
-                ["optionId"] = occupied.Contains(position.Value<string>("memberHeroId")) ? position.Value<string>("optionId") : "",
+                ["position"] = HasLiveDeclaration(position) ? position.Value<string>("position") : "Undecided",
+                ["optionId"] = HasLiveDeclaration(position) ? position.Value<string>("optionId") : "",
                 ["declaredDay"] = position.Value<float>("declaredDay"),
                 ["isFinal"] = false, ["eligible"] = occupied.Contains(position.Value<string>("memberHeroId")),
                 ["vacant"] = !occupied.Contains(position.Value<string>("memberHeroId")),
@@ -275,7 +279,8 @@ namespace ReignBeta.Government.Campaign
             var positions = GetBusinessPublicPositions(businessId).OfType<JObject>().ToList();
             bool final = JArray.Parse(record.VotesJson ?? "[]").Count > 0;
             int crownWeight = record.FrozenAuthorityLevel > 0 ? GovernmentSessionRules.CrownWeight(record.FrozenAuthorityLevel) : 0;
-            var options = new JArray(BusinessOptions(record).Select(option => new JObject {
+            var choices = final ? BusinessOptions(record) : LiveBusinessOptions(record);
+            var options = new JArray(choices.Select(option => new JObject {
                 ["optionId"] = option.Value<string>("id"), ["label"] = option.Value<string>("label"),
                 ["weight"] = positions.Where(x => x.Value<string>("optionId") == option.Value<string>("id")).Sum(x => x.Value<decimal>("weight"))
                     + (record.CrownVoteStatus == "recorded" && record.CrownOptionId == option.Value<string>("id") ? crownWeight : 0),

@@ -257,15 +257,18 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static Task<LiveCommandResult> StagePartyAgencySavePhaseAsync(
             JObject command)
         {
-            if (!PartyAgencyDisposableCommandAuthorized(command, out string activeSave,
-                    out LiveCommandResult failure))
-                return Task.FromResult(failure);
             return ReignMainThread.InvokeAsync(() =>
             {
-                string runId = command.Value<string>("runId") ?? _activeRunId ?? string.Empty;
-                string caseId = command.Value<string>("caseId") ?? string.Empty;
-                string variant = command.Value<string>("variant") ?? string.Empty;
-                string key = runId + "|" + caseId + "|" + variant.ToLowerInvariant();
+                if (!PartyAgencyDisposableCommandAuthorized(command, out string activeSave,
+                        out LiveCommandResult failure))
+                    return failure;
+                string runId = ReadPartyAgencyStageText(command, "runId");
+                string caseId = ReadPartyAgencyStageText(command, "caseId");
+                string variant = ReadPartyAgencyStageText(command, "variant");
+                if (caseId != PartyAgencySaveRoundtripCaseId
+                    || !TryReadPartyAgencySavePhase(variant, out ReignTemporaryGuestPhase phase))
+                    return LiveCommandResult.Failed("The Party Agency save stage requires its exact case and a supported lifecycle phase.");
+                string key = PartyAgencySaveStageKey(runId, caseId, variant);
                 if (!PartyAgencyNativeEvidence.TryGetValue(key, out JObject evidence))
                     return LiveCommandResult.Failed(
                         "The matching game-generated Party Agency save-stage receipt is unavailable.");
@@ -274,13 +277,10 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ReignServices.TemporaryPartyGuest;
                 ReignTemporaryPartyGuestRecord record = behavior?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target?.StringId);
-                if (target == null || record == null)
+                if (target == null || record == null
+                    || FindUniquePartyAgencySavedAgreement(behavior, record.AgreementId) != record)
                     return LiveCommandResult.Failed(
-                        "The Party Agency save-stage guest is unavailable.", evidence);
-                ReignTemporaryGuestPhase phase;
-                if (!Enum.TryParse(variant, true, out phase))
-                    return LiveCommandResult.Failed(
-                        "Unknown Party Agency lifecycle phase '" + variant + "'.", evidence);
+                        "The Party Agency save-stage guest or its exact agreement is unavailable.", evidence);
                 switch (phase)
                 {
                     case ReignTemporaryGuestPhase.Active:
@@ -328,12 +328,21 @@ namespace ReignBeta.WorldSimulation.Campaign
                         break;
                 }
                 bool staged = record.Phase == phase;
+                evidence = (JObject)evidence.DeepClone();
                 evidence["ok"] = false;
                 evidence["receiptId"] = "party_agency_save_stage_" + Guid.NewGuid().ToString("N");
                 evidence["operation"] = "party_agency_stage_save_phase";
+                evidence["caseId"] = caseId;
+                evidence["variant"] = variant;
                 evidence["activeSaveName"] = activeSave;
                 evidence["saveRoundtripStageReady"] = staged;
                 evidence["stagedPhase"] = record.Phase.ToString();
+                evidence["stagedAgreement"] = CapturePartyAgencySavedAgreement(record);
+                evidence["stagedGameInstanceId"] = _gameInstanceId;
+                evidence["stagedLiveRunId"] = runId;
+                evidence["stagedCommandId"] = ReadPartyAgencyStageText(command, "commandId");
+                evidence["stagedExecutionLeaseId"] = ReadPartyAgencyStageText(command, "leaseId");
+                evidence["stagedRetryGeneration"] = command.Value<int?>("executionRetryGeneration") ?? 0;
                 evidence["requiresNativeCheckpointAndRestart"] = true;
                 PartyAgencyNativeEvidence[key] = evidence;
                 return staged
@@ -347,33 +356,43 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static Task<LiveCommandResult> VerifyPartyAgencySavePhaseAsync(
             JObject command)
         {
-            if (!PartyAgencyDisposableCommandAuthorized(command, out string activeSave,
-                    out LiveCommandResult failure))
-                return Task.FromResult(failure);
+            string expectedGameInstance = command?.Value<string>("expectedRestartGameInstanceId");
             if (command?.Value<bool?>("restartVerified") != true
-                || string.IsNullOrWhiteSpace(command.Value<string>("restartReceipt")))
+                || string.IsNullOrWhiteSpace(command.Value<string>("restartReceipt"))
+                || string.IsNullOrWhiteSpace(expectedGameInstance))
                 return Task.FromResult(LiveCommandResult.Failed(
-                    "Party Agency save verification requires the guarded MCP checkpoint-and-restart receipt."));
+                    "Party Agency save verification requires the guarded MCP checkpoint-and-restart receipt and its native load."));
             return ReignMainThread.InvokeAsync(() =>
             {
-                string runId = command.Value<string>("runId") ?? _activeRunId ?? string.Empty;
-                string caseId = command.Value<string>("caseId") ?? string.Empty;
-                string variant = command.Value<string>("variant") ?? string.Empty;
-                if (!Enum.TryParse(variant, true, out ReignTemporaryGuestPhase expectedPhase))
+                if (!PartyAgencyDisposableCommandAuthorized(command, out string activeSave,
+                        out LiveCommandResult failure))
+                    return failure;
+                if (!string.Equals(_gameInstanceId, expectedGameInstance, StringComparison.Ordinal))
                     return LiveCommandResult.Failed(
-                        "Unknown Party Agency lifecycle phase '" + variant + "'.");
+                        "The Party Agency reload receipt belongs to a different native game instance.");
+
+                string runId = ReadPartyAgencyStageText(command, "runId");
+                string caseId = ReadPartyAgencyStageText(command, "caseId");
+                string variant = ReadPartyAgencyStageText(command, "variant");
+                var stage = command["partyAgencyStage"] as JObject;
+                if (!IsPartyAgencySaveStageBinding(stage, caseId, variant, out ReignTemporaryGuestPhase expectedPhase)
+                    || ReadPartyAgencyStageText(stage, "liveRunId") == runId
+                    || ReadPartyAgencyStageText(stage, "gameInstanceId") == _gameInstanceId)
+                    return LiveCommandResult.Failed(
+                        "The Party Agency reload requires a bound stage from the original native game instance.");
+
+                var expectedAgreement = (JObject)stage["agreement"];
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
                     ReignServices.TemporaryPartyGuest;
-                List<ReignTemporaryPartyGuestRecord> matches = behavior?.Records
-                    .Where(record => record != null && record.Phase == expectedPhase)
-                    .OrderByDescending(record => record.LastStateChangeDay).ToList()
-                    ?? new List<ReignTemporaryPartyGuestRecord>();
-                ReignTemporaryPartyGuestRecord record = matches.FirstOrDefault();
+                ReignTemporaryPartyGuestRecord record = FindUniquePartyAgencySavedAgreement(
+                    behavior, ReadPartyAgencyStageText(expectedAgreement, "agreementId"));
+                JObject reloadedAgreement = record == null ? null : CapturePartyAgencySavedAgreement(record);
+                bool exactAgreement = reloadedAgreement != null && JToken.DeepEquals(expectedAgreement, reloadedAgreement);
                 Hero target = record == null ? null : Hero.AllAliveHeroes
                     .Concat(Hero.DeadOrDisabledHeroes).FirstOrDefault(hero => hero != null
                         && string.Equals(hero.StringId, record.HeroStringId,
                             StringComparison.OrdinalIgnoreCase));
-                _partyAgencyFixtureTargetId = target?.StringId ?? string.Empty;
+                _partyAgencyFixtureTargetId = exactAgreement ? target?.StringId ?? string.Empty : string.Empty;
                 MobileParty source = string.IsNullOrWhiteSpace(record?.SourcePartyStringId)
                     ? null : MobileParty.All.FirstOrDefault(party => party != null
                         && string.Equals(party.StringId, record.SourcePartyStringId,
@@ -385,7 +404,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 int partyMatches = source == null ? 0 : MobileParty.All.Count(party => party != null
                     && string.Equals(party.StringId, source.StringId,
                         StringComparison.OrdinalIgnoreCase));
-                bool identity = record != null && target != null
+                bool identity = exactAgreement && target != null
                     && string.Equals(record.OriginalClanStringId,
                         target.Clan?.StringId ?? string.Empty, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(record.OriginalKingdomStringId,
@@ -395,7 +414,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ? source == null || !behavior.IsProtectedCamp(source)
                     : string.IsNullOrWhiteSpace(record?.SourcePartyStringId)
                         || behavior.IsProtectedCamp(source);
-                bool noDuplicates = matches.Count == 1 && heroMatches == 1
+                bool noDuplicates = record != null && heroMatches == 1
                     && (source == null || partyMatches == 1);
                 bool ok = record != null && identity && campState && noDuplicates;
                 JObject evidence = new JObject
@@ -407,6 +426,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["variant"] = variant,
                     ["activeSaveName"] = activeSave,
                     ["restartReceipt"] = command.Value<string>("restartReceipt"),
+                    ["reloadedGameInstanceId"] = _gameInstanceId,
+                    ["reloadedAgreement"] = reloadedAgreement,
                     ["phase"] = record?.Phase.ToString() ?? string.Empty,
                     ["recordReloaded"] = record != null,
                     ["identityPreserved"] = identity,
@@ -414,14 +435,112 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["noDuplicateHeroOrParty"] = noDuplicates,
                     ["directGuestActionInvoked"] = false
                 };
-                PartyAgencyNativeEvidence[runId + "|" + caseId + "|"
-                    + variant.ToLowerInvariant()] = evidence;
+                if (ok) evidence["partyAgencyStage"] = stage.DeepClone();
+                PartyAgencyNativeEvidence[PartyAgencySaveStageKey(runId, caseId, variant)] = evidence;
                 return ok
                     ? LiveCommandResult.Completed(
                         "The Party Agency lifecycle phase survived the guarded native save/reload without duplicates.", evidence)
                     : LiveCommandResult.Failed(
                         "The Party Agency lifecycle phase did not survive native save/reload cleanly.", evidence);
             });
+        }
+
+        private const string PartyAgencySaveRoundtripCaseId = "PA-NATIVE-017";
+
+        private static string PartyAgencySaveStageKey(string runId, string caseId, string variant) =>
+            runId + "|" + caseId + "|" + variant.ToLowerInvariant();
+
+        private static string ReadPartyAgencyStageText(JObject source, string field)
+        {
+            JToken token = source?[field];
+            return token?.Type == JTokenType.String ? token.Value<string>() : string.Empty;
+        }
+
+        private static bool TryReadPartyAgencySavePhase(string variant, out ReignTemporaryGuestPhase phase) =>
+            Enum.TryParse(variant, true, out phase)
+            && string.Equals(phase.ToString(), variant, StringComparison.OrdinalIgnoreCase)
+            && (phase == ReignTemporaryGuestPhase.Active || phase == ReignTemporaryGuestPhase.ReviewDue
+                || phase == ReignTemporaryGuestPhase.Departing || phase == ReignTemporaryGuestPhase.Returning
+                || phase == ReignTemporaryGuestPhase.Completed || phase == ReignTemporaryGuestPhase.HostileBanishmentPending);
+
+        private static bool IsPartyAgencySaveStageBinding(JObject stage, string caseId, string variant,
+            out ReignTemporaryGuestPhase phase)
+        {
+            const string receiptPrefix = "party_agency_save_stage_";
+            string receiptId = ReadPartyAgencyStageText(stage, "receiptId");
+            return TryReadPartyAgencySavePhase(variant, out phase)
+                && caseId == PartyAgencySaveRoundtripCaseId
+                && ReadPartyAgencyStageText(stage, "caseId") == caseId
+                && string.Equals(ReadPartyAgencyStageText(stage, "variant"), variant, StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(stage, "certificationRunId"))
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(stage, "liveRunId"))
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(stage, "commandId"))
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(stage, "gameInstanceId"))
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(stage, "executionLeaseId"))
+                && receiptId.StartsWith(receiptPrefix, StringComparison.Ordinal)
+                && Guid.TryParseExact(receiptId.Substring(receiptPrefix.Length), "N", out _)
+                && stage["retryGeneration"]?.Type == JTokenType.Integer
+                && int.TryParse(stage["retryGeneration"].ToString(), out int generation) && generation >= 0
+                && stage["agreement"] is JObject agreement
+                && !string.IsNullOrWhiteSpace(ReadPartyAgencyStageText(agreement, "agreementId"))
+                && ReadPartyAgencyStageText(agreement, "phase") == phase.ToString();
+        }
+
+        private static ReignTemporaryPartyGuestRecord FindUniquePartyAgencySavedAgreement(
+            ReignTemporaryPartyGuestCampaignBehavior behavior, string agreementId)
+        {
+            if (behavior == null || string.IsNullOrWhiteSpace(agreementId)) return null;
+            var matches = behavior.Records
+                .Where(record => string.Equals(record.AgreementId, agreementId, StringComparison.Ordinal))
+                .Take(2).ToArray();
+            return matches.Length == 1 ? matches[0] : null;
+        }
+
+        private static JObject CapturePartyAgencySavedAgreement(ReignTemporaryPartyGuestRecord record) =>
+            new JObject
+            {
+                ["agreementId"] = record.AgreementId ?? string.Empty,
+                ["agreementRevision"] = record.AgreementRevision,
+                ["heroId"] = record.HeroStringId ?? string.Empty,
+                ["originalClanId"] = record.OriginalClanStringId ?? string.Empty,
+                ["originalKingdomId"] = record.OriginalKingdomStringId ?? string.Empty,
+                ["sourcePartyId"] = record.SourcePartyStringId ?? string.Empty,
+                ["phase"] = record.Phase.ToString()
+            };
+
+        // Called on the native thread immediately before the requested SaveAs.
+        private static bool PartyAgencyCheckpointMatchesStage(JObject stage, string saveName)
+        {
+            string caseId = ReadPartyAgencyStageText(stage, "caseId");
+            string variant = ReadPartyAgencyStageText(stage, "variant");
+            if (!IsPartyAgencySaveStageBinding(stage, caseId, variant, out _)
+                || ReadPartyAgencyStageText(stage, "gameInstanceId") != _gameInstanceId
+                || !saveName.StartsWith("ReignTest_", StringComparison.Ordinal)
+                || !saveName.EndsWith("_Current", StringComparison.Ordinal)
+                || ActiveSaveName() != saveName
+                || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
+                return false;
+
+            string runId = ReadPartyAgencyStageText(stage, "liveRunId");
+            var agreement = (JObject)stage["agreement"];
+            if (!PartyAgencyNativeEvidence.TryGetValue(PartyAgencySaveStageKey(runId, caseId, variant), out JObject native)
+                || native.Value<bool?>("saveRoundtripStageReady") != true
+                || ReadPartyAgencyStageText(native, "operation") != "party_agency_stage_save_phase"
+                || ReadPartyAgencyStageText(native, "receiptId") != ReadPartyAgencyStageText(stage, "receiptId")
+                || ReadPartyAgencyStageText(native, "caseId") != caseId
+                || !string.Equals(ReadPartyAgencyStageText(native, "variant"), variant, StringComparison.OrdinalIgnoreCase)
+                || ReadPartyAgencyStageText(native, "activeSaveName") != saveName
+                || ReadPartyAgencyStageText(native, "stagedGameInstanceId") != _gameInstanceId
+                || ReadPartyAgencyStageText(native, "stagedLiveRunId") != runId
+                || ReadPartyAgencyStageText(native, "stagedCommandId") != ReadPartyAgencyStageText(stage, "commandId")
+                || ReadPartyAgencyStageText(native, "stagedExecutionLeaseId") != ReadPartyAgencyStageText(stage, "executionLeaseId")
+                || !JToken.DeepEquals(native["stagedRetryGeneration"], stage["retryGeneration"])
+                || !JToken.DeepEquals(native["stagedAgreement"], agreement))
+                return false;
+
+            var record = FindUniquePartyAgencySavedAgreement(ReignServices.TemporaryPartyGuest,
+                ReadPartyAgencyStageText(agreement, "agreementId"));
+            return record != null && JToken.DeepEquals(CapturePartyAgencySavedAgreement(record), agreement);
         }
     }
 }

@@ -808,7 +808,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
             Emit(eventType, phase, summary, correlationId, actor?.CurrentSettlement,
                 entities, true,
-                dissemination, payload, "reign_system", category);
+                dissemination, payload, "reign_system", category, stageReadySystemFact: true);
         }
 
         internal void RecordPublicNews(Reign.Core.Contracts.World.ReignNewsArticle article)
@@ -903,13 +903,22 @@ namespace ReignBeta.WorldSimulation.Campaign
         }
 
         private void Emit(string eventType, string phase, string summary, string correlationId, Settlement location, JArray entities, bool complete, string dissemination, JObject payload = null, string source = "bannerlord_native", string categoryOverride = "", bool retainUntilTimelineReady = false,
-            string eventIdOverride = null, double? worldDayOverride = null, Action<JObject> beforeEnqueue = null)
+            string eventIdOverride = null, double? worldDayOverride = null, Action<JObject> beforeEnqueue = null,
+            bool stageReadySystemFact = false)
         {
             // Bannerlord and War Sails emit thousands of synthetic creation/ownership callbacks
             // while reconstructing a save. They are initialization state, not events that happened
             // during play, and previously dominated young campaign databases.
             if (!ReignWorldHistoryFlushPolicy.ShouldPersistEvent(eventType))
                 return;
+            string stagedCampaign = stageReadySystemFact && _timelineReady
+                ? TaleWorlds.CampaignSystem.Campaign.Current?.UniqueGameId : null;
+            string stagedTimeline = _timelineId;
+            bool publishAfterStage = stageReadySystemFact && _timelineReady
+                && complete && beforeEnqueue == null && ReignWorldHistoryTransport.UsesOrdinarySystemQueue(eventType)
+                && ReignWorldHistoryTransport.HasExactQueueKey(stagedCampaign)
+                && ReignWorldHistoryTransport.HasExactQueueKey(stagedTimeline);
+            long stagedEpoch = publishAfterStage ? ReignWorldHistoryTransport.CaptureQueueEpoch() : -1L;
             double worldDay = worldDayOverride ?? CampaignTime.Now.ToDays;
             entities = entities ?? new JArray();
             payload = payload ?? new JObject();
@@ -939,14 +948,20 @@ namespace ReignBeta.WorldSimulation.Campaign
                 }
             }
             if (IsDuplicateHighFrequencyEvent(eventType, summary, location, entities, (float)worldDay)) return;
-            long sequence = ++_sequence;
+            long sequence = publishAfterStage ? checked(_sequence + 1) : ++_sequence;
             string eventId = eventIdOverride ?? _timelineId + "_" + sequence.ToString("D12") + "_" + Guid.NewGuid().ToString("N").Substring(0, 8);
-            _headEventId = eventId;
-            foreach (JObject entity in (entities ?? new JArray()).OfType<JObject>())
+            void PublishHead()
             {
-                string id = entity.Value<string>("entityId");
-                if (!string.IsNullOrWhiteSpace(id)) _observedEntities.Add(id);
+                _sequence = sequence;
+                _headEventId = eventId;
+                foreach (JObject entity in entities.OfType<JObject>())
+                {
+                    string id = entity.Value<string>("entityId");
+                    if (!string.IsNullOrWhiteSpace(id)) _observedEntities.Add(id);
+                }
             }
+
+            if (!publishAfterStage) PublishHead();
             JObject evt = new JObject
             {
                 ["eventId"] = eventId, ["sequence"] = sequence, ["worldDay"] = worldDay, ["eventType"] = eventType,
@@ -955,6 +970,13 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["summary"] = summary ?? eventType, ["source"] = source ?? "bannerlord_native", ["isComplete"] = complete,
                 ["entities"] = entities ?? new JArray(), ["payload"] = payload ?? new JObject()
             };
+            if (publishAfterStage)
+            {
+                if (!ReferenceEquals(this, ReignServices.WorldHistory) || !ReignWorldHistoryTransport.TryStageReadySystemEvent(
+                        evt, stagedCampaign, stagedTimeline, stagedEpoch, PublishHead))
+                    ReignLog.Warn("A ready system history event did not meet the active history queue scope.");
+                return;
+            }
             beforeEnqueue?.Invoke(evt);
             if (!_timelineReady)
             {

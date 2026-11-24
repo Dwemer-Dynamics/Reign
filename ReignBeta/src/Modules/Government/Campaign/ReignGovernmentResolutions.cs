@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,8 +54,10 @@ namespace ReignBeta.Government.Campaign
                 try
                 {
                     Task<JObject> call = await ReignMainThread.InvokeAsync(() =>
-                        ReignGovernmentServerClient.RequestGovernmentSpeakerStatementAsync(
-                            request.Kingdom, request.Party, request.Resolutions)).ConfigureAwait(false);
+                        IsCurrentSpeakerStatementRequest(request, out var party)
+                            ? ReignGovernmentServerClient.RequestGovernmentSpeakerStatementAsync(
+                                request.Kingdom, party, request.Rows)
+                            : Task.FromResult<JObject>(null)).ConfigureAwait(false);
                     response = await call.ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -63,7 +65,7 @@ namespace ReignBeta.Government.Campaign
                     response = new JObject { ["ok"] = false, ["error"] = ex.Message };
                 }
                 bool applied = await ReignMainThread.InvokeAsync(() =>
-                    ApplySpeakerStatementResponse(request.MeetingId, request.Party.PartyId, response))
+                    ApplySpeakerStatementResponse(request, response))
                     .ConfigureAwait(false);
                 if (applied) completed++;
             }
@@ -108,9 +110,22 @@ namespace ReignBeta.Government.Campaign
                 result = "The recorded settlement is unavailable or no longer belongs to this realm.";
                 return false;
             }
+            if (IsNamedConstruction(record) && routeIndex == 1 && !CanOfferConstructionTreasury(kingdom, record))
+            {
+                result = "The recorded treasury remedy is no longer available.";
+                return false;
+            }
             if (UsesImmediateGold(route.Action) && actor.Gold < route.Target)
             {
                 result = "The ruler needs " + route.Target + " denars for that route.";
+                return false;
+            }
+
+            ReignGovernmentConstructionTerms construction = null;
+            if (route.Action == ReignGovernmentResolutionAction.ChangeConstruction
+                && !TryAcceptConstruction(record, kingdom, route, out construction))
+            {
+                result = ConstructionUnavailable;
                 return false;
             }
 
@@ -119,19 +134,10 @@ namespace ReignBeta.Government.Campaign
             record.RequiredAmount = route.Target;
             record.BaselineValue = MeasureResolution(record, route.Action);
             record.CurrentValue = record.BaselineValue;
-            record.AcceptedDay = CurrentDay();
-            record.DueDay = CurrentDay() + route.DeadlineDays;
+            record.AcceptedDay = construction == null ? CurrentDay() : (float)construction.AcceptedDay;
+            record.DueDay = construction == null ? CurrentDay() + route.DeadlineDays : (float)construction.DueDay;
             record.Status = "active";
             record.Outcome = string.Empty;
-            if (route.Action == ReignGovernmentResolutionAction.ChangeConstruction)
-            {
-                JObject evidence;
-                try { evidence = JObject.Parse(string.IsNullOrWhiteSpace(record.EvidenceJson) ? "{}" : record.EvidenceJson); }
-                catch { evidence = new JObject(); }
-                Building current = Settlement.Find(record.TargetSettlementStringId)?.Town?.CurrentBuilding;
-                evidence["acceptedBuildingId"] = current?.BuildingType?.StringId ?? string.Empty;
-                record.EvidenceJson = evidence.ToString(Newtonsoft.Json.Formatting.None);
-            }
             record.Revision++;
 
             if (UsesImmediateGold(route.Action))
@@ -140,7 +146,8 @@ namespace ReignBeta.Government.Campaign
                 record.CurrentValue = route.Target;
                 CompleteResolution(kingdom, record, template, "Treasury commitment paid in full.");
             }
-            result = "Accepted " + template.Title + " through: " + route.Description + ".";
+            result = "Accepted " + template.Title + " through: "
+                + (construction == null ? route.Description : "Prioritize " + ConstructionProjectLabel(record)) + ".";
             return true;
         }
 
@@ -280,7 +287,7 @@ namespace ReignBeta.Government.Campaign
             int amount,
             string evidence)
         {
-            if (amount <= 0) return 0;
+            if (amount <= 0 || action == ReignGovernmentResolutionAction.ChangeConstruction) return 0;
             int updated = 0;
             Kingdom kingdom = null;
             foreach (ReignGovernmentResolutionRecord record in _resolutions.Where(x => Same(x.KingdomStringId, kingdomStringId)
@@ -338,8 +345,9 @@ namespace ReignBeta.Government.Campaign
             {
                 ReignGovernmentPartyRecord party = FindParty(kingdom.StringId, record.PartyId);
                 ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record.TemplateId);
-                string fallback = (party?.Name ?? "A party") + " calls for "
-                    + (template?.Title ?? "measurable relief") + ".";
+                string fallback = IsNamedConstruction(record)
+                    ? RenderConstructionSpeakerStatement(party, BuildSpeakerResolutionRows(kingdom, new[] { record }))
+                    : (party?.Name ?? "A party") + " calls for " + (template?.Title ?? "measurable relief") + ".";
                 statements[party?.PartyId ?? record.PartyId] = fallback;
                 if (party != null)
                 {
@@ -377,38 +385,104 @@ namespace ReignBeta.Government.Campaign
             attempted.Add(party.PartyId);
             statements["__attemptedPartyIds"] = attempted;
             meeting.SpeakerStatementsJson = statements.ToString(Newtonsoft.Json.Formatting.None);
-            meeting.ProviderCallCount = Math.Min(parties.Count, meeting.ProviderCallCount + 1);
+            var rows = BuildSpeakerResolutionRows(kingdom, MeetingSpeakerResolutions(meeting, party));
+            bool hostRendered = rows.OfType<JObject>().Any(row => row.Value<bool>("constructionAuthority"));
+            if (!hostRendered) meeting.ProviderCallCount = Math.Min(parties.Count, meeting.ProviderCallCount + 1);
             meeting.Revision++;
             return new SpeakerStatementRequest
             {
-                MeetingId = meeting.MeetingId,
-                Kingdom = kingdom,
-                Party = party,
-                Resolutions = _resolutions.Where(x => Same(x.KingdomStringId, kingdom.StringId)
-                    && Same(x.PartyId, party.PartyId)
-                    && meeting.ResolutionIdsCsv.Split(',').Any(id => Same(id, x.ResolutionId))).ToList()
+                Meeting = meeting, Kingdom = kingdom, PartyId = party.PartyId,
+                SpeakerId = party.SpeakerHeroStringId, Rows = rows, HostRendered = hostRendered,
+                Fence = ReignServerClient.RequestFence.Capture()
             };
         }
 
-        private bool ApplySpeakerStatementResponse(string meetingId, string partyId, JObject response)
+        private IEnumerable<ReignGovernmentResolutionRecord> MeetingSpeakerResolutions(
+            ReignGovernmentMeetingRecord meeting, ReignGovernmentPartyRecord party) =>
+            _resolutions.Where(x => Same(x.KingdomStringId, meeting.KingdomStringId) && Same(x.PartyId, party.PartyId)
+                && (meeting.ResolutionIdsCsv ?? "").Split(',').Any(id => Same(id, x.ResolutionId)));
+
+        private JArray BuildSpeakerResolutionRows(Kingdom kingdom, IEnumerable<ReignGovernmentResolutionRecord> resolutions)
         {
-            ReignGovernmentMeetingRecord meeting = _meetings.FirstOrDefault(x => Same(x.MeetingId, meetingId));
-            if (meeting == null || response?.Value<bool?>("ok") != true) return false;
-            string reply = response.Value<string>("reply")?.Trim();
+            var rows = new JArray();
+            foreach (var record in resolutions.Take(3))
+            {
+                var template = ReignGovernmentResolutionCatalog.Find(record.TemplateId);
+                if (template == null) continue;
+                bool construction = IsNamedConstruction(record);
+                var routes = new JArray();
+                if (!construction)
+                {
+                    routes.Add(template.FirstRoute.Description);
+                    routes.Add(template.SecondRoute.Description);
+                }
+                else if (ConstructionAwaitingDecision(record))
+                {
+                    var project = FindLiveConstructionProject(kingdom, record);
+                    if (project != null) routes.Add("Prioritize " + ConstructionProjectLabel(record, project));
+                    if (CanOfferConstructionTreasury(kingdom, record)) routes.Add(template.SecondRoute.Description);
+                }
+                var row = new JObject
+                {
+                    ["resolutionId"] = record.ResolutionId, ["title"] = template.Title,
+                    ["evidenceTag"] = template.EvidenceTag, ["constructionAuthority"] = construction,
+                    ["availableRoutes"] = routes, ["targetName"] = ReignGovernmentServerClient.GovernmentResolutionTargetName(record)
+                };
+                // Older servers continue to receive the existing normal remedies.
+                // Construction text is always rendered by the current host.
+                if (!construction)
+                {
+                    row["firstRoute"] = template.FirstRoute.Description;
+                    row["secondRoute"] = template.SecondRoute.Description;
+                }
+                rows.Add(row);
+            }
+            return rows;
+        }
+
+        private static string RenderConstructionSpeakerStatement(ReignGovernmentPartyRecord party, JArray rows)
+        {
+            var statements = rows.OfType<JObject>().Select(row =>
+            {
+                var routes = (row["availableRoutes"] as JArray)?.Values<string>().ToList() ?? new List<string>();
+                var target = row.Value<string>("targetName");
+                string matter = row.Value<string>("title") + (string.IsNullOrWhiteSpace(target) ? "" : " at " + target);
+                return matter + (routes.Count == 0 ? " has no available remedy." : ". Available remedies: " + string.Join(" or ", routes) + ".");
+            });
+            return GovernmentBusinessRules.PublicText((party?.Name ?? "A party") + " raises these recorded matters. " + string.Join(" ", statements));
+        }
+
+        private bool IsCurrentSpeakerStatementRequest(SpeakerStatementRequest request, out ReignGovernmentPartyRecord party)
+        {
+            party = null;
+            if (!ReferenceEquals(ReignServices.Government, this) || request.Fence?.IsCurrent() != true
+                || !request.Meeting.PlayerAttended || !_meetings.Any(x => ReferenceEquals(x, request.Meeting))
+                || !ReferenceEquals(FindKingdom(request.Meeting.KingdomStringId), request.Kingdom)
+                || request.Kingdom.Leader != Hero.MainHero) return false;
+            party = FindParty(request.Meeting.KingdomStringId, request.PartyId);
+            return party?.SeatCount > 0 && party.SpeakerHeroStringId == request.SpeakerId
+                && JToken.DeepEquals(request.Rows, BuildSpeakerResolutionRows(request.Kingdom,
+                    MeetingSpeakerResolutions(request.Meeting, party)));
+        }
+
+        private bool ApplySpeakerStatementResponse(SpeakerStatementRequest request, JObject response)
+        {
+            if (!IsCurrentSpeakerStatementRequest(request, out var party) || response?.Value<bool?>("ok") != true
+                || response.Value<string>("partyId") != request.PartyId
+                || response.Value<string>("speakerHeroStringId") != request.SpeakerId) return false;
+            var meeting = request.Meeting;
+            string reply = request.HostRendered ? RenderConstructionSpeakerStatement(party, request.Rows)
+                : response.Value<string>("reply")?.Trim();
             if (string.IsNullOrWhiteSpace(reply)) return false;
             JObject statements;
             try { statements = JObject.Parse(string.IsNullOrWhiteSpace(meeting.SpeakerStatementsJson) ? "{}" : meeting.SpeakerStatementsJson); }
             catch { statements = new JObject(); }
-            statements[partyId] = reply;
+            statements[request.PartyId] = reply;
             meeting.SpeakerStatementsJson = statements.ToString(Newtonsoft.Json.Formatting.None);
             meeting.Revision++;
-            ReignGovernmentPartyRecord party = FindParty(meeting.KingdomStringId, partyId);
-            if (party != null)
-            {
-                party.LastStatement = reply;
-                party.LastStatementDay = meeting.MeetingDay;
-                party.Revision++;
-            }
+            party.LastStatement = reply;
+            party.LastStatementDay = meeting.MeetingDay;
+            party.Revision++;
             return true;
         }
 
@@ -443,6 +517,26 @@ namespace ReignBeta.Government.Campaign
             Clan clan = SelectTargetClan(kingdom);
             Hero hero = SelectTargetHero(kingdom, template.EvidenceTag, target, clan);
             PolicyObject policy = SelectTargetPolicy(kingdom, template);
+            var evidence = new JObject
+            {
+                ["tag"] = template.EvidenceTag,
+                ["settlementId"] = target?.StringId ?? string.Empty,
+                ["kingdomId"] = foreign?.StringId ?? string.Empty,
+                ["clanId"] = clan?.StringId ?? string.Empty,
+                ["heroId"] = hero?.StringId ?? string.Empty,
+                ["policyId"] = policy?.StringId ?? string.Empty,
+                ["observedDay"] = day
+            };
+            if (template.Id == ConstructionTemplateId && ChooseUsefulConstruction(target?.Town, kingdom) is Building project)
+            {
+                evidence["construction"] = new JObject
+                {
+                    ["schemaVersion"] = ConstructionEvidenceVersion,
+                    ["settlementId"] = target.StringId,
+                    ["projectId"] = project.BuildingType.StringId,
+                    ["projectName"] = project.Name?.ToString() ?? string.Empty
+                };
+            }
             return new ReignGovernmentResolutionRecord
             {
                 KingdomStringId = kingdom.StringId,
@@ -457,16 +551,7 @@ namespace ReignBeta.Government.Campaign
                 ProposedDay = day,
                 Status = "debate",
                 ConsequenceLevel = state.Level,
-                EvidenceJson = new JObject
-                {
-                    ["tag"] = template.EvidenceTag,
-                    ["settlementId"] = target?.StringId ?? string.Empty,
-                    ["kingdomId"] = foreign?.StringId ?? string.Empty,
-                    ["clanId"] = clan?.StringId ?? string.Empty,
-                    ["heroId"] = hero?.StringId ?? string.Empty,
-                    ["policyId"] = policy?.StringId ?? string.Empty,
-                    ["observedDay"] = day
-                }.ToString(Newtonsoft.Json.Formatting.None),
+                EvidenceJson = evidence.ToString(Newtonsoft.Json.Formatting.None),
                 Revision = 1
             };
         }
@@ -501,7 +586,11 @@ namespace ReignBeta.Government.Campaign
 #if !REIGN_EXCLUDE_COURT
                 ApplySpymasterResolutionProgress(kingdom, record, action);
 #endif
-                ApplyPassiveResolutionProgress(record, action);
+                if (action == ReignGovernmentResolutionAction.ChangeConstruction)
+                {
+                    EvaluateNamedConstruction(kingdom, state, record, template);
+                    continue;
+                }
                 bool expired = record.DueDay >= 0f && CurrentDay() > record.DueDay;
                 if (!expired) ApplyDailyResolutionCommitment(kingdom, record, template, action);
                 float measured = MeasureResolution(record, action);
@@ -739,25 +828,6 @@ namespace ReignBeta.Government.Campaign
                 || action == ReignGovernmentResolutionAction.WaiveObligationDays;
         }
 
-        private static void ApplyPassiveResolutionProgress(ReignGovernmentResolutionRecord record,
-            ReignGovernmentResolutionAction action)
-        {
-            if (record == null || action != ReignGovernmentResolutionAction.ChangeConstruction) return;
-            Settlement settlement = Settlement.Find(record.TargetSettlementStringId);
-            if (settlement?.Town == null) return;
-            JObject evidence;
-            try { evidence = JObject.Parse(string.IsNullOrWhiteSpace(record.EvidenceJson) ? "{}" : record.EvidenceJson); }
-            catch { evidence = new JObject(); }
-            string accepted = evidence.Value<string>("acceptedBuildingId") ?? string.Empty;
-            string current = settlement.Town.CurrentBuilding?.BuildingType?.StringId ?? string.Empty;
-            if (Same(accepted, current) || string.IsNullOrWhiteSpace(current)) return;
-            record.CurrentValue = Math.Max(record.CurrentValue, record.RequiredAmount);
-            record.EvidenceJson = MergeEvidence(record.EvidenceJson,
-                "Native construction priority changed from " + (accepted.Length == 0 ? "none" : accepted)
-                + " to " + current + ".");
-            record.Revision++;
-        }
-
 #if !REIGN_EXCLUDE_COURT
         private static void ApplySpymasterResolutionProgress(Kingdom kingdom,
             ReignGovernmentResolutionRecord record,
@@ -893,7 +963,8 @@ namespace ReignBeta.Government.Campaign
             if (kingdom.Clans.Any(x => x != kingdom.RulingClan && x.Fiefs.Count == 0)) tags.Add("landless_loyal_clan");
             if (kingdom.Clans.Any(x => x != kingdom.RulingClan && x.Leader != null && x.Leader.GetRelation(kingdom.Leader) < -10))
                 Add(tags, "clan_grievance", "low_clan_relation", "clan_conflict", "privilege_threat", "household_debt");
-            Add(tags, "open_issues", "merchant_issue", "justice_grievance", "unpopular_policy", "stalled_project", "bad_project",
+            if (fiefs.Any(town => ChooseUsefulConstruction(town, kingdom) != null)) tags.Add("bad_project");
+            Add(tags, "open_issues", "merchant_issue", "justice_grievance", "unpopular_policy", "stalled_project",
                 "poor_trade_route", "merchant_burden", "broken_tax_promise", "ambassador_warning", "border_tension");
 #if !REIGN_EXCLUDE_COURT
             if (fiefs.Any(x => ReignServices.Court?.GetSpymasterLoyaltyDelta(x) != 0f
@@ -907,6 +978,13 @@ namespace ReignBeta.Government.Campaign
         internal static Settlement SelectTargetSettlement(Kingdom kingdom, string tag)
         {
             IEnumerable<Settlement> owned = Settlement.All.Where(x => x != null && x.MapFaction == kingdom && (x.IsTown || x.IsCastle || x.IsVillage));
+            if (Same(tag, "bad_project"))
+            {
+                var construction = owned.Where(x => x.IsFortification)
+                    .OrderBy(x => x.Town?.Loyalty ?? float.MaxValue).ThenBy(x => x.StringId, StringComparer.Ordinal)
+                    .FirstOrDefault(x => ChooseUsefulConstruction(x.Town, kingdom) != null);
+                if (construction != null) return construction;
+            }
             if (Same(tag, "criminal_activity"))
             {
                 string targetId = SelectTownCrimeTargetId(owned.Where(x => x.IsTown && x.Town != null)
@@ -1011,10 +1089,13 @@ namespace ReignBeta.Government.Campaign
 
         private sealed class SpeakerStatementRequest
         {
-            internal string MeetingId;
+            internal ReignGovernmentMeetingRecord Meeting;
             internal Kingdom Kingdom;
-            internal ReignGovernmentPartyRecord Party;
-            internal List<ReignGovernmentResolutionRecord> Resolutions;
+            internal string PartyId;
+            internal string SpeakerId;
+            internal JArray Rows;
+            internal bool HostRendered;
+            internal ReignServerClient.RequestFence Fence;
         }
     }
 }

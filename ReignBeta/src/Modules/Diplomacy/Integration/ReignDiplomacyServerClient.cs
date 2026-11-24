@@ -136,8 +136,8 @@ namespace ReignBeta.Diplomacy.Integration
             }
         }
 
-        public static async Task<ReignDiplomacyEvaluationResult>
-            EvaluatePoliticalPressureAsync()
+        internal static async Task<ReignDiplomacyEvaluationResult>
+            EvaluatePoliticalPressureAsync(string generation, Func<bool> ownsProducer)
         {
             try
             {
@@ -152,9 +152,11 @@ namespace ReignBeta.Diplomacy.Integration
                     };
                 }
 
-                JObject response = await PostJsonAsync(
-                    "/political-pressure/evaluate",
-                    BuildDiplomacyWorldSnapshot()).ConfigureAwait(false);
+                ReignRequestOwnership.Ensure(ownsProducer, "political pressure snapshot");
+                JObject snapshot = BuildDiplomacyWorldSnapshot();
+                snapshot["sharedActivityGeneration"] = generation;
+                JObject response = await PostOwnedJsonAsync("/political-pressure/evaluate", snapshot, ownsProducer)
+                    .ConfigureAwait(false);
                 return new ReignDiplomacyEvaluationResult
                 {
                     Ok = response.Value<bool?>("ok") == true,

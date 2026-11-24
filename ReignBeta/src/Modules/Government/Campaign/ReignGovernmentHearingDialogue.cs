@@ -53,7 +53,7 @@ namespace ReignBeta.Government.Campaign
             {
                 ["businessId"] = b.BusinessId, ["title"] = b.Title, ["summary"] = b.Summary,
                 ["options"] = GetPublicBusinessOptions(b),
-                ["rulerRecommendation"] = b.RecommendedOptionId, ["stage"] = b.Status,
+                ["rulerRecommendation"] = PublicBusinessRecommendation(b), ["stage"] = b.Status,
                 ["expiresDay"] = b.DecisionDay, ["decisionDate"] = FormatGovernmentDate(b.DecisionDay)
             }));
             var obligations = new JArray(_resolutions.Where(x => cases.Any(b => Same(b.KingdomStringId, x.KingdomStringId))
@@ -161,7 +161,7 @@ namespace ReignBeta.Government.Campaign
                 || accepted.Value<string>("method") != method || (accepted.Value<int?>("gold") ?? 0) != gold
                 || (accepted.Value<string>("obligationId") ?? "") != (obligationId ?? "")) return false;
             var business = _business.FirstOrDefault(x => Same(x.BusinessId, businessId));
-            if (!BusinessOptions(business).Any(x => x.Value<string>("id") == optionId)) return false;
+            if (!CanSelectBusinessOption(business, optionId)) { result = "That exact voting option is unavailable."; return false; }
             if (method != "persuasion" && method != "bribe" && method != "deal") { result = "Unknown agreement terms."; return false; }
             if (method == "bribe" && (gold <= 0 || ruler.Gold < gold)) { result = "The agreed payment is unavailable."; return false; }
             if (method != "bribe" && gold != 0) { result = "Only an explicitly agreed bribe may transfer gold."; return false; }
@@ -235,7 +235,7 @@ namespace ReignBeta.Government.Campaign
                 ["institutionName"] = GetGovernment(business.KingdomStringId)?.InstitutionName ?? "Government", ["authorityLevel"] = GetGovernment(business.KingdomStringId)?.Level ?? 1,
                 ["title"] = business.Title, ["summary"] = business.Summary, ["options"] = GetPublicBusinessOptions(business),
                 ["playerOffice"] = FindKingdom(business.KingdomStringId)?.Leader == Hero.MainHero ? "ruler" : GovernmentOfficeTitle(Hero.MainHero.StringId),
-                ["recommendation"] = business.RecommendedOptionId, ["playerMessage"] = boundedMessage,
+                ["recommendation"] = PublicBusinessRecommendation(business), ["playerMessage"] = boundedMessage,
                 ["transcript"] = new JArray(transcript.Skip(Math.Max(0, transcript.Count - 12))),
                 ["speakers"] = new JArray(speakerIds.Select(id => new JObject { ["heroId"] = id, ["name"] = FindHero(id).Name.ToString(),
                     ["profile"] = ReignGovernmentPoliticalClient.BuildGovernmentPoliticalHero(FindHero(id)),

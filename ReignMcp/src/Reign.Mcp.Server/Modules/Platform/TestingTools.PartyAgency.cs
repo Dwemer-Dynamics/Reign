@@ -38,10 +38,11 @@ public static partial class TestingTools
 
     [McpServerTool(Name = "reign_prepare_party_agency_test", ReadOnly = false,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Binds Party Agency certification to an existing guarded campaign-test enrollment and immutable build, provider, catalog, and Bannerlord fingerprints. Preparation never starts Bannerlord or mutates the campaign.")]
+    [Description("Prepares Party Agency certification for a guarded campaign-test enrollment. Optionally pins the currently reviewed build artifacts to a new run. Preparation never starts Bannerlord or mutates the campaign.")]
     public static IReadOnlyDictionary<string, object?> PreparePartyAgencyTest(
         ReignMcpOptions options,
         CampaignTestService campaignTests,
+        ReignValidationService validation,
         string campaignId,
         string campaignTestRunId,
         string runId,
@@ -50,7 +51,9 @@ public static partial class TestingTools
         string serverBuild,
         string providerConfigurationFingerprint,
         string catalogFingerprint,
-        string bannerlordVersion = "v1.4.8")
+        string bannerlordVersion = "v1.4.8",
+        [Description("For a new run only, verify and pin both original approved build reports and their managed artifacts. This does not inspect the installation or prove execution.")]
+        bool captureApprovedArtifacts = false)
     {
         campaignId = RequiredPartyAgencyIdentifier(campaignId, nameof(campaignId));
         campaignTestRunId = RequiredPartyAgencyIdentifier(campaignTestRunId, nameof(campaignTestRunId));
@@ -84,14 +87,43 @@ public static partial class TestingTools
         {
             PartyAgencyCertificationState? existing = TryReadPartyAgencyState(options, runId);
             if (existing is not null)
+                return ReadPreparedPartyAgencyRun(existing, requested, manifest, captureApprovedArtifacts);
+        }
+        if (captureApprovedArtifacts)
+            requested = requested with
             {
-                if (!PartyAgencyImmutableInputsMatch(existing, requested))
-                    throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
-                return PartyAgencyStateEnvelope(existing, "already_prepared", manifest);
+                ApprovedArtifactWitness = PartyAgencyApprovedArtifacts.Capture(
+                    options, validation, runId, campaignId, campaignTestRunId)
+            };
+
+        lock (PartyAgencyStateGate)
+        {
+            PartyAgencyCertificationState? existing = TryReadPartyAgencyState(options, runId);
+            if (existing is not null)
+                return ReadPreparedPartyAgencyRun(existing, requested, manifest, captureApprovedArtifacts);
+            try
+            {
+                WritePartyAgencyState(options, requested, overwrite: false);
             }
-            WritePartyAgencyState(options, requested);
+            catch (IOException) when (File.Exists(PartyAgencyStatePath(options, runId)))
+            {
+                return ReadPreparedPartyAgencyRun(ReadPartyAgencyState(options, runId),
+                    requested, manifest, captureApprovedArtifacts);
+            }
         }
         return PartyAgencyStateEnvelope(requested, "prepared", manifest);
+    }
+
+    private static IReadOnlyDictionary<string, object?> ReadPreparedPartyAgencyRun(
+        PartyAgencyCertificationState existing, PartyAgencyCertificationState requested,
+        JsonElement manifest, bool captureApprovedArtifacts)
+    {
+        if (!PartyAgencyImmutableInputsMatch(existing, requested))
+            throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
+        if (captureApprovedArtifacts && existing.ApprovedArtifactWitness?.BelongsTo(
+                existing.RunId, existing.CampaignId, existing.CampaignTestRunId) != true)
+            throw new InvalidOperationException("This run was prepared without an approved artifact witness. Capture one when preparing a new run.");
+        return PartyAgencyStateEnvelope(existing, "already_prepared", manifest);
     }
 
     [McpServerTool(Name = "reign_carry_forward_party_agency_passes", ReadOnly = false,
@@ -368,6 +400,9 @@ public static partial class TestingTools
                 ? OptionalPartyAgencyToken(parts[1], nameof(caseInstances)) : string.Empty;
             JsonElement testCase = FindPartyAgencyCase(manifest, caseId);
             ValidatePartyAgencyVariant(testCase, variant);
+            if (caseId.Equals("PA-NATIVE-017", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "Party Agency save/reload requires a checkpoint bound to a stage in this certification run.");
             PartyAgencyExecution[] related = source.Executions.Where(item =>
                     string.Equals(item.CaseId, caseId, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(item.Variant, variant, StringComparison.OrdinalIgnoreCase))
@@ -389,26 +424,10 @@ public static partial class TestingTools
                 && string.Equals(FindPartyAgencyString(report.Data.Value, "status"),
                     "completed", StringComparison.OrdinalIgnoreCase);
             string[] requiredTurns = PartyAgencyAllRequiredTurns(manifest, testCase, variant);
-            bool splitSaveRoundtripEvidence = caseId.Equals("PA-NATIVE-017",
-                StringComparison.OrdinalIgnoreCase);
-            var transcriptReports = new List<ApiEnvelope> { report };
-            if (splitSaveRoundtripEvidence)
-                foreach (PartyAgencyExecution relatedExecution in related)
-                {
-                    if (string.Equals(relatedExecution.LiveRunId, execution.LiveRunId,
-                            StringComparison.OrdinalIgnoreCase)) continue;
-                    transcriptReports.Add(await api.GetAsync("/tests/live/run/report",
-                        new Dictionary<string, string?>
-                        {
-                            ["campaignId"] = source.CampaignId,
-                            ["runId"] = relatedExecution.LiveRunId
-                        }, cancellationToken).ConfigureAwait(false));
-                }
-            bool transcriptComplete = requiredTurns.All(turn => transcriptReports.Any(
-                candidate => candidate.Data.HasValue && ContainsPartyAgencyTranscriptTurn(
-                    candidate.Data.Value, turn)));
-            bool noDirectBypass = transcriptReports.All(candidate => !candidate.Data.HasValue
-                || !ContainsPartyAgencyDirectActionOperation(candidate.Data.Value));
+            bool transcriptComplete = requiredTurns.All(turn => report.Data.HasValue
+                && ContainsPartyAgencyTranscriptTurn(report.Data.Value, turn));
+            bool noDirectBypass = report.Data.HasValue
+                && !ContainsPartyAgencyDirectActionOperation(report.Data.Value);
             if (!completed || !transcriptComplete || !noDirectBypass)
                 throw new InvalidOperationException("The durable source report for " + instance
                     + " does not pass the current manifest and bypass checks.");
@@ -742,6 +761,165 @@ public static partial class TestingTools
         };
     }
 
+    [McpServerTool(Name = "reign_checkpoint_party_agency_save_roundtrip", ReadOnly = false,
+        Destructive = true, Idempotent = false, UseStructuredContent = true)]
+    [Description("Saves the enrolled disposable Current checkpoint after verifying one exact completed Party Agency native stage. The game rechecks the staged agreement before saving.")]
+    public static async Task<IReadOnlyDictionary<string, object?>> CheckpointPartyAgencySaveRoundtrip(
+        ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
+        string campaignId, string campaignTestRunId, string runId, string variant, string stageLiveRunId,
+        [Description("Exact text required: save Reign campaign-test checkpoint")] string confirmation = "",
+        int saveTimeoutSeconds = 420, int catchUpTimeoutSeconds = 900,
+        CancellationToken cancellationToken = default)
+    {
+        if (!options.AllowVerificationControl)
+            throw new InvalidOperationException("Verification control is disabled.");
+        InputGuard.RequireConfirmation(confirmation, "save Reign campaign-test checkpoint");
+        campaignId = RequiredPartyAgencyIdentifier(campaignId, nameof(campaignId));
+        campaignTestRunId = RequiredPartyAgencyIdentifier(campaignTestRunId, nameof(campaignTestRunId));
+        runId = RequiredPartyAgencyIdentifier(runId, nameof(runId));
+        stageLiveRunId = RequiredPartyAgencyIdentifier(stageLiveRunId, nameof(stageLiveRunId));
+        variant = OptionalPartyAgencyToken(variant, nameof(variant));
+        const string caseId = "PA-NATIVE-017";
+        PartyAgencyCertificationState state = ReadPartyAgencyState(options, runId);
+        ValidatePartyAgencyVariant(FindPartyAgencyCase(LoadPartyAgencyManifest(options), caseId), variant);
+        if (state.CampaignId != campaignId || state.CampaignTestRunId != campaignTestRunId
+            || state.Executions.Count(item => item.StartAccepted && item.NaturalLanguage
+                && item.LiveRunId == stageLiveRunId && item.CaseId == caseId
+                && string.Equals(item.Variant, variant, StringComparison.OrdinalIgnoreCase)) != 1)
+            throw new InvalidOperationException("The supplied live run is not the selected stage in this enrolled Party Agency case.");
+
+        ApiEnvelope observed = await ReadPartyAgencyLiveReport(api, campaignId, stageLiveRunId,
+            cancellationToken).ConfigureAwait(false);
+        PartyAgencyCheckpointStage? stage = observed.Ok && observed.Data.HasValue
+            ? ReadPartyAgencyCheckpointStage(observed.Data.Value, campaignId, campaignTestRunId, runId,
+                stageLiveRunId, variant, state.DisposableSaveName)
+            : null;
+        if (stage == null)
+            throw new InvalidOperationException("The selected command has no verified native stage result.");
+
+        return await campaignTests.CheckpointPartyAgencyPhaseAsync(campaignTestRunId, campaignId, confirmation,
+            stage, saveTimeoutSeconds, catchUpTimeoutSeconds, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static Task<ApiEnvelope> ReadPartyAgencyLiveReport(ReignApiClient api, string campaignId,
+        string liveRunId, CancellationToken cancellationToken) =>
+        api.GetAsync("/tests/live/run/report", new Dictionary<string, string?>
+        {
+            ["campaignId"] = campaignId, ["runId"] = liveRunId
+        }, cancellationToken);
+
+    internal static PartyAgencyCheckpointStage? ReadPartyAgencyCheckpointStage(JsonElement report,
+        string campaignId, string campaignTestRunId, string certificationRunId, string liveRunId,
+        string variant, string expectedSave)
+    {
+        const string caseId = "PA-NATIVE-017";
+        const string operation = "party_agency_stage_save_phase";
+        if (!PartyAgencySaveReportScopeMatches(report, campaignId, campaignTestRunId, certificationRunId,
+            liveRunId, expectedSave))
+            return null;
+        string gameInstanceId = PartyAgencySaveText(report, "gameInstanceId");
+        JsonElement command = ReadPartyAgencySaveCommand(report, operation);
+        string commandId = PartyAgencySaveText(command, "commandId");
+        JsonElement execution = ReadPartyAgencyIssuedExecution(command, campaignId, liveRunId, gameInstanceId);
+        string executionLeaseId = PartyAgencySaveText(execution, "leaseId");
+        if (!TryPartyAgencySaveInteger(execution, "executionRetryGeneration", out int retryGeneration)
+            || PartyAgencySaveText(command, "caseId") != caseId
+            || !string.Equals(PartyAgencySaveText(command, "variant"), variant, StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(commandId) || string.IsNullOrWhiteSpace(executionLeaseId))
+            return null;
+
+        JsonElement result = PartyAgencySaveProperty(command, "result");
+        string receiptId = PartyAgencySaveText(result, "receiptId");
+        if (PartyAgencySaveProperty(result, "ok").ValueKind != JsonValueKind.False
+            || PartyAgencySaveProperty(result, "saveRoundtripStageReady").ValueKind != JsonValueKind.True
+            || PartyAgencySaveText(result, "operation") != operation
+            || PartyAgencySaveText(result, "caseId") != caseId
+            || !string.Equals(PartyAgencySaveText(result, "variant"), variant, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(PartyAgencySaveText(result, "activeSaveName"), expectedSave, StringComparison.OrdinalIgnoreCase)
+            || PartyAgencySaveText(result, "stagedLiveRunId") != liveRunId
+            || PartyAgencySaveText(result, "stagedCommandId") != commandId
+            || PartyAgencySaveText(result, "stagedGameInstanceId") != gameInstanceId
+            || PartyAgencySaveText(result, "stagedExecutionLeaseId") != executionLeaseId
+            || !TryPartyAgencySaveInteger(result, "stagedRetryGeneration", out int stagedGeneration)
+            || stagedGeneration != retryGeneration
+            || !receiptId.StartsWith("party_agency_save_stage_", StringComparison.Ordinal)
+            || !Guid.TryParseExact(receiptId["party_agency_save_stage_".Length..], "N", out _))
+            return null;
+
+        JsonElement source = PartyAgencySaveProperty(result, "stagedAgreement");
+        string agreementId = PartyAgencySaveText(source, "agreementId");
+        string heroId = PartyAgencySaveText(source, "heroId");
+        string phase = PartyAgencySaveText(source, "phase");
+        if (string.IsNullOrWhiteSpace(agreementId) || string.IsNullOrWhiteSpace(heroId)
+            || !string.Equals(phase, variant, StringComparison.OrdinalIgnoreCase)
+            || !TryPartyAgencySaveInteger(source, "agreementRevision", out int revision)
+            || new[] { "originalClanId", "originalKingdomId", "sourcePartyId" }.Any(name =>
+                PartyAgencySaveProperty(source, name).ValueKind != JsonValueKind.String))
+            return null;
+        var agreement = new PartyAgencyCheckpointAgreement(agreementId, revision, heroId,
+            PartyAgencySaveText(source, "originalClanId"), PartyAgencySaveText(source, "originalKingdomId"),
+            PartyAgencySaveText(source, "sourcePartyId"), phase);
+        return new PartyAgencyCheckpointStage(certificationRunId, caseId, variant, liveRunId, commandId,
+            receiptId, gameInstanceId, executionLeaseId, retryGeneration, agreement);
+    }
+
+    private static bool PartyAgencySaveReportScopeMatches(JsonElement report, string campaignId,
+        string campaignTestRunId, string certificationRunId, string liveRunId, string expectedSave)
+    {
+        JsonElement enrollment = PartyAgencySaveProperty(report, "enrollment");
+        return PartyAgencySaveText(report, "mode") == "party_agency"
+            && PartyAgencySaveText(report, "campaignId") == campaignId
+            && PartyAgencySaveText(report, "runId") == liveRunId
+            && PartyAgencySaveText(report, "gameInstanceId").Length > 0
+            && PartyAgencySaveText(enrollment, "campaignId") == campaignId
+            && PartyAgencySaveText(enrollment, "campaignTestRunId") == campaignTestRunId
+            && PartyAgencySaveText(enrollment, "certificationRunId") == certificationRunId
+            && string.Equals(PartyAgencySaveText(enrollment, "disposableSaveName"), expectedSave,
+                StringComparison.OrdinalIgnoreCase)
+            && TryPartyAgencySaveInteger(report, "executionObservationVersion", out int schema) && schema == 1;
+    }
+
+    private static JsonElement ReadPartyAgencySaveCommand(JsonElement report, string operation)
+    {
+        JsonElement commands = PartyAgencySaveProperty(report, "commands");
+        if (commands.ValueKind != JsonValueKind.Array) return default;
+        JsonElement[] rows = commands.EnumerateArray()
+            .Where(row => PartyAgencySaveText(row, "operation") == operation).Take(2).ToArray();
+        return rows.Length == 1 && PartyAgencySaveText(rows[0], "status") == "completed" ? rows[0] : default;
+    }
+
+    private static JsonElement ReadPartyAgencyIssuedExecution(JsonElement command, string campaignId,
+        string liveRunId, string gameInstanceId)
+    {
+        JsonElement evidence = PartyAgencySaveProperty(command, "executionEvidence");
+        JsonElement issued = PartyAgencySaveProperty(evidence, "executionObservation");
+        string commandId = PartyAgencySaveText(command, "commandId");
+        return commandId.Length > 0 && PartyAgencySaveText(evidence, "status") == "pending_artifact_review"
+            && PartyAgencySaveText(issued, "commandId") == commandId
+            && PartyAgencySaveText(issued, "campaignId") == campaignId
+            && PartyAgencySaveText(issued, "runId") == liveRunId
+            && PartyAgencySaveText(issued, "gameInstanceId") == gameInstanceId
+            && PartyAgencySaveText(issued, "leaseId").Length > 0
+            && TryPartyAgencySaveInteger(issued, "executionRetryGeneration", out int originalGeneration)
+            && TryPartyAgencySaveInteger(command, "executionRetryGeneration", out int currentGeneration,
+                missingIsZero: true) && originalGeneration == currentGeneration ? issued : default;
+    }
+
+    private static JsonElement PartyAgencySaveProperty(JsonElement value, string name) =>
+        value.ValueKind == JsonValueKind.Object && value.TryGetProperty(name, out JsonElement item) ? item : default;
+
+    private static string PartyAgencySaveText(JsonElement value, string name) =>
+        CampaignTestCheckpointOwnership.Text(value, name);
+
+    private static bool TryPartyAgencySaveInteger(JsonElement value, string name, out int number,
+        bool missingIsZero = false)
+    {
+        number = 0;
+        JsonElement property = PartyAgencySaveProperty(value, name);
+        return (property.ValueKind == JsonValueKind.Number && property.TryGetInt32(out number) && number >= 0)
+            || (missingIsZero && property.ValueKind == JsonValueKind.Undefined);
+    }
+
     [McpServerTool(Name = "reign_verify_party_agency_save_roundtrip", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
     [Description("Verifies one staged Temporary Noble Party Guest lifecycle phase after the guarded campaign-test service has checkpointed and restarted the exact disposable Current save.")]
@@ -774,7 +952,13 @@ public static partial class TestingTools
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The Party Agency reload verification does not match its prepared enrollment.");
-        campaignTests.RequireRestartReceipt(campaignTestRunId, campaignId, restartReceipt);
+        var (checkpoint, expectedRestartGameInstanceId) = campaignTests.RequirePartyAgencyRestartProof(
+            campaignTestRunId, campaignId, restartReceipt);
+        PartyAgencyCheckpointStage stage = checkpoint.Attempt.PartyAgencyStage
+            ?? throw new InvalidOperationException("The checkpoint has no verified Party Agency stage.");
+        if (stage.CertificationRunId != runId || stage.CaseId != "PA-NATIVE-017"
+            || !string.Equals(stage.Variant, variant, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The checkpoint belongs to a different Party Agency case or phase.");
         CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
             campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
         JsonElement manifest = LoadPartyAgencyManifest(options);
@@ -789,7 +973,8 @@ public static partial class TestingTools
                 caseId = "PA-NATIVE-017", variant,
                 expectedSaveName = authorization.CurrentSaveName,
                 confirmDisposableCampaign = true,
-                restartVerified = true, restartReceipt, timeoutSeconds = 300
+                restartVerified = true, restartReceipt, expectedRestartGameInstanceId,
+                partyAgencyStage = stage, timeoutSeconds = 300
             },
             PartyAgencySnapshotStep("save_roundtrip", "PA-NATIVE-017", variant,
                 "@party_agency_fixture", "after", testCase.GetProperty("expected"), restartReceipt)
@@ -821,7 +1006,9 @@ public static partial class TestingTools
                 CaseId = "PA-NATIVE-017", Variant = variant,
                 Profile = "save_roundtrip", LiveRunId = liveRunId,
                 NaturalLanguage = false, StartAccepted = liveRun.Ok,
-                StartedUtc = DateTime.UtcNow.ToString("O")
+                StartedUtc = DateTime.UtcNow.ToString("O"),
+                SaveStage = stage, ReloadedGameInstanceId = expectedRestartGameInstanceId,
+                RestartReceipt = restartReceipt
             });
             WritePartyAgencyState(options, state);
         }
@@ -836,9 +1023,87 @@ public static partial class TestingTools
         };
     }
 
+    internal static IReadOnlyDictionary<string, object?> ProjectPartyAgencyOriginalModuleDiagnostics(
+        PartyAgencyCertificationState state, string liveRunId, JsonElement report)
+    {
+        var rows = new List<Dictionary<string, object?>>();
+        var diagnostic = new Dictionary<string, object?>
+        {
+            ["schema"] = "reign-party-agency-original-lease-module-diagnostics-v1",
+            ["status"] = "no_approved_build_witness",
+            ["commands"] = rows
+        };
+        var witness = state.ApprovedArtifactWitness;
+        if (witness?.BelongsTo(state.RunId, state.CampaignId, state.CampaignTestRunId) != true)
+            return diagnostic;
+
+        diagnostic["status"] = "report_scope_unavailable";
+        if (!PartyAgencySaveReportScopeMatches(report, state.CampaignId, state.CampaignTestRunId,
+                state.RunId, liveRunId, state.DisposableSaveName))
+            return diagnostic;
+
+        JsonElement commands = PartyAgencySaveProperty(report, "commands");
+        if (commands.ValueKind != JsonValueKind.Array) return diagnostic;
+        if (commands.GetArrayLength() > 128)
+        {
+            diagnostic["status"] = "report_command_limit_exceeded";
+            return diagnostic;
+        }
+
+        string gameInstance = PartyAgencySaveText(report, "gameInstanceId");
+        var uniqueCommands = commands.EnumerateArray()
+            .GroupBy(command => PartyAgencySaveText(command, "commandId"), StringComparer.Ordinal)
+            .Where(group => group.Key.Length is > 0 and <= 160 && group.Count() == 1)
+            .Select(group => group.Single());
+        foreach (JsonElement command in uniqueCommands)
+        {
+            if (PartyAgencySaveText(command, "status") != "completed"
+                || PartyAgencySaveText(command, "operation") != "send"
+                || PartyAgencySaveText(command, "mode") is not ("individual_chat" or "party_chat"))
+                continue;
+            JsonElement original = ReadPartyAgencyIssuedExecution(command, state.CampaignId, liveRunId, gameInstance);
+            JsonElement evidence = PartyAgencySaveProperty(command, "executionEvidence");
+            JsonElement ack = PartyAgencySaveProperty(command, "partyAgencyAcceptedSendExecution");
+            string lease = PartyAgencySaveText(original, "leaseId");
+            string transport = PartyAgencySaveText(evidence, "transportLeaseId");
+            string clientProcess = PartyAgencySaveText(original, "clientProcessInstanceId");
+            string serverProcess = PartyAgencySaveText(original, "serverProcessInstanceId");
+            if (!Guid.TryParseExact(lease, "N", out _) || !Guid.TryParseExact(transport, "N", out _)
+                || !Guid.TryParseExact(clientProcess, "N", out _) || !Guid.TryParseExact(serverProcess, "N", out _)
+                || PartyAgencySaveText(command, "leaseId") != transport
+                || PartyAgencySaveText(ack, "leaseId") != lease
+                || PartyAgencySaveText(ack, "clientProcessInstanceId") != clientProcess
+                || !TryPartyAgencySaveInteger(ack, "retryGeneration", out int acceptedRetry)
+                || !TryPartyAgencySaveInteger(original, "executionRetryGeneration", out int originalRetry)
+                || acceptedRetry != originalRetry)
+                continue;
+
+            JsonElement modules = PartyAgencySaveProperty(original, "clientModuleIds");
+            rows.Add(new Dictionary<string, object?>
+            {
+                ["commandId"] = PartyAgencySaveText(command, "commandId"),
+                ["originalLeaseId"] = lease,
+                ["retryGeneration"] = originalRetry,
+                ["reignBetaMvid"] = Compare(PartyAgencySaveText(modules, "ReignBeta"), witness.Client.Mvid),
+                ["reignServerMvid"] = Compare(PartyAgencySaveText(original, "serverModuleId"), witness.Server.Mvid),
+                ["licensedMvidsObserved"] = Observed(PartyAgencySaveText(modules, "TaleWorlds.CampaignSystem"), out _)
+                    && Observed(PartyAgencySaveText(modules, "TaleWorlds.Core"), out _)
+            });
+        }
+
+        diagnostic["status"] = rows.Count == 0 ? "no_bound_completed_send_observation" : "observed_metadata_only";
+        return diagnostic;
+
+        static string Compare(string input, Guid approved) =>
+            !Observed(input, out Guid observed) ? "unavailable" : observed == approved ? "matches" : "differs";
+
+        static bool Observed(string input, out Guid module) =>
+            Guid.TryParseExact(input, "D", out module) && module != Guid.Empty;
+    }
+
     [McpServerTool(Name = "reign_evaluate_party_agency_release_readiness", ReadOnly = true,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Evaluates Party Agency release readiness from the prepared final fingerprints and durable live-run reports. Every required case variant, natural-language transcript, native assertion, and save-isolation gate must be complete and green.")]
+    [Description("Evaluates Party Agency evidence from the prepared run and its durable live-run reports. An approved build artifact witness is required before native certification readiness. Installation and loaded identity remain a separate release gate.")]
     public static async Task<IReadOnlyDictionary<string, object?>> EvaluatePartyAgencyReleaseReadiness(
         ReignApiClient api,
         ReignMcpOptions options,
@@ -881,32 +1146,21 @@ public static partial class TestingTools
             JsonElement testCase = FindPartyAgencyCase(manifest, execution.CaseId);
             string[] requiredTurns = PartyAgencyAllRequiredTurns(manifest, testCase,
                 execution.Variant);
-            var transcriptReports = new List<JsonElement>();
-            if (report.Data.HasValue) transcriptReports.Add(report.Data.Value);
-            if (execution.CaseId.Equals("PA-NATIVE-017", StringComparison.OrdinalIgnoreCase)
-                && completed)
+            bool nativeRoundtrip = execution.CaseId.Equals("PA-NATIVE-017", StringComparison.OrdinalIgnoreCase);
+            bool noDirectBypass = report.Data.HasValue
+                && !ContainsPartyAgencyDirectActionOperation(report.Data.Value);
+            bool transcriptComplete;
+            if (nativeRoundtrip)
             {
-                foreach (PartyAgencyExecution stage in state.Executions.Where(item =>
-                    item != execution
-                    && item.CaseId.Equals(execution.CaseId, StringComparison.OrdinalIgnoreCase)
-                    && item.Variant.Equals(execution.Variant, StringComparison.OrdinalIgnoreCase)
-                    && item.NaturalLanguage))
-                {
-                    ApiEnvelope stageReport = await api.GetAsync("/tests/live/run/report",
-                        new Dictionary<string, string?>
-                        {
-                            ["campaignId"] = campaignId,
-                            ["runId"] = stage.LiveRunId
-                        }, cancellationToken).ConfigureAwait(false);
-                    if (stageReport.Data.HasValue)
-                        transcriptReports.Add(stageReport.Data.Value);
-                }
+                transcriptComplete = completed && report.Data.HasValue
+                    && await VerifyPartyAgencyBoundRoundtripAsync(api, state, execution, report.Data.Value,
+                        requiredTurns, cancellationToken).ConfigureAwait(false);
             }
-            bool transcriptComplete = requiredTurns.All(turn =>
-                transcriptReports.Any(reportElement =>
-                    ContainsPartyAgencyTranscriptTurn(reportElement, turn)));
-            bool noDirectBypass = !report.Data.HasValue
-                || !ContainsPartyAgencyDirectActionOperation(report.Data.Value);
+            else
+            {
+                transcriptComplete = requiredTurns.All(turn => report.Data.HasValue
+                    && ContainsPartyAgencyTranscriptTurn(report.Data.Value, turn));
+            }
             bool casePassed = completed && transcriptComplete && noDirectBypass;
             if (casePassed)
             {
@@ -921,6 +1175,8 @@ public static partial class TestingTools
                 ["naturalLanguageTranscriptComplete"] = transcriptComplete,
                 ["noDirectDialogueActionBypass"] = noDirectBypass,
                 ["passed"] = casePassed,
+                ["artifactIdentityDiagnostics"] = ProjectPartyAgencyOriginalModuleDiagnostics(
+                    state, execution.LiveRunId, report.Ok ? report.Data.GetValueOrDefault() : default),
                 ["report"] = report
             });
         }
@@ -942,7 +1198,11 @@ public static partial class TestingTools
             if (string.IsNullOrWhiteSpace(value) || value.Equals("unknown", StringComparison.OrdinalIgnoreCase))
                 blockers.Add("The " + label + " fingerprint is missing or unknown.");
 
-        if (blockers.Count == 0) passed.Add(finalInstance);
+        bool approvedArtifacts = state.ApprovedArtifactWitness?.BelongsTo(
+            state.RunId, state.CampaignId, state.CampaignTestRunId) == true;
+        if (!approvedArtifacts)
+            blockers.Add("The run has no pinned approved build artifact witness.");
+        blockers.Add("Installed and loaded artifact evidence has not been attested for this run.");
         string[] missing = state.RequiredInstances
             .Where(instance => !passed.Contains(instance)).ToArray();
         if (missing.Length > 0 && missingBeforeFinal.Length == 0)
@@ -957,7 +1217,9 @@ public static partial class TestingTools
         {
             ["ok"] = true,
             ["schema"] = "reign-party-agency-release-readiness-v1",
-            ["readyToDeployForNativeCertification"] = true,
+            ["readyToDeployForNativeCertification"] = approvedArtifacts,
+            ["approvedArtifactWitnessAvailable"] = approvedArtifacts,
+            ["installedAndLoadedArtifactsAttested"] = false,
             ["readyToRelease"] = ready,
             ["requiredInstanceCount"] = state.RequiredInstances.Count,
             ["passedInstanceCount"] = passed.Count,
@@ -973,6 +1235,59 @@ public static partial class TestingTools
             ["state"] = state
         };
     }
+
+    private static async Task<bool> VerifyPartyAgencyBoundRoundtripAsync(ReignApiClient api,
+        PartyAgencyCertificationState state, PartyAgencyExecution execution, JsonElement reload,
+        string[] requiredTurns, CancellationToken cancellationToken)
+    {
+        PartyAgencyCheckpointStage? stage = execution.SaveStage;
+        if (!execution.StartAccepted || execution.NaturalLanguage || stage == null
+            || string.IsNullOrWhiteSpace(execution.RestartReceipt)
+            || string.IsNullOrWhiteSpace(execution.ReloadedGameInstanceId)
+            || stage.GameInstanceId == execution.ReloadedGameInstanceId
+            || stage.CertificationRunId != state.RunId || stage.CaseId != execution.CaseId
+            || !string.Equals(stage.Variant, execution.Variant, StringComparison.OrdinalIgnoreCase)
+            || !PartyAgencySaveReportScopeMatches(reload, state.CampaignId, state.CampaignTestRunId,
+                state.RunId, execution.LiveRunId, state.DisposableSaveName)
+            || PartyAgencySaveText(reload, "status") != "completed"
+            || PartyAgencySaveText(reload, "gameInstanceId") != execution.ReloadedGameInstanceId)
+            return false;
+
+        JsonElement command = ReadPartyAgencySaveCommand(reload, "party_agency_verify_save_phase");
+        JsonElement observed = PartyAgencySaveProperty(command, "result");
+        if (ReadPartyAgencyIssuedExecution(command, state.CampaignId, execution.LiveRunId,
+                execution.ReloadedGameInstanceId).ValueKind != JsonValueKind.Object
+            || PartyAgencySaveProperty(observed, "ok").ValueKind != JsonValueKind.True
+            || PartyAgencySaveText(observed, "caseId") != stage.CaseId
+            || !string.Equals(PartyAgencySaveText(observed, "variant"), stage.Variant, StringComparison.OrdinalIgnoreCase)
+            || PartyAgencySaveText(observed, "restartReceipt") != execution.RestartReceipt
+            || PartyAgencySaveText(observed, "reloadedGameInstanceId") != execution.ReloadedGameInstanceId
+            || !MatchesPartyAgencySaveObject(PartyAgencySaveProperty(observed, "partyAgencyStage"), stage)
+            || !MatchesPartyAgencySaveObject(PartyAgencySaveProperty(observed, "reloadedAgreement"), stage.Agreement))
+            return false;
+
+        ApiEnvelope report = await ReadPartyAgencyLiveReport(api, state.CampaignId, stage.LiveRunId,
+            cancellationToken).ConfigureAwait(false);
+        if (!report.Ok || !report.Data.HasValue
+            || ReadPartyAgencyCheckpointStage(report.Data.Value, state.CampaignId, state.CampaignTestRunId,
+                state.RunId, stage.LiveRunId, stage.Variant, state.DisposableSaveName) != stage
+            || ContainsPartyAgencyDirectActionOperation(report.Data.Value))
+            return false;
+
+        JsonElement commands = PartyAgencySaveProperty(report.Data.Value, "commands");
+        return requiredTurns.All(turn => commands.EnumerateArray().Any(entry =>
+            PartyAgencySaveText(entry, "operation") == "send"
+            && PartyAgencySaveText(entry, "status") == "completed"
+            && ReadPartyAgencyIssuedExecution(entry, state.CampaignId, stage.LiveRunId,
+                stage.GameInstanceId).ValueKind == JsonValueKind.Object
+            && PartyAgencySaveProperty(PartyAgencySaveProperty(entry, "result"), "ok").ValueKind == JsonValueKind.True
+            && PartyAgencySaveText(PartyAgencySaveProperty(entry, "result"), "playerText")
+                .Contains(turn, StringComparison.Ordinal)));
+    }
+
+    private static bool MatchesPartyAgencySaveObject<T>(JsonElement observed, T expected) =>
+        observed.ValueKind == JsonValueKind.Object
+        && JsonElement.DeepEquals(observed, JsonSerializer.SerializeToElement(expected, PartyAgencyJson));
 
     private static object PartyAgencySnapshotStep(string profile, string caseId,
         string variant, string targetSearch, string phase, JsonElement expected,
@@ -1396,15 +1711,22 @@ public static partial class TestingTools
     }
 
     private static void WritePartyAgencyState(ReignMcpOptions options,
-        PartyAgencyCertificationState state)
+        PartyAgencyCertificationState state, bool overwrite = true)
     {
         state.UpdatedUtc = DateTime.UtcNow.ToString("O");
         string path = PartyAgencyStatePath(options, state.RunId);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        string temporary = path + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(state, PartyAgencyJson),
-            new UTF8Encoding(false));
-        File.Move(temporary, path, true);
+        string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, JsonSerializer.Serialize(state, PartyAgencyJson),
+                new UTF8Encoding(false));
+            File.Move(temporary, path, overwrite);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
     }
 
     private static bool PartyAgencyImmutableInputsMatch(PartyAgencyCertificationState left,
@@ -1504,6 +1826,7 @@ public sealed record PartyAgencyCertificationState
     public string BannerlordVersion { get; set; } = "";
     public string PreparedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";
+    public PartyAgencyApprovedArtifactWitness? ApprovedArtifactWitness { get; init; }
     public List<string> RequiredInstances { get; set; } = [];
     public List<PartyAgencyExecution> Executions { get; set; } = [];
     public List<PartyAgencyCarriedEvidence> CarriedEvidence { get; set; } = [];
@@ -1530,4 +1853,7 @@ public sealed record PartyAgencyExecution
     public bool NaturalLanguage { get; set; }
     public bool StartAccepted { get; set; }
     public string StartedUtc { get; set; } = "";
+    public PartyAgencyCheckpointStage? SaveStage { get; set; }
+    public string ReloadedGameInstanceId { get; set; } = "";
+    public string RestartReceipt { get; set; } = "";
 }

@@ -50,11 +50,48 @@ namespace ReignBeta.Government.Campaign
         internal static bool IsPrivateRelationProgress(ReignGovernmentResolutionAction action) =>
             action == ReignGovernmentResolutionAction.ImproveClanRelation || action == ReignGovernmentResolutionAction.ImproveForeignRelation;
 
-        public JArray GetPublicBusinessOptions(ReignGovernmentBusinessRecord record)
+        public JArray GetPublicBusinessOptions(ReignGovernmentBusinessRecord record) =>
+            RenderBusinessOptions(record, live: !ConstructionOptionsAreHistorical(record));
+
+        private bool IsConstructionBusiness(ReignGovernmentBusinessRecord record) =>
+            record?.Kind == "seasonal" && IsNamedConstruction(FindSeasonalResolutionForBusiness(record));
+
+        private static bool ConstructionOptionsAreHistorical(ReignGovernmentBusinessRecord record) =>
+            GovernmentBusinessRules.IsClosed(record.Status) || record.ExecutionApplied
+                || record.Status == "execution_failed" || !string.IsNullOrWhiteSpace(record.WinningOptionId);
+
+        private List<JObject> LiveBusinessOptions(ReignGovernmentBusinessRecord record) =>
+            IsConstructionBusiness(record) ? RenderBusinessOptions(record, live: true).OfType<JObject>().ToList()
+                : BusinessOptions(record);
+
+        private bool CanSelectBusinessOption(ReignGovernmentBusinessRecord record, string optionId) =>
+            record != null && !GovernmentBusinessRules.IsClosed(record.Status)
+                && (!IsConstructionBusiness(record) || !ConstructionOptionsAreHistorical(record))
+                && LiveBusinessOptions(record).Any(x => x.Value<string>("id") == optionId);
+
+        private string PublicBusinessRecommendation(ReignGovernmentBusinessRecord record) =>
+            !IsConstructionBusiness(record) || ConstructionOptionsAreHistorical(record)
+                || CanSelectBusinessOption(record, record.RecommendedOptionId) ? record.RecommendedOptionId : string.Empty;
+
+        private JArray RenderBusinessOptions(ReignGovernmentBusinessRecord record, bool live)
         {
             var options = JArray.Parse(record.OptionsJson ?? "[]");
             var resolution = record.Kind == "seasonal" ? FindSeasonalResolutionForBusiness(record) : null;
             var template = ReignGovernmentResolutionCatalog.Find(resolution?.TemplateId);
+            var namedConstruction = IsNamedConstruction(resolution);
+            if (namedConstruction && ConstructionOptionsAreHistorical(record)) return options;
+            var realm = live && namedConstruction ? FindKingdom(record.KingdomStringId) : null;
+            var project = realm != null ? FindLiveConstructionProject(realm, resolution) : null;
+            if (live && namedConstruction)
+            {
+                bool treasury = CanOfferConstructionTreasury(realm, resolution);
+                foreach (var option in options.OfType<JObject>().ToList())
+                {
+                    string id = option.Value<string>("id");
+                    if (id == "route:0" && project != null || id == "route:1" && treasury || id == "reject") continue;
+                    option.Remove();
+                }
+            }
             foreach (var option in options.OfType<JObject>())
             {
                 string id = option.Value<string>("id");
@@ -65,6 +102,14 @@ namespace ReignBeta.Government.Campaign
                     {
                         option["label"] = "Review the recorded remedy";
                         option["description"] = "The original remedy details are unavailable. Its completion must be verified.";
+                    }
+                    else if (namedConstruction && route.Action == ReignGovernmentResolutionAction.ChangeConstruction)
+                    {
+                        string projectName = ConstructionProjectLabel(resolution, project);
+                        option["label"] = projectName.Length > 0 ? "Prioritize " + projectName : route.Description;
+                        option["description"] = SeasonalTargetDescription(resolution, route.Action) + " "
+                            + "Make this the active construction project by " + route.DeadlineDays
+                            + " days after acceptance. The native change will be verified.";
                     }
                     else if (IsPrivateRelationProgress(route.Action))
                     {
@@ -170,7 +215,7 @@ namespace ReignBeta.Government.Campaign
             record.Title = GovernmentBusinessRules.PublicText(record.Title);
             record.Summary = record.Kind == "edict" ? PublicEdictDescription(record) : GovernmentBusinessRules.PublicText(record.Summary);
             record.Outcome = GovernmentBusinessRules.PublicText(record.Outcome);
-            record.OptionsJson = GetPublicBusinessOptions(record).ToString(Formatting.None);
+            record.OptionsJson = RenderBusinessOptions(record, live: false).ToString(Formatting.None);
         }
 
         private ReignGovernmentResolutionRecord FindUniqueSeasonalResolution(string resolutionId)
@@ -208,6 +253,7 @@ namespace ReignBeta.Government.Campaign
         }
         private bool ExecuteSeasonalBusiness(ReignGovernmentBusinessRecord record, string optionId, bool overridden, out string result)
         {
+            result = string.Empty;
             var resolution = FindSeasonalResolutionForBusiness(record);
             if (resolution == null)
             {
@@ -236,8 +282,19 @@ namespace ReignBeta.Government.Campaign
                 else
                 {
                     var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
-                    var route = optionId == "route:0" ? template?.FirstRoute : template?.SecondRoute;
-                    if (route != null && ResolutionRequiresDomesticSettlement(template.Id, route.Action)
+                    var route = optionId == "route:0" ? template?.FirstRoute : optionId == "route:1" ? template?.SecondRoute : null;
+                    if (route == null) { result = "The recorded remedy is unavailable."; return false; }
+                    if (route.Action == ReignGovernmentResolutionAction.ChangeConstruction
+                        && FindLiveConstructionProject(kingdom, resolution) == null)
+                    {
+                        result = ConstructionUnavailable + " The vote remains recorded. No payment or obligation was created.";
+                        resolution.Status = "invalidated";
+                        resolution.ResolvedDay = CurrentDay();
+                        resolution.Outcome = result;
+                        resolution.Revision++;
+                        return false;
+                    }
+                    if (ResolutionRequiresDomesticSettlement(template.Id, route.Action)
                         && InvalidateResolutionWithoutOwnedSettlement(kingdom, resolution))
                     {
                         result = "The recorded vote was not implemented because the named settlement is unavailable "
@@ -249,7 +306,7 @@ namespace ReignBeta.Government.Campaign
                     }
                     // This refusal occurs before AcceptResolution changes the obligation,
                     // transfers gold, or applies any fulfillment consequences.
-                    if (route != null && kingdom?.Leader != null && UsesImmediateGold(route.Action)
+                    if (kingdom?.Leader != null && UsesImmediateGold(route.Action)
                         && kingdom.Leader.Gold < route.Target)
                     {
                         result = "The recorded vote was not implemented because the ruler could not fund the required "

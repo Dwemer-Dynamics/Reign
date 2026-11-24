@@ -339,7 +339,7 @@ namespace ReignBeta.Government.Campaign
             reason = "Your current seat must be on the matter's frozen voting roll, and the vote must still be open.";
             var record = _business.FirstOrDefault(x => x.BusinessId == businessId);
             if (record == null || !GetParticipationAccess(record.KingdomStringId, voter, businessId).Ballot || voter.IsPrisoner
-                || !abstain && !BusinessOptions(record).Any(x => x.Value<string>("id") == optionId)) return false;
+                || !abstain && !CanSelectBusinessOption(record, optionId)) return false;
             bool present = GetBusinessAttendance(businessId).Any(x => x.HeroStringId == voter.StringId && x.Status == "present");
             if (!present && (Mission.Current != null || voter.PartyBelongedTo?.MapEvent != null || voter.PartyBelongedTo?.SiegeEvent != null))
             { reason = "Absentee instructions require normal communication outside combat, captivity and a siege."; return false; }

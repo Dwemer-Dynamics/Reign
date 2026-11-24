@@ -31,11 +31,16 @@ namespace ReignBeta.Platform.Integration
 {
     internal static class ReignLog { internal static void Info(string message) { } }
 
+    internal static class ReignMainThread
+    {
+        internal sealed class GameScope { internal bool Closed { get; set; } }
+    }
+
     internal static class ReignRequestOwnership
     {
-        internal static Task EnsureAsync(Func<bool> owner, string stage)
+        internal static Task EnsureAsync(Func<bool> owner, string stage, ReignMainThread.GameScope scope = null)
         {
-            if (owner != null && !owner()) throw new OperationCanceledException(stage);
+            if (scope?.Closed == true || (owner != null && !owner())) throw new OperationCanceledException(stage);
             return Task.CompletedTask;
         }
     }
@@ -292,6 +297,21 @@ public static class ReignClientTransportProbe
                         null, false, null, client));
                 wire.Expect();
                 Require(wire.Health.Count == 0, "abandoned request performed a handshake");
+            }
+        });
+
+        await Check("closed game scope sends no portrait request", async () =>
+        {
+            Configure(Alias, OtherBackend);
+            var closedScope = new ReignMainThread.GameScope { Closed = true };
+            using (var wire = new FakeWire(request => Reply(HttpStatusCode.OK, "{}")))
+            using (var client = Client(wire))
+            {
+                await Throws<OperationCanceledException>(() =>
+                    ReignHttpTransport.PostAsync("/portraits/generate", new JObject(), null,
+                        () => true, false, null, client, requestScope: closedScope));
+                wire.Expect();
+                Require(wire.Health.Count == 0, "closed game scope performed a handshake");
             }
         });
     }
