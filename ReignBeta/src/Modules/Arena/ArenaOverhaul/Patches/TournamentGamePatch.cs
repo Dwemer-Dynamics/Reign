@@ -63,7 +63,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 4;
             if (initializeNobleCountIndexNew == 0 || initializeNobleCountIndexOldStart == 0 || initializeNobleCountIndexOldEnd == 0 || numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(initializeNobleCountIndexNew), initializeNobleCountIndexNew),

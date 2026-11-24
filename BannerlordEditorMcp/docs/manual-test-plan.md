@@ -54,6 +54,15 @@ The installed Modding Kit can present a sequence of non-destructive `RGL WARNING
 9. Reinspect, move the test entity using the new revision, and confirm the transform.
 10. Reinspect, remove the test entity, and confirm ordinary entities are untouched.
 
+## Freshness of entity writes
+
+An armed status or scene inspection records the active disposable scene's entity hierarchy, identity, names, prefab names, tags and local/global frames. A new applied write checks them again on the editor tick. The snapshot accepts up to 4,096 entities, 64 tags per entity and 512 characters in an individual text field. An unavailable or oversized snapshot rejects a fresh applied write with `scene_freshness_unavailable`. Obtain a fresh revision after arming. Terrain, navmesh and internal component state are outside this entity check.
+
+1. On the disposable scene, inspect, then manually move, rotate, rename, retag or reparent a test entity. A fresh request with the earlier revision must return `stale_scene_revision` without applying an edit.
+2. Reinspect and repeat with a fresh key and the new revision. Confirm the requested edit applies once.
+3. Replace a test entity with one using the same name, tags and transform. Retry a fresh request with the pre-replacement revision and confirm it is stale. Retry an already-applied exact request and confirm it returns its original receipt without applying another edit.
+4. Run the ordinary read-only and dry-run checks. Dry runs still cannot mutate a scene.
+
 ## Failure tests
 
 - Attempt a write while disarmed: expect `writes_disarmed`.

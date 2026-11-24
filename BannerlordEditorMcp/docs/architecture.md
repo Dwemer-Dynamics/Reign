@@ -30,9 +30,9 @@ The pipe client runs on a background task. It parses JSON envelopes and enqueues
 
 ## Revisions
 
-The prototype revision is an editor-session GUID plus a monotonic counter incremented for bridge-applied writes. It prevents requests from an earlier editor session or earlier bridge write from applying.
+The scene revision combines the editor-session GUID and a counter. When the configured disposable scene is armed, status and inspection commands observe the entity hierarchy, identity, names, prefab names, tags, and local/global transforms. A fresh applied request rechecks that state on the editor tick. The counter advances after an observed change or a bridge-applied write.
 
-This prototype does **not** yet detect every manual in-memory editor change. A later capability should derive an on-demand scene fingerprint from relevant entities or an editor-provided dirty/revision signal if one is available.
+The observation covers up to 4,096 entities, 64 tags per entity and 512 characters per text field. A missing or incomplete observation blocks a new applied write. Exact replay retrieves the recorded receipt after the existing scope checks. Terrain, navmesh and internal component data require separate evidence.
 
 ## Scope
 

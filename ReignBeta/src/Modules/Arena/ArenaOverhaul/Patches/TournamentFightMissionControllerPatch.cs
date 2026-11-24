@@ -1,3 +1,4 @@
+using ArenaOverhaul.Helpers;
 ﻿using ArenaOverhaul.Tournament;
 
 using HarmonyLib;
@@ -35,7 +36,7 @@ namespace ArenaOverhaul.Patches
 
         [HarmonyTranspiler]
         [HarmonyPatch("Simulate")]
-        public static IEnumerable<CodeInstruction> SimulateTranspiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> SimulateTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
         {
             List<CodeInstruction> codes = new(instructions);
             int num = 0;
@@ -47,15 +48,15 @@ namespace ArenaOverhaul.Patches
                     aliveParticipant1LoadIndex = i;
                     ++num;
                 }
-                else if (num == 1 && codes[i].opcode == OpCodes.Ldarg_0 && codes[i - 1].opcode == OpCodes.Pop && codes[i - 2].Calls(miListRemove) && codes[i - 3].opcode == OpCodes.Ldloc_S)
+                else if (miUpdateNoticableTakedowns != null && num == 1 && codes[i].opcode == OpCodes.Ldarg_0 && codes[i - 1].opcode == OpCodes.Pop && codes[i - 2].Calls(miListRemove) && codes[i - 3].opcode == OpCodes.Ldloc_S)
                 {
                     codes.InsertRange(i, [new CodeInstruction(opcode: OpCodes.Ldloc_S, operand: codes[aliveParticipant1LoadIndex].operand),
                         new CodeInstruction(opcode: OpCodes.Ldloc_S, operand: codes[i - 3].operand),
                         new CodeInstruction(opcode: OpCodes.Call, operand: miUpdateNoticableTakedowns)]);
-                    break;
+                    return codes;
                 }
             }
-            return codes.AsEnumerable();
+            throw LoggingHelper.MissingRequiredHook(__originalMethod);
         }
     }
 }

@@ -55,9 +55,16 @@ namespace ReignBeta.Rebellion.Campaign
         private bool _judgmentInquiryOpen;
         private Dictionary<string, int> _nextRebellionWeekByRealm = new Dictionary<string, int>();
         private bool _weeklyEvaluationPending;
-        private bool _backingEvaluationPending;
+        private volatile bool _backingEvaluationPending;
         private readonly object _backingUpdatesLock = new object();
-        private List<JObject> _pendingBackingUpdates = new List<JObject>();
+        private readonly List<ForeignBackingBatch> _pendingBackingUpdates = new List<ForeignBackingBatch>();
+
+        private sealed class ForeignBackingBatch
+        {
+            internal Func<bool> OwnsRequest;
+            internal Dictionary<string, Func<ReignRebellionMovementRecord, bool>> OwnsMovement;
+            internal List<JObject> Updates;
+        }
 
         public static ReignRebellionCampaignBehavior Instance => ReignServices.Rebellion;
         public IReadOnlyList<ReignRebellionMovementRecord> Movements => _movements;
@@ -185,12 +192,28 @@ namespace ReignBeta.Rebellion.Campaign
         {
             try
             {
+                var fence = ReignServerClient.RequestFence.Capture();
+                bool OwnsRequest() => ReferenceEquals(Instance, this) && fence.IsCurrentActionPoll();
+                if (!OwnsRequest()) return;
+
+                var movements = _movements.ToList();
+                var owners = movements.Where(IsCivilWar)
+                    .Where(movement => !string.IsNullOrWhiteSpace(movement.MovementId))
+                    .GroupBy(movement => movement.MovementId, StringComparer.OrdinalIgnoreCase)
+                    .Where(group => group.Count() == 1)
+                    .ToDictionary(group => group.Key, group => CaptureBackingMovementOwner(group.Single()),
+                        StringComparer.OrdinalIgnoreCase);
                 ReignRebellionEvaluationResult result = await ReignRebellionServerClient.EvaluateRebellionsAsync(
-                    _movements.ToList(), _memberships.ToList()).ConfigureAwait(false);
+                    movements, _memberships.ToList(), fence.SharedActivityGeneration, OwnsRequest).ConfigureAwait(false);
                 if (result.Ok && result.Updates.Count > 0)
                 {
                     lock (_backingUpdatesLock)
-                        _pendingBackingUpdates.AddRange(result.Updates.Select(x => (JObject)x.DeepClone()));
+                        _pendingBackingUpdates.Add(new ForeignBackingBatch
+                        {
+                            OwnsRequest = OwnsRequest,
+                            OwnsMovement = owners,
+                            Updates = result.Updates.Select(update => (JObject)update.DeepClone()).ToList()
+                        });
                 }
             }
             catch (Exception ex)
@@ -203,26 +226,48 @@ namespace ReignBeta.Rebellion.Campaign
             }
         }
 
+        private static Func<ReignRebellionMovementRecord, bool> CaptureBackingMovementOwner(
+            ReignRebellionMovementRecord movement)
+        {
+            var preimage = BackingMovementState(movement);
+            return current => ReferenceEquals(current, movement) && BackingMovementState(current).Equals(preimage);
+        }
+
+        private static (string Stage, string Parent, string Rebel, string Leader, string Ruler, float WarStarted,
+            string Status, string Asked, string Sponsor, float RequestDay, string Action, string Reason)
+            BackingMovementState(ReignRebellionMovementRecord movement)
+            => (movement.Stage, movement.ParentKingdomStringId, movement.RebelKingdomStringId,
+                movement.LeaderHeroStringId, movement.OriginalRulerHeroStringId, movement.CivilWarStartedDay, movement.BackingStatus,
+                movement.BackingAskedKingdomStringId, movement.BackingSponsorKingdomStringId,
+                movement.BackingRequestDay, movement.BackingActionId, movement.BackingTerminalReason);
+
         private void DrainPendingBackingUpdates()
         {
-            List<JObject> updates;
+            List<ForeignBackingBatch> batches;
             lock (_backingUpdatesLock)
             {
-                updates = _pendingBackingUpdates.ToList();
+                batches = _pendingBackingUpdates.ToList();
                 _pendingBackingUpdates.Clear();
             }
-            foreach (JObject update in updates)
+            foreach (ForeignBackingBatch batch in batches)
             {
-                string movementId = update.Value<string>("movementId") ?? string.Empty;
-                ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => x != null && Same(x.MovementId, movementId));
-                if (movement == null || update["backingStatus"] == null) continue;
-                movement.BackingStatus = update.Value<string>("backingStatus") ?? movement.BackingStatus;
-                movement.BackingAskedKingdomStringId = update.Value<string>("backingAskedKingdomId") ?? string.Empty;
-                movement.BackingSponsorKingdomStringId = update.Value<string>("backingSponsorKingdomId") ?? string.Empty;
-                movement.BackingRequestDay = update.Value<float?>("backingRequestDay") ?? movement.BackingRequestDay;
-                movement.BackingActionId = update.Value<string>("backingActionId") ?? string.Empty;
-                movement.BackingTerminalReason = update.Value<string>("backingTerminalReason") ?? string.Empty;
-                movement.UpdatedDay = CurrentDay();
+                if (!batch.OwnsRequest()) continue;
+                foreach (JObject update in batch.Updates)
+                {
+                    string movementId = update.Value<string>("movementId") ?? string.Empty;
+                    if (update["backingStatus"] == null || !batch.OwnsMovement.TryGetValue(movementId, out var ownsMovement))
+                        continue;
+                    ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => x != null && Same(x.MovementId, movementId));
+                    if (!ownsMovement(movement)) continue;
+                    batch.OwnsMovement.Remove(movementId);
+                    movement.BackingStatus = update.Value<string>("backingStatus") ?? movement.BackingStatus;
+                    movement.BackingAskedKingdomStringId = update.Value<string>("backingAskedKingdomId") ?? string.Empty;
+                    movement.BackingSponsorKingdomStringId = update.Value<string>("backingSponsorKingdomId") ?? string.Empty;
+                    movement.BackingRequestDay = update.Value<float?>("backingRequestDay") ?? movement.BackingRequestDay;
+                    movement.BackingActionId = update.Value<string>("backingActionId") ?? string.Empty;
+                    movement.BackingTerminalReason = update.Value<string>("backingTerminalReason") ?? string.Empty;
+                    movement.UpdatedDay = CurrentDay();
+                }
             }
         }
 

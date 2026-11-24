@@ -2613,7 +2613,8 @@
     "readOnlyDefault": "A newly attached EditorBridgeController connects automatically with ReadOnly=true and SafeWritesArmed=false. Official scenes may be inspected only through a temporary unsaved controller and must be closed without saving.",
     "terrainEvidence": "scene_inspect_terrain returns exact node dimensions and node size, terrain size, scene bounds, global and per-node height ranges, and an optional bounded height sample tile up to 257 by 257. Zero-based tile offsets and complete logical-grid dimensions up to 4097 by 4097 keep overlapping reads on one exact sampling lattice.",
     "writeGate": "Writes require a disposable development scene, explicit ReadOnly=false and SafeWritesArmed=true, exact configured module and scene, current revision, and idempotency key. Official scenes remain read-only.",
-    "lifecycleProof": "Validate and deploy the bridge with the Modding Kit closed; launch visibly; prove read-only status, capabilities, entity inspection, terrain inspection, and close-without-save cleanup; then prove guarded create/move/remove and failure cases only in a disposable scene."
+    "entityFreshness": "Armed inspections and fresh applied writes observe a bounded current scene and entity identity, hierarchy, names, prefab names, tags and local/global frames. Incomplete observation blocks a new applied write. Exact receipt replay keeps the same scope and key checks. Terrain, navmesh and internal component state require separate evidence.",
+    "lifecycleProof": "Validate and deploy the bridge with the Modding Kit closed, then launch visibly. Prove read-only status, entity and terrain inspections, and close-without-save cleanup. On a disposable scene, prove create/move/remove plus stale transform, tag, hierarchy, replacement and exact receipt replay cases."
   },
   "familyChambers": {
     "entry": "ReignLiveTest ui-open --target family-chambers",

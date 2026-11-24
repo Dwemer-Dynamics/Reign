@@ -31,34 +31,35 @@ namespace ArenaOverhaul.Patches
 
         [HarmonyTranspiler]
         [HarmonyPatch("GetMaximumBet")]
-        public static IEnumerable<CodeInstruction> GetMaximumBetTranspiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> GetMaximumBetTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
         {
             List<CodeInstruction> codes = new(instructions);
             for (int i = 0; i < codes.Count; ++i)
             {
-                if (codes[i].LoadsConstant(150))
+                if (miGetMaximumBet != null && codes[i].LoadsConstant(150))
                 {
-                    codes[i] = new CodeInstruction(opcode: OpCodes.Call, operand: miGetMaximumBet);
-                    break;
+                    codes[i].opcode = OpCodes.Call;
+                    codes[i].operand = miGetMaximumBet;
+                    return codes;
                 }
             }
-            return codes.AsEnumerable();
+            throw LoggingHelper.MissingRequiredHook(__originalMethod);
         }
 
         [HarmonyTranspiler]
         [HarmonyPatch("CalculateBet")]
-        public static IEnumerable<CodeInstruction> CalculateBetTranspiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> CalculateBetTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
         {
             List<CodeInstruction> codes = new(instructions);
-            for (int i = 0; i < codes.Count; ++i)
+            for (int i = 1; i < codes.Count; ++i)
             {
-                if (codes[i].LoadsConstant(1.1f) && codes[i - 1].Calls(miMathFPow))
+                if (miGetBettingOddRandomFactor != null && codes[i].LoadsConstant(1.1f) && codes[i - 1].Calls(miMathFPow))
                 {
                     codes.InsertRange(i, [new CodeInstruction(opcode: OpCodes.Call, operand: miGetBettingOddRandomFactor), new CodeInstruction(OpCodes.Mul)]);
-                    break;
+                    return codes;
                 }
             }
-            return codes.AsEnumerable();
+            throw LoggingHelper.MissingRequiredHook(__originalMethod);
         }
 
         [HarmonyPostfix]
@@ -88,7 +89,7 @@ namespace ArenaOverhaul.Patches
             //Logging
             if (updateRoundWinningsIndex == 0 || miUpdateRoundWinnings is null)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, 1, 1, __originalMethod,
                     [
                         (nameof(updateRoundWinningsIndex), updateRoundWinningsIndex),
@@ -140,7 +141,7 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 2;
             if (renownAndInfluenceStartIndex == 0 || renownAndInfluenceEndIndex == 0 || numberOfEdits < RequiredNumberOfEdits)
             {
-                LoggingHelper.LogNoHooksIssue(
+                LoggingHelper.RejectMissingHooks(
                     codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
                     [
                         (nameof(renownAndInfluenceStartIndex), renownAndInfluenceStartIndex),

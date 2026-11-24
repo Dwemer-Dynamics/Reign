@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
+using ReignBeta.Platform.Runtime;
 using ReignBeta.Spymaster.Campaign;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Domain;
@@ -39,15 +40,22 @@ namespace ReignBeta.Court.Campaign
         bool ICourtWorldBridge.HasExposedAgentEvidence(Hero accused, out string evidence)
         {
             evidence = string.Empty;
+            string accusedId = accused?.StringId;
+            if (string.IsNullOrWhiteSpace(accusedId)) return false;
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             ReignSpymasterState state = SpymasterState;
-            ReignForeignAgentRecord agent = state?.ForeignAgents?.FirstOrDefault(candidate => candidate.Exposed
-                && string.Equals(candidate.AgentHeroStringId, accused?.StringId,
-                    StringComparison.OrdinalIgnoreCase));
+            ReignForeignAgentRecord agent = state?.ForeignAgents?.FirstOrDefault(candidate => candidate?.Exposed == true
+                && !candidate.ExposurePending
+                && string.Equals(candidate.AgentHeroStringId, accusedId, StringComparison.Ordinal)
+                // Older native records can lack assignment scope. A typed assignment must match this timeline.
+                && (string.IsNullOrEmpty(candidate.AssignmentTimelineId)
+                    ? string.IsNullOrEmpty(candidate.AssignmentId)
+                    : string.Equals(candidate.AssignmentTimelineId, timeline, StringComparison.Ordinal)));
             if (agent == null) return false;
             List<string> ids = new List<string> { "foreign_agent:" + agent.AgentHeroStringId };
             ids.AddRange((state.ForeignAgentActions ?? new List<ReignForeignAgentActionRecord>())
-                .Where(action => action.Detected && string.Equals(action.AgentHeroStringId,
-                    agent.AgentHeroStringId, StringComparison.OrdinalIgnoreCase))
+                .Where(action => action?.Detected == true && string.Equals(action.AgentHeroStringId,
+                    agent.AgentHeroStringId, StringComparison.Ordinal))
                 .Select(action => "foreign_agent_action:" + action.ActionId));
             evidence = string.Join(",", ids.Distinct(StringComparer.OrdinalIgnoreCase));
             return true;

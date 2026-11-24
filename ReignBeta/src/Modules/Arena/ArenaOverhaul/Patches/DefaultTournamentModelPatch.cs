@@ -1,4 +1,5 @@
-﻿using ArenaOverhaul.ModSettings;
+﻿using ArenaOverhaul.Helpers;
+using ArenaOverhaul.ModSettings;
 
 using HarmonyLib;
 
@@ -18,18 +19,19 @@ namespace ArenaOverhaul.Patches
 
         [HarmonyTranspiler]
         [HarmonyPatch("GetRenownReward")]
-        public static IEnumerable<CodeInstruction> GetRenownRewardTranspiler(IEnumerable<CodeInstruction> instructions)
+        public static IEnumerable<CodeInstruction> GetRenownRewardTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase __originalMethod)
         {
             List<CodeInstruction> codes = new(instructions);
-            for (int i = 0; i < codes.Count; ++i)
+            for (int i = 0; i + 1 < codes.Count; ++i)
             {
-                if (codes[i].LoadsConstant(3f) && codes[i + 1].opcode == OpCodes.Stloc_0)
+                if (miGetRenownReward != null && codes[i].LoadsConstant(3f) && codes[i + 1].opcode == OpCodes.Stloc_0)
                 {
-                    codes[i] = new CodeInstruction(opcode: OpCodes.Call, operand: miGetRenownReward);
-                    break;
+                    codes[i].opcode = OpCodes.Call;
+                    codes[i].operand = miGetRenownReward;
+                    return codes;
                 }
             }
-            return codes.AsEnumerable();
+            throw LoggingHelper.MissingRequiredHook(__originalMethod);
         }
 
         /* service methods */

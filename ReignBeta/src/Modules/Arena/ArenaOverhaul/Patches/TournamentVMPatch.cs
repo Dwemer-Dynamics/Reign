@@ -38,7 +38,7 @@ namespace ArenaOverhaul.Patches
             int toStringIndex = 0;
             if (miTournamentGetter != null && miTournamentPrizeGetter != null && miTextObjectToString != null)
             {
-                for (int i = 2; i < codes.Count; ++i)
+                for (int i = 2; i + 6 < codes.Count; ++i)
                 {
                     if (numberOfEdits == 0 && codes[i].Calls(miTournamentGetter) && codes[i + 2].Calls(miTournamentPrizeGetter) && codes[i + 4].Calls(miTextObjectToString) && codes[i + 6].opcode == OpCodes.Ldstr && codes[i + 6].operand.ToString() == "REWARD")
                     {
@@ -54,29 +54,13 @@ namespace ArenaOverhaul.Patches
             const int RequiredNumberOfEdits = 1;
             if (getPrizeIndex == 0 || toStringIndex == 0 || numberOfEdits < RequiredNumberOfEdits || miGetFullPrizeName is null)
             {
-                LoggingHelper.LogNoHooksIssue(
-                    codes, numberOfEdits, RequiredNumberOfEdits, __originalMethod,
-                    [
-                        (nameof(getPrizeIndex), getPrizeIndex),
-                        (nameof(toStringIndex), toStringIndex),
-                    ],
-                    [
-                        (nameof(miTournamentGetter), miTournamentGetter),
-                        (nameof(miTournamentPrizeGetter), miTournamentPrizeGetter),
-                        (nameof(miTextObjectToString), miTextObjectToString),
-                        (nameof(miGetFullPrizeName), miGetFullPrizeName)
-                    ]);
+                LoggingHelper.TryLogOptionalIssue("Using the native prize name because the optional display hook could not be applied.",
+                    $"Transpiler for {__originalMethod.DeclaringType?.Name}.{__originalMethod.Name}");
+                return codes;
             }
 
-            if (getPrizeIndex > 0 && toStringIndex > 0)
-            {
-                codes.RemoveRange(getPrizeIndex, toStringIndex - getPrizeIndex);
-                codes.InsertRange(getPrizeIndex, [new CodeInstruction(opcode: OpCodes.Call, operand: miGetFullPrizeName)]);
-            }
-            else
-            {
-                MessageHelper.ErrorMessage("Harmony transpiler for TournamentVM. OnTournamentEnd could not find code hooks for applying prize quality name!");
-            }
+            codes.RemoveRange(getPrizeIndex, toStringIndex - getPrizeIndex);
+            codes.InsertRange(getPrizeIndex, [new CodeInstruction(opcode: OpCodes.Call, operand: miGetFullPrizeName)]);
 
             return codes.AsEnumerable();
         }
