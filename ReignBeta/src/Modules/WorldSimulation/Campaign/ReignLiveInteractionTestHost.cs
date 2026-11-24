@@ -327,7 +327,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     else
                         result = await ReignMainThread.RunOwnedAsync(pollNativeScope,
                             () => IsCurrentPartyAgencyExecution(execution),
-                            () => ExecuteCommandAsync(command)).ConfigureAwait(false);
+                            () => ExecuteObservedPartyAgencyCommandAsync(command, execution, operation)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -924,6 +924,35 @@ namespace ReignBeta.WorldSimulation.Campaign
                 await Task.Delay(100).ConfigureAwait(false);
             }
             return null;
+        }
+
+        private static readonly System.Threading.AsyncLocal<PartyAgencyExecutionStamp> PartyAgencySendExecution =
+            new System.Threading.AsyncLocal<PartyAgencyExecutionStamp>();
+
+        private static async Task<LiveCommandResult> ExecuteObservedPartyAgencyCommandAsync(
+            JObject command, PartyAgencyExecutionStamp execution, string operation)
+        {
+            var previous = PartyAgencySendExecution.Value;
+            PartyAgencySendExecution.Value = string.Equals(operation, "send", StringComparison.Ordinal)
+                ? execution : null;
+            try { return await ExecuteCommandAsync(command).ConfigureAwait(false); }
+            finally { PartyAgencySendExecution.Value = previous; }
+        }
+
+        internal static void AttachPartyAgencySendOrigin(JObject payload)
+        {
+            var execution = PartyAgencySendExecution.Value;
+            if (execution == null || !IsCurrentPartyAgencyExecution(execution)) return;
+            payload["partyAgencySendOrigin"] = new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["runId"] = execution.RunId,
+                ["commandId"] = execution.CommandId,
+                ["gameInstanceId"] = execution.GameInstanceId,
+                ["clientProcessInstanceId"] = execution.ClientProcessInstanceId,
+                ["executionLeaseId"] = execution.ExecutionLeaseId,
+                ["retryGeneration"] = execution.RetryGeneration
+            };
         }
 
         internal sealed class PartyAgencyExecutionStamp
