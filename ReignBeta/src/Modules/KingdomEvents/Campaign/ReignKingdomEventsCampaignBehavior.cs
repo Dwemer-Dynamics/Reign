@@ -564,6 +564,29 @@ namespace ReignBeta.KingdomEvents.Campaign
             return index < 0 ? null : eligible[index];
         }
 
+#if !REIGN_EXCLUDE_VERIFICATION
+        [ThreadStatic] private static ReignKingdomEventsCampaignBehavior _economyProbeOwner;
+        [ThreadStatic] private static ReignKingdomEventRecord _economyProbeOmission;
+
+        // The optional testing assembly opens this scope only during a synchronous model read.
+        internal float ReadEconomyWithTimedEventOmitted(ReignKingdomEventRecord record, Func<float> read)
+        {
+            if (_economyProbeOwner != null)
+                throw new InvalidOperationException("A kingdom event economy probe is already active.");
+            _economyProbeOwner = this;
+            _economyProbeOmission = record;
+            try
+            {
+                return read();
+            }
+            finally
+            {
+                _economyProbeOmission = null;
+                _economyProbeOwner = null;
+            }
+        }
+#endif
+
         private float GetTimedMagnitude(Kingdom kingdom, params string[] archetypeIds)
         {
             if (kingdom == null)
@@ -573,7 +596,7 @@ namespace ReignBeta.KingdomEvents.Campaign
             float day = CurrentDay();
             ReignKingdomEventRecord active = _events.LastOrDefault(record => record != null
 #if !REIGN_EXCLUDE_VERIFICATION
-                && !ReignKingdomEventTestControls.IsEconomyProbeOmission(this, record)
+                && !(ReferenceEquals(_economyProbeOwner, this) && ReferenceEquals(_economyProbeOmission, record))
 #endif
                 && record.IsActiveAt(day)
                 && Same(record.KingdomStringId, kingdom.StringId));

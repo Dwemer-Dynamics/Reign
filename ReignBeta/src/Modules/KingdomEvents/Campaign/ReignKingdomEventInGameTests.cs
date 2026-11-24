@@ -584,31 +584,12 @@ namespace ReignBeta.KingdomEvents.Campaign
         }
 
 #if !REIGN_EXCLUDE_VERIFICATION
-        [ThreadStatic] private static ReignKingdomEventsCampaignBehavior _economyProbeOwner;
-        [ThreadStatic] private static ReignKingdomEventRecord _economyProbeOmission;
-
-        internal static bool IsEconomyProbeOmission(ReignKingdomEventsCampaignBehavior owner,
-            ReignKingdomEventRecord record)
-            => ReferenceEquals(_economyProbeOwner, owner) && ReferenceEquals(_economyProbeOmission, record);
-
         private static (float Current, float WithoutEvent, float Restored) SampleNativeEconomy(
             ReignKingdomEventsCampaignBehavior owner, ReignKingdomEventRecord record, Func<float> read)
         {
-            if (_economyProbeOwner != null)
-                throw new InvalidOperationException("A kingdom event economy probe is already active.");
             float current = ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read);
-            float without;
-            _economyProbeOwner = owner;
-            _economyProbeOmission = record;
-            try
-            {
-                without = ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read);
-            }
-            finally
-            {
-                _economyProbeOmission = null;
-                _economyProbeOwner = null;
-            }
+            float without = owner.ReadEconomyWithTimedEventOmitted(record,
+                () => ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read));
             return (current, without, ReignVillageProductionCalculatorModel.ObserveWithoutRandomAdvance(read));
         }
 
