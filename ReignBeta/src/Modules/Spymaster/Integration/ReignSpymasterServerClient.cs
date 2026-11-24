@@ -92,11 +92,12 @@ namespace ReignBeta.Spymaster.Integration
             return ReignServerClient.PostJsonAsync("/court/spymaster/exposure", payload);
         }
 
-        public static Task<JObject> TickForeignAgentsAsync(JObject snapshot)
+        internal static Task<JObject> TickForeignAgentsAsync(JObject snapshot, string generation, Func<bool> ownsRequest)
         {
             JObject payload = BasePayload();
             foreach (var property in snapshot ?? new JObject()) payload[property.Key] = property.Value;
-            return ReignServerClient.PostJsonAsync("/court/spymaster/agents/tick", payload);
+            payload["restoreGeneration"] = generation;
+            return ReignServerClient.PostOwnedJsonAsync("/court/spymaster/agents/tick", payload, ownsRequest);
         }
 
         public static Task<JObject> GetForeignAgentStatusAsync(JObject snapshot)
@@ -106,12 +107,17 @@ namespace ReignBeta.Spymaster.Integration
             return ReignServerClient.PostJsonAsync("/court/spymaster/agents/status", payload);
         }
 
-        public static Task<JObject> ExposeForeignAgentAsync(string agentHeroId, string reason)
+        internal static Task<JObject> ExposeForeignAgentAsync(string agentHeroId, string assignmentId,
+            float exposedDay, string generation, Func<bool> ownsRequest)
         {
             JObject payload = BasePayload();
-            payload["agentHeroId"] = agentHeroId ?? string.Empty;
-            payload["reason"] = reason ?? "exposed";
-            return ReignServerClient.PostJsonAsync("/court/spymaster/agents/expose", payload);
+            payload["agentHeroId"] = agentHeroId;
+            payload["assignmentId"] = assignmentId;
+            payload["exposureRevision"] = 0;
+            payload["reason"] = "player_counterintelligence";
+            payload["worldDay"] = exposedDay;
+            payload["restoreGeneration"] = generation;
+            return ReignServerClient.PostOwnedJsonAsync("/court/spymaster/agents/expose/v1", payload, ownsRequest);
         }
     }
 }

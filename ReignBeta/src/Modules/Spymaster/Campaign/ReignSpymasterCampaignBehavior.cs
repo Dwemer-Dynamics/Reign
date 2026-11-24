@@ -25,6 +25,7 @@ namespace ReignBeta.Court.Campaign
         internal const int OrganicLedgerMaxObservations = 16;
         internal const int OrganicLedgerMaxStoredJsonChars = 2048;
         private bool _spymasterAgentTickInFlight;
+        private readonly HashSet<ReignForeignAgentRecord> _foreignAgentExposuresInFlight = new HashSet<ReignForeignAgentRecord>();
         private readonly HashSet<ReignSpymasterMission> _mitigationRequestsInFlight = new HashSet<ReignSpymasterMission>();
 
         public CourtOfficeAssignment ActiveSpymasterAssignment =>
@@ -752,8 +753,11 @@ namespace ReignBeta.Court.Campaign
 
         private int ExposeForeignAgentNetwork(float day)
         {
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             List<ReignForeignAgentRecord> candidates = EnsureSpymasterState().ForeignAgents
-                .Where(x => x.Activated && !x.Exposed).OrderBy(x => x.RecruitedDay)
+                .Where(x => x.Activated && !x.Exposed
+                    && (string.IsNullOrEmpty(x.AssignmentTimelineId) || x.AssignmentTimelineId == timeline))
+                .OrderBy(x => x.RecruitedDay)
                 .Take(1 + Math.Max(0, ActiveSpymaster?.GetSkillValue(DefaultSkills.Roguery) ?? 0) / 100).ToList();
             foreach (ReignForeignAgentRecord agent in candidates)
             {
@@ -763,6 +767,7 @@ namespace ReignBeta.Court.Campaign
                 agent.Activated = false;
                 agent.Exposed = true;
                 agent.ExposedDay = day;
+                agent.ExposurePending = true;
                 foreach (ReignForeignAgentActionRecord action in EnsureSpymasterState().ForeignAgentActions
                     .Where(x => string.Equals(x.AgentHeroStringId, agent.AgentHeroStringId, StringComparison.OrdinalIgnoreCase)))
                 {
@@ -770,7 +775,7 @@ namespace ReignBeta.Court.Campaign
                     action.SponsorAttributed = true;
                     action.Summary = "Counterintelligence exposed the agent and attributed the network to " + agent.SponsorKingdomStringId + ".";
                 }
-                _ = ReignSpymasterServerClient.ExposeForeignAgentAsync(agent.AgentHeroStringId, "player_counterintelligence");
+                _ = ConfirmForeignAgentExposureAsync(agent);
             }
             return candidates.Count;
         }
@@ -799,20 +804,85 @@ namespace ReignBeta.Court.Campaign
             }
         }
 
+        internal const string ForeignAgentAssignmentSchema = "reign-spymaster-foreign-agent-v1";
+
+        private bool StillOwnsForeignAgentRequest(ReignServerClient.RequestFence fence)
+            => fence.IsCurrentActionPoll() && ReferenceEquals(Instance, this);
+
+        private async System.Threading.Tasks.Task ConfirmForeignAgentExposureAsync(ReignForeignAgentRecord agent)
+        {
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            string assignment = agent.AssignmentId;
+            if (!agent.Exposed || !agent.ExposurePending || string.IsNullOrEmpty(assignment)
+                || agent.AssignmentTimelineId != timeline || !_foreignAgentExposuresInFlight.Add(agent))
+                return;
+
+            var fence = ReignServerClient.RequestFence.Capture();
+            bool OwnsRequest() => StillOwnsForeignAgentRequest(fence) && agent.AssignmentId == assignment
+                && agent.Exposed && agent.ExposurePending && _spymasterState.ForeignAgents.Contains(agent);
+            try
+            {
+                JObject response = await ReignSpymasterServerClient.ExposeForeignAgentAsync(
+                    agent.AgentHeroStringId, assignment, agent.ExposedDay, fence.SharedActivityGeneration, OwnsRequest).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (OwnsRequest() && IsBoundForeignAgentExposureReceipt(response, campaign, timeline,
+                            fence.SharedActivityGeneration, agent.AgentHeroStringId, assignment))
+                        agent.ExposurePending = false;
+                }).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { ReignLog.Warn("Foreign agent exposure confirmation unavailable: " + ex.Message); }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() => { _foreignAgentExposuresInFlight.Remove(agent); }).ConfigureAwait(false);
+            }
+        }
+
+        private static bool IsBoundForeignAgentResponse(JObject response, string campaign, string timeline, string generation)
+            => response?.Value<bool?>("ok") == true && (string)response["schema"] == ForeignAgentAssignmentSchema
+                && (string)response["campaignId"] == campaign && (string)response["timelineId"] == timeline
+                && (string)response["restoreGeneration"] == generation;
+
+        private static bool IsBoundForeignAgentExposureReceipt(JObject response, string campaign, string timeline,
+            string generation, string agentId, string assignment)
+            => IsBoundForeignAgentResponse(response, campaign, timeline, generation)
+                && (string)response["agentHeroId"] == agentId && (string)response["assignmentId"] == assignment
+                && (string)response["status"] == "exposed" && response["exposureRevision"]?.Type == JTokenType.Integer
+                && (int)response["exposureRevision"] == 1;
+
         private async System.Threading.Tasks.Task TickForeignAgentsAsync(float day)
         {
             _spymasterAgentTickInFlight = true;
+            var fence = ReignServerClient.RequestFence.Capture();
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            bool OwnsRequest() => StillOwnsForeignAgentRequest(fence);
             try
             {
-                JObject response = await ReignSpymasterServerClient.TickForeignAgentsAsync(BuildForeignAgentSnapshot(day)).ConfigureAwait(false);
+                JObject response = await ReignSpymasterServerClient.TickForeignAgentsAsync(
+                    BuildForeignAgentSnapshot(day), fence.SharedActivityGeneration, OwnsRequest).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    ApplyForeignAgentResponse(response, day);
-                    ReignTestHarness.Current.Spymaster.RecordForeignAgentActionReceipt(response?["controlledAgentAction"] as JObject);
+                    if (!OwnsRequest()) return;
+                    bool typed = IsBoundForeignAgentResponse(response, campaign, timeline, fence.SharedActivityGeneration);
+                    if (typed || (response?.Value<bool?>("ok") == true && response["schema"] == null))
+                    {
+                        ApplyForeignAgentResponse(response, day);
+                        ReignTestHarness.Current.Spymaster.RecordForeignAgentActionReceipt(response["controlledAgentAction"] as JObject);
+                    }
+                    foreach (ReignForeignAgentRecord agent in _spymasterState.ForeignAgents)
+                        if (agent.ExposurePending)
+                            _ = ConfirmForeignAgentExposureAsync(agent);
                 }).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex) { ReignLog.Warn("Foreign agent tick failed: " + ex.Message); }
-            finally { _spymasterAgentTickInFlight = false; }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() => { _spymasterAgentTickInFlight = false; }).ConfigureAwait(false);
+            }
         }
 
         private static bool IsSpymasterMitigation(ReignSpymasterMission mission)
@@ -1012,27 +1082,22 @@ namespace ReignBeta.Court.Campaign
         {
             if (response == null || response.Value<bool?>("ok") != true) return;
             ReignSpymasterState state = EnsureSpymasterState();
-            foreach (JObject row in response["agents"] as JArray ?? new JArray())
+            bool typed = (string)response["schema"] == ForeignAgentAssignmentSchema;
+            string timeline = typed ? (string)response["timelineId"] : string.Empty;
+            foreach (var row in (response["agents"] as JArray ?? new JArray()).OfType<JObject>())
+                ApplyForeignAgentAssignment(state, row, timeline, typed, exposed: false, day);
+            if (typed)
+                foreach (var row in (response["exposedAgents"] as JArray ?? new JArray()).OfType<JObject>())
+                    ApplyForeignAgentAssignment(state, row, timeline, typed, exposed: true, day);
+            foreach (var row in (response["actions"] as JArray ?? new JArray()).OfType<JObject>())
             {
                 string agentId = (string)row["agentHeroStringId"] ?? string.Empty;
-                string sponsorId = (string)row["sponsorKingdomStringId"] ?? string.Empty;
-                ReignForeignAgentRecord existing = state.ForeignAgents.FirstOrDefault(x => string.Equals(x.AgentHeroStringId, agentId, StringComparison.OrdinalIgnoreCase));
-                if (existing == null)
-                {
-                    existing = new ReignForeignAgentRecord { AgentHeroStringId = agentId, SponsorKingdomStringId = sponsorId };
-                    state.ForeignAgents.Add(existing);
-                }
-                existing.SponsorKingdomStringId = sponsorId;
-                existing.SettlementStringId = (string)row["settlementStringId"] ?? string.Empty;
-                existing.IsNotable = (bool?)row["isNotable"] == true;
-                existing.Activated = (bool?)row["activated"] == true;
-                existing.Exposed = false;
-                existing.ExposedDay = -1f;
-                existing.RecruitedDay = (float?)row["recruitedDay"] ?? existing.RecruitedDay;
-                existing.NextActionDay = (float?)row["nextActionDay"] ?? day + 1f;
-            }
-            foreach (JObject row in response["actions"] as JArray ?? new JArray())
-            {
+                ReignForeignAgentRecord agent = state.ForeignAgents.FirstOrDefault(x =>
+                    string.Equals(x.AgentHeroStringId, agentId, StringComparison.OrdinalIgnoreCase));
+                if (agent?.Exposed == true || (typed && (agent == null || !agent.Activated
+                    || agent.AssignmentTimelineId != timeline || !string.Equals(agent.AgentHeroStringId, agentId, StringComparison.Ordinal)
+                    || !HasForeignAgentRevision(row, agent.AssignmentId, 0))))
+                    continue;
                 string actionId = (string)row["actionId"] ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(actionId))
                     actionId = "legacy_agent_action_" + ((string)row["agentHeroStringId"] ?? string.Empty) + "_" + day.ToString("0.000") + "_" + ((string)row["effectType"] ?? "security");
@@ -1060,6 +1125,62 @@ namespace ReignBeta.Court.Campaign
                 });
             }
             StateChanged?.Invoke();
+        }
+
+        private static bool HasForeignAgentRevision(JObject row, string assignment, int revision)
+            => !string.IsNullOrEmpty(assignment) && (string)row["assignmentId"] == assignment
+                && row["exposureRevision"]?.Type == JTokenType.Integer && (int)row["exposureRevision"] == revision;
+
+        private static void ApplyForeignAgentAssignment(ReignSpymasterState state, JObject row,
+            string timeline, bool typed, bool exposed, float day)
+        {
+            string agentId = (string)row["agentHeroStringId"] ?? string.Empty;
+            string sponsor = (string)row["sponsorKingdomStringId"] ?? string.Empty;
+            string assignment = typed ? (string)row["assignmentId"] : string.Empty;
+            if (string.IsNullOrWhiteSpace(agentId) || (typed && (string.IsNullOrEmpty(timeline)
+                || !HasForeignAgentRevision(row, assignment, exposed ? 1 : 0))))
+                return;
+            float? recruitedDay = (float?)row["recruitedDay"];
+            var agent = state.ForeignAgents.FirstOrDefault(x =>
+                string.Equals(x.AgentHeroStringId, agentId, StringComparison.OrdinalIgnoreCase));
+
+            if (agent != null && !typed && (!string.IsNullOrEmpty(agent.AssignmentId) || agent.Exposed))
+                return;
+            if (agent != null && typed && string.IsNullOrEmpty(agent.AssignmentId) && agent.Exposed)
+            {
+                // Old native saves only recorded the immutable recruitment fields.
+                // Keep their exposure unless the server can bind that exact record.
+                if (row["legacyOccurrence"]?.Type != JTokenType.Boolean || !(bool)row["legacyOccurrence"]
+                    || agent.AgentHeroStringId != agentId || agent.SponsorKingdomStringId != sponsor
+                    || !recruitedDay.HasValue || agent.RecruitedDay != recruitedDay.Value)
+                    return;
+                agent.AssignmentId = assignment;
+                agent.AssignmentTimelineId = timeline;
+                agent.ExposurePending = !exposed;
+            }
+            if (agent != null && agent.AssignmentId == assignment && agent.Exposed)
+            {
+                if (exposed) agent.ExposurePending = false;
+                return;
+            }
+            if (agent == null)
+            {
+                agent = new ReignForeignAgentRecord();
+                state.ForeignAgents.Add(agent);
+            }
+
+            agent.AgentHeroStringId = agentId;
+            agent.SponsorKingdomStringId = sponsor;
+            agent.SettlementStringId = (string)row["settlementStringId"] ?? string.Empty;
+            agent.IsNotable = (bool?)row["isNotable"] == true;
+            agent.AssignmentId = assignment;
+            agent.AssignmentTimelineId = timeline;
+            agent.ExposurePending = false;
+            agent.Exposed = exposed;
+            agent.ExposedDay = exposed ? (float?)row["exposedDay"] ?? -1f : -1f;
+            agent.Activated = !exposed && (bool?)row["activated"] == true;
+            agent.RecruitedDay = recruitedDay ?? agent.RecruitedDay;
+            agent.NextActionDay = (float?)row["nextActionDay"] ?? day + 1f;
         }
 
         internal static Settlement ResolveNotableFortification(Hero hero)
