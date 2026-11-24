@@ -5,6 +5,101 @@ namespace Reign.Mcp.Tests;
 
 public sealed class PartyAgencyHarnessContractTests
 {
+    [Theory]
+    [InlineData("match", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("client_mismatch", "observed_metadata_only", "differs", "matches", true)]
+    [InlineData("server_mismatch", "observed_metadata_only", "matches", "differs", true)]
+    [InlineData("missing_licensed_observation", "observed_metadata_only", "matches", "matches", false)]
+    [InlineData("forged_result_mvid", "observed_metadata_only", "unavailable", "matches", true)]
+    [InlineData("no_witness", "no_approved_build_witness", null, null, false)]
+    [InlineData("other_approved_run", "no_approved_build_witness", null, null, false)]
+    [InlineData("foreign_enrollment", "report_scope_unavailable", null, null, false)]
+    [InlineData("legacy_report", "report_scope_unavailable", null, null, false)]
+    [InlineData("wrong_game", "no_bound_completed_send_observation", null, null, false)]
+    [InlineData("superseded_retry", "no_bound_completed_send_observation", null, null, false)]
+    [InlineData("wrong_ack", "no_bound_completed_send_observation", null, null, false)]
+    [InlineData("wrong_transport", "no_bound_completed_send_observation", null, null, false)]
+    [InlineData("duplicate_command", "no_bound_completed_send_observation", null, null, false)]
+    [InlineData("too_many_commands", "report_command_limit_exceeded", null, null, false)]
+    public void PartyAgencyArtifactDiagnosticsOnlyUsePinnedBuildAndOriginalIssuedMetadata(
+        string mutation, string status, string? clientMatch, string? serverMatch, bool licensedObserved)
+    {
+        string hash = new('a', 64);
+        Guid expectedClient = Guid.NewGuid(), expectedServer = Guid.NewGuid();
+        var witness = new PartyAgencyApprovedArtifactWitness(PartyAgencyApprovedArtifactWitness.WitnessSchema,
+            mutation == "other_approved_run" ? "other" : "certification",
+            "campaign", "enrollment", "prepared", hash, hash, hash, hash,
+            hash, "client-report", hash, hash, "server-report", hash, hash,
+            new PartyAgencyApprovedModule("ReignBeta", expectedClient, hash),
+            new PartyAgencyApprovedModule("ReignServer", expectedServer, hash));
+        var state = new PartyAgencyCertificationState
+        {
+            RunId = "certification", CampaignId = "campaign", CampaignTestRunId = "enrollment",
+            DisposableSaveName = "Test_Current",
+            ApprovedArtifactWitness = mutation == "no_witness" ? null : witness
+        };
+        string original = Guid.NewGuid().ToString("N"), transport = Guid.NewGuid().ToString("N");
+        string clientProcess = Guid.NewGuid().ToString("N");
+        var command = new
+        {
+            status = "completed", operation = "send", mode = "party_chat", commandId = "native-command",
+            leaseId = transport, executionRetryGeneration = mutation == "superseded_retry" ? 2 : 1,
+            executionEvidence = new
+            {
+                status = "pending_artifact_review",
+                transportLeaseId = mutation == "wrong_transport" ? original : transport,
+                executionObservation = new
+                {
+                    campaignId = "campaign", runId = "live-run", commandId = "native-command",
+                    gameInstanceId = mutation == "wrong_game" ? "reloaded" : "enrolled-game",
+                    leaseId = original, executionRetryGeneration = 1, clientProcessInstanceId = clientProcess,
+                    serverProcessInstanceId = Guid.NewGuid().ToString("N"),
+                    serverModuleId = (mutation == "server_mismatch" ? Guid.NewGuid() : expectedServer).ToString("D"),
+                    clientModuleIds = new Dictionary<string, string>
+                    {
+                        ["ReignBeta"] = mutation == "forged_result_mvid" ? ""
+                            : (mutation == "client_mismatch" ? Guid.NewGuid() : expectedClient).ToString("D"),
+                        ["TaleWorlds.CampaignSystem"] = Guid.NewGuid().ToString("D"),
+                        ["TaleWorlds.Core"] = mutation == "missing_licensed_observation" ? "" : Guid.NewGuid().ToString("D")
+                    }
+                }
+            },
+            partyAgencyAcceptedSendExecution = new
+            {
+                leaseId = mutation == "wrong_ack" ? transport : original,
+                clientProcessInstanceId = clientProcess,
+                retryGeneration = 1
+            },
+            result = new { clientModuleIds = new { ReignBeta = expectedClient }, installedAndLoadedArtifactsAttested = true }
+        };
+        JsonElement report = JsonSerializer.SerializeToElement(new
+        {
+            mode = "party_agency", campaignId = "campaign", runId = "live-run", gameInstanceId = "enrolled-game",
+            executionObservationVersion = mutation == "legacy_report" ? 0 : 1,
+            commands = Enumerable.Repeat(command, mutation switch { "too_many_commands" => 129, "duplicate_command" => 2, _ => 1 }),
+            enrollment = new
+            {
+                campaignId = "campaign", certificationRunId = "certification", disposableSaveName = "Test_Current",
+                campaignTestRunId = mutation == "foreign_enrollment" ? "other" : "enrollment"
+            }
+        });
+
+        var diagnostic = TestingTools.ProjectPartyAgencyOriginalModuleDiagnostics(state, "live-run", report);
+        Assert.Equal(status, diagnostic["status"]);
+        Assert.DoesNotContain("installedAndLoadedArtifactsAttested", diagnostic.Keys);
+        var rows = Assert.IsType<List<Dictionary<string, object?>>>(diagnostic["commands"]);
+        if (clientMatch is null)
+        {
+            Assert.Empty(rows);
+            return;
+        }
+        var result = Assert.Single(rows);
+        Assert.Equal(original, result["originalLeaseId"]);
+        Assert.Equal(clientMatch, result["reignBetaMvid"]);
+        Assert.Equal(serverMatch, result["reignServerMvid"]);
+        Assert.Equal(licensedObserved, result["licensedMvidsObserved"]);
+    }
+
     [Fact]
     public void PartyAgencyApprovedArtifactMeasuresHashAndManagedIdentityFromTheSameBytes()
     {

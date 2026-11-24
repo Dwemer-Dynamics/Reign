@@ -1023,6 +1023,84 @@ public static partial class TestingTools
         };
     }
 
+    internal static IReadOnlyDictionary<string, object?> ProjectPartyAgencyOriginalModuleDiagnostics(
+        PartyAgencyCertificationState state, string liveRunId, JsonElement report)
+    {
+        var rows = new List<Dictionary<string, object?>>();
+        var diagnostic = new Dictionary<string, object?>
+        {
+            ["schema"] = "reign-party-agency-original-lease-module-diagnostics-v1",
+            ["status"] = "no_approved_build_witness",
+            ["commands"] = rows
+        };
+        var witness = state.ApprovedArtifactWitness;
+        if (witness?.BelongsTo(state.RunId, state.CampaignId, state.CampaignTestRunId) != true)
+            return diagnostic;
+
+        diagnostic["status"] = "report_scope_unavailable";
+        if (!PartyAgencySaveReportScopeMatches(report, state.CampaignId, state.CampaignTestRunId,
+                state.RunId, liveRunId, state.DisposableSaveName))
+            return diagnostic;
+
+        JsonElement commands = PartyAgencySaveProperty(report, "commands");
+        if (commands.ValueKind != JsonValueKind.Array) return diagnostic;
+        if (commands.GetArrayLength() > 128)
+        {
+            diagnostic["status"] = "report_command_limit_exceeded";
+            return diagnostic;
+        }
+
+        string gameInstance = PartyAgencySaveText(report, "gameInstanceId");
+        var uniqueCommands = commands.EnumerateArray()
+            .GroupBy(command => PartyAgencySaveText(command, "commandId"), StringComparer.Ordinal)
+            .Where(group => group.Key.Length is > 0 and <= 160 && group.Count() == 1)
+            .Select(group => group.Single());
+        foreach (JsonElement command in uniqueCommands)
+        {
+            if (PartyAgencySaveText(command, "status") != "completed"
+                || PartyAgencySaveText(command, "operation") != "send"
+                || PartyAgencySaveText(command, "mode") is not ("individual_chat" or "party_chat"))
+                continue;
+            JsonElement original = ReadPartyAgencyIssuedExecution(command, state.CampaignId, liveRunId, gameInstance);
+            JsonElement evidence = PartyAgencySaveProperty(command, "executionEvidence");
+            JsonElement ack = PartyAgencySaveProperty(command, "partyAgencyAcceptedSendExecution");
+            string lease = PartyAgencySaveText(original, "leaseId");
+            string transport = PartyAgencySaveText(evidence, "transportLeaseId");
+            string clientProcess = PartyAgencySaveText(original, "clientProcessInstanceId");
+            string serverProcess = PartyAgencySaveText(original, "serverProcessInstanceId");
+            if (!Guid.TryParseExact(lease, "N", out _) || !Guid.TryParseExact(transport, "N", out _)
+                || !Guid.TryParseExact(clientProcess, "N", out _) || !Guid.TryParseExact(serverProcess, "N", out _)
+                || PartyAgencySaveText(command, "leaseId") != transport
+                || PartyAgencySaveText(ack, "leaseId") != lease
+                || PartyAgencySaveText(ack, "clientProcessInstanceId") != clientProcess
+                || !TryPartyAgencySaveInteger(ack, "retryGeneration", out int acceptedRetry)
+                || !TryPartyAgencySaveInteger(original, "executionRetryGeneration", out int originalRetry)
+                || acceptedRetry != originalRetry)
+                continue;
+
+            JsonElement modules = PartyAgencySaveProperty(original, "clientModuleIds");
+            rows.Add(new Dictionary<string, object?>
+            {
+                ["commandId"] = PartyAgencySaveText(command, "commandId"),
+                ["originalLeaseId"] = lease,
+                ["retryGeneration"] = originalRetry,
+                ["reignBetaMvid"] = Compare(PartyAgencySaveText(modules, "ReignBeta"), witness.Client.Mvid),
+                ["reignServerMvid"] = Compare(PartyAgencySaveText(original, "serverModuleId"), witness.Server.Mvid),
+                ["licensedMvidsObserved"] = Observed(PartyAgencySaveText(modules, "TaleWorlds.CampaignSystem"), out _)
+                    && Observed(PartyAgencySaveText(modules, "TaleWorlds.Core"), out _)
+            });
+        }
+
+        diagnostic["status"] = rows.Count == 0 ? "no_bound_completed_send_observation" : "observed_metadata_only";
+        return diagnostic;
+
+        static string Compare(string input, Guid approved) =>
+            !Observed(input, out Guid observed) ? "unavailable" : observed == approved ? "matches" : "differs";
+
+        static bool Observed(string input, out Guid module) =>
+            Guid.TryParseExact(input, "D", out module) && module != Guid.Empty;
+    }
+
     [McpServerTool(Name = "reign_evaluate_party_agency_release_readiness", ReadOnly = true,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
     [Description("Evaluates Party Agency evidence from the prepared run and its durable live-run reports. An approved build artifact witness is required before native certification readiness. Installation and loaded identity remain a separate release gate.")]
@@ -1097,6 +1175,8 @@ public static partial class TestingTools
                 ["naturalLanguageTranscriptComplete"] = transcriptComplete,
                 ["noDirectDialogueActionBypass"] = noDirectBypass,
                 ["passed"] = casePassed,
+                ["artifactIdentityDiagnostics"] = ProjectPartyAgencyOriginalModuleDiagnostics(
+                    state, execution.LiveRunId, report.Ok ? report.Data.GetValueOrDefault() : default),
                 ["report"] = report
             });
         }
