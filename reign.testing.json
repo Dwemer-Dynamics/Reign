@@ -3250,6 +3250,7 @@
       "reign_verify_party_agency_save_roundtrip",
       "reign_evaluate_party_agency_release_readiness"
     ],
+    "approvedArtifactWitness": "An explicit captureApprovedArtifacts request during new run preparation pins the current local reviewed deployment authority, both original reports and their exact approved ReignBeta and ReignServer managed artifact names, MVIDs and SHA-256 values. Repeated preparation reuses the pinned witness. An unbound run remains diagnostic. Installed and loaded artifacts still require separate evidence before release.",
     "nativeOperation": "party_agency_test",
     "scenarioManifest": "ReignServer/tests/ReignLiveTest/scenarios/party-agency-manifest.json",
     "profiles": [
@@ -3266,7 +3267,7 @@
     ],
     "logicalCaseCount": 40,
     "naturalLanguagePolicy": "Every guest invitation, renewal, departure, and own-faction warning decision must originate in production Individual Chat or targeted NPC-first Party Chat from manifest-owned plausible player utterances. Positive flows state the purpose, known risk, why that NPC is needed, the fixed term or thirty-day review arrangement, that the NPC is asked rather than ordered, and a direct request for agreement. When the NPC asks questions or names conditions, the client harness composes the next natural player turn from the actual NPC reply, answers relevant identity, authority, household, compensation, status, route, provision, and security concerns, accepts NPC-authored conditions without changing permanent affiliation, and asks for unmistakable final consent. Negotiation, conditional interest, or a clarification request is not consent. A guest may refuse a player-requested departure and remain Active; departure is queued only after the NPC accepts, while ordinary Reign arrest and imprisonment behavior remains unchanged and outside Party Agency. A live temporary guest's equipment remains locked through Bannerlord's native equipment gate; Reign transfers require that owning guest's explicit consent identity, and equipping a gift requires the receiving guest's explicit acceptance. Direct action invocation cannot satisfy a case. Structured MCP commands are limited to fixture, time, save/load, battle, provider-fault, and evidence control.",
-    "releaseGate": "One complete clean pass on the final source, client, server, provider, catalog, Bannerlord, campaign, timeline, and disposable-save fingerprints; 100% required case variants and natural-language consent safety; zero bypass, identity, duplicate, queue, save-isolation, or unexplained-regression failures.",
+    "releaseGate": "A pinned approved build witness plus separate installed and loaded artifact proof and a complete clean pass on the final source, client, server, provider, catalog, Bannerlord, campaign, timeline, and disposable-save fingerprints; 100% required case variants and natural-language consent safety; zero bypass, identity, duplicate, queue, save-isolation, or unexplained-regression failures.",
     "deterministicAssertions": [
       "prisoner guest release requires native player custody, physical dungeon presence, explicit consent and actual departure; PA-NATIVE-008 prisoner rejection uses foreign custody",
       "open-ended review interval is exactly 30 campaign days",

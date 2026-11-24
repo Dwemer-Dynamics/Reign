@@ -38,10 +38,11 @@ public static partial class TestingTools
 
     [McpServerTool(Name = "reign_prepare_party_agency_test", ReadOnly = false,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Binds Party Agency certification to an existing guarded campaign-test enrollment and immutable build, provider, catalog, and Bannerlord fingerprints. Preparation never starts Bannerlord or mutates the campaign.")]
+    [Description("Prepares Party Agency certification for a guarded campaign-test enrollment. Optionally pins the currently reviewed build artifacts to a new run. Preparation never starts Bannerlord or mutates the campaign.")]
     public static IReadOnlyDictionary<string, object?> PreparePartyAgencyTest(
         ReignMcpOptions options,
         CampaignTestService campaignTests,
+        ReignValidationService validation,
         string campaignId,
         string campaignTestRunId,
         string runId,
@@ -50,7 +51,9 @@ public static partial class TestingTools
         string serverBuild,
         string providerConfigurationFingerprint,
         string catalogFingerprint,
-        string bannerlordVersion = "v1.4.8")
+        string bannerlordVersion = "v1.4.8",
+        [Description("For a new run only, verify and pin both original approved build reports and their managed artifacts. This does not inspect the installation or prove execution.")]
+        bool captureApprovedArtifacts = false)
     {
         campaignId = RequiredPartyAgencyIdentifier(campaignId, nameof(campaignId));
         campaignTestRunId = RequiredPartyAgencyIdentifier(campaignTestRunId, nameof(campaignTestRunId));
@@ -84,14 +87,43 @@ public static partial class TestingTools
         {
             PartyAgencyCertificationState? existing = TryReadPartyAgencyState(options, runId);
             if (existing is not null)
+                return ReadPreparedPartyAgencyRun(existing, requested, manifest, captureApprovedArtifacts);
+        }
+        if (captureApprovedArtifacts)
+            requested = requested with
             {
-                if (!PartyAgencyImmutableInputsMatch(existing, requested))
-                    throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
-                return PartyAgencyStateEnvelope(existing, "already_prepared", manifest);
+                ApprovedArtifactWitness = PartyAgencyApprovedArtifacts.Capture(
+                    options, validation, runId, campaignId, campaignTestRunId)
+            };
+
+        lock (PartyAgencyStateGate)
+        {
+            PartyAgencyCertificationState? existing = TryReadPartyAgencyState(options, runId);
+            if (existing is not null)
+                return ReadPreparedPartyAgencyRun(existing, requested, manifest, captureApprovedArtifacts);
+            try
+            {
+                WritePartyAgencyState(options, requested, overwrite: false);
             }
-            WritePartyAgencyState(options, requested);
+            catch (IOException) when (File.Exists(PartyAgencyStatePath(options, runId)))
+            {
+                return ReadPreparedPartyAgencyRun(ReadPartyAgencyState(options, runId),
+                    requested, manifest, captureApprovedArtifacts);
+            }
         }
         return PartyAgencyStateEnvelope(requested, "prepared", manifest);
+    }
+
+    private static IReadOnlyDictionary<string, object?> ReadPreparedPartyAgencyRun(
+        PartyAgencyCertificationState existing, PartyAgencyCertificationState requested,
+        JsonElement manifest, bool captureApprovedArtifacts)
+    {
+        if (!PartyAgencyImmutableInputsMatch(existing, requested))
+            throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
+        if (captureApprovedArtifacts && existing.ApprovedArtifactWitness?.BelongsTo(
+                existing.RunId, existing.CampaignId, existing.CampaignTestRunId) != true)
+            throw new InvalidOperationException("This run was prepared without an approved artifact witness. Capture one when preparing a new run.");
+        return PartyAgencyStateEnvelope(existing, "already_prepared", manifest);
     }
 
     [McpServerTool(Name = "reign_carry_forward_party_agency_passes", ReadOnly = false,
@@ -993,7 +1025,7 @@ public static partial class TestingTools
 
     [McpServerTool(Name = "reign_evaluate_party_agency_release_readiness", ReadOnly = true,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Evaluates Party Agency release readiness from the prepared final fingerprints and durable live-run reports. Every required case variant, natural-language transcript, native assertion, and save-isolation gate must be complete and green.")]
+    [Description("Evaluates Party Agency evidence from the prepared run and its durable live-run reports. An approved build artifact witness is required before native certification readiness. Installation and loaded identity remain a separate release gate.")]
     public static async Task<IReadOnlyDictionary<string, object?>> EvaluatePartyAgencyReleaseReadiness(
         ReignApiClient api,
         ReignMcpOptions options,
@@ -1086,7 +1118,11 @@ public static partial class TestingTools
             if (string.IsNullOrWhiteSpace(value) || value.Equals("unknown", StringComparison.OrdinalIgnoreCase))
                 blockers.Add("The " + label + " fingerprint is missing or unknown.");
 
-        if (blockers.Count == 0) passed.Add(finalInstance);
+        bool approvedArtifacts = state.ApprovedArtifactWitness?.BelongsTo(
+            state.RunId, state.CampaignId, state.CampaignTestRunId) == true;
+        if (!approvedArtifacts)
+            blockers.Add("The run has no pinned approved build artifact witness.");
+        blockers.Add("Installed and loaded artifact evidence has not been attested for this run.");
         string[] missing = state.RequiredInstances
             .Where(instance => !passed.Contains(instance)).ToArray();
         if (missing.Length > 0 && missingBeforeFinal.Length == 0)
@@ -1101,7 +1137,9 @@ public static partial class TestingTools
         {
             ["ok"] = true,
             ["schema"] = "reign-party-agency-release-readiness-v1",
-            ["readyToDeployForNativeCertification"] = true,
+            ["readyToDeployForNativeCertification"] = approvedArtifacts,
+            ["approvedArtifactWitnessAvailable"] = approvedArtifacts,
+            ["installedAndLoadedArtifactsAttested"] = false,
             ["readyToRelease"] = ready,
             ["requiredInstanceCount"] = state.RequiredInstances.Count,
             ["passedInstanceCount"] = passed.Count,
@@ -1593,15 +1631,22 @@ public static partial class TestingTools
     }
 
     private static void WritePartyAgencyState(ReignMcpOptions options,
-        PartyAgencyCertificationState state)
+        PartyAgencyCertificationState state, bool overwrite = true)
     {
         state.UpdatedUtc = DateTime.UtcNow.ToString("O");
         string path = PartyAgencyStatePath(options, state.RunId);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        string temporary = path + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(state, PartyAgencyJson),
-            new UTF8Encoding(false));
-        File.Move(temporary, path, true);
+        string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, JsonSerializer.Serialize(state, PartyAgencyJson),
+                new UTF8Encoding(false));
+            File.Move(temporary, path, overwrite);
+        }
+        finally
+        {
+            if (File.Exists(temporary)) File.Delete(temporary);
+        }
     }
 
     private static bool PartyAgencyImmutableInputsMatch(PartyAgencyCertificationState left,
@@ -1701,6 +1746,7 @@ public sealed record PartyAgencyCertificationState
     public string BannerlordVersion { get; set; } = "";
     public string PreparedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";
+    public PartyAgencyApprovedArtifactWitness? ApprovedArtifactWitness { get; init; }
     public List<string> RequiredInstances { get; set; } = [];
     public List<PartyAgencyExecution> Executions { get; set; } = [];
     public List<PartyAgencyCarriedEvidence> CarriedEvidence { get; set; } = [];

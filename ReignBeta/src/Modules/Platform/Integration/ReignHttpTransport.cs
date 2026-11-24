@@ -378,7 +378,10 @@ namespace ReignBeta.Platform.Integration
         // Redirected or unobservable final targets and path-prefixed bases prove no origin.
         internal static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
         {
-            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal)
+            if (parsed == null || !(route == "/dialogue/respond"
+                || (route == "/arrests/case/apply" && parsed["operation"]?.Type == JTokenType.String
+                    && parsed.Value<string>("operation") == "inspect")
+                || route.StartsWith("/actions/next?", StringComparison.Ordinal)
                 || route.StartsWith("/political-pressure/notices?", StringComparison.Ordinal)
                 || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal)
                 || route == "/relationships/director/poll_actions")) return parsed;

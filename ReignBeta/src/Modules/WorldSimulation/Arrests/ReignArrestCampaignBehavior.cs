@@ -20,6 +20,7 @@ using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.Domain;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
+using ReignBeta.Persistence.Integration;
 
 namespace ReignBeta.WorldSimulation.Arrests
 {
@@ -28,6 +29,8 @@ namespace ReignBeta.WorldSimulation.Arrests
         private List<ReignArrestCase> _cases = new List<ReignArrestCase>();
         private float _lastEvidenceReviewDay = -1000f;
         private ReignServerClient.RequestFence _dailyEvidenceReview;
+        private readonly HashSet<string> _capturedRepairIntentsOpenedHere = new HashSet<string>(StringComparer.Ordinal);
+        private const string CapturedRepairRoute = "/arrests/case/apply";
 
         public static ReignArrestCampaignBehavior Instance => ReignServices.Arrest;
 
@@ -48,7 +51,11 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         public override void SyncData(IDataStore dataStore)
         {
-            if (dataStore.IsLoading) _dailyEvidenceReview = null;
+            if (dataStore.IsLoading)
+            {
+                _dailyEvidenceReview = null;
+                _capturedRepairIntentsOpenedHere.Clear();
+            }
             dataStore.SyncData("_reign_arrest_cases_v1", ref _cases);
             dataStore.SyncData("_reign_arrest_evidence_review_day", ref _lastEvidenceReviewDay);
             NormalizeLoadedState();
@@ -57,6 +64,7 @@ namespace ReignBeta.WorldSimulation.Arrests
         private void OnGameLoaded(CampaignGameStarter starter)
         {
             _dailyEvidenceReview = null;
+            _capturedRepairIntentsOpenedHere.Clear();
             ReignArrestCustodyPatches.ResetSovereigntyReleases();
             NormalizeLoadedState();
         }
@@ -477,12 +485,19 @@ namespace ReignBeta.WorldSimulation.Arrests
             List<ReignArrestCase> cases)
         {
             bool finished = false;
+            bool capturedRepairsSettled = true;
             try
             {
                 foreach (ReignArrestCase item in cases)
                 {
                     var request = await ReignMainThread.InvokeAsync(() =>
                         CaptureDailyEvidenceRequest(fence, item)).ConfigureAwait(false);
+                    if (request.RequiresCapturedRepair)
+                    {
+                        if (!await ReviewCapturedRepairAsync(request.CapturedRepair).ConfigureAwait(false))
+                            capturedRepairsSettled = false;
+                        continue;
+                    }
                     if (request.Payload == null)
                     {
                         if (!await ReignMainThread.InvokeAsync(() => OwnsDailyEvidenceReview(fence)).ConfigureAwait(false))
@@ -520,14 +535,14 @@ namespace ReignBeta.WorldSimulation.Arrests
                 {
                     if (!ReferenceEquals(_dailyEvidenceReview, fence)) return;
                     // A save taken while a response is outstanding can review the unfinished day again.
-                    if (finished && OwnsDailyEvidenceReview(fence)) _lastEvidenceReviewDay = day;
+                    if (finished && capturedRepairsSettled && OwnsDailyEvidenceReview(fence)) _lastEvidenceReviewDay = day;
                     _dailyEvidenceReview = null;
                 }).ConfigureAwait(false);
             }
         }
 
-        private (JObject Payload, Func<bool> IsCurrent, Action<JObject> Complete)
-            CaptureDailyEvidenceRequest(ReignServerClient.RequestFence fence, ReignArrestCase item)
+        private (JObject Payload, Func<bool> IsCurrent, Action<JObject> Complete,
+            bool RequiresCapturedRepair, CapturedRepairWork CapturedRepair) CaptureDailyEvidenceRequest(ReignServerClient.RequestFence fence, ReignArrestCase item)
         {
             if (!OwnsDailyEvidenceReview(fence) || !_cases.Contains(item) || !item.AccusationActive || !item.IsOpen)
                 return default;
@@ -535,10 +550,9 @@ namespace ReignBeta.WorldSimulation.Arrests
             Hero accused = FindHero(item.AccusedHeroStringId);
             if (!MatchesEvidenceSubject(item, accused)) return default;
             if (item.CauseEstablished)
-            {
-                ContinueDailyArrestMaintenance(item, accused, false);
-                return default;
-            }
+                return NeedsCapturedRepair(item)
+                    ? (null, null, null, true, CaptureDailyCapturedRepair(fence, item, accused))
+                    : default;
             if (TryGetLocalEspionageEvidence(item, accused, out string evidence))
             {
                 MarkEstablishedEvidence(item, "established", evidence);
@@ -573,7 +587,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 ContinueDailyArrestMaintenance(item, accused, item.CauseEstablished);
             }
 
-            return (payload, Current, Complete);
+            return (payload, Current, Complete, false, null);
         }
 
         private static (string Case, string Accused, string Player, string Category, string Accusation, ReignArrestPhase Phase)
@@ -843,6 +857,251 @@ namespace ReignBeta.WorldSimulation.Arrests
 #endif
         }
 
+        private sealed class CapturedRepairWork
+        {
+            internal CapturedRepairWork(ReignArrestCase item, JObject material, string existingIntent,
+                string origin, ReignSaveSyncCoordinator.VerifiedLoad load, Func<string, bool> owns)
+            {
+                Item = item;
+                Material = material;
+                ExistingIntent = existingIntent;
+                Origin = origin;
+                Load = load;
+                Owns = owns;
+            }
+
+            internal ReignArrestCase Item { get; }
+            internal JObject Material { get; }
+            internal string ExistingIntent { get; }
+            internal string Origin { get; }
+            internal ReignSaveSyncCoordinator.VerifiedLoad Load { get; }
+            internal Func<string, bool> Owns { get; }
+        }
+
+        private static bool NeedsCapturedRepair(ReignArrestCase item) => item.AccusationActive
+            && item.CauseEstablished && item.Phase == ReignArrestPhase.Captured
+            && (!item.RelationshipEffectSynchronized || !item.ReputationSynchronized);
+
+        // The immutable request is rebuilt only to prove that the native case still describes
+        // these exact terms. Keep its original observed day across transport retries and saves.
+        private static JObject BuildCapturedRepairMaterial(ReignArrestCase item, Hero accused,
+            double day, string campaign, string timeline, string generation)
+        {
+            var material = BuildArrestEffectRequest(item, accused, false);
+            material["worldDay"] = day;
+            string description = material.Value<string>("description").Trim();
+            material["description"] = description.Length > 1000 ? description.Substring(0, 1000).TrimEnd() : description;
+            material["chargeCategory"] = item.ChargeCategory ?? string.Empty;
+            material["evidenceStatus"] = item.EvidenceStatus ?? string.Empty;
+            material["evidenceIds"] = item.EvidenceIdsCsv ?? string.Empty;
+            material["campaignId"] = campaign;
+            material["timelineId"] = timeline;
+            material["sharedActivityGeneration"] = generation;
+            material["arrestEffectVersion"] = 2;
+            return material;
+        }
+
+        private CapturedRepairWork CaptureDailyCapturedRepair(ReignServerClient.RequestFence fence,
+            ReignArrestCase item, Hero accused)
+        {
+            Hero player = Hero.MainHero;
+            if (player == null || item.PlayerHeroStringId != player.StringId || !fence.IsCurrentActionPoll()) return null;
+            string campaign = ReignServerClient.GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            string generation = fence.SharedActivityGeneration;
+            if (string.IsNullOrWhiteSpace(campaign) || string.IsNullOrWhiteSpace(timeline)
+                || string.IsNullOrWhiteSpace(item.ReputationTagId)) return null;
+
+            var load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            if (load != null && (load.CampaignId != campaign || load.RestoreGeneration != generation)) return null;
+            string origin = load?.Origin;
+            string existingIntent = item.DailyCapturedRepairIntentJson ?? string.Empty;
+            double day = CurrentDay();
+            if (existingIntent.Length != 0)
+            {
+                JObject persisted = ReadCapturedRepairIntent(existingIntent);
+                if (!(persisted?["request"] is JObject saved) || !(saved["sharedActivityGeneration"] is JValue oldGeneration)
+                    || oldGeneration.Type != JTokenType.String || !TryReadCapturedIntentIdentity(saved, out _, out _)) return null;
+                string savedOrigin = CapturedString(persisted, "origin");
+                if (!ReignHttpTransport.IsAllowedPinnedOrigin(savedOrigin)) return null;
+                if (!_capturedRepairIntentsOpenedHere.Contains(existingIntent) || (string)oldGeneration != generation)
+                {
+                    // On a native reload a serialized intent has no send authority by itself.
+                    // Its exact checkpoint must have been verified by this same server origin.
+                    if (load == null || load.Origin != savedOrigin || string.IsNullOrEmpty(load.SavePointId)
+                        || string.IsNullOrEmpty(load.LoadSessionId)) return null;
+                }
+                if (origin != null && origin != savedOrigin) return null;
+                origin = savedOrigin;
+                if (!TryReadCapturedDay(saved, out day)) return null;
+                var original = (JObject)saved.DeepClone();
+                original.Remove("expectedMaterialRevision");
+                original.Remove("effectIntentId");
+                original["worldDay"] = day;
+                if (!JToken.DeepEquals(original, BuildCapturedRepairMaterial(item, accused, day,
+                        campaign, timeline, (string)oldGeneration))) return null;
+            }
+
+            var material = BuildCapturedRepairMaterial(item, accused, day, campaign, timeline, generation);
+            bool Current(string expectedIntent) => OwnsDailyEvidenceReview(fence) && fence.IsCurrentActionPoll()
+                && ReferenceEquals(load, ReignSaveSyncCoordinator.CurrentVerifiedLoad)
+                && _cases.Contains(item) && NeedsCapturedRepair(item)
+                && ReferenceEquals(player, Hero.MainHero) && ReferenceEquals(accused, FindHero(item.AccusedHeroStringId))
+                && item.PlayerHeroStringId == player.StringId && item.AccusedHeroStringId == accused.StringId
+                && (item.DailyCapturedRepairIntentJson ?? string.Empty) == expectedIntent
+                && JToken.DeepEquals(material, BuildCapturedRepairMaterial(item, accused, day, campaign, timeline, generation));
+            return new CapturedRepairWork(item, material, existingIntent, origin, load, Current);
+        }
+
+        private async Task<bool> ReviewCapturedRepairAsync(CapturedRepairWork work)
+        {
+            if (work == null) return false;
+            try
+            {
+                if (work.ExistingIntent.Length != 0)
+                    return await SendCapturedRepairIntentAsync(work, work.ExistingIntent).ConfigureAwait(false);
+
+                var inspection = (JObject)work.Material.DeepClone();
+                inspection["operation"] = "inspect";
+                bool OwnsInspection() => work.Owns(string.Empty);
+                JObject result = work.Origin == null
+                    ? await ReignServerClient.PostOwnedJsonAsync(CapturedRepairRoute, inspection, OwnsInspection).ConfigureAwait(false)
+                    : await ReignServerClient.SendPinnedJsonAsync(work.Origin, CapturedRepairRoute, inspection, OwnsInspection).ConfigureAwait(false);
+                string origin = work.Origin ?? ReignHttpTransport.ResponseOrigin(result);
+                if (!ReignHttpTransport.IsAllowedPinnedOrigin(origin) || !CapturedInspectionMatches(inspection, result)
+                    || !TryReadCapturedRevision(result, "materialRevision", out long revision)) return false;
+
+                var preparation = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!OwnsInspection()) return (Settled: false, Intent: (string)null);
+                    string status = CapturedString(result, "status");
+                    if (status == "terminal_rescinded" && IsCapturedBoolean(result, "ok", false))
+                        return (Settled: true, Intent: (string)null);
+                    if (status == "settled")
+                        return (Settled: ApplyMeasuredCapturedRepair(work.Item, result), Intent: (string)null);
+                    if (status != "ready" || !IsCapturedBoolean(result, "ok", true) || revision != 0)
+                        return (Settled: false, Intent: (string)null);
+
+                    var payload = (JObject)work.Material.DeepClone();
+                    payload["expectedMaterialRevision"] = revision;
+                    payload["effectIntentId"] = revision.ToString(CultureInfo.InvariantCulture) + "_" + Guid.NewGuid().ToString("N");
+                    string pending = new JObject { ["schema"] = 1, ["phase"] = "Captured", ["origin"] = origin,
+                        ["request"] = payload }.ToString(Newtonsoft.Json.Formatting.None);
+                    work.Item.DailyCapturedRepairIntentJson = pending;
+                    _capturedRepairIntentsOpenedHere.Add(pending);
+                    return (Settled: false, Intent: pending);
+                }).ConfigureAwait(false);
+                return preparation.Intent == null ? preparation.Settled
+                    : await SendCapturedRepairIntentAsync(work, preparation.Intent).ConfigureAwait(false);
+            }
+            catch (ReignRequestOwnerAbandonedException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Captured arrest effect retry deferred: " + ex.GetType().Name);
+                return false;
+            }
+        }
+
+        private async Task<bool> SendCapturedRepairIntentAsync(CapturedRepairWork work, string pending)
+        {
+            var envelope = ReadCapturedRepairIntent(pending);
+            if (!(envelope?["request"] is JObject saved)
+                || !TryReadCapturedIntentIdentity(saved, out long previousRevision, out string intent)) return false;
+            string origin = CapturedString(envelope, "origin");
+            if (!ReignHttpTransport.IsAllowedPinnedOrigin(origin) || work.Origin != null && work.Origin != origin) return false;
+            var request = (JObject)saved.DeepClone();
+            // The original intent bytes stay saved. A positively verified reload can transport
+            // identical material with the current restore owner, leaving the nonce unchanged.
+            request["sharedActivityGeneration"] = work.Material["sharedActivityGeneration"].DeepClone();
+            bool Current() => work.Owns(pending) && (work.Load == null || work.Load.Origin == origin);
+            JObject result = await ReignServerClient.SendPinnedJsonAsync(origin, CapturedRepairRoute, request, Current).ConfigureAwait(false);
+            return await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!Current() || !CapturedReplyMatches(request, result)
+                    || CapturedString(result, "effectIntentId") != intent
+                    || !TryReadCapturedRevision(result, "materialRevision", out long revision)) return false;
+                string status = CapturedString(result, "status");
+                bool committed = status == "committed" && revision == previousRevision + 1
+                    && ApplyMeasuredCapturedRepair(work.Item, result);
+                bool superseded = IsCapturedBoolean(result, "ok", false) && (status == "terminal_rescinded"
+                    || status == "stale_material" && revision > previousRevision);
+                if (!committed && !superseded) return false;
+                work.Item.DailyCapturedRepairIntentJson = string.Empty;
+                _capturedRepairIntentsOpenedHere.Remove(pending);
+                return true;
+            }).ConfigureAwait(false);
+        }
+
+        private static JObject ReadCapturedRepairIntent(string json)
+        {
+            try
+            {
+                var envelope = JObject.Parse(json, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+                return TryReadCapturedRevision(envelope, "schema", out long schema) && schema == 1
+                    && CapturedString(envelope, "phase") == "Captured" ? envelope : null;
+            }
+            catch (Newtonsoft.Json.JsonException) { return null; }
+            catch (OverflowException) { return null; }
+        }
+
+        private static bool TryReadCapturedDay(JObject payload, out double day)
+        {
+            day = 0;
+            var token = payload?["worldDay"];
+            return (token?.Type == JTokenType.Integer || token?.Type == JTokenType.Float)
+                && double.TryParse(token.ToString(Newtonsoft.Json.Formatting.None), NumberStyles.Float,
+                    CultureInfo.InvariantCulture, out day) && !double.IsInfinity(day) && !double.IsNaN(day) && day >= 0;
+        }
+
+        private static string CapturedString(JObject payload, string field) =>
+            payload?[field]?.Type == JTokenType.String ? payload.Value<string>(field) : null;
+
+        private static bool IsCapturedBoolean(JObject payload, string field, bool expected) =>
+            payload?[field]?.Type == JTokenType.Boolean && payload.Value<bool>(field) == expected;
+
+        private static bool TryReadCapturedRevision(JObject payload, string field, out long revision)
+        {
+            revision = -1;
+            return payload?[field]?.Type == JTokenType.Integer && long.TryParse(
+                payload[field].ToString(Newtonsoft.Json.Formatting.None), NumberStyles.None, CultureInfo.InvariantCulture, out revision);
+        }
+
+        private static bool TryReadCapturedIntentIdentity(JObject payload, out long revision, out string intent)
+        {
+            intent = CapturedString(payload, "effectIntentId");
+            if (!TryReadCapturedRevision(payload, "expectedMaterialRevision", out revision)
+                || revision == long.MaxValue || string.IsNullOrEmpty(intent)) return false;
+            string prefix = revision.ToString(CultureInfo.InvariantCulture) + "_";
+            return intent.StartsWith(prefix, StringComparison.Ordinal) && Guid.TryParseExact(intent.Substring(prefix.Length), "N", out Guid id)
+                && id != Guid.Empty && intent == prefix + id.ToString("N");
+        }
+
+        private static bool CapturedReplyMatches(JObject request, JObject response) =>
+            TryReadCapturedRevision(response, "arrestEffectVersion", out long version) && version == 2
+            && MatchesCaseEffectIdentity(request, response, "operation") && MatchesCaseEffectIdentity(request, response, "caseId")
+            && MatchesCaseEffectIdentity(request, response, "reputationTagId");
+
+        private static bool CapturedInspectionMatches(JObject request, JObject response) =>
+            CapturedReplyMatches(request, response) && MatchesCaseEffectIdentity(request, response, "campaignId")
+            && MatchesCaseEffectIdentity(request, response, "timelineId") && MatchesCaseEffectIdentity(request, response, "accusedHeroId")
+            && MatchesCaseEffectIdentity(request, response, "playerHeroId")
+            && CapturedString(response, "sharedActivityGeneration") == CapturedString(request, "sharedActivityGeneration");
+
+        private static bool ApplyMeasuredCapturedRepair(ReignArrestCase item, JObject response)
+        {
+            var delta = response["appliedRelationshipDelta"];
+            if (!IsCapturedBoolean(response, "ok", true) || !IsCapturedBoolean(response, "relationshipEffectResolved", true)
+                || delta?.Type != JTokenType.Integer || !int.TryParse(delta.ToString(Newtonsoft.Json.Formatting.None),
+                    NumberStyles.Integer, CultureInfo.InvariantCulture, out int measured) || measured < -100 || measured > 100)
+                return false;
+            item.RelationshipDeltaApplied = measured;
+            item.RelationshipEffectSynchronized = true;
+            item.ReputationSynchronized = true;
+            return true;
+        }
+
         private enum ArrestEffectSyncStatus
         {
             Unverified,
@@ -851,12 +1110,10 @@ namespace ReignBeta.WorldSimulation.Arrests
             TerminalUnmeasured
         }
 
-        private (ArrestEffectSyncStatus Status, int? Remainder) SynchronizeCaseEffect(
-            ReignArrestCase item, Hero accused, bool rescind)
+        private static JObject BuildArrestEffectRequest(ReignArrestCase item, Hero accused, bool rescind)
         {
-            if (item == null || accused == null) return (ArrestEffectSyncStatus.Unverified, null);
             int desiredDelta = RelationshipDelta(item.Severity, item.CauseEstablished);
-            JObject payload = new JObject
+            return new JObject
             {
                 ["operation"] = rescind ? "rescind" : "apply",
                 ["caseId"] = item.CaseId,
@@ -872,8 +1129,15 @@ namespace ReignBeta.WorldSimulation.Arrests
                 ["causeEstablished"] = item.CauseEstablished,
                 ["evidenceStatus"] = item.EvidenceStatus,
                 ["evidenceIds"] = item.EvidenceIdsCsv,
-                ["worldDay"] = CurrentDay()
             };
+        }
+
+        private (ArrestEffectSyncStatus Status, int? Remainder) SynchronizeCaseEffect(
+            ReignArrestCase item, Hero accused, bool rescind)
+        {
+            if (item == null || accused == null) return (ArrestEffectSyncStatus.Unverified, null);
+            JObject payload = BuildArrestEffectRequest(item, accused, rescind);
+            payload["worldDay"] = CurrentDay();
             try
             {
                 JObject response = ReignServerClient.ApplyArrestCaseEffectAsync(payload)

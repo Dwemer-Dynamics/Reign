@@ -5,6 +5,99 @@ namespace Reign.Mcp.Tests;
 
 public sealed class PartyAgencyHarnessContractTests
 {
+    [Fact]
+    public void PartyAgencyApprovedArtifactMeasuresHashAndManagedIdentityFromTheSameBytes()
+    {
+        var assembly = typeof(PartyAgencyHarnessContractTests).Assembly;
+        string name = assembly.GetName().Name!;
+        string root = Path.Combine(Path.GetTempPath(), "reign-approved-artifact-" + Guid.NewGuid().ToString("N"));
+        string file = Path.Combine(root, "approved-fixture.dll");
+        Directory.CreateDirectory(root);
+        try
+        {
+            File.Copy(assembly.Location, file);
+            string originalHash = ReignValidationService.FileSha256(file);
+            var approved = PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, name, originalHash);
+            Assert.Equal(new PartyAgencyApprovedModule(name, assembly.ManifestModule.ModuleVersionId, originalHash), approved);
+            Assert.Throws<InvalidDataException>(() =>
+                PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, "RenamedForeignAssembly", originalHash));
+
+            // A trailing byte changes the approved binary without changing the managed manifest.
+            using (var append = File.Open(file, FileMode.Append))
+                append.WriteByte(0x2a);
+            string changedHash = ReignValidationService.FileSha256(file);
+            Assert.NotEqual(originalHash, changedHash);
+            Assert.Equal(approved.Mvid,
+                PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, name, changedHash).Mvid);
+            Assert.Throws<InvalidDataException>(() =>
+                PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, name, originalHash));
+        }
+        finally
+        {
+            File.Delete(file);
+            Directory.Delete(root);
+        }
+    }
+
+    [Theory]
+    [InlineData("exact")]
+    [InlineData("other_candidate")]
+    [InlineData("other_prior")]
+    [InlineData("other_delta")]
+    [InlineData("missing_path")]
+    [InlineData("duplicate_path")]
+    public void PartyAgencyApprovedArtifactsRequireTheExactRetainedReviewBinding(string mutation)
+    {
+        string candidateSha = new('1', 64), priorSha = new('2', 64), diffSha = new('3', 64);
+        JsonElement candidate = JsonSerializer.SerializeToElement(new
+        {
+            Schema = "reign-deployment-authority-content-v1",
+            PriorAuthoritySha256 = priorSha,
+            DiffSha256 = diffSha,
+            Diff = new[] { new { path = "client/ReignBeta.csproj" } }
+        });
+        string[] paths = mutation switch
+        {
+            "missing_path" => [],
+            "duplicate_path" => ["client/ReignBeta.csproj", "client/ReignBeta.csproj"],
+            _ => ["client/ReignBeta.csproj"]
+        };
+        JsonElement review = JsonSerializer.SerializeToElement(new
+        {
+            CandidateSha256 = mutation == "other_candidate" ? diffSha : candidateSha,
+            PriorAuthoritySha256 = mutation == "other_prior" ? candidateSha : priorSha,
+            DiffSha256 = mutation == "other_delta" ? candidateSha : diffSha,
+            Reason = "Reviewed exact managed build sources.",
+            ReviewedPaths = paths
+        });
+
+        if (mutation == "exact")
+            PartyAgencyApprovedArtifacts.ValidateReviewBinding(candidate, review, candidateSha);
+        else
+            Assert.Throws<InvalidDataException>(() =>
+                PartyAgencyApprovedArtifacts.ValidateReviewBinding(candidate, review, candidateSha));
+    }
+
+    [Fact]
+    public void PartyAgencyApprovedArtifactWitnessRetainsItsRunScopeThroughSerialization()
+    {
+        string sha = new('a', 64);
+        var witness = new PartyAgencyApprovedArtifactWitness(
+            PartyAgencyApprovedArtifactWitness.WitnessSchema, "run", "campaign", "enrollment",
+            "2026-11-24T15:00:00.0000000+00:00", sha, sha, sha, sha, sha,
+            "20261124-150000-12345678", sha, sha, "20261124-150001-12345678", sha, sha,
+            new("ReignBeta", Guid.NewGuid(), sha), new("ReignServer", Guid.NewGuid(), sha));
+        var restored = JsonSerializer.Deserialize<PartyAgencyCertificationState>(
+            JsonSerializer.Serialize(new PartyAgencyCertificationState { ApprovedArtifactWitness = witness }))!;
+        Assert.Equal(witness, restored.ApprovedArtifactWitness);
+        Assert.True(witness.BelongsTo("run", "campaign", "enrollment"));
+        Assert.False(witness.BelongsTo("other-run", "campaign", "enrollment"));
+        Assert.False(witness.BelongsTo("run", "other-campaign", "enrollment"));
+        Assert.False(witness.BelongsTo("run", "campaign", "other-enrollment"));
+        Assert.False((witness with { LinuxManifestSha256 = "release-label" })
+            .BelongsTo("run", "campaign", "enrollment"));
+    }
+
     [Theory]
     [InlineData("valid")]
     [InlineData("legacy")]
