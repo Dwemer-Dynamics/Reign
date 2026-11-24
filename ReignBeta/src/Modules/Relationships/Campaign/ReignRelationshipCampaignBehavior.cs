@@ -113,28 +113,73 @@ namespace ReignBeta.Relationships.Campaign
             _ = DrainRelationshipDirectorActionsAsync();
         }
 
+        private sealed class DirectorReceiptBatch
+        {
+            internal ReignRelationshipDirectorClient.DirectorActionOwner Owner;
+            internal string Origin;
+            internal JArray Receipts;
+        }
+
+        private DirectorReceiptBatch _pendingDirectorReceipts;
+
         private async Task DrainRelationshipDirectorActionsAsync()
         {
             try
             {
-                List<ReignDirectorAction> actions =
-                    await ReignRelationshipDirectorClient.PollRelationshipDirectorActionsAsync()
-                        .ConfigureAwait(false);
-                if (actions.Count == 0) return;
-                JArray receipts = new JArray();
+                var owner = new ReignRelationshipDirectorClient.DirectorActionOwner();
+                bool Owns(ReignRelationshipDirectorClient.DirectorActionOwner captured) =>
+                    ReferenceEquals(Instance, this) && captured.IsCurrent();
+                bool OwnsBatch(DirectorReceiptBatch batch) => Owns(batch.Owner)
+                    && ReignHttpTransport.IsAllowedPinnedOrigin(batch.Origin);
+
+                var batch = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (_pendingDirectorReceipts != null && !OwnsBatch(_pendingDirectorReceipts))
+                        _pendingDirectorReceipts = null;
+                    return _pendingDirectorReceipts;
+                }).ConfigureAwait(false);
+
+                if (batch == null)
+                {
+                    var poll = await ReignRelationshipDirectorClient.PollOwnedDirectorActionsAsync(
+                        owner, () => Owns(owner)).ConfigureAwait(false);
+                    if (poll.Actions.Count == 0) return;
+                    batch = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        var pending = new DirectorReceiptBatch { Owner = owner, Origin = poll.Origin, Receipts = new JArray() };
+                        try
+                        {
+                            foreach (ReignDirectorAction action in poll.Actions)
+                            {
+                                if (!OwnsBatch(pending)) return null;
+                                pending.Receipts.Add(ApplyDirectorAction(action));
+                            }
+                        }
+                        catch
+                        {
+                            // A later native callback can fail after earlier effects were observed.
+                            if (pending.Receipts.Count > 0 && OwnsBatch(pending))
+                                _pendingDirectorReceipts = pending;
+                            throw;
+                        }
+                        if (!OwnsBatch(pending)) return null;
+                        return _pendingDirectorReceipts = pending;
+                    }).ConfigureAwait(false);
+                }
+                if (batch == null) return;
+
+                // After a transport failure, keep these observed results and retry
+                // the same endpoint before polling actions that may already have run.
+                await ReignRelationshipDirectorClient.ReportOwnedDirectorActionsAsync(
+                    batch.Owner, batch.Origin, batch.Receipts, () => OwnsBatch(batch)).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if(!ReferenceEquals(Instance,this))return;
-                    foreach (ReignDirectorAction action in actions)
-                        receipts.Add(ApplyDirectorAction(action));
+                    if (ReferenceEquals(_pendingDirectorReceipts, batch)) _pendingDirectorReceipts = null;
                 }).ConfigureAwait(false);
-                await ReignRelationshipDirectorClient.ReportRelationshipDirectorActionsAsync(receipts)
-                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                ReignLog.Warn("Real-time relationship director action poll failed: "
-                    + ex.Message);
+                ReignLog.Warn("Real-time relationship director action poll failed: " + ex.Message);
             }
             finally
             {

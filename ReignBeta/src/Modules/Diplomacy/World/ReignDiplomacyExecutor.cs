@@ -13,6 +13,7 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Characters.World;
 using ReignBeta.Government.Integration;
@@ -22,6 +23,7 @@ using ReignBeta.Rebellion.Campaign;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Rulers;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
 
@@ -471,14 +473,113 @@ namespace ReignBeta.Diplomacy.World
 
         private static ReignActionResult ExchangePrisoners(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
+            JObject execution;
+            try { execution = JObject.Parse(string.IsNullOrWhiteSpace(action.ExecutionSnapshotJson) ? "{}" : action.ExecutionSnapshotJson); }
+            catch (Newtonsoft.Json.JsonException) { return UnverifiedPrisonerExchange(); }
+
+            // The saved action and the native prisoners belong to the same campaign.
+            // A save taken mid-exchange must not select a new batch on reload.
+            const string exchangeMarker = "ordinaryPrisonerExchange";
+            if (execution.Property(exchangeMarker) != null) return UnverifiedPrisonerExchange();
+
+            var recorder = ReignServices.AI;
+            Hero actorRuler = actor?.Leader, targetRuler = target?.Leader;
+            bool AuthorityIsCurrent() => recorder != null && ReignServices.AI == recorder
+                && actor != null && target != null && actor != target && !actor.IsEliminated && !target.IsEliminated
+                && actorRuler?.IsAlive == true && targetRuler?.IsAlive == true
+                && actor.Leader == actorRuler && target.Leader == targetRuler;
+            if (!AuthorityIsCurrent())
+                return ReignActionResult.ValidationFailed("The two prisoner exchange authorities are no longer available.");
+
             int maxEachSide = ReadIntTerm(action.TermsJson, "maxEachSide", 3);
-            int releasedActor = ReleasePrisoners(actor, target, maxEachSide, false);
-            int releasedTarget = ReleasePrisoners(target, actor, maxEachSide, false);
-            RecordAgreement(action, "prisoner_exchange", 0f, true);
-            return ReignActionResult.Done(actor.InformalName + " and " + target.InformalName + " exchanged prisoners. Released=" + (releasedActor + releasedTarget) + ".")
-                .WithEffect("prisoners_released", "kingdom", actor.StringId, actor.InformalName.ToString(), "released=" + releasedActor)
-                .WithEffect("prisoners_released", "kingdom", target.StringId, target.InformalName.ToString(), "released=" + releasedTarget)
+            var actorPrisoners = CapturePrisonerExchange(actor, target, maxEachSide);
+            var targetPrisoners = CapturePrisonerExchange(target, actor, maxEachSide);
+            var prisoners = actorPrisoners.Concat(targetPrisoners).ToList();
+            if (prisoners.Count == 0 || prisoners.Any(prisoner => !prisoner.IsInExpectedCustody()))
+                return ReignActionResult.ValidationFailed("No complete, eligible prisoner exchange is available in the current custody rosters.");
+
+            execution[exchangeMarker] = new JObject
+            {
+                ["actorKingdomId"] = actor.StringId, ["targetKingdomId"] = target.StringId,
+                ["actorRulerId"] = actorRuler.StringId, ["targetRulerId"] = targetRuler.StringId,
+                ["actorPrisonerIds"] = new JArray(actorPrisoners.Select(prisoner => prisoner.Hero.StringId)),
+                ["targetPrisonerIds"] = new JArray(targetPrisoners.Select(prisoner => prisoner.Hero.StringId))
+            };
+            action.ExecutionSnapshotJson = execution.ToString(Newtonsoft.Json.Formatting.None);
+
+            try
+            {
+                foreach (PrisonerExchangeRelease prisoner in prisoners)
+                {
+                    if (!AuthorityIsCurrent() || !prisoner.IsInExpectedCustody()) return UnverifiedPrisonerExchange();
+                    EndCaptivityAction.ApplyByPeace(prisoner.Hero, prisoner.HolderKingdom == actor ? actorRuler : targetRuler);
+                    if (!prisoner.WasReleased()) return UnverifiedPrisonerExchange();
+                }
+                if (!AuthorityIsCurrent() || prisoners.Any(prisoner => !prisoner.WasReleased()))
+                    return UnverifiedPrisonerExchange();
+                if (recorder.RecordAgreementFromAction(action, "prisoner_exchange", 0f, true) == null)
+                    return UnverifiedPrisonerExchange();
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Exception("Prisoner exchange interrupted action=" + action.ActionId, ex);
+                return UnverifiedPrisonerExchange();
+            }
+            return ReignActionResult.Done(actor.InformalName + " and " + target.InformalName + " exchanged prisoners. Released=" + prisoners.Count + ".")
+                .WithEffect("prisoners_released", "kingdom", actor.StringId, actor.InformalName.ToString(), "released=" + actorPrisoners.Count)
+                .WithEffect("prisoners_released", "kingdom", target.StringId, target.InformalName.ToString(), "released=" + targetPrisoners.Count)
                 .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=prisoner_exchange");
+        }
+
+        private static ReignActionResult UnverifiedPrisonerExchange()
+        {
+            return ReignActionResult.FailTerminal("The prisoner exchange could not be fully verified. Do not repeat this action automatically.",
+                "prisoner_exchange_unverified", "state_verification");
+        }
+
+        private static List<PrisonerExchangeRelease> CapturePrisonerExchange(Kingdom prisonerKingdom,
+            Kingdom holderKingdom, int maxCount)
+        {
+            return Hero.AllAliveHeroes
+                .Where(hero => hero != null && hero.IsPrisoner && hero.Clan?.Kingdom == prisonerKingdom
+                    && hero.PartyBelongedToAsPrisoner?.MapFaction == holderKingdom)
+                .Take(maxCount <= 0 ? int.MaxValue : maxCount)
+                .Select(hero => new PrisonerExchangeRelease(hero, prisonerKingdom, holderKingdom)).ToList();
+        }
+
+        private sealed class PrisonerExchangeRelease
+        {
+            internal Hero Hero { get; }
+            internal Kingdom HolderKingdom { get; }
+            private readonly Kingdom prisonerKingdom;
+            private readonly PartyBase originalCaptor;
+            private readonly TroopRoster originalRoster;
+            private readonly CharacterObject character;
+
+            internal PrisonerExchangeRelease(Hero hero, Kingdom prisonerKingdom, Kingdom holderKingdom)
+            {
+                Hero = hero;
+                HolderKingdom = holderKingdom;
+                this.prisonerKingdom = prisonerKingdom;
+                originalCaptor = hero.PartyBelongedToAsPrisoner;
+                originalRoster = originalCaptor?.PrisonRoster;
+                character = hero.CharacterObject;
+            }
+
+            internal bool IsInExpectedCustody()
+            {
+                return Hero.IsAlive && Hero.IsPrisoner && Hero.Clan?.Kingdom == prisonerKingdom
+                    && originalCaptor != null && Hero.PartyBelongedToAsPrisoner == originalCaptor
+                    && originalCaptor.MapFaction == HolderKingdom && originalRoster != null
+                    && originalCaptor.PrisonRoster == originalRoster && character != null
+                    && originalRoster.GetTroopCount(character) > 0 && !ReignRulerCampaignBehavior.BlocksRelease(Hero);
+            }
+
+            internal bool WasReleased()
+            {
+                return Hero.IsAlive && !Hero.IsPrisoner && Hero.PartyBelongedToAsPrisoner == null
+                    && originalRoster.GetTroopCount(character) == 0;
+            }
         }
 
         private static ReignActionResult RansomPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action)

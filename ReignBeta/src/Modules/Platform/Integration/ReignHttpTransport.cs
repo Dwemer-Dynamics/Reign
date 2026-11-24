@@ -380,7 +380,8 @@ namespace ReignBeta.Platform.Integration
         {
             if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal)
                 || route.StartsWith("/political-pressure/notices?", StringComparison.Ordinal)
-                || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal))) return parsed;
+                || route.StartsWith("/clan-conflicts/notices?", StringComparison.Ordinal)
+                || route == "/relationships/director/poll_actions")) return parsed;
             string origin = PinnableOrigin(baseUrl);
             Uri final = response?.RequestMessage?.RequestUri;
             if (final == null || !Uri.TryCreate(requestUrl, UriKind.Absolute, out Uri requested)
