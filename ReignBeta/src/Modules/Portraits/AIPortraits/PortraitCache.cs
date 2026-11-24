@@ -13,6 +13,7 @@ using ReignPortraits;
 using Reign.Core.Contracts.Platform;
 using TaleWorlds.Library;
 using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.Integration;
 
@@ -45,7 +46,62 @@ public static class PortraitCache
 
 	private static readonly ConcurrentDictionary<string, object> _productCommitLocks = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-	private static object ProductCommitLock(string directory) => _productCommitLocks.GetOrAdd(Path.GetFullPath(directory), _ => new object());
+	internal static object ProductCommitLock(string directory) => _productCommitLocks.GetOrAdd(Path.GetFullPath(directory), _ => new object());
+
+	private static readonly ConcurrentDictionary<string, byte> _portraitRecoveries =
+		new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
+	private static readonly string[] RecoverablePortraitFiles =
+	{
+		PortraitFileName, CustomFileName, SourceFileName, PromptFileName, PortraitInputFileName, GenerationReceiptFileName,
+		PortraitDerivativeService.OutfitReceiptFileName, PortraitDerivativeCore.ThumbnailFileName,
+		PortraitDerivativeCore.PartyThumbnailFileName, PortraitDerivativeCore.PortraitFileName,
+		PortraitDerivativeCore.ZoomFileName, PortraitDerivativeCore.ManifestFileName
+	};
+
+	internal static bool RecoverLocalPortraitProduct(string directory) =>
+		PortraitProductTransaction.TryRecover(directory, RecoverablePortraitFiles);
+
+	private static void RequireRecoverableLocalProduct(string directory)
+	{
+		if (!RecoverLocalPortraitProduct(directory))
+			throw new IOException("The local portrait has a pending or ambiguous publication.");
+	}
+
+	internal static bool AllowsLocalPortraitRead(string id)
+	{
+		string directory = Path.GetFullPath(DirFor(id));
+		if (!PortraitProductTransaction.HasRecoveryJournal(directory)) return true;
+		if (_portraitRecoveries.TryAdd(directory, 0))
+		{
+			_ = Task.Run(async () =>
+			{
+				bool recovered = false;
+				try
+				{
+					lock (ProductCommitLock(directory))
+						recovered = RecoverLocalPortraitProduct(directory);
+				}
+				finally
+				{
+					// A failed recovery must not make each frame queue new disk work.
+					if (!recovered) await Task.Delay(2500).ConfigureAwait(false);
+					_portraitRecoveries.TryRemove(directory, out _);
+				}
+			});
+		}
+		return false;
+	}
+
+	internal static byte[] ReadAdmittedPortraitBytes(string id, Func<byte[]> read)
+	{
+		object gate = ProductCommitLock(DirFor(id));
+		if (!Monitor.TryEnter(gate)) return null;
+		try { return AllowsLocalPortraitRead(id) ? read() : null; }
+		finally { Monitor.Exit(gate); }
+	}
+
+	internal static string ScopedTextureKey(string id) =>
+		id + "|campaign:" + RequestCampaignFolder + "|save:" + ReignSaveSyncCoordinator.CampaignGeneration;
 
 	private static readonly PortraitAvailabilityCache _availability = new PortraitAvailabilityCache(
 		System.Diagnostics.Stopwatch.GetTimestamp, System.Diagnostics.Stopwatch.Frequency * 5L,
@@ -210,7 +266,7 @@ public static class PortraitCache
 
 	public static bool ExistsOnDisk(string id)
 	{
-		if (string.IsNullOrEmpty(id)) return false;
+		if (string.IsNullOrEmpty(id) || !AllowsLocalPortraitRead(id)) return false;
 		string campaignFolder = RequestCampaignFolder;
 		string key = campaignFolder + "|" + id;
 		if (_availability.TryGet(key, out bool exists)) return exists;
@@ -230,7 +286,7 @@ public static class PortraitCache
 	public static bool HasCustomPortrait(string id)
 	{
 		EnsureDirectory();
-		if (!string.IsNullOrEmpty(id))
+		if (!string.IsNullOrEmpty(id) && AllowsLocalPortraitRead(id))
 		{
 			if (File.Exists(CustomPath(id)))
 			{
@@ -248,8 +304,13 @@ public static class PortraitCache
 			return false;
 		}
 
-		Directory.CreateDirectory(DirFor(id));
-		WriteAtomic(DiskPath(id), pngBytes);
+		string directory = DirFor(id);
+		lock (ProductCommitLock(directory))
+		{
+			RequireRecoverableLocalProduct(directory);
+			Directory.CreateDirectory(directory);
+			WriteAtomic(DiskPath(id), pngBytes);
+		}
 		InvalidateAvailability(id);
 		_characterPortraitPathCache.Clear();
 		PortraitDerivativeService.Invalidate(id);
@@ -370,6 +431,7 @@ public static class PortraitCache
 			fence = ReignServerClient.RequestFence.Capture();
 			if (game == null || string.IsNullOrWhiteSpace(heroId) || !fence.IsCurrent())
 				throw new InvalidOperationException("A current campaign character is required.");
+			RequireRecoverableLocalProduct(this.directory);
 			basis = PortraitProductTransaction.ReadPublicationBasis(LocalPublicationPaths(this.directory));
 		}
 
@@ -410,6 +472,7 @@ public static class PortraitCache
 				throw new RefreshApplicationRejectedException("The portrait is currently being replaced. Start a new refresh.");
 			try
 			{
+				RequireRecoverableLocalProduct(directory);
 				string marker = Path.Combine(directory, PendingGenerationFileName);
 				if (!PortraitProductTransaction.CurrentFileMatches(marker,
 					text => ReadPendingGenerationMarker(text, folder, cacheKey, out string hero, out string operation)
@@ -437,8 +500,22 @@ public static class PortraitCache
 		(Path.Combine(directory, PortraitFileName), Path.Combine(directory, CustomFileName),
 			Path.Combine(directory, GenerationReceiptFileName), Path.Combine(directory, PortraitDerivativeService.OutfitReceiptFileName));
 
+	internal static (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) CaptureOutfitPublicationBasis(string id)
+	{
+		string directory = DirFor(id);
+		object gate = ProductCommitLock(directory);
+		if (!Monitor.TryEnter(gate)) throw new IOException("The portrait is currently being replaced.");
+		try
+		{
+			RequireRecoverableLocalProduct(directory);
+			return PortraitProductTransaction.ReadPublicationBasis(LocalPublicationPaths(directory));
+		}
+		finally { Monitor.Exit(gate); }
+	}
+
 	internal static string PublishConfirmedOutfitOverride(string id, byte[] image, JObject verifiedReceipt,
-		string outfitOperationId, Func<bool> stillOwnsWorld)
+		string outfitOperationId, (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) expected,
+		Func<bool> stillOwnsWorld)
 	{
 		string directory = DirFor(id);
 		string master = Path.Combine(directory, CustomFileName);
@@ -448,8 +525,15 @@ public static class PortraitCache
 		lock (ProductCommitLock(directory))
 		{
 			if (!stillOwnsWorld()) throw new OperationCanceledException("The outfit no longer belongs to the loaded campaign.");
+			RequireRecoverableLocalProduct(directory);
+			if (File.Exists(master) && File.Exists(receipt)
+				&& JObject.Parse(File.ReadAllText(receipt)).Value<string>("reignOutfitOperationId") == outfitOperationId
+				&& HashEquals(verifiedReceipt["master"]?.Value<string>("sha256"), File.ReadAllBytes(master)))
+				return master;
+			if (PortraitProductTransaction.ReadPublicationBasis(LocalPublicationPaths(directory)) != expected)
+				throw new IOException("A newer local portrait publication superseded this confirmation.");
 			Directory.CreateDirectory(directory);
-			PortraitProductTransaction.WriteAllBytes((master, image),
+			PortraitProductTransaction.WriteRecoverable(directory, RecoverablePortraitFiles, (master, image),
 				(receipt, Encoding.UTF8.GetBytes(publication.ToString(Formatting.None))));
 		}
 		return master;
@@ -696,7 +780,8 @@ public static class PortraitCache
 				}
 			}
 
-			void Publish() => PortraitProductTransaction.Commit(items.Select(item => item.File), () =>
+			void Publish() => PortraitProductTransaction.CommitRecoverable(outputDirectory, items.Select(item => item.File),
+				RecoverablePortraitFiles, () =>
 			{
 				foreach (ProductCommitItem item in items)
 					if (item.IsPng && !PortraitDerivativeCore.HasPngDimensions(item.Path, item.Width, item.Height))
@@ -765,8 +850,13 @@ public static class PortraitCache
 		}
 		try
 		{
-			Directory.CreateDirectory(DirFor(id));
-			File.WriteAllBytes(SourcePath(id), pngBytes);
+			string directory = DirFor(id);
+			lock (ProductCommitLock(directory))
+			{
+				RequireRecoverableLocalProduct(directory);
+				Directory.CreateDirectory(directory);
+				File.WriteAllBytes(SourcePath(id), pngBytes);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -782,8 +872,13 @@ public static class PortraitCache
 		}
 		try
 		{
-			Directory.CreateDirectory(DirFor(id));
-			File.WriteAllText(PromptPath(id), prompt, Encoding.UTF8);
+			string directory = DirFor(id);
+			lock (ProductCommitLock(directory))
+			{
+				RequireRecoverableLocalProduct(directory);
+				Directory.CreateDirectory(directory);
+				File.WriteAllText(PromptPath(id), prompt, Encoding.UTF8);
+			}
 		}
 		catch (Exception ex)
 		{
@@ -798,19 +893,16 @@ public static class PortraitCache
 		{
 			return null;
 		}
-		if (!TryGetPreferredDiskPath(id, out var path))
+		return ReadAdmittedPortraitBytes(id, () =>
 		{
-			return null;
-		}
-		try
-		{
-			return File.ReadAllBytes(path);
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] GetDiskBytes failed for " + id + ": " + ex.Message);
-			return null;
-		}
+			if (!TryGetPreferredDiskPath(id, out var path)) return null;
+			try { return File.ReadAllBytes(path); }
+			catch (Exception ex)
+			{
+				Debug.Print("[AIPortraits] GetDiskBytes failed for " + id + ": " + ex.Message);
+				return null;
+			}
+		});
 	}
 
 	public static bool TryGetPortraitAspectRatio(string id, out float aspectRatio)
@@ -1044,6 +1136,7 @@ public static class PortraitCache
 			if (!Monitor.TryEnter(gate)) return false;
 			try
 			{
+				if (!RecoverLocalPortraitProduct(path)) return false;
 				_pending.TryRemove(RequestCampaignFolder + "|" + id, out _);
 				if (Directory.Exists(path))
 				{
@@ -1275,6 +1368,7 @@ public static class PortraitCache
 			return false;
 		}
 
+		if (!AllowsLocalPortraitRead(id)) return false;
 		string customPath = CustomPath(id);
 		if (File.Exists(customPath))
 		{

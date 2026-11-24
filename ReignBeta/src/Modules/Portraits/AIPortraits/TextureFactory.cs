@@ -278,8 +278,9 @@ public static class TextureFactory
 		{
 			return null;
 		}
+		if (!MemoryService.IsMemoryKey(id) && !PortraitCache.AllowsLocalPortraitRead(id)) return null;
 		TextureLruCache cache = CacheFor(tier);
-		string cacheKey = id + "|tier:" + tier;
+		string cacheKey = PortraitCache.ScopedTextureKey(id) + "|tier:" + tier;
 		if (cache.TryGet(cacheKey, out var value))
 		{
 			return value;
@@ -329,8 +330,9 @@ public static class TextureFactory
 		{
 			return GetOrBuild(id, tier);
 		}
+		if (!MemoryService.IsMemoryKey(id) && !PortraitCache.AllowsLocalPortraitRead(id)) return null;
 		int num = (int)Math.Round(targetAspect * 1000f);
-		string text = id + "|tier:" + tier + (contain ? "|contain:" : "|aspect:") + num;
+		string text = PortraitCache.ScopedTextureKey(id) + "|tier:" + tier + (contain ? "|contain:" : "|aspect:") + num;
 		TextureLruCache cache = CacheFor(tier);
 		if (cache.TryGet(text, out var value))
 		{
@@ -598,20 +600,17 @@ public static class TextureFactory
 		{
 			return MemoryService.GetMemoryBytes(id);
 		}
-		if (!PortraitDerivativeService.TryGetDerivativePath(id, tier, out string path))
+		return PortraitCache.ReadAdmittedPortraitBytes(id, () =>
 		{
-			return null;
-		}
-		try
-		{
-			return File.ReadAllBytes(path);
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] Derivative read failed for " + id + ": " + ex.Message);
-			QueueRepair(id);
-			return null;
-		}
+			if (!PortraitDerivativeService.TryGetDerivativePath(id, tier, out string path)) return null;
+			try { return File.ReadAllBytes(path); }
+			catch (Exception ex)
+			{
+				Debug.Print("[AIPortraits] Derivative read failed for " + id + ": " + ex.Message);
+				QueueRepair(id);
+				return null;
+			}
+		});
 	}
 
 	private static void QueueRepair(string id)

@@ -22,6 +22,7 @@ namespace ReignBeta.Portraits.Integration
         internal TaleWorlds.CampaignSystem.Campaign Campaign;
         internal ReignMainThread.GameScope GameScope;
         internal int SaveGeneration;
+        internal (string Master, string Custom, string GenerationReceipt, string OutfitReceipt) LocalPublicationBasis;
         internal string DirectoryPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Reign", "OutfitPreviews", Id);
         internal string BeforePath => Path.Combine(DirectoryPath, "before.png");
         internal string AfterPath => Path.Combine(DirectoryPath, "after.png");
@@ -60,11 +61,17 @@ namespace ReignBeta.Portraits.Integration
             ["age"] = hero?.Age ?? 0, ["isRuler"] = hero != null && hero.Clan?.Kingdom?.Leader == hero,
             ["sovereignHeroStringId"] = hero?.Clan?.Kingdom?.Leader?.StringId ?? "",
             ["companionOfId"] = hero?.CompanionOf != null && hero.CompanionOf == Clan.PlayerClan ? Hero.MainHero?.StringId ?? "" : "" };
-        internal static ReignOutfitAttempt Create(Hero hero) => new ReignOutfitAttempt {
-            Campaign = TaleWorlds.CampaignSystem.Campaign.Current, CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-            GameScope = ReignMainThread.CurrentGameScope, SaveGeneration = ReignSaveSyncCoordinator.CampaignGeneration,
-            CampaignFolder = ReignCampaignIdentity.CurrentCampaignFolderName(), Timeline = ReignServices.WorldHistory?.TimelineId ?? "main",
-            HeroId = hero.StringId, PlayerId = Hero.MainHero.StringId, CacheKey = CharacterCacheId.ForHero(hero) };
+        internal static ReignOutfitAttempt Create(Hero hero)
+        {
+            var attempt = new ReignOutfitAttempt {
+                Campaign = TaleWorlds.CampaignSystem.Campaign.Current, CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
+                GameScope = ReignMainThread.CurrentGameScope, SaveGeneration = ReignSaveSyncCoordinator.CampaignGeneration,
+                CampaignFolder = ReignCampaignIdentity.CurrentCampaignFolderName(), Timeline = ReignServices.WorldHistory?.TimelineId ?? "main",
+                HeroId = hero.StringId, PlayerId = Hero.MainHero.StringId, CacheKey = CharacterCacheId.ForHero(hero) };
+            using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
+                attempt.LocalPublicationBasis = PortraitCache.CaptureOutfitPublicationBasis(attempt.CacheKey);
+            return attempt;
+        }
         internal static string Hash(byte[] bytes)
         {
             using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
@@ -87,7 +94,8 @@ namespace ReignBeta.Portraits.Integration
                 throw new InvalidDataException("The confirmed portrait is missing its validated crop receipt.");
             using (new PortraitRequestScope(attempt.CampaignId, attempt.CampaignFolder, new JObject()))
             {
-                string path = PortraitCache.PublishConfirmedOutfitOverride(attempt.CacheKey, bytes, receipt, attempt.Id, () => attempt.HasLiveWorld);
+                string path = PortraitCache.PublishConfirmedOutfitOverride(attempt.CacheKey, bytes, receipt, attempt.Id,
+                    attempt.LocalPublicationBasis, () => attempt.HasLiveWorld);
                 PortraitDerivativeService.Invalidate(attempt.CacheKey);
                 if (!await PortraitDerivativeService.EnsureForSourceAsync(attempt.CacheKey, path, highPriority: true, force: true).ConfigureAwait(false)
                     || !PortraitDerivativeService.HasCurrentFullBodyProducts(path, Path.GetDirectoryName(path)))

@@ -334,6 +334,187 @@ public sealed class PortraitProductTransactionTests
         });
     }
 
+    private static readonly string[] RecoverableNames = { "custom.png", ".outfit_portrait.json", "portrait.png" };
+
+    [Fact]
+    public void RecoverableOutfitPublishesBothMembersAndRetiresItsJournal()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            string custom = Path.Combine(root, "custom.png");
+            string receipt = Path.Combine(root, ".outfit_portrait.json");
+            File.WriteAllText(custom, "old master");
+            PortraitProductTransaction.WriteRecoverable(root, RecoverableNames,
+                (custom, "new master"u8.ToArray()), (receipt, "new receipt"u8.ToArray()));
+
+            Assert.Equal("new master", File.ReadAllText(custom));
+            Assert.Equal("new receipt", File.ReadAllText(receipt));
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+
+    [Fact]
+    public void PreparedRecoveryRestoresAnInterruptedRenameAndRemovesExactlyItsNewFile()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var custom = Stage(root, "custom.png", "new master", null);
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt",
+                (source, destination, backup) =>
+                {
+                    File.Move(destination, backup);
+                    throw new IOException("Interrupted replacement.");
+                });
+            File.WriteAllText(Path.Combine(root, "neighbor.txt"), "keep");
+
+            Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { custom, receipt }, RecoverableNames, () => { }));
+            Assert.False(File.Exists(custom.Path));
+            Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
+            Assert.Equal("keep", File.ReadAllText(Path.Combine(root, "neighbor.txt")));
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+
+    [Fact]
+    public void RecoveryLeavesUnknownBytesAndBlocksUntilExactOwnershipCanBeProved()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var custom = Stage(root, "custom.png", "new master", "old master");
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt",
+                (source, destination, backup) =>
+                {
+                    File.WriteAllText(destination, "other writer");
+                    throw new IOException("Replacement did not establish ownership.");
+                });
+            Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { custom, receipt }, RecoverableNames, () => { }));
+            receipt.Cleanup(false); // A refresh caller also cleans staging in its finally.
+            Assert.True(File.Exists(receipt.TemporaryPath));
+            Assert.True(File.Exists(Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName)));
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("other writer", File.ReadAllText(receipt.Path));
+            Assert.Equal("new master", File.ReadAllText(custom.Path));
+            Assert.Equal("old master", File.ReadAllText(custom.BackupPath));
+
+            File.WriteAllText(receipt.Path, "old receipt");
+            Assert.False(PortraitProductTransaction.TryRecover(root, new[] { "custom.png" }));
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("old master", File.ReadAllText(custom.Path));
+            Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+
+    [Fact]
+    public void RetriedCompensationKeepsThePreparedJournalAndRestoreImageUntilSuccess()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var custom = Stage(root, "custom.png", "new master", "old master");
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt");
+            FileStream? blocked = null;
+            try
+            {
+                Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                    new[] { custom, receipt }, RecoverableNames, () =>
+                    {
+                        blocked = File.Open(custom.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                        throw new InvalidDataException("Injected validation failure.");
+                    }));
+                Assert.True(File.Exists(Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName)));
+                Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
+                Assert.Equal("old master", File.ReadAllText(custom.BackupPath));
+                Assert.Equal("new master", File.ReadAllText(custom.Path));
+            }
+            finally { blocked?.Dispose(); }
+
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("old master", File.ReadAllText(custom.Path));
+            Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+
+    [Fact]
+    public void CommittedRecoveryRetiresEvidenceButNeverRevertsAcceptedFiles()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var custom = Stage(root, "custom.png", "new master", "old master");
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt");
+            Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { custom, receipt }, RecoverableNames, () => File.WriteAllText(custom.BackupPath, "unknown backup")));
+
+            Assert.True(File.Exists(Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName)));
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("unknown backup", File.ReadAllText(custom.BackupPath));
+            Assert.Equal("new master", File.ReadAllText(custom.Path));
+            Assert.Equal("new receipt", File.ReadAllText(receipt.Path));
+
+            File.WriteAllText(custom.BackupPath, "old master");
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("new master", File.ReadAllText(custom.Path));
+            Assert.Equal("new receipt", File.ReadAllText(receipt.Path));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+
+    [Fact]
+    public void UnknownRecoveryMarkerIsPreserved()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            string marker = Path.Combine(root, PortraitProductTransaction.RecoveryMarkerName);
+            Assert.False(PortraitProductTransaction.HasRecoveryJournal(root));
+            File.WriteAllText(marker, "unknown marker");
+            Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("unknown marker", File.ReadAllText(marker));
+            File.Delete(marker);
+            Directory.CreateDirectory(marker);
+            Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.True(Directory.Exists(marker));
+        });
+    }
+
+    [Fact]
+    public void PublicationStopsBeforeOverwritingAnotherWritersLaterFile()
+    {
+        InFixture(Path.GetTempPath(), root =>
+        {
+            var receipt = Stage(root, ".outfit_portrait.json", "new receipt", "old receipt");
+            var custom = Stage(root, "custom.png", "new master", "old master",
+                (source, destination, backup) =>
+                {
+                    File.Replace(source, destination, backup);
+                    File.WriteAllText(receipt.Path, "a later receipt");
+                });
+            Assert.Throws<IOException>(() => PortraitProductTransaction.CommitRecoverable(root,
+                new[] { custom, receipt }, RecoverableNames, () => { }));
+
+            Assert.Equal("a later receipt", File.ReadAllText(receipt.Path));
+            Assert.Equal("new receipt", File.ReadAllText(receipt.TemporaryPath));
+            Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            File.WriteAllText(receipt.Path, "old receipt");
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            Assert.Equal("old master", File.ReadAllText(custom.Path));
+            AssertNoRecoveryFiles(root);
+        });
+    }
+    private static void AssertNoRecoveryFiles(string root)
+    {
+        AssertNoTemporaryFiles(root);
+        Assert.DoesNotContain(Directory.GetFiles(root), path =>
+            Path.GetFileName(path).StartsWith(PortraitProductTransaction.RecoveryMarkerName, StringComparison.Ordinal)
+            || path.Contains(".pre.") || path.Contains(".undo."));
+    }
     private static void VerifyCompleteProduct(string root, Action<string, string, string>? replace)
     {
         string[] names = { "portrait.png", "custom.png", "source.png", "prompt.txt", "portrait_input.json",
