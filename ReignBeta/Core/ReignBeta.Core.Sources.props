@@ -46,6 +46,7 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignRaidFoodPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyLedger.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldHistoryEventProof.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldHistoryFlushPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldHistoryOutbox.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignGuestReviewSession.cs" />

@@ -101,6 +101,18 @@ namespace ReignBeta.WorldSimulation.Integration
                 () => Task.FromResult(ReignWorldHistoryTransport.IsCurrentRequest(request))).ConfigureAwait(false);
         }
 
+        // The caller retains the saved event and owns both this scope and the pinned origin.
+        // An unavailable proof leaves the saved work pending; this read never mutates the outbox.
+        internal static async Task<bool> MatchesWorldHistoryEventAtOriginAsync(
+            ReignWorldHistoryEventProof expected, Func<bool> requestOwner)
+        {
+            if (expected == null || requestOwner == null) return false;
+            bool Current() => requestOwner() && ReignHttpTransport.IsAllowedPinnedOrigin(expected.Origin);
+            JObject reply = await SendPinnedJsonAsync(expected.Origin, expected.PathAndQuery, null, Current)
+                .ConfigureAwait(false);
+            return expected.Matches(reply) && await ReignMainThread.InvokeAsync(Current).ConfigureAwait(false);
+        }
+
         internal static async Task<JObject> GetSocialCatalogAsync()
         {
             return await GetJsonAsync("/social/catalog?campaignId=" + Uri.EscapeDataString(GetCampaignId()))
