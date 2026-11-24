@@ -322,9 +322,10 @@ namespace ReignBeta.WorldSimulation.Campaign
                 LiveCommandResult result;
                 try
                 {
-                    result = execution == null
-                        ? await ExecuteCommandAsync(command).ConfigureAwait(false)
-                        : await ReignMainThread.RunOwnedAsync(pollNativeScope,
+                    if (execution == null)
+                        result = await ExecuteCommandAsync(command).ConfigureAwait(false);
+                    else
+                        result = await ReignMainThread.RunOwnedAsync(pollNativeScope,
                             () => IsCurrentPartyAgencyExecution(execution),
                             () => ExecuteCommandAsync(command)).ConfigureAwait(false);
                 }
