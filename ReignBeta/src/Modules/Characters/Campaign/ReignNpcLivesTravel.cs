@@ -124,6 +124,63 @@ namespace ReignBeta.Characters.Campaign
             var position = h.PartyBelongedTo?.Position ?? h.CurrentSettlement?.GatePosition ?? MobileParty.MainParty.Position;
             return Math.Max(1d / 24, position.Distance(destination.GatePosition) / (4d * 24d));
         }
+        private enum PersonalTravelStep
+        {
+            None,
+            Interrupt,
+            Depart,
+            Return,
+            Arrive
+        }
+
+        private bool LifeTravelTickDue(double now)
+            => !(_travelTickDay >= 0 && now < _travelTickDay + 1d / 1440);
+
+        private PersonalTravelStep PendingLeaveDeparture(NpcPersonalLeave leave, Hero hero, Settlement destination, double now)
+        {
+            MobileParty playerParty = MobileParty.MainParty;
+            if (hero == null || !hero.IsAlive || hero.IsPrisoner || playerParty == null || hero.PartyBelongedTo != playerParty
+                || !playerParty.MemberRoster.Contains(hero.CharacterObject))
+                return PersonalTravelStep.Interrupt;
+            return now >= leave.DepartureDay.GetValueOrDefault(double.PositiveInfinity) && Free(hero)
+                && SafePlace(hero, destination) && !IsMeetingHeld(hero.StringId)
+                ? PersonalTravelStep.Depart : PersonalTravelStep.None;
+        }
+
+        private static PersonalTravelStep PendingJourneyStep(NpcPersonalJourney journey, Hero hero, Settlement destination, double now)
+        {
+            if (hero == null || !hero.IsAlive || hero.IsPrisoner || !MayReturnFromLifeAbsence(hero, journey.GuestAgreementId)
+                || journey.OriginalClanId.Length > 0 && journey.OriginalClanId != (hero.Clan?.StringId ?? "") && hero.CompanionOf != Clan.PlayerClan)
+                return PersonalTravelStep.Interrupt;
+            if (now >= journey.ReturnDay && Free(hero) && Free(Hero.MainHero))
+                return PersonalTravelStep.Return;
+            return now >= journey.ArrivalDay && hero.CurrentSettlement == null && SafePlace(hero, destination)
+                ? PersonalTravelStep.Arrive : PersonalTravelStep.None;
+        }
+
+        // Report work eligible on this native tick. Future trips and steps
+        // held by the native travel gate do not prevent an idle checkpoint.
+        private int CountDuePersonalTravel()
+        {
+            double now = CampaignTime.Now.ToDays;
+            if (!TravelSafe() || !LifeTravelTickDue(now)) return 0;
+
+            int due = 0;
+            foreach (var leave in State.Leaves)
+            {
+                if (leave.Status != "waiting" || !leave.DepartureDay.HasValue || _personalTravel.ContainsKey(leave.Id))
+                    continue;
+                if (PendingLeaveDeparture(leave, ReignActionService.HeroById(leave.HeroId),
+                    Settlement.Find(leave.DestinationId), now) != PersonalTravelStep.None) due++;
+            }
+            foreach (var journey in _personalTravel.Values)
+            {
+                if (journey.Status == "away" && PendingJourneyStep(journey, ReignActionService.HeroById(journey.HeroId),
+                    Settlement.Find(journey.DestinationId), now) != PersonalTravelStep.None) due++;
+            }
+            return due;
+        }
+
         private void AdvanceLifeTravel()
         {
             MaintainSummonsCamps();
@@ -133,7 +190,7 @@ namespace ReignBeta.Characters.Campaign
             RecordNativeStoryVisits();
             ReconcileStoryBindings();
             double now = CampaignTime.Now.ToDays;
-            if (_travelTickDay >= 0 && now < _travelTickDay + 1d / 1440) return;
+            if (!LifeTravelTickDue(now)) return;
             _travelTickDay = now;
             if (!_startingStoryEncounter)
                 foreach (var entry in _storyEncounters.Where(e => e.Value.Value<string>("status") != "resolved").ToList())
@@ -144,8 +201,8 @@ namespace ReignBeta.Characters.Campaign
             {
                 if (_personalTravel.ContainsKey(leave.Id)) continue;
                 Hero hero = ReignActionService.HeroById(leave.HeroId); Settlement destination = Settlement.Find(leave.DestinationId);
-                if (hero == null || !hero.IsAlive || hero.IsPrisoner || hero.PartyBelongedTo != MobileParty.MainParty
-                    || !MobileParty.MainParty.MemberRoster.Contains(hero.CharacterObject))
+                var step = PendingLeaveDeparture(leave, hero, destination, now);
+                if (step == PersonalTravelStep.Interrupt)
                 {
                     // A captured or departed guest no longer owes a future absence
                     // from this party. A receipt cancels only this leave; it never
@@ -154,8 +211,7 @@ namespace ReignBeta.Characters.Campaign
                         Revision = leave.Revision }, "interrupted", now);
                     continue;
                 }
-                if (now < leave.DepartureDay.Value) continue;
-                if (!Free(hero) || !SafePlace(hero, destination) || hero.PartyBelongedTo != MobileParty.MainParty || IsMeetingHeld(hero.StringId)) continue;
+                if (step != PersonalTravelStep.Depart) continue;
                 double outbound = TripDays(hero, destination);
                 var journey = new NpcPersonalJourney { Id = leave.Id, HeroId = leave.HeroId, DestinationId = leave.DestinationId, Revision = leave.Revision,
                     DepartedDay = now, ArrivalDay = now + outbound, ReturnDay = now + leave.AbsenceDays,
@@ -170,10 +226,10 @@ namespace ReignBeta.Characters.Campaign
             foreach (var journey in _personalTravel.Values.Where(l => l.Status == "away").ToList())
             {
                 Hero hero = ReignActionService.HeroById(journey.HeroId); Settlement destination = Settlement.Find(journey.DestinationId);
-                if (hero == null || !hero.IsAlive || hero.IsPrisoner || !MayReturnFromLifeAbsence(hero, journey.GuestAgreementId)
-                    || journey.OriginalClanId.Length > 0 && journey.OriginalClanId != (hero.Clan?.StringId ?? "") && hero.CompanionOf != Clan.PlayerClan)
+                var step = PendingJourneyStep(journey, hero, destination, now);
+                if (step == PersonalTravelStep.Interrupt)
                 { journey.Status = "interrupted"; QueueLeaveReceipt(journey, "interrupted", now); continue; }
-                if (now >= journey.ReturnDay && Free(hero) && Free(Hero.MainHero))
+                if (step == PersonalTravelStep.Return)
                 {
                     if (hero.CurrentSettlement != null) LeaveSettlementAction.ApplyForCharacterOnly(hero);
                     hero.ChangeState(Hero.CharacterStates.Active);
@@ -183,7 +239,7 @@ namespace ReignBeta.Characters.Campaign
                     journey.Status = "returned"; QueueLeaveReceipt(journey, "returned", now);
                     InformationManager.DisplayMessage(new InformationMessage(hero.Name + " has returned from personal leave."));
                 }
-                else if (now >= journey.ArrivalDay && hero.CurrentSettlement == null && SafePlace(hero, destination))
+                else if (step == PersonalTravelStep.Arrive)
                 {
                     hero.ChangeState(Hero.CharacterStates.Active); EnterSettlementAction.ApplyForCharacterOnly(hero, destination);
                 }
