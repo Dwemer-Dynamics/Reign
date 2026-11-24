@@ -700,11 +700,16 @@ namespace ReignBeta.Platform.Campaign
                     throw new InvalidOperationException(status?.Value<string>("error")
                         ?? "Initial social-world status was unavailable.");
 
-                await ReignRelationshipRealtimeClient.PullRelationshipNativeTargetsAsync()
+                bool OwnsProjection() => ReignCampaignInitializationGate.IsActiveGeneration(generationId)
+                    && ReferenceEquals(relationships, ReignServices.Relationship);
+                await ReignRelationshipRealtimeClient.PullRelationshipNativeTargetsAsync(OwnsProjection)
                     .ConfigureAwait(false);
-                await ReignMainThread.InvokeAsync(
-                    relationships.ProcessInitializationProjectionFrame)
-                    .ConfigureAwait(false);
+                EnsureCurrentGeneration(generationId);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    ReignRequestOwnership.Ensure(OwnsProjection, "processing the initial relationship projection");
+                    relationships.ProcessInitializationProjectionFrame();
+                }).ConfigureAwait(false);
                 await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync()
                     .ConfigureAwait(false);
 

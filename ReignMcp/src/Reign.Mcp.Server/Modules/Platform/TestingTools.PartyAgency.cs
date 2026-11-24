@@ -702,6 +702,14 @@ public static partial class TestingTools
                     "observe", expected, evidenceReceipt));
         }
 
+        // Retain the observed installation before any live command can issue.
+        if (state.ApprovedArtifactWitness is not null)
+        {
+            if (authorization.TimelineId != state.TimelineId)
+                throw new InvalidOperationException("The reviewed Party Agency enrollment changed timeline.");
+            RetainPartyAgencyInstalledWitness(options, state);
+        }
+
         ApiEnvelope liveRun = await api.PostAsync("/tests/live/run/start", new
         {
             schemaVersion = 2,
@@ -1024,7 +1032,8 @@ public static partial class TestingTools
     }
 
     internal static IReadOnlyDictionary<string, object?> ProjectPartyAgencyOriginalModuleDiagnostics(
-        PartyAgencyCertificationState state, string liveRunId, JsonElement report)
+        PartyAgencyCertificationState state, string liveRunId, JsonElement report,
+        PartyAgencyInstalledArtifactWitness? installed = null)
     {
         var rows = new List<Dictionary<string, object?>>();
         var diagnostic = new Dictionary<string, object?>
@@ -1034,12 +1043,17 @@ public static partial class TestingTools
             ["commands"] = rows
         };
         var witness = state.ApprovedArtifactWitness;
-        if (witness?.BelongsTo(state.RunId, state.CampaignId, state.CampaignTestRunId) != true)
+        if (witness is null || !witness.BelongsTo(state.RunId, state.CampaignId, state.CampaignTestRunId))
             return diagnostic;
 
+        var boundInstalled = installed is not null && installed.BelongsTo(state, witness) ? installed : null;
+        if (installed is not null)
+            diagnostic["installedWitness"] = boundInstalled is not null ? "bound_to_approved_enrollment" : "scope_or_approval_mismatch";
         diagnostic["status"] = "report_scope_unavailable";
         if (!PartyAgencySaveReportScopeMatches(report, state.CampaignId, state.CampaignTestRunId,
-                state.RunId, liveRunId, state.DisposableSaveName))
+                state.RunId, liveRunId, state.DisposableSaveName)
+            || (boundInstalled is not null && PartyAgencySaveText(PartyAgencySaveProperty(report, "enrollment"), "timelineId")
+                != boundInstalled.TimelineId))
             return diagnostic;
 
         JsonElement commands = PartyAgencySaveProperty(report, "commands");
@@ -1079,16 +1093,34 @@ public static partial class TestingTools
                 continue;
 
             JsonElement modules = PartyAgencySaveProperty(original, "clientModuleIds");
-            rows.Add(new Dictionary<string, object?>
+            string observedClient = PartyAgencySaveText(modules, "ReignBeta");
+            string observedServer = PartyAgencySaveText(original, "serverModuleId");
+            string observedCampaign = PartyAgencySaveText(modules, "TaleWorlds.CampaignSystem");
+            string observedCore = PartyAgencySaveText(modules, "TaleWorlds.Core");
+            var row = new Dictionary<string, object?>
             {
                 ["commandId"] = PartyAgencySaveText(command, "commandId"),
                 ["originalLeaseId"] = lease,
                 ["retryGeneration"] = originalRetry,
-                ["reignBetaMvid"] = Compare(PartyAgencySaveText(modules, "ReignBeta"), witness.Client.Mvid),
-                ["reignServerMvid"] = Compare(PartyAgencySaveText(original, "serverModuleId"), witness.Server.Mvid),
-                ["licensedMvidsObserved"] = Observed(PartyAgencySaveText(modules, "TaleWorlds.CampaignSystem"), out _)
-                    && Observed(PartyAgencySaveText(modules, "TaleWorlds.Core"), out _)
-            });
+                ["reignBetaMvid"] = Compare(observedClient, witness.Client.Mvid),
+                ["reignServerMvid"] = Compare(observedServer, witness.Server.Mvid),
+                ["licensedMvidsObserved"] = Observed(observedCampaign, out _) && Observed(observedCore, out _)
+            };
+            if (boundInstalled is not null
+                && boundInstalled.CapturedBeforeIssuance(PartyAgencySaveText(original, "observedUtc")))
+            {
+                var matches = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["ReignBeta"] = Compare(observedClient, boundInstalled.Client.Mvid),
+                    ["ReignServer"] = Compare(observedServer, boundInstalled.Server.Mvid),
+                    ["TaleWorlds.CampaignSystem"] = Compare(observedCampaign, boundInstalled.CampaignSystem.Mvid),
+                    ["TaleWorlds.Core"] = Compare(observedCore, boundInstalled.Core.Mvid)
+                };
+                // Installed readback plus issued MVIDs does not prove the loaded bytes.
+                row["installedMvidComparisons"] = matches;
+                row["allInstalledMvidsMatch"] = matches.Values.All(value => value == "matches");
+            }
+            rows.Add(row);
         }
 
         diagnostic["status"] = rows.Count == 0 ? "no_bound_completed_send_observation" : "observed_metadata_only";
@@ -1119,13 +1151,18 @@ public static partial class TestingTools
         CampaignTestAuthorization authorization = campaignTests.RequireEnrollment(
             campaignTestRunId, campaignId);
         PartyAgencyCertificationState state = ReadPartyAgencyState(options, runId);
-        if (!string.Equals(state.DisposableSaveName, authorization.CurrentSaveName,
+        if (!string.Equals(state.CampaignId, campaignId, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(state.CampaignTestRunId, campaignTestRunId, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(state.DisposableSaveName, authorization.CurrentSaveName,
                 StringComparison.OrdinalIgnoreCase)
             || !string.Equals(state.ProtectedBaselineSaveName, authorization.BaselineSaveName,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Party Agency readiness enrollment no longer matches the guarded campaign test.");
 
         JsonElement manifest = LoadPartyAgencyManifest(options);
+        var installed = authorization.TimelineId == state.TimelineId
+            ? PartyAgencyApprovedArtifacts.ReadInstalledWitness(PartyAgencyInstalledWitnessPath(options, state.RunId), state)
+            : null;
         var passed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var passedLanguage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var reports = new List<object?>();
@@ -1176,7 +1213,7 @@ public static partial class TestingTools
                 ["noDirectDialogueActionBypass"] = noDirectBypass,
                 ["passed"] = casePassed,
                 ["artifactIdentityDiagnostics"] = ProjectPartyAgencyOriginalModuleDiagnostics(
-                    state, execution.LiveRunId, report.Ok ? report.Data.GetValueOrDefault() : default),
+                    state, execution.LiveRunId, report.Ok ? report.Data.GetValueOrDefault() : default, installed),
                 ["report"] = report
             });
         }
@@ -1219,6 +1256,7 @@ public static partial class TestingTools
             ["schema"] = "reign-party-agency-release-readiness-v1",
             ["readyToDeployForNativeCertification"] = approvedArtifacts,
             ["approvedArtifactWitnessAvailable"] = approvedArtifacts,
+            ["installedArtifactWitnessAvailable"] = installed is not null,
             ["installedAndLoadedArtifactsAttested"] = false,
             ["readyToRelease"] = ready,
             ["requiredInstanceCount"] = state.RequiredInstances.Count,
@@ -1714,12 +1752,38 @@ public static partial class TestingTools
         PartyAgencyCertificationState state, bool overwrite = true)
     {
         state.UpdatedUtc = DateTime.UtcNow.ToString("O");
-        string path = PartyAgencyStatePath(options, state.RunId);
+        WritePartyAgencyEvidence(PartyAgencyStatePath(options, state.RunId), state, overwrite);
+    }
+
+    private static string PartyAgencyInstalledWitnessPath(ReignMcpOptions options, string runId) =>
+        Path.ChangeExtension(PartyAgencyStatePath(options, runId), ".installed-artifacts.json");
+
+    private static void RetainPartyAgencyInstalledWitness(
+        ReignMcpOptions options, PartyAgencyCertificationState state)
+    {
+        string path = PartyAgencyInstalledWitnessPath(options, state.RunId);
+        var observed = PartyAgencyApprovedArtifacts.CaptureInstalled(state);
+        var retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state);
+        if (retained is null)
+        {
+            try { WritePartyAgencyEvidence(path, observed, overwrite: false); }
+            catch (IOException) when (File.Exists(path))
+            {
+                // Another starter may have retained the first observation.
+            }
+            retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state);
+        }
+        if (retained is null || !retained.MatchesInstallation(observed))
+            throw new InvalidOperationException("Installed artifacts changed after this Party Agency certification was bound.");
+    }
+
+    private static void WritePartyAgencyEvidence<T>(string path, T evidence, bool overwrite)
+    {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            File.WriteAllText(temporary, JsonSerializer.Serialize(state, PartyAgencyJson),
+            File.WriteAllText(temporary, JsonSerializer.Serialize(evidence, PartyAgencyJson),
                 new UTF8Encoding(false));
             File.Move(temporary, path, overwrite);
         }

@@ -3240,6 +3240,7 @@
   },
   "partyAgency": {
     "schema": "reign-party-agency-certification-v2",
+    "installedArtifactWitness": "A run with a pinned approved build retains one installed-artifact witness before its first live case. Later starts observe the same registered installation. Correlated issued MVIDs are diagnostics and the loaded-byte release gate remains closed.",
     "controller": "ReignLiveTest party-agency --profile contracts|status|preflight (observational only)",
     "mcpTools": [
       "reign_get_party_agency_test_manifest",

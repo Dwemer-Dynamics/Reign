@@ -43,6 +43,31 @@ public sealed class RelationshipThroughputContractTests
     }
 
     [Fact]
+    public void NativeTargetPullAppliesToTheCapturedRelationshipOwner()
+    {
+        string root = TestOptions.FindWorkspace();
+        string runtime = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Relationships/Integration/ReignRelationshipRealtimeClient.cs"));
+        int start = runtime.IndexOf("internal static async Task PullRelationshipNativeTargetsAsync", StringComparison.Ordinal);
+        int end = runtime.IndexOf("private static async Task ReportRelationshipNativeReceiptsAsync", StringComparison.Ordinal);
+        Assert.True(start >= 0 && end > start);
+        string pull = runtime[start..end];
+        Assert.Contains("Fence: RequestFence.Capture()", pull);
+        Assert.Contains("ReferenceEquals(scope.Behavior, ReignServices.Relationship)", pull);
+        Assert.Contains("scope.Fence.IsCurrentActionPoll()", pull);
+        Assert.Contains("PostOwnedJsonAsync(", pull);
+        Assert.Contains("/relationships/ambient/native_sync/pull", pull);
+        Assert.Contains("}, Owns).ConfigureAwait(false);", pull);
+        Assert.Contains("ReignRequestOwnership.Ensure(Owns, ", pull);
+        Assert.Contains("scope.Behavior.MergeNativeSyncTargets(scope.Timeline, targets);", pull);
+
+        string preparation = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Platform/Campaign/ReignCampaignPreparationCampaignBehavior.cs"));
+        Assert.Contains("PullRelationshipNativeTargetsAsync(OwnsProjection)", preparation);
+        Assert.Contains("ReignRequestOwnership.Ensure(OwnsProjection, ", preparation);
+    }
+
+    [Fact]
     public void TransportProbeIsBoundedReadOnlyAndOutsideTimedRoutes()
     {
         string root = TestOptions.FindWorkspace();

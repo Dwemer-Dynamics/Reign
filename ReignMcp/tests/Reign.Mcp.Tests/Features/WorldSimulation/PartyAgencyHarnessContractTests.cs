@@ -10,6 +10,15 @@ public sealed class PartyAgencyHarnessContractTests
     [InlineData("client_mismatch", "observed_metadata_only", "differs", "matches", true)]
     [InlineData("server_mismatch", "observed_metadata_only", "matches", "differs", true)]
     [InlineData("missing_licensed_observation", "observed_metadata_only", "matches", "matches", false)]
+    [InlineData("licensed_mismatch", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("wrong_installed_approval", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("wrong_installed_client_hash", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("wrong_installed_save", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("wrong_installed_timeline", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("wrong_report_timeline", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("installed_before_approval", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("installed_after_lease", "observed_metadata_only", "matches", "matches", true)]
+    [InlineData("missing_issue_time", "observed_metadata_only", "matches", "matches", true)]
     [InlineData("forged_result_mvid", "observed_metadata_only", "unavailable", "matches", true)]
     [InlineData("no_witness", "no_approved_build_witness", null, null, false)]
     [InlineData("other_approved_run", "no_approved_build_witness", null, null, false)]
@@ -26,17 +35,33 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string hash = new('a', 64);
         Guid expectedClient = Guid.NewGuid(), expectedServer = Guid.NewGuid();
+        Guid expectedCampaign = Guid.NewGuid(), expectedCore = Guid.NewGuid();
         var witness = new PartyAgencyApprovedArtifactWitness(PartyAgencyApprovedArtifactWitness.WitnessSchema,
             mutation == "other_approved_run" ? "other" : "certification",
-            "campaign", "enrollment", "prepared", hash, hash, hash, hash,
+            "campaign", "enrollment", "2026-11-24T06:00:00.0000000+00:00", hash, hash, hash, hash,
             hash, "client-report", hash, hash, "server-report", hash, hash,
             new PartyAgencyApprovedModule("ReignBeta", expectedClient, hash),
             new PartyAgencyApprovedModule("ReignServer", expectedServer, hash));
         var state = new PartyAgencyCertificationState
         {
             RunId = "certification", CampaignId = "campaign", CampaignTestRunId = "enrollment",
-            DisposableSaveName = "Test_Current",
+            DisposableSaveName = "Test_Current", TimelineId = "branch",
             ApprovedArtifactWitness = mutation == "no_witness" ? null : witness
+        };
+        var installed = new PartyAgencyInstalledArtifactWitness(PartyAgencyInstalledArtifactWitness.WitnessSchema,
+            "certification", "campaign", "enrollment", "branch", "Test_Current", "2026-11-24T06:10:00.0000000+00:00",
+            PartyAgencyApprovedArtifacts.ApprovalWitnessSha256(witness), hash, "20261124114300-1",
+            witness.Client, witness.Server, new PartyAgencyApprovedModule("TaleWorlds.CampaignSystem", expectedCampaign, hash),
+            new PartyAgencyApprovedModule("TaleWorlds.Core", expectedCore, hash));
+        installed = mutation switch
+        {
+            "wrong_installed_approval" => installed with { ApprovedWitnessSha256 = new string('b', 64) },
+            "wrong_installed_client_hash" => installed with { Client = installed.Client with { Sha256 = new string('b', 64) } },
+            "wrong_installed_save" => installed with { DisposableSaveName = "Other_Current" },
+            "wrong_installed_timeline" => installed with { TimelineId = "foreign" },
+            "installed_before_approval" => installed with { CapturedUtc = "2026-11-24T05:55:00.0000000+00:00" },
+            "installed_after_lease" => installed with { CapturedUtc = "2026-11-24T06:11:00.0000000+00:00" },
+            _ => installed
         };
         string original = Guid.NewGuid().ToString("N"), transport = Guid.NewGuid().ToString("N");
         string clientProcess = Guid.NewGuid().ToString("N");
@@ -53,14 +78,15 @@ public sealed class PartyAgencyHarnessContractTests
                     campaignId = "campaign", runId = "live-run", commandId = "native-command",
                     gameInstanceId = mutation == "wrong_game" ? "reloaded" : "enrolled-game",
                     leaseId = original, executionRetryGeneration = 1, clientProcessInstanceId = clientProcess,
+                    observedUtc = mutation == "missing_issue_time" ? "" : "2026-11-24T06:10:30.0000000+00:00",
                     serverProcessInstanceId = Guid.NewGuid().ToString("N"),
                     serverModuleId = (mutation == "server_mismatch" ? Guid.NewGuid() : expectedServer).ToString("D"),
                     clientModuleIds = new Dictionary<string, string>
                     {
                         ["ReignBeta"] = mutation == "forged_result_mvid" ? ""
                             : (mutation == "client_mismatch" ? Guid.NewGuid() : expectedClient).ToString("D"),
-                        ["TaleWorlds.CampaignSystem"] = Guid.NewGuid().ToString("D"),
-                        ["TaleWorlds.Core"] = mutation == "missing_licensed_observation" ? "" : Guid.NewGuid().ToString("D")
+                        ["TaleWorlds.CampaignSystem"] = (mutation == "licensed_mismatch" ? Guid.NewGuid() : expectedCampaign).ToString("D"),
+                        ["TaleWorlds.Core"] = mutation == "missing_licensed_observation" ? "" : expectedCore.ToString("D")
                     }
                 }
             },
@@ -80,7 +106,8 @@ public sealed class PartyAgencyHarnessContractTests
             enrollment = new
             {
                 campaignId = "campaign", certificationRunId = "certification", disposableSaveName = "Test_Current",
-                campaignTestRunId = mutation == "foreign_enrollment" ? "other" : "enrollment"
+                campaignTestRunId = mutation == "foreign_enrollment" ? "other" : "enrollment",
+                timelineId = mutation == "wrong_report_timeline" ? "foreign" : "branch"
             }
         });
 
@@ -88,9 +115,16 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Equal(status, diagnostic["status"]);
         Assert.DoesNotContain("installedAndLoadedArtifactsAttested", diagnostic.Keys);
         var rows = Assert.IsType<List<Dictionary<string, object?>>>(diagnostic["commands"]);
+        Assert.True(installed.MatchesInstallation(installed with { CapturedUtc = "2026-11-24T06:03:00.0000000+00:00" }));
+        Assert.False(installed.MatchesInstallation(installed with { LinuxRuntimeVersion = "20261124060300-567" }));
+        Assert.False(installed.MatchesInstallation(installed with { InstallationRecordSha256 = new string('c', 64) }));
+        var installedDiagnostic = TestingTools.ProjectPartyAgencyOriginalModuleDiagnostics(state, "live-run", report, installed);
+        Assert.DoesNotContain("installedAndLoadedArtifactsAttested", installedDiagnostic.Keys);
+        var installedRows = Assert.IsType<List<Dictionary<string, object?>>>(installedDiagnostic["commands"]);
         if (clientMatch is null)
         {
             Assert.Empty(rows);
+            Assert.Empty(installedRows);
             return;
         }
         var result = Assert.Single(rows);
@@ -98,6 +132,37 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Equal(clientMatch, result["reignBetaMvid"]);
         Assert.Equal(serverMatch, result["reignServerMvid"]);
         Assert.Equal(licensedObserved, result["licensedMvidsObserved"]);
+
+        if (mutation == "wrong_report_timeline")
+        {
+            Assert.Equal("report_scope_unavailable", installedDiagnostic["status"]);
+            Assert.Empty(installedRows);
+            return;
+        }
+        var installedRow = Assert.Single(installedRows);
+        if (mutation is "wrong_installed_approval" or "wrong_installed_client_hash" or "wrong_installed_save"
+            or "wrong_installed_timeline" or "installed_before_approval")
+        {
+            Assert.Equal("scope_or_approval_mismatch", installedDiagnostic["installedWitness"]);
+            Assert.DoesNotContain("installedMvidComparisons", installedRow.Keys);
+            return;
+        }
+
+        Assert.Equal("bound_to_approved_enrollment", installedDiagnostic["installedWitness"]);
+        Assert.Equal("observed_metadata_only", installedDiagnostic["status"]);
+        if (mutation is "installed_after_lease" or "missing_issue_time")
+        {
+            Assert.DoesNotContain("installedMvidComparisons", installedRow.Keys);
+            return;
+        }
+        var comparisons = Assert.IsType<Dictionary<string, string>>(installedRow["installedMvidComparisons"]);
+        Assert.Equal(4, comparisons.Count);
+        Assert.Equal(clientMatch, comparisons["ReignBeta"]);
+        Assert.Equal(serverMatch, comparisons["ReignServer"]);
+        Assert.Equal(mutation == "licensed_mismatch" ? "differs" : "matches", comparisons["TaleWorlds.CampaignSystem"]);
+        Assert.Equal(licensedObserved ? "matches" : "unavailable", comparisons["TaleWorlds.Core"]);
+        Assert.Equal(clientMatch == "matches" && serverMatch == "matches" && licensedObserved
+            && mutation != "licensed_mismatch", installedRow["allInstalledMvidsMatch"]);
     }
 
     [Fact]
@@ -114,6 +179,7 @@ public sealed class PartyAgencyHarnessContractTests
             string originalHash = ReignValidationService.FileSha256(file);
             var approved = PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, name, originalHash);
             Assert.Equal(new PartyAgencyApprovedModule(name, assembly.ManifestModule.ModuleVersionId, originalHash), approved);
+            Assert.Equal(approved, PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, name));
             Assert.Throws<InvalidDataException>(() =>
                 PartyAgencyApprovedArtifacts.ReadManagedArtifact(file, "RenamedForeignAssembly", originalHash));
 

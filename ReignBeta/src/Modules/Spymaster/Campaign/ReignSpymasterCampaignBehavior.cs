@@ -805,6 +805,7 @@ namespace ReignBeta.Court.Campaign
         }
 
         internal const string ForeignAgentAssignmentSchema = "reign-spymaster-foreign-agent-v1";
+        internal const string ForeignAgentDisruptionReplaySchema = "reign-spymaster-disruption-replay-v1";
 
         private bool StillOwnsForeignAgentRequest(ReignServerClient.RequestFence fence)
             => fence.IsCurrentActionPoll() && ReferenceEquals(Instance, this);
@@ -869,7 +870,9 @@ namespace ReignBeta.Court.Campaign
                     bool typed = IsBoundForeignAgentResponse(response, campaign, timeline, fence.SharedActivityGeneration);
                     if (typed || (response?.Value<bool?>("ok") == true && response["schema"] == null))
                     {
-                        ApplyForeignAgentResponse(response, day);
+                        float observationDay = (string)response["disruptionReplay"] == ForeignAgentDisruptionReplaySchema
+                            ? CurrentDayFloat() : day;
+                        ApplyForeignAgentResponse(response, observationDay);
                         ReignTestHarness.Current.Spymaster.RecordForeignAgentActionReceipt(response["controlledAgentAction"] as JObject);
                     }
                     foreach (ReignForeignAgentRecord agent in _spymasterState.ForeignAgents)
@@ -1062,7 +1065,8 @@ namespace ReignBeta.Court.Campaign
                 .Select(x => new JObject { ["kingdomId"] = x.StringId, ["rulerId"] = x.Leader?.StringId ?? string.Empty,
                     ["isAtWar"] = true }));
             JObject snapshot = new JObject { ["worldDay"] = day, ["playerKingdomId"] = player?.StringId ?? string.Empty,
-                ["playerRulerId"] = ruler?.StringId ?? string.Empty, ["candidates"] = candidates, ["enemyKingdoms"] = enemies };
+                ["playerRulerId"] = ruler?.StringId ?? string.Empty, ["candidates"] = candidates, ["enemyKingdoms"] = enemies,
+                ["disruptionReplay"] = ForeignAgentDisruptionReplaySchema };
             JObject controlledAction = ReignTestHarness.Current.Spymaster.PendingForeignAgentActionControl();
             if (controlledAction != null) snapshot["controlledAgentAction"] = controlledAction;
             return snapshot;
@@ -1083,6 +1087,7 @@ namespace ReignBeta.Court.Campaign
             if (response == null || response.Value<bool?>("ok") != true) return;
             ReignSpymasterState state = EnsureSpymasterState();
             bool typed = (string)response["schema"] == ForeignAgentAssignmentSchema;
+            bool timedDisruption = typed && (string)response["disruptionReplay"] == ForeignAgentDisruptionReplaySchema;
             string timeline = typed ? (string)response["timelineId"] : string.Empty;
             foreach (var row in (response["agents"] as JArray ?? new JArray()).OfType<JObject>())
                 ApplyForeignAgentAssignment(state, row, timeline, typed, exposed: false, day);
@@ -1100,31 +1105,59 @@ namespace ReignBeta.Court.Campaign
                     continue;
                 string actionId = (string)row["actionId"] ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(actionId))
+                {
+                    if (timedDisruption) continue;
                     actionId = "legacy_agent_action_" + ((string)row["agentHeroStringId"] ?? string.Empty) + "_" + day.ToString("0.000") + "_" + ((string)row["effectType"] ?? "security");
-                if (state.AppliedForeignAgentActionIds.Contains(actionId, StringComparer.OrdinalIgnoreCase)) continue;
-                state.AppliedForeignAgentActionIds.Add(actionId);
+                }
+                if (state.AppliedForeignAgentActionIds.Contains(actionId, StringComparer.OrdinalIgnoreCase)
+                    || state.Effects.Any(effect => string.Equals(effect.ForeignAgentActionId, actionId, StringComparison.OrdinalIgnoreCase)))
+                    continue;
                 float duration = (float?)row["durationDays"] ?? 10f;
+                float startDay = day, endDay = day + duration;
+                if (timedDisruption && !TryReadForeignAgentDisruptionWindow(row, day, out startDay, out endDay))
+                    continue;
                 float magnitude = (float?)row["magnitude"] ?? -1f;
-                state.Effects.Add(new ReignSpymasterSettlementEffect { SettlementStringId = (string)row["settlementStringId"] ?? string.Empty,
-                    EffectType = (string)row["effectType"] ?? "security", SourceKingdomStringId = (string)row["sponsorKingdomStringId"] ?? string.Empty,
-                    AgentHeroStringId = (string)row["agentHeroStringId"] ?? string.Empty, StartDay = day,
-                    EndDay = day + duration, Magnitude = magnitude });
-                state.ForeignAgentActions.Add(new ReignForeignAgentActionRecord
+                var effect = new ReignSpymasterSettlementEffect
+                {
+                    SettlementStringId = (string)row["settlementStringId"] ?? string.Empty,
+                    EffectType = (string)row["effectType"] ?? "security",
+                    SourceKingdomStringId = (string)row["sponsorKingdomStringId"] ?? string.Empty,
+                    AgentHeroStringId = agentId,
+                    StartDay = startDay,
+                    EndDay = endDay,
+                    ForeignAgentActionId = actionId,
+                    Magnitude = magnitude
+                };
+                var record = new ReignForeignAgentActionRecord
                 {
                     ActionId = actionId,
                     AgentHeroStringId = (string)row["agentHeroStringId"] ?? string.Empty,
                     SponsorKingdomStringId = (string)row["sponsorKingdomStringId"] ?? string.Empty,
                     SettlementStringId = (string)row["settlementStringId"] ?? string.Empty,
                     EffectType = (string)row["effectType"] ?? "security",
-                    WorldDay = day,
-                    DurationDays = duration,
+                    WorldDay = startDay,
+                    DurationDays = timedDisruption ? endDay - startDay : duration,
                     Magnitude = magnitude,
                     Detected = (bool?)row["detected"] == true,
                     SponsorAttributed = (bool?)row["sponsorAttributed"] == true,
                     Summary = (string)row["summary"] ?? "A hidden foreign agent disrupted the settlement."
-                });
+                };
+                state.Effects.Add(effect);
+                state.ForeignAgentActions.Add(record);
+                state.AppliedForeignAgentActionIds.Add(actionId);
             }
             StateChanged?.Invoke();
+        }
+
+        private static bool TryReadForeignAgentDisruptionWindow(JObject row, float day, out float issued, out float expires)
+        {
+            issued = expires = 0f;
+            if (row["issuedDay"]?.Type is not (JTokenType.Integer or JTokenType.Float)
+                || row["expiresDay"]?.Type is not (JTokenType.Integer or JTokenType.Float))
+                return false;
+            issued = (float)row["issuedDay"];
+            expires = (float)row["expiresDay"];
+            return !float.IsInfinity(issued) && !float.IsInfinity(expires) && issued <= day && day < expires;
         }
 
         private static bool HasForeignAgentRevision(JObject row, string assignment, int revision)

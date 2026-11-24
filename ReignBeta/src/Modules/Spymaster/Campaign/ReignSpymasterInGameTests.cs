@@ -306,6 +306,32 @@ namespace ReignBeta.Spymaster.Campaign
                     && !exposedForeignAgent.ExposurePending && court.EnsureSpymasterState().Effects.Count == effectsBeforeAgent + 1,
                     "A distinct current occurrence is admitted and cannot inherit an old assignment action.", JObject.FromObject(exposedForeignAgent));
 
+                var timedReplay = (JObject)typedResponse.DeepClone();
+                timedReplay["disruptionReplay"] = ReignCourtCampaignBehavior.ForeignAgentDisruptionReplaySchema;
+                var delayedAction = (JObject)staleAction.DeepClone();
+                string delayedId = "spytest-delayed-" + normalizedRunId;
+                delayedAction["actionId"] = delayedId;
+                delayedAction["assignmentId"] = typedAgent["assignmentId"];
+                delayedAction["issuedDay"] = 178f;
+                delayedAction["expiresDay"] = 188f;
+                var expiredAction = (JObject)delayedAction.DeepClone();
+                expiredAction["actionId"] = "spytest-expired-" + normalizedRunId;
+                expiredAction["issuedDay"] = 170f;
+                expiredAction["expiresDay"] = 180f;
+                timedReplay["actions"] = new JArray(delayedAction, expiredAction);
+                int effectsBeforeReplay = court.EnsureSpymasterState().Effects.Count;
+                court.ApplyForeignAgentResponse(timedReplay, 180f);
+                court.EnsureSpymasterState().AppliedForeignAgentActionIds.Remove(delayedId);
+                court._spymasterState = JsonConvert.DeserializeObject<ReignSpymasterState>(
+                    JsonConvert.SerializeObject(court.EnsureSpymasterState()));
+                court.ApplyForeignAgentResponse(timedReplay, 181f);
+                var appliedReplay = court.EnsureSpymasterState().Effects
+                    .Where(effect => effect.ForeignAgentActionId == delayedId).ToList();
+                AddSpyAssertion(assertions, "foreign_disruption_retains_window_and_idempotence_after_roundtrip",
+                    court.EnsureSpymasterState().Effects.Count == effectsBeforeReplay + 1 && appliedReplay.Count == 1
+                    && appliedReplay[0].StartDay == 178f && appliedReplay[0].EndDay == 188f,
+                    "The saved effect identity survives bounded action history and retries consume only the original remaining disruption window.", null);
+
                 ReignSpymasterMission memory = NewTestMission(normalizedRunId, "person_relationships", spymaster, foreignNoble, null);
                 memory.GoldCost = 2250; memory.SuccessChance = 47f; memory.DetectionChance = 31f; memory.OutcomeRoll = 46f;
                 memory.TargetNoticed = true; memory.PlayerIdentified = false; memory.ResultSummary = "Complete historical result";
