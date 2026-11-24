@@ -54,6 +54,22 @@ public sealed class PassiveWorldCheckpointPolicyTests
     }
 
     [Theory]
+    [InlineData("", true, true, false, 0, 0, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", false, true, false, 0, 0, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, null, false, 0, 0, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, null, 0, 0, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, false, -1, 0, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, false, 0, -1, "npc_lives_telemetry_unavailable")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, false, false, 0, 0, "npc_lives_snapshot_pending")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, true, 0, 0, "npc_lives_mutation_in_flight")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, false, 2, 0, "npc_lives_receipts_pending")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, false, 0, 1, "npc_lives_native_rewards_due")]
+    [InlineData("reign-npc-lives-checkpoint-v1", true, true, false, 0, 0, "")]
+    public void NpcLivesCheckpointNeedsScopedIdleNativeState(string schema, bool current, bool? snapshotReady,
+        bool? mutation, long receipts, long rewards, string expected) => Assert.Equal(expected,
+            PassiveWorldCheckpointPolicy.NpcLivesBlocker(schema, current, snapshotReady, mutation, receipts, rewards));
+
+    [Theory]
     [InlineData(-1)]
     [InlineData(1)]
     [InlineData(20)]
