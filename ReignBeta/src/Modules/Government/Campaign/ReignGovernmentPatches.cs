@@ -39,7 +39,11 @@ namespace ReignBeta.Government.Campaign
 
         internal static void Apply()
         {
-            if (_harmony != null && VerifyReady()) return;
+            if (_harmony != null && VerifyReady())
+            {
+                ReignGovernmentConstructionNativeObservation.Apply();
+                return;
+            }
             _ready = false;
             try
             {
@@ -74,12 +78,16 @@ namespace ReignBeta.Government.Campaign
                 _lastError = ex.ToString();
                 Unapply();
                 ReignLog.Warn("Government native interception unavailable; native decisions remain with Bannerlord and saved hearings are held: " + ex);
+                return;
             }
+
+            ReignGovernmentConstructionNativeObservation.Apply();
         }
 
         internal static void Unapply()
         {
             _ready = false;
+            ReignGovernmentConstructionNativeObservation.Unapply();
             _harmony?.UnpatchAll(HarmonyId);
             _harmony = null;
         }

@@ -96,7 +96,7 @@ namespace ReignBeta.Government.Campaign
                 if (opposed && state.Level >= 3 && !overrideAccepted) errors.Add("This opposed outcome needs an explicit override.");
                 if (opposed && state.Level == 3 && (business.Status != "reconsideration" || CurrentDay() < business.ReconsiderUntilDay)) errors.Add("The required reconsideration must finish first.");
             }
-            if (option.Length > 0 && !BusinessOptions(business).Any(o => o.Value<string>("id") == option)) errors.Add("The selected outcome is not an option for this hearing.");
+            if (option.Length > 0 && !CanSelectBusinessOption(business, option)) errors.Add("The selected outcome is not an option for this hearing.");
             return errors;
         }
 

@@ -108,6 +108,8 @@ namespace ReignBeta.Government.Campaign
             ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
         {
             Kingdom kingdom = newOwner?.Clan?.Kingdom ?? ResolutionKingdom(settlement?.MapFaction);
+            Kingdom receivingRealm = newOwner?.Clan != null ? newOwner.Clan.Kingdom : ResolutionKingdom(settlement?.MapFaction);
+            InvalidateConstructionAfterSettlementTransfer(settlement, receivingRealm);
             if (kingdom == null || settlement == null) return;
             string evidence = "Native fief transfer: " + detail + ".";
             RecordResolutionProgress(kingdom.StringId, ReignGovernmentResolutionAction.GrantFief,

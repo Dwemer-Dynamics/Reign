@@ -52,7 +52,16 @@ namespace ReignBeta.Government.Campaign
                     ["dueDay"] = record.DueDay,
                     ["outcome"] = GovernmentBusinessRules.PublicText(record.Outcome)
                 };
-                if (IsPrivateRelationProgress((ReignGovernmentResolutionAction)record.RouteActionValue))
+                var construction = GetAcceptedConstructionTerms(record);
+                if (construction != null)
+                {
+                    publicResolution["constructionProjectId"] = construction.ProjectId;
+                    publicResolution["constructionProjectName"] = ConstructionProjectLabel(record);
+                    publicResolution["acceptedDay"] = construction.AcceptedDay;
+                    publicResolution["dueDay"] = construction.DueDay;
+                    publicResolution["progressDescription"] = "Awaiting native verification of the named project.";
+                }
+                else if (IsPrivateRelationProgress((ReignGovernmentResolutionAction)record.RouteActionValue))
                     publicResolution["progressDescription"] = "Awaiting privately verified completion.";
                 else
                 {
@@ -118,9 +127,9 @@ namespace ReignBeta.Government.Campaign
                     ["sponsorshipReason"] = record.SponsorReason,
                     ["recommendationRulerHeroId"] = record.RecommendationRulerHeroStringId,
                     ["decisionRulerHeroId"] = record.DecisionRulerHeroStringId,
-                    ["recommendedOptionId"] = record.RecommendedOptionId, ["winningOptionId"] = record.WinningOptionId,
+                    ["recommendedOptionId"] = PublicBusinessRecommendation(record), ["winningOptionId"] = record.WinningOptionId,
                     ["executedOptionId"] = record.ExecutedOptionId,
-                    ["options"] = new JArray(BusinessOptions(record).Select(option => new JObject
+                    ["options"] = new JArray(GetPublicBusinessOptions(record).OfType<JObject>().Select(option => new JObject
                         { ["id"] = option.Value<string>("id"), ["label"] = option.Value<string>("label"), ["description"] = option.Value<string>("description") })),
                     ["participants"] = new JArray(JArray.Parse(record.ParticipantsJson).OfType<JObject>().Select(person => new JObject
                         { ["heroId"] = person.Value<string>("heroId"), ["name"] = FindHero(person.Value<string>("heroId"))?.Name?.ToString() ?? string.Empty,

@@ -95,7 +95,7 @@ namespace ReignBeta.Government.Campaign
                 ["authorityLevel"] = record.FrozenAuthorityLevel, ["worldDay"] = CurrentDay(),
                 ["locationId"] = chancellor.CurrentSettlement?.StringId ?? "",
                 ["title"] = record.Title, ["summary"] = record.Summary,
-                ["options"] = GetPublicBusinessOptions(record), ["rulerRecommendation"] = record.RecommendedOptionId,
+                ["options"] = GetPublicBusinessOptions(record), ["rulerRecommendation"] = PublicBusinessRecommendation(record),
                 ["sceneContext"] = "Government proceedings at " + chancellor.CurrentSettlement?.Name + "." };
             _ = CompleteGovernmentCrownDecisionAsync(record, ruler.StringId, chancellorId, timeline, payload);
         }
@@ -139,6 +139,7 @@ namespace ReignBeta.Government.Campaign
                     && IsActiveGovernmentChancellor(reserved.KingdomStringId, chancellorId)
                     && !IsGovernmentRulerPresent(reserved.BusinessId);
                 if (valid && response?.Value<bool?>("ok") == true
+                    && JToken.DeepEquals(payload["options"], GetPublicBusinessOptions(reserved))
                     && RecordGovernmentCrownPosition(reserved.BusinessId, chancellorId, response.Value<string>("optionId"), "chancellor", out _))
                 {
                     var transcript = JArray.Parse(reserved.TranscriptJson ?? "[]");

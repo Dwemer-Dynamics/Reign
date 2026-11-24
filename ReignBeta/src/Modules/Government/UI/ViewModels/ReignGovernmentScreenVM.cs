@@ -122,7 +122,8 @@ namespace ReignBeta.Government.UI
         [DataSourceProperty] public string MatterTitle => _selected?.Title ?? "No matter selected";
         [DataSourceProperty] public string MatterSummary => CompleteProposalText(
             GovernmentBusinessRules.PublicMatterSummary(_selected?.Kind,
-                _selected?.Summary ?? "New proposals appear on the agenda. Select a matter to read its public record."), Array(_selected?.OptionsJson));
+                _selected?.Summary ?? "New proposals appear on the agenda. Select a matter to read its public record."),
+                _selected == null ? new JArray() : _behavior.GetPublicBusinessOptions(_selected));
         internal static string CompleteProposalText(string summary, JArray options)
         {
             return GovernmentBusinessRules.CompleteProposalText(summary, options.OfType<JObject>()
@@ -513,7 +514,7 @@ namespace ReignBeta.Government.UI
             foreach (var card in BusinessItems.Concat(ArchiveItems)) card.IsSelected = card.Record == _selected;
             if (_selected != null)
             {
-                foreach (JObject option in Array(_selected.OptionsJson).OfType<JObject>())
+                foreach (JObject option in _behavior.GetPublicBusinessOptions(_selected).OfType<JObject>())
                 {
                     string id = option.Value<string>("id");
                     JObject share = (_forecast["options"] as JArray)?.OfType<JObject>().FirstOrDefault(x => x.Value<string>("optionId") == id);
@@ -757,7 +758,10 @@ namespace ReignBeta.Government.UI
             var template = ReignGovernmentResolutionCatalog.Find(record.TemplateId); Title = template?.Title ?? "Government obligation";
             var action = (ReignGovernmentResolutionAction)record.RouteActionValue;
             bool privateProgress = action == ReignGovernmentResolutionAction.ImproveClanRelation || action == ReignGovernmentResolutionAction.ImproveForeignRelation;
-            Detail = (privateProgress ? "Awaiting verified completion" : record.CurrentValue.ToString("0") + " / " + record.RequiredAmount) + " · Due " + ReignGovernmentScreenVM.Date(record.DueDay);
+            var construction = ReignGovernmentCampaignBehavior.GetAcceptedConstructionTerms(record);
+            string progress = construction != null ? "Prioritize " + ReignGovernmentCampaignBehavior.ConstructionProjectLabel(record)
+                : privateProgress ? "Awaiting verified completion" : record.CurrentValue.ToString("0") + " / " + record.RequiredAmount;
+            Detail = progress + " · Due " + ReignGovernmentScreenVM.Date(record.DueDay);
             CanContribute = interactive && (action == ReignGovernmentResolutionAction.FoodDelivery || action == ReignGovernmentResolutionAction.GoodsDelivery); _contribute = contribute;
         }
         [DataSourceProperty] public string Title { get; }
