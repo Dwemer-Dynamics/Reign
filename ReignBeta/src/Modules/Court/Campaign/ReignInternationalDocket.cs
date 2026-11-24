@@ -455,6 +455,7 @@ namespace ReignBeta.Court.Campaign
             ReignRulerDocketState state = EnsureRulerDocketState();
             foreach (ReignCourtLifeMatter matter in state.CourtLifeMatters.Where(x => x.Source == ReignDocketSource.International && x.IsPending).ToList())
             {
+                if (TryReconcileDirectCourtPayment(matter, null, out _, out _)) continue;
                 Kingdom origin = Kingdom.All.FirstOrDefault(x => x?.StringId == matter.KingdomId);
                 JObject data = ParseObject(matter.PayloadJson);
                 // A completed treaty is already a historical fact. Record its court outcome

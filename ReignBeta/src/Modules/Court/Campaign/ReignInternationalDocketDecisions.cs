@@ -6,10 +6,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
+using ReignBeta.Shared.Dialogue;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using ReignBeta.Court.Integration;
+using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
@@ -26,6 +28,7 @@ namespace ReignBeta.Court.Campaign
             if (matter == null || matter.Source != ReignDocketSource.International || !matter.IsPending
                 || matter.State == ReignCourtLifeMatterState.Deferred || matter.EffectsCommitted || !HasRoyalCommandAccess)
             { summary = "The international audience is not available for revised terms."; return false; }
+            if (TryReconcileDirectCourtPayment(matter, null, out _, out summary)) return false;
             JObject data = ParseObject(matter.PayloadJson);
             if (data.Value<bool?>("nativeEffectCommitted") == true || data.Value<bool?>("nativeActionStarted") == true)
             { summary = "The original agreement has already taken effect."; return false; }
@@ -86,6 +89,7 @@ namespace ReignBeta.Court.Campaign
             if (matter == null || matter.Source != ReignDocketSource.International || !HasRoyalCommandAccess)
             { summary = "This decision requires a royal audience."; return false; }
             if (matter.EffectsCommitted) { summary = matter.DecisionSummary; return true; }
+            if (TryReconcileDirectCourtPayment(matter, decision, out bool recovered, out summary)) return recovered;
             if (RefreshLegacyInternationalPaymentTerms(matter))
             {
                 summary = matter.State == ReignCourtLifeMatterState.Invalidated
@@ -114,12 +118,12 @@ namespace ReignBeta.Court.Campaign
             bool effectCommitted = data.Value<bool?>("nativeEffectCommitted") == true;
             if (effectCommitted && data.Value<string>("nativeOptionId") != option)
             { summary = "The original judgment has already taken effect and must finish recording."; return false; }
+            JObject offeredTerms = ParseObject(offered.TermsJson);
             if (option == "refer") return StartInternationalReferral(matter, data, decision, out summary);
             string remedy = data.Value<string>("remedy");
             bool unilateralGoodwill = option == "accept" && remedy == "goodwill" && data.Value<string>("kind") == "incident";
             bool consensus = !unilateralGoodwill && ReignInternationalDocketRules.RequiresForeignAcceptance(
                 option, remedy, data.Value<bool?>("ransom") == true);
-            JObject offeredTerms = ParseObject(offered.TermsJson);
             // Court prose and older saved interpretation flags cannot establish consensus.
             bool promotedOffer = data.Value<bool?>("replyPromoted") == true && data.Value<bool?>("sovereignAuthorized") == true
                 && option == (data.Value<string>("referredResolutionOption") ?? "accept");
@@ -203,10 +207,10 @@ namespace ReignBeta.Court.Campaign
                 if (ransom) releaseReceipt["payment"] = ExecuteInternationalPayment(paymentPayer, paymentRecipient, gold);
                 data["nativeReceipt"] = releaseReceipt;
             }
-            else if (option == "compensate" || option == "compromise" || (option == "accept" && data.Value<string>("remedy") == "gift"))
+            else if (IsDirectInternationalPayment(data, option))
             {
-                if (paymentPayer.Gold < gold) { summary = "The promised funds are unavailable."; return false; }
-                data["nativeReceipt"] = ExecuteInternationalPayment(paymentPayer, paymentRecipient, gold);
+                if (!TryExecuteDirectInternationalPayment(matter, data, option, offeredTerms, paymentPayer,
+                    paymentRecipient, gold, out summary)) return false;
             }
             else if (option == "accept" && data.Value<string>("remedy") != "goodwill")
             { summary = "The sovereign's exact reply has no executable agreement attached yet."; return false; }
@@ -214,18 +218,20 @@ namespace ReignBeta.Court.Campaign
             data["nativeOptionId"] = option;
             matter.PayloadJson = data.ToString(Formatting.None);
             }
-            CompleteInternationalCourtSettlement(matter, data, option, gold, out summary);
+            CompleteInternationalCourtSettlement(matter, data, option, gold, out summary,
+                data["nativeCourtPaymentAttempt"]?["material"]?["receiptContext"] as JObject);
             ProcessInternationalCourtLife(CampaignTime.Now.ToDays);
             return true;
         }
 
         private void CompleteInternationalCourtSettlement(ReignCourtLifeMatter matter, JObject data,
-            string option, int gold, out string summary)
+            string option, int gold, out string summary, JObject receiptContext = null, bool recoveredPayment = false)
         {
-            QueueInternationalRelations(matter, data, option);
+            if (!recoveredPayment) QueueInternationalRelations(matter, data, option);
+            JObject presentation = receiptContext ?? data;
             summary = option == "refuse" ? "The foreign request was refused." : option == "favor_domestic" ? "The ruler upheld the domestic noble's position."
                 : option == "favor_foreign" ? "The ruler upheld the foreign noble's position." : option == "compromise" ? "The accepted settlement was carried out."
-                : option == "compensate" ? gold + (data.Value<bool?>("extortion") == true ? " gold was paid to satisfy the foreign crown's demand." : " gold was paid in compensation.") : "The accepted terms were carried out.";
+                : option == "compensate" ? gold + (presentation.Value<bool?>("extortion") == true ? " gold was paid to satisfy the foreign crown's demand." : " gold was paid in compensation.") : "The accepted terms were carried out.";
             matter.SelectedOptionId = option;
             matter.ResolutionReceiptId = matter.MatterId + "_resolution";
             matter.EffectsCommitted = true;
@@ -236,12 +242,13 @@ namespace ReignBeta.Court.Campaign
             state.InternationalReceiptsJson = state.InternationalReceiptsJson ?? new List<string>();
             state.InternationalReceiptsJson.Add(new JObject { ["matterId"] = matter.MatterId, ["receiptId"] = matter.ResolutionReceiptId,
                 ["effectsCommitted"] = true, ["outcome"] = option, ["severityRank"] = (int)matter.Severity,
-                ["foreign"] = data["foreign"].DeepClone(), ["player"] = data["player"].DeepClone(), ["channel"] = data["channel"],
-                ["continuityVersion"] = 1, ["title"] = matter.Title, ["summary"] = summary,
-                ["extortion"] = data.Value<bool?>("extortion") == true,
+                ["foreign"] = presentation["foreign"].DeepClone(), ["player"] = presentation["player"].DeepClone(), ["channel"] = presentation["channel"],
+                ["continuityVersion"] = 1, ["title"] = presentation.Value<string>("title") ?? matter.Title, ["summary"] = summary,
+                ["extortion"] = presentation.Value<bool?>("extortion") == true,
                 ["nativeReceipt"] = data["nativeReceipt"]?.DeepClone(),
-                ["paymentParties"] = InternationalPaymentParties(matter),
-                ["witnessHeroIds"] = new JArray(matter.Participants.Where(x => !string.IsNullOrWhiteSpace(x.HeroId)).Select(x => x.HeroId).Distinct()) }.ToString(Formatting.None));
+                ["paymentParties"] = receiptContext?["paymentParties"]?.DeepClone() ?? InternationalPaymentParties(matter),
+                ["witnessHeroIds"] = receiptContext?["witnessHeroIds"]?.DeepClone()
+                    ?? new JArray(matter.Participants.Where(x => !string.IsNullOrWhiteSpace(x.HeroId)).Select(x => x.HeroId).Distinct()) }.ToString(Formatting.None));
             TryProcessPendingDocketRelationshipAdjustments();
             _internationalRefreshAfterUtc = DateTime.MinValue;
         }
@@ -334,6 +341,185 @@ namespace ReignBeta.Court.Campaign
             GiveGoldAction.ApplyBetweenCharacters(payer, recipient, gold, true);
             return new JObject { ["gold"] = gold, ["payerId"] = payer.StringId, ["recipientId"] = recipient.StringId,
                 ["payerBefore"] = beforePayer, ["payerAfter"] = payer.Gold, ["recipientBefore"] = beforeRecipient, ["recipientAfter"] = recipient.Gold };
+        }
+
+        private static bool IsDirectInternationalPayment(JObject data, string option)
+            => option == "compensate" || option == "compromise" || (option == "accept" && DirectPaymentText(data, "remedy") == "gift");
+
+        private static string DirectPaymentText(JObject source, string key) => (source?[key] as JValue)?.Value as string;
+
+        private bool OwnsDirectCourtPayment(ReignCourtLifeMatter matter)
+        {
+            var world = ReignServices.WorldHistory;
+            return matter?.Source == ReignDocketSource.International && OwnsCourtLifeMatter(matter)
+                && IsPlayerKingdomRuler() && ReignCampaignIdentity.HasActiveCampaign()
+                && !ReignCampaignInitializationGate.IsPending && world?.TimelineReady == true
+                && !string.IsNullOrWhiteSpace(matter.MatterId) && !string.IsNullOrWhiteSpace(world.TimelineId)
+                && matter.CampaignId == ReignCampaignIdentity.CurrentCampaignId()
+                && matter.TimelineId == world.TimelineId && matter.ReignId == CurrentReignId();
+        }
+
+        private static string DirectCourtPaymentId(ReignCourtLifeMatter matter)
+            => "court_payment_" + ReignCourtTerms.Hash(new JArray(matter.CampaignId, matter.TimelineId, matter.MatterId)
+                .ToString(Formatting.None));
+
+        private JObject FreezeDirectCourtPayment(ReignCourtLifeMatter matter, JObject data, string option, JObject terms)
+        {
+            var context = new JObject
+            {
+                ["foreign"] = data["foreign"]?.DeepClone(), ["player"] = data["player"]?.DeepClone(),
+                ["channel"] = data["channel"]?.DeepClone(), ["extortion"] = data["extortion"]?.DeepClone(),
+                ["remedy"] = data["remedy"]?.DeepClone(), ["kind"] = data["kind"]?.DeepClone(),
+                ["foreignRulerId"] = data["foreignRulerId"]?.DeepClone(),
+                ["domesticLordId"] = data["domesticLordId"]?.DeepClone(), ["foreignLordId"] = data["foreignLordId"]?.DeepClone(),
+                ["title"] = matter.Title, ["paymentParties"] = InternationalPaymentParties(matter),
+                ["witnessHeroIds"] = new JArray(matter.Participants.Where(x => !string.IsNullOrWhiteSpace(x.HeroId))
+                    .Select(x => x.HeroId).Distinct())
+            };
+            return new JObject
+            {
+                ["campaignId"] = matter.CampaignId, ["timelineId"] = matter.TimelineId, ["matterId"] = matter.MatterId,
+                ["reignId"] = matter.ReignId, ["optionId"] = option, ["terms"] = terms.DeepClone(), ["receiptContext"] = context
+            };
+        }
+
+        private bool TryReconcileDirectCourtPayment(ReignCourtLifeMatter matter, JObject decision,
+            out bool completed, out string summary)
+        {
+            completed = false;
+            summary = "";
+            if (matter == null || matter.EffectsCommitted) return false;
+            JObject data = ParseObject(matter.PayloadJson);
+            JToken savedAttempt = data["nativeCourtPaymentAttempt"];
+            if (!OwnsDirectCourtPayment(matter))
+            {
+                summary = "This payment belongs to a different court or timeline.";
+                return savedAttempt != null;
+            }
+
+            ReignGoldTransferService service = ReignServices.GoldTransferService;
+            string id = DirectCourtPaymentId(matter);
+            if (savedAttempt == null && service?.HasReceipt(id) != true) return false;
+            if (savedAttempt is JObject failed && (DirectPaymentText(failed, "status") == "failed" || DirectPaymentText(failed, "status") == "unknown"))
+            {
+                summary = DirectPaymentText(failed, "message") ?? "The earlier payment cannot be repeated.";
+                return true;
+            }
+
+            GoldPaymentReceipt receipt = service?.ReadInternationalCourtReceipt(id);
+            if (!(savedAttempt is JObject attempt) || receipt?.Status != "applied"
+                || !MatchesDirectCourtPayment(matter, id, attempt, receipt))
+            {
+                // A receipt alone never authorizes reconstruction using the current proposal.
+                summary = "The earlier payment cannot be verified. Do not repeat it before reconciliation.";
+                return true;
+            }
+
+            JObject material = (JObject)attempt["material"];
+            JObject receiptContext = (JObject)material["receiptContext"];
+            string option = DirectPaymentText(material, "optionId");
+            data["nativeReceipt"] = DirectCourtPaymentReceipt(receipt);
+            data["nativeEffectCommitted"] = true;
+            data["nativeOptionId"] = option;
+            attempt["status"] = "applied";
+            // Record the paid decision before judging current eligibility. Applying relationship
+            // changes now could direct them to a household a claimant joined after payment.
+            CompleteInternationalCourtSettlement(matter, data, option, receipt.Amount, out summary,
+                receiptContext, recoveredPayment: true);
+            var history = EnsureRulerDocketState().History;
+            if (!history.Any(row => row.RecordId == matter.ResolutionReceiptId))
+                history.Add(new ReignDocketHistoryRecord { RecordId = matter.ResolutionReceiptId,
+                    ReignId = matter.ReignId, Type = "court_life_international", Outcome = option, Day = CurrentDay(),
+                    Summary = (receiptContext.Value<string>("title") ?? matter.Title) + ": " + summary,
+                    Detail = "Audience " + matter.MatterId + "; template " + matter.TemplateId, PetitionId = matter.MatterId,
+                    TranscriptId = matter.TranscriptId, SceneAssetPath = matter.SceneAssetPath });
+            StateChanged?.Invoke();
+            completed = decision == null || (DirectPaymentText(decision, "optionId") == option
+                && (decision["terms"] == null || JToken.DeepEquals(decision["terms"], material["terms"])));
+            if (!completed) summary = "The earlier payment was recorded. The requested decision was not executed.";
+            return true;
+        }
+
+        private static bool MatchesDirectCourtPayment(ReignCourtLifeMatter matter, string id, JObject attempt, GoldPaymentReceipt receipt)
+        {
+            if (DirectPaymentText(attempt, "id") != id || !(attempt["material"] is JObject material)
+                || DirectPaymentText(material, "campaignId") != matter.CampaignId || DirectPaymentText(material, "timelineId") != matter.TimelineId
+                || DirectPaymentText(material, "matterId") != matter.MatterId || DirectPaymentText(material, "reignId") != matter.ReignId
+                || !(material["terms"] is JObject terms) || !(material["receiptContext"] is JObject context)
+                || !(context["foreign"] is JObject) || !(context["player"] is JObject)
+                || !(context["paymentParties"] is JArray) || !(context["witnessHeroIds"] is JArray)
+                || !IsDirectInternationalPayment(context, DirectPaymentText(material, "optionId"))) return false;
+            return receipt.Agreement == ReignCourtTerms.Hash(material.ToString(Formatting.None))
+                && receipt.From == DirectPaymentText(terms, "payerHeroId") && receipt.To == DirectPaymentText(terms, "recipientHeroId")
+                && JToken.DeepEquals(terms["gold"], new JValue(receipt.Amount))
+                && receipt.Amount >= 0 && receipt.Amount <= 1000000 && receipt.FromBefore >= receipt.Amount && receipt.ToBefore >= 0
+                && (long)receipt.ToBefore + receipt.Amount <= int.MaxValue;
+        }
+
+        private static JObject DirectCourtPaymentReceipt(GoldPaymentReceipt receipt)
+            // Applied receipts already verified both exact deltas. Recover the original observation, not current balances.
+            => new JObject { ["gold"] = receipt.Amount, ["payerId"] = receipt.From, ["recipientId"] = receipt.To,
+                ["payerBefore"] = receipt.FromBefore, ["payerAfter"] = receipt.FromBefore - receipt.Amount,
+                ["recipientBefore"] = receipt.ToBefore, ["recipientAfter"] = receipt.ToBefore + receipt.Amount };
+
+        private bool TryExecuteDirectInternationalPayment(ReignCourtLifeMatter matter, JObject data, string option,
+            JObject terms, Hero payer, Hero recipient, int gold, out string summary)
+        {
+            summary = "";
+            if (!OwnsDirectCourtPayment(matter) || !HasRoyalCommandAccess
+                || matter.CampaignId != Session?.CampaignId || matter.TimelineId != Session?.TimelineId)
+            { summary = "This payment does not belong to the current court timeline."; return false; }
+            ReignGoldTransferService service = ReignServices.GoldTransferService;
+            if (service == null) { summary = "The native payment service is unavailable."; return false; }
+
+            string id = DirectCourtPaymentId(matter);
+            if (data["nativeCourtPaymentAttempt"] != null || service.HasReceipt(id))
+            { summary = "An earlier payment attempt must be accounted for. Do not repeat it."; return false; }
+            if (payer.Gold < gold || recipient.Gold < 0 || (long)recipient.Gold + gold > int.MaxValue)
+            { summary = "The promised payment cannot be afforded or received."; return false; }
+            JObject material = FreezeDirectCourtPayment(matter, data, option, terms);
+            if (!(material["receiptContext"]?["foreign"] is JObject) || !(material["receiptContext"]?["player"] is JObject))
+            { summary = "The confirmed court parties could not be recorded."; return false; }
+            var attempt = new JObject { ["id"] = id, ["material"] = material, ["status"] = "started" };
+            data["nativeCourtPaymentAttempt"] = attempt;
+            matter.PayloadJson = data.ToString(Formatting.None);
+
+            GoldPaymentReceipt receipt;
+            bool? nativeChangedBalance;
+            string materialHash = ReignCourtTerms.Hash(material.ToString(Formatting.None));
+            try { receipt = service.PayInternationalCourt(id, payer, recipient, gold, materialHash, out nativeChangedBalance); }
+            catch (Exception)
+            {
+                summary = "The payment result cannot be verified. Do not repeat it before reconciliation.";
+                if (OwnsDirectCourtPayment(matter)) RetainDirectPaymentFailure(matter, data, attempt, "unknown", summary);
+                return false;
+            }
+            if (!OwnsDirectCourtPayment(matter))
+            { summary = "The court context changed. The payment must be reconciled before it can be reported."; return false; }
+            if (receipt.Status != "applied")
+            {
+                summary = receipt.Status == "unknown"
+                    ? "The payment may be incomplete. Do not repeat it before reconciliation."
+                    : nativeChangedBalance == false ? "The native payment made no change. This attempt cannot be repeated."
+                    : nativeChangedBalance == true ? "The payment did not match the agreement and both balances were restored. This attempt cannot be repeated."
+                    : receipt.Message;
+                RetainDirectPaymentFailure(matter, data, attempt, receipt.Status, summary);
+                return false;
+            }
+
+            data["nativeReceipt"] = DirectCourtPaymentReceipt(receipt);
+            attempt["status"] = "applied";
+            return true;
+        }
+
+        private void RetainDirectPaymentFailure(ReignCourtLifeMatter matter, JObject data, JObject attempt,
+            string status, string summary)
+        {
+            attempt["status"] = status;
+            attempt["message"] = summary;
+            matter.PayloadJson = data.ToString(Formatting.None);
+            matter.DecisionSummary = summary;
+            StateChanged?.Invoke();
         }
 
         private bool StartInternationalReferral(ReignCourtLifeMatter matter, JObject data, JObject decision, out string summary)

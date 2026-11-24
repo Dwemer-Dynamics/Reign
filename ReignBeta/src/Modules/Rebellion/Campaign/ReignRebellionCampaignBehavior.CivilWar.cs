@@ -43,19 +43,23 @@ namespace ReignBeta.Rebellion.Campaign
                 return false;
             }
 
+            ExpireChangedPreparationAuthority(CurrentDay());
+            ReignRebellionPlotRecord preparedPlot = FindActivePlayerPlot();
             ReignRebellionMovementRecord movement = CreateMovement(kingdom, leaderClan, true, WeekIndex(CurrentDay()));
             AddOrUpdateMember(movement, leaderClan, "rebel", "player_declaration",
                 leaderClan.Leader.GetRelation(leaderClan.Leader), leaderClan.Leader.GetRelation(kingdom.Leader));
             foreach (Clan clan in kingdom.Clans.Where(x => x != null && x != leaderClan).ToList())
                 AddOrUpdateMember(movement, clan, "loyalist", "declaration_loyalist",
                     clan.Leader?.GetRelation(leaderClan.Leader) ?? 0, clan.Leader?.GetRelation(kingdom.Leader) ?? 0);
-            StartCivilWar(movement);
+            ReignRebellionPlotRecord priorTransition = _preparationInNativeTransition;
+            _preparationInNativeTransition = preparedPlot;
+            try { StartCivilWar(movement); }
+            finally { _preparationInNativeTransition = priorTransition; }
             if (!IsCivilWar(movement))
             {
                 result = "The declaration could not create a valid rebel kingdom.";
                 return false;
             }
-            ReignRebellionPlotRecord preparedPlot = FindActivePlayerPlot();
             if (preparedPlot != null && !Same(preparedPlot.Status, "active_rebellion"))
             {
                 preparedPlot.Status = "active_rebellion";
@@ -70,6 +74,8 @@ namespace ReignBeta.Rebellion.Campaign
 
         public string DeclarationPreflightFailure(Kingdom kingdom, Clan leaderClan, Hero addressedRuler)
         {
+            if (!PreparationRealmReady(kingdom))
+                return "The current realm and ruler are not ready for a declaration.";
             bool playerLeader = leaderClan == Clan.PlayerClan && leaderClan?.Leader == Hero.MainHero;
             bool validVassal = kingdom != null && leaderClan?.Kingdom == kingdom
                 && leaderClan != kingdom.RulingClan && leaderClan.Leader != null

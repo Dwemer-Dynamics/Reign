@@ -49,6 +49,7 @@ namespace ReignBeta.Rebellion.Campaign
         private List<ReignRebellionPlotRecord> _plots = new List<ReignRebellionPlotRecord>();
         private List<ReignRebellionPledgeRecord> _pledges = new List<ReignRebellionPledgeRecord>();
         private List<ReignRebellionSummonsRecord> _summonses = new List<ReignRebellionSummonsRecord>();
+        private ReignRebellionPlotRecord _preparationInNativeTransition;
         private List<ReignNegotiatedActionRecord> _negotiations = new List<ReignNegotiatedActionRecord>();
         private string _socialBalanceRollOverridesJson = string.Empty;
         private float _lastEvaluationDay = -1000f;
@@ -100,6 +101,9 @@ namespace ReignBeta.Rebellion.Campaign
             CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
             CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnHeroKilled);
             CampaignEvents.MakePeace.AddNonSerializedListener(this, OnPeaceMade);
+            CampaignEvents.OnClanChangedKingdomEvent.AddNonSerializedListener(this, OnPreparationClanChangedKingdom);
+            CampaignEvents.OnClanLeaderChangedEvent.AddNonSerializedListener(this, OnPreparationClanLeaderChanged);
+            CampaignEvents.RulingClanChanged.AddNonSerializedListener(this, OnPreparationRulingClanChanged);
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -544,8 +548,114 @@ namespace ReignBeta.Rebellion.Campaign
         {
             string playerId = Hero.MainHero?.StringId ?? string.Empty;
             return _plots.LastOrDefault(x => x != null
-                && Same(x.PlayerHeroStringId, playerId)
-                && !IsTerminalPlotStatus(x.Status));
+                && !string.IsNullOrWhiteSpace(playerId) && x.PlayerHeroStringId == playerId
+                && (Same(x.Status, "active_rebellion") || HasUnstartedPreparation(x)
+                    && CurrentPreparationAuthority(x) == PreparationAuthority.Current));
+        }
+
+        private enum PreparationAuthority { Unavailable, Current, Changed }
+
+        private static bool HasUnstartedPreparation(ReignRebellionPlotRecord plot)
+            // A linked movement or active war belongs to civil-war recovery, even if an old plot is incomplete.
+            => plot != null && string.IsNullOrEmpty(plot.MovementId)
+                && (Same(plot.Status, "planning") || Same(plot.Status, "reported_in_transit")
+                    || Same(plot.Status, "summons_in_transit") || Same(plot.Status, "summoned") || Same(plot.Status, "summons_delivered"));
+
+        private static bool HasRecordedPreparationAuthority(ReignRebellionPlotRecord plot)
+            => !string.IsNullOrWhiteSpace(plot.PlayerHeroStringId) && !string.IsNullOrWhiteSpace(plot.PlayerClanStringId)
+                && !string.IsNullOrWhiteSpace(plot.ParentKingdomStringId) && !string.IsNullOrWhiteSpace(plot.RulerHeroStringId);
+
+        private static bool PreparationRealmReady(Kingdom realm)
+            => !ReignCampaignInitializationGate.IsPending && realm?.RulingClan != null && !realm.IsEliminated
+                && !string.IsNullOrWhiteSpace(realm.StringId) && !string.IsNullOrWhiteSpace(realm.Leader?.StringId)
+                && !realm.Leader.IsDead;
+
+        private static PreparationAuthority CurrentPreparationAuthority(ReignRebellionPlotRecord plot)
+        {
+            Hero player = Hero.MainHero;
+            Clan clan = Clan.PlayerClan;
+            Kingdom realm = clan?.Kingdom;
+            if (ReignCampaignInitializationGate.IsPending || !HasUnstartedPreparation(plot)
+                || !HasRecordedPreparationAuthority(plot) || string.IsNullOrWhiteSpace(player?.StringId)
+                || string.IsNullOrWhiteSpace(clan?.StringId)) return PreparationAuthority.Unavailable;
+            if (plot.PlayerHeroStringId != player.StringId || plot.PlayerClanStringId != clan.StringId
+                || player.IsDead || clan.IsEliminated || (clan.Leader != null && clan.Leader != player))
+                return PreparationAuthority.Changed;
+            if (realm != null && (realm.IsEliminated || realm.RulingClan == clan
+                || (!string.IsNullOrWhiteSpace(realm.StringId) && plot.ParentKingdomStringId != realm.StringId)))
+                return PreparationAuthority.Changed;
+            if (clan.Leader == null || realm?.RulingClan == null || string.IsNullOrWhiteSpace(realm.StringId)
+                || string.IsNullOrWhiteSpace(realm.Leader?.StringId)) return PreparationAuthority.Unavailable;
+            return realm.Leader.IsDead || plot.RulerHeroStringId != realm.Leader.StringId
+                ? PreparationAuthority.Changed : PreparationAuthority.Current;
+        }
+
+        private static bool IsPendingPreparationSummons(ReignRebellionSummonsRecord summons)
+            => summons != null && !summons.ConsequenceApplied
+                && (Same(summons.Status, "dispatched") || Same(summons.Status, "delivered"));
+
+        private static bool MatchesPreparationSummons(ReignRebellionPlotRecord plot, ReignRebellionSummonsRecord summons)
+            => IsPendingPreparationSummons(summons) && !string.IsNullOrWhiteSpace(plot.PlotId)
+                && !string.IsNullOrWhiteSpace(plot.SummonsId) && summons.SummonsId == plot.SummonsId
+                && summons.PlotId == plot.PlotId && summons.PlayerHeroStringId == plot.PlayerHeroStringId
+                && summons.RulerHeroStringId == plot.RulerHeroStringId;
+
+        private void CancelChangedPreparationAuthority(ReignRebellionPlotRecord plot, float now)
+        {
+            if (!HasUnstartedPreparation(plot) || ReferenceEquals(plot, _preparationInNativeTransition)) return;
+            const string reason = "preparation_authority_changed";
+            plot.Status = "cancelled";
+            plot.Resolution = reason;
+            plot.UpdatedDay = now;
+            foreach (ReignRebellionSummonsRecord summons in _summonses.Where(x => MatchesPreparationSummons(plot, x)))
+            {
+                summons.Status = "cancelled";
+                summons.Consequence = reason;
+            }
+        }
+
+        private void ExpireChangedPreparationAuthority(float now)
+        {
+            foreach (ReignRebellionPlotRecord plot in _plots)
+                if (CurrentPreparationAuthority(plot) == PreparationAuthority.Changed)
+                    CancelChangedPreparationAuthority(plot, now);
+        }
+
+        private void OnPreparationClanChangedKingdom(Clan clan, Kingdom oldKingdom, Kingdom newKingdom,
+            ChangeKingdomAction.ChangeKingdomActionDetail detail, bool showNotification)
+        {
+            if (!ReferenceEquals(Instance, this) || ReignCampaignInitializationGate.IsPending
+                || clan == null || clan != Clan.PlayerClan || oldKingdom == newKingdom) return;
+            // Record a real break in membership even if it starts before the next daily snapshot.
+            foreach (ReignRebellionPlotRecord plot in _plots)
+                if (HasUnstartedPreparation(plot) && HasRecordedPreparationAuthority(plot)
+                    && plot.PlayerClanStringId == clan.StringId
+                    && (plot.ParentKingdomStringId == oldKingdom?.StringId || plot.ParentKingdomStringId == newKingdom?.StringId))
+                    CancelChangedPreparationAuthority(plot, CurrentDay());
+        }
+
+        private void OnPreparationClanLeaderChanged(Hero oldLeader, Hero newLeader)
+        {
+            Clan changedClan = newLeader?.Clan;
+            if (!ReferenceEquals(Instance, this) || ReignCampaignInitializationGate.IsPending
+                || oldLeader == null || newLeader == oldLeader || changedClan == null || changedClan.Leader != newLeader) return;
+            Kingdom realm = changedClan.Kingdom;
+            foreach (ReignRebellionPlotRecord plot in _plots)
+            {
+                if (!HasUnstartedPreparation(plot) || !HasRecordedPreparationAuthority(plot)) continue;
+                bool changedPlayer = changedClan == Clan.PlayerClan && plot.PlayerClanStringId == changedClan.StringId
+                    && (plot.PlayerHeroStringId == oldLeader.StringId || plot.PlayerHeroStringId == newLeader.StringId);
+                bool changedRuler = realm?.RulingClan == changedClan && plot.ParentKingdomStringId == realm.StringId
+                    && (plot.RulerHeroStringId == oldLeader.StringId || plot.RulerHeroStringId == newLeader.StringId);
+                if (changedPlayer || changedRuler) CancelChangedPreparationAuthority(plot, CurrentDay());
+            }
+        }
+
+        private void OnPreparationRulingClanChanged(Kingdom kingdom, Clan oldRulingClan)
+        {
+            if (ReferenceEquals(Instance, this) && kingdom != null && kingdom == Clan.PlayerClan?.Kingdom
+                && kingdom.RulingClan != oldRulingClan)
+                ExpireChangedPreparationAuthority(CurrentDay());
         }
 
         // Keep the preparation history, but do not let an already concluded war
@@ -581,7 +691,8 @@ namespace ReignBeta.Rebellion.Campaign
         public string StructuredPledgePreflightFailure(Hero player, Hero lord, string kingdomId, string rulerId)
         {
             Kingdom parent = Clan.PlayerClan?.Kingdom;
-            if (player != Hero.MainHero || Clan.PlayerClan?.Leader != player || parent == null
+            if (!PreparationRealmReady(parent) || player == null || player != Hero.MainHero
+                || Clan.PlayerClan?.Leader != player
                 || Clan.PlayerClan == parent.RulingClan || player.IsDead || player.IsPrisoner)
                 return "Only a living, free player vassal clan leader may seek support for a rebellion.";
             if (parent.StringId != kingdomId || parent.Leader?.StringId != rulerId)
@@ -606,8 +717,8 @@ namespace ReignBeta.Rebellion.Campaign
         {
             result = string.Empty;
             Kingdom parent = Clan.PlayerClan?.Kingdom;
-            if (player != Hero.MainHero || Clan.PlayerClan?.Leader != player
-                || parent == null || Clan.PlayerClan == parent.RulingClan
+            if (!PreparationRealmReady(parent) || player == null || player != Hero.MainHero || Clan.PlayerClan?.Leader != player
+                || Clan.PlayerClan == parent.RulingClan
                 || player.IsDead || player.IsPrisoner)
             {
                 result = "Only the living, free leader of a non-ruling player vassal clan may prepare a rebellion.";
@@ -636,7 +747,14 @@ namespace ReignBeta.Rebellion.Campaign
                 return false;
             }
 
+            ExpireChangedPreparationAuthority(CurrentDay());
             ReignRebellionPlotRecord plot = FindActivePlayerPlot();
+            if (!string.IsNullOrWhiteSpace(actionId) && _pledges.Any(x => x != null
+                && x.ActionId == actionId && x.PlotId != plot?.PlotId))
+            {
+                result = "That saved reply belongs to an earlier rebellion preparation.";
+                return false;
+            }
             if (plot == null)
             {
                 plot = CreatePlayerPlot(player, parent);
@@ -704,13 +822,12 @@ namespace ReignBeta.Rebellion.Campaign
             string playerResponse, string rulerVerdict, out string result)
         {
             result = string.Empty;
+            ExpireChangedPreparationAuthority(CurrentDay());
             ReignRebellionPlotRecord plot = FindActivePlayerPlot();
-            ReignRebellionSummonsRecord summons = _summonses.LastOrDefault(x => x != null
-                && Same(x.PlotId, plot?.PlotId) && !x.ConsequenceApplied);
-            Kingdom parent = FindKingdom(plot?.ParentKingdomStringId);
-            if (plot == null || summons == null || parent == null
-                || player != Hero.MainHero || ruler == null
-                || ruler != parent.Leader || !Same(summons.RulerHeroStringId, ruler.StringId))
+            ReignRebellionSummonsRecord summons = plot == null ? null
+                : _summonses.LastOrDefault(x => MatchesPreparationSummons(plot, x));
+            if (CurrentPreparationAuthority(plot) != PreparationAuthority.Current || summons == null
+                || player == null || player != Hero.MainHero || ruler == null || ruler != Clan.PlayerClan?.Kingdom?.Leader)
             {
                 result = "There is no active summons from the current ruler to answer.";
                 return false;
@@ -749,7 +866,10 @@ namespace ReignBeta.Rebellion.Campaign
             summons.AnsweredDay = CurrentDay();
             summons.PlayerResponse = "renounce";
             summons.RulerVerdict = verdict;
-            ApplyPreparationVerdict(plot, summons, ruler, verdict, out result);
+            ReignRebellionPlotRecord priorTransition = _preparationInNativeTransition;
+            _preparationInNativeTransition = plot;
+            try { ApplyPreparationVerdict(plot, summons, ruler, verdict, out result); }
+            finally { _preparationInNativeTransition = priorTransition; }
             return true;
         }
 
@@ -774,7 +894,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void BeginConspiracyReport(ReignRebellionPlotRecord plot,
             ReignRebellionPledgeRecord pledge, Hero informer)
         {
-            if (plot == null || pledge == null || informer == null
+            if (CurrentPreparationAuthority(plot) != PreparationAuthority.Current || pledge == null || informer == null
                 || !string.IsNullOrWhiteSpace(plot.InformerHeroStringId)) return;
             float now = CurrentDay();
             plot.Status = "reported_in_transit";
@@ -792,15 +912,15 @@ namespace ReignBeta.Rebellion.Campaign
 
         private void ProcessPreparationState(float now)
         {
+            ExpireChangedPreparationAuthority(now);
             foreach (ReignRebellionPlotRecord plot in _plots.Where(x => x != null
-                && !IsTerminalPlotStatus(x.Status)).ToList())
+                && CurrentPreparationAuthority(x) == PreparationAuthority.Current).ToList())
             {
                 if (Same(plot.Status, "reported_in_transit")
                     && plot.ReportDeliveryDay > 0f && now >= plot.ReportDeliveryDay)
                     IssueRulerSummons(plot, now);
 
-                ReignRebellionSummonsRecord summons = _summonses.LastOrDefault(x => x != null
-                    && Same(x.PlotId, plot.PlotId) && !x.ConsequenceApplied);
+                ReignRebellionSummonsRecord summons = _summonses.LastOrDefault(x => MatchesPreparationSummons(plot, x));
                 if (summons == null) continue;
                 if (Same(summons.Status, "dispatched") && now >= summons.DeliveryDay)
                 {
@@ -828,7 +948,8 @@ namespace ReignBeta.Rebellion.Campaign
 
         private void IssueRulerSummons(ReignRebellionPlotRecord plot, float now)
         {
-            if (plot == null || _summonses.Any(x => x != null && Same(x.PlotId, plot.PlotId))) return;
+            if (CurrentPreparationAuthority(plot) != PreparationAuthority.Current
+                || _summonses.Any(x => x != null && Same(x.PlotId, plot.PlotId))) return;
             ReignRebellionSummonsRecord summons = new ReignRebellionSummonsRecord
             {
                 SummonsId = "rebellion_summons_" + Guid.NewGuid().ToString("N"),
@@ -890,7 +1011,8 @@ namespace ReignBeta.Rebellion.Campaign
         {
             result = string.Empty;
             Kingdom parent = FindKingdom(plot?.ParentKingdomStringId);
-            if (plot == null || parent == null || Clan.PlayerClan?.Kingdom != parent)
+            if (CurrentPreparationAuthority(plot) != PreparationAuthority.Current
+                || parent == null || Clan.PlayerClan?.Kingdom != parent)
             {
                 result = "The reported realm or player-vassal relationship no longer exists.";
                 return false;
