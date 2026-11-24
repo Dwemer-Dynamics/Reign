@@ -304,46 +304,49 @@ namespace ReignBeta.Dialogue.UI
         private void ShowVerbs() => Step("Choose an action", () =>
         {
             Choices.Clear();
+            var available = SelectableActions(ReignActionCatalog.All).ToList();
             if (_search.Length > 0)
-            { AddActionChoices(ReignActionCatalog.All.Where(d => d.ConversationEligible), ShowVerbs); return; }
-            var available = ReignActionCatalog.All.Where(IsAvailable).ToList();
-            if (available.Any(d => d.Id == TavernHouseVisitAction.Id))
-                Choice("Arrange a private visit…", () => Forward(() => BeginClause(ReignActionCatalog.Find(TavernHouseVisitAction.Id)), ShowVerbs));
-            if (available.Any(d => d.Id.StartsWith("give.", StringComparison.Ordinal)))
-                Choice("Give…", () => Forward(ShowAssets, ShowVerbs), true, "Gold, possessions, troops, prisoners, land, workshops and ships");
+            {
+                AddActionChoices(available, ShowVerbs);
+                return;
+            }
+            var privateVisit = available.FirstOrDefault(d => d.Id == TavernHouseVisitAction.Id);
+            if (privateVisit != null)
+                Choice(ReignActionLanguage.BrowseCategoryLabel(ActionBrowseCategory.PrivateVisit) + "…", () => Forward(() => BeginClause(privateVisit), ShowVerbs));
+            if (available.Any(d => ReignActionLanguage.BrowseCategory(d) == ActionBrowseCategory.Give))
+                Choice(ReignActionLanguage.BrowseCategoryLabel(ActionBrowseCategory.Give) + "…", () => Forward(ShowAssets, ShowVerbs), true, "Gold, possessions, troops, prisoners, land, workshops and ships");
             if (available.Any(d => d.Id == "go_to_settlement"))
                 Choice("Go to…", () => Forward(() => BeginClause(ReignActionCatalog.Find("go_to_settlement")), ShowVerbs), true, "Castles, towns and villages");
             if (available.Any(d => SupportActions.Contains(d.Id)))
                 Choice("Support…", () => Forward(ShowPolitics, ShowVerbs), true, "Political parties, proposals and a future rebellion");
-            foreach (var category in new[] { new[] { "government", "Government decisions" }, new[] { "court", "Court and intelligence" },
-                new[] { "campaign", "Party and military orders" }, new[] { "diplomacy", "Diplomacy" },
-                new[] { "politics", "Clan and kingdom" }, new[] { "regular", "Personal requests" } })
-                if (available.Any(d => ActionGroup(d) == category[0]))
-                    Choice(category[1] + "…", () => Forward(() => ShowFamily(category[0], category[1]), ShowVerbs));
+            foreach (var category in available.Select(ReignActionLanguage.BrowseCategory).Distinct().OrderBy(category => category))
+            {
+                if (category == ActionBrowseCategory.PrivateVisit || category == ActionBrowseCategory.Give) continue;
+                var title = ReignActionLanguage.BrowseCategoryLabel(category);
+                Choice(title + "…", () => Forward(() => ShowCategory(category), ShowVerbs));
+            }
         });
         private static readonly string[] SupportActions = { "government.join_party", "government.back_platform", "government.support_vote", "government.support_nomination",
             "government.endorse_petition", "government.sponsor_petition", "government.seek_petition_adoption", "government.present_petition",
             "government.transfer_mandate", "government.nominate_leader", "government.vote_leader", "pledge_rebellion_support" };
         private bool IsAvailable(ActionDefinition definition) => !TavernHouseVisitAction.Contains(_agreement)
             && ReignActionService.CanBuild(definition, _agreement, _playerActs, _tavern);
-        private static string ActionGroup(ActionDefinition d)
+        // Keep campaign aliases available to tooling without listing the same objective twice.
+        private IEnumerable<ActionDefinition> SelectableActions(IEnumerable<ActionDefinition> definitions)
+            => definitions.Where(d => d.ConversationEligible && IsAvailable(d))
+                .Where(d => !d.Id.StartsWith("campaign.", StringComparison.Ordinal)
+                    || !ReignActionCatalog.All.Any(alias => !alias.Id.StartsWith("campaign.", StringComparison.Ordinal)
+                        && alias.ConversationEligible && alias.NativeObjective == d.NativeObjective));
+
+        private void ShowCategory(ActionBrowseCategory category) => Step(ReignActionLanguage.BrowseCategoryLabel(category), () =>
         {
-            if (d.NativeObjective.Length > 0 || d.Family == "strategy" || d.Id.EndsWith("campaign_order", StringComparison.Ordinal)) return "campaign";
-            if (new[] { "hire_player_as_mercenary", "dismiss_player_mercenary", "offer_player_vassalage", "dismiss_player_vassal",
-                "join_clan", "leave_clan", "join_kingdom", "leave_kingdom", "hire_mercenary_clan", "create_clan_accord", "cancel_clan_accord" }.Contains(d.Id)) return "politics";
-            return d.Family;
-        }
-        private void ShowFamily(string family, string title) => Step(title, () =>
-        {
-            Choices.Clear(); AddActionChoices(ReignActionCatalog.All.Where(d => d.ConversationEligible && ActionGroup(d) == family), () => ShowFamily(family, title));
+            Choices.Clear();
+            var definitions = ReignActionCatalog.All.Where(d => ReignActionLanguage.BrowseCategory(d) == category);
+            AddActionChoices(SelectableActions(definitions), () => ShowCategory(category));
         });
-        private void AddActionChoices(IEnumerable<ActionDefinition> definitions, Action back)
+
+        private void AddActionChoices(IEnumerable<ActionDefinition> actions, Action back)
         {
-            // Keep legacy aliases available to console tooling without showing the same
-            // campaign objective twice in a player's selector.
-            var actions = definitions.Where(IsAvailable).Where(d => !d.Id.StartsWith("campaign.", StringComparison.Ordinal)
-                || !ReignActionCatalog.All.Any(alias => !alias.Id.StartsWith("campaign.", StringComparison.Ordinal)
-                    && alias.ConversationEligible && alias.NativeObjective == d.NativeObjective));
             foreach (var d in actions.OrderBy(d => ReignActionLanguage.ChoiceLabel(d, _playerActs), StringComparer.CurrentCultureIgnoreCase))
             {
                 Choice(ReignActionLanguage.ChoiceLabel(d, _playerActs), () => Forward(() => BeginClause(d), back));
@@ -352,8 +355,9 @@ namespace ReignBeta.Dialogue.UI
         private void ShowAssets() => Step("What will be given?", () =>
         {
             Choices.Clear();
-            foreach (var d in ReignActionCatalog.All.Where(d => d.Id.StartsWith("give.") && IsAvailable(d)
-                && (!HasMarriageDraft || ReignWeddingBargain.IsAsset(d.Id))).OrderBy(d => d.Label, StringComparer.CurrentCultureIgnoreCase))
+            var definitions = ReignActionCatalog.All.Where(d => ReignActionLanguage.BrowseCategory(d) == ActionBrowseCategory.Give
+                && (!HasMarriageDraft || ReignWeddingBargain.IsAsset(d.Id)));
+            foreach (var d in SelectableActions(definitions).OrderBy(d => d.Label, StringComparer.CurrentCultureIgnoreCase))
                 Choice(d.Label.Substring(5), () => Forward(() => BeginClause(d), ShowAssets));
             if (HasMarriageDraft)
             {
@@ -376,7 +380,8 @@ namespace ReignBeta.Dialogue.UI
         });
         private void ShowPolitics() => Step("What support are you proposing?", () =>
         {
-            Choices.Clear(); AddActionChoices(ReignActionCatalog.All.Where(d => SupportActions.Contains(d.Id)), ShowPolitics);
+            Choices.Clear();
+            AddActionChoices(SelectableActions(ReignActionCatalog.All.Where(d => SupportActions.Contains(d.Id))), ShowPolitics);
         });
         private void BeginClause(ActionDefinition d)
         {
