@@ -571,56 +571,79 @@ namespace ReignBeta.Characters.Campaign
 
         private void Deliver(ReignConceptionRecord record)
         {
+            if (record.Status != "active") return;
             Hero mother = ReignObjectResolver.FindHero(record.MotherId);
             Hero bioFather = ReignObjectResolver.FindHero(record.BiologicalFatherId);
             Hero legalFather = ReignObjectResolver.FindHero(record.LegalFatherId) ?? bioFather;
             if (mother == null || bioFather == null || legalFather == null || !mother.IsAlive)
             {
-                record.Status = "failed";
-                if (mother != null) mother.IsPregnant = false;
-                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "failed", string.Empty);
+                FailManagedDelivery(record, mother);
                 return;
             }
 
-            try
-            {
-                Hero child = HeroCreator.DeliverOffSpring(mother, legalFather, MBRandom.RandomFloat <= 0.51f);
-                mother.IsPregnant = false;
-                record.Status = "born";
-                record.ChildId = child?.StringId ?? string.Empty;
-                bool illegitimate = record.IsIllegitimate;
-                ReignParentageRecord parentage = new ReignParentageRecord
-                {
-                    ChildId = record.ChildId,
-                    MotherId = mother.StringId,
-                    BiologicalFatherId = bioFather.StringId,
-                    LegalFatherId = legalFather.StringId,
-                    IsIllegitimate = illegitimate,
-                    Revealed = record.FatherExposed || !record.MotherExposed && legalFather == bioFather,
-                    MotherExposed = record.MotherExposed,
-                    FatherExposed = record.FatherExposed,
-                    BastardSurname = illegitimate && mother.Spouse == null ? "Baseborn" : string.Empty,
-                    ConceptionId = record.ConceptionId
-                };
-                _parentage.Add(parentage);
-                if (illegitimate && mother.Spouse == null && child != null) ApplyBastardName(child, parentage.BastardSurname);
-                if (child != null)
-                {
-                    CampaignEventDispatcher.Instance.OnGivenBirth(mother, new List<Hero> { child }, 0);
-                }
-                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "born", record.ChildId);
-                if (record.PlayerInvolved)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(mother.Name + " has given birth."));
-                }
-            }
+            Hero child;
+            try { child = HeroCreator.DeliverOffSpring(mother, legalFather, MBRandom.RandomFloat <= 0.51f); }
             catch (Exception ex)
             {
-                mother.IsPregnant = false;
-                record.Status = "failed";
-                ReignLog.Warn("Managed birth failed: " + ex.Message);
-                _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "failed", string.Empty);
+                ReignLog.Warn("Managed delivery returned no observed child: " + ex.Message);
+                FailManagedDelivery(record, mother);
+                return;
             }
+            if (child == null)
+            {
+                ReignLog.Warn("Managed delivery returned no child for " + record.ConceptionId + ".");
+                FailManagedDelivery(record, mother);
+                return;
+            }
+
+            // A returned child is an irreversible native outcome. Record it before callbacks.
+            record.Status = "born";
+            record.ChildId = child.StringId ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(record.ChildId))
+            {
+                RunManagedBirthFollowUp(record, "clear pregnancy", () => mother.IsPregnant = false);
+                ReignLog.Warn("Managed delivery returned a child without an ID for " + record.ConceptionId + ".");
+                return;
+            }
+
+            ReignParentageRecord parentage = new ReignParentageRecord
+            {
+                ChildId = record.ChildId,
+                MotherId = mother.StringId,
+                BiologicalFatherId = bioFather.StringId,
+                LegalFatherId = legalFather.StringId,
+                IsIllegitimate = record.IsIllegitimate,
+                Revealed = record.FatherExposed || !record.MotherExposed && legalFather == bioFather,
+                MotherExposed = record.MotherExposed,
+                FatherExposed = record.FatherExposed,
+                BastardSurname = record.IsIllegitimate && mother.Spouse == null ? "Baseborn" : string.Empty,
+                ConceptionId = record.ConceptionId
+            };
+            _parentage.Add(parentage);
+
+            RunManagedBirthFollowUp(record, "clear pregnancy", () => mother.IsPregnant = false);
+            if (parentage.BastardSurname.Length > 0)
+                RunManagedBirthFollowUp(record, "name child", () => ApplyBastardName(child, parentage.BastardSurname));
+            RunManagedBirthFollowUp(record, "dispatch birth event",
+                () => CampaignEventDispatcher.Instance.OnGivenBirth(mother, new List<Hero> { child }, 0));
+            _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "born", record.ChildId);
+            if (record.PlayerInvolved)
+                RunManagedBirthFollowUp(record, "display birth notice",
+                    () => InformationManager.DisplayMessage(new InformationMessage(mother.Name + " has given birth.")));
+        }
+
+        private static void FailManagedDelivery(ReignConceptionRecord record, Hero mother)
+        {
+            record.Status = "failed";
+            if (mother != null)
+                RunManagedBirthFollowUp(record, "clear pregnancy", () => mother.IsPregnant = false);
+            _ = ReignRelationshipDirectorClient.ReportConceptionAsync(record, "failed", string.Empty);
+        }
+
+        private static void RunManagedBirthFollowUp(ReignConceptionRecord record, string step, Action followUp)
+        {
+            try { followUp(); }
+            catch (Exception ex) { ReignLog.Warn("Managed delivery " + record.ConceptionId + " could not " + step + ": " + ex.Message); }
         }
 
         private static void ApplyBastardName(Hero child, string surname)
