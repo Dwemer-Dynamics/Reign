@@ -52,11 +52,12 @@ public sealed class TesterPackageTests
         Assert.Equal("reign-tester-package-v1", distribution.GetProperty("schema").GetString());
         Assert.Contains("provider-free", distribution.GetProperty("contracts").GetString());
         Assert.Contains("reign-tester-runtime-proof-v1", distribution.GetProperty("nativeProbe").GetString());
+        Assert.Contains("reign-tester-image-receipt-v2", distribution.GetProperty("imageEvidence").GetString());
         foreach (string path in new[] { "docs/agent/testing/RELEASE_PACKAGING.md", "ReignMcp/docs/security-model.md" })
         {
             string text = File.ReadAllText(Path.Combine(root, path));
             Assert.Contains("tester-package", text);
-            Assert.Contains("reign-tester-image-receipt-v1", text);
+            Assert.Contains("reign-tester-image-receipt-v2", text);
             Assert.Contains("native", text);
         }
     }
