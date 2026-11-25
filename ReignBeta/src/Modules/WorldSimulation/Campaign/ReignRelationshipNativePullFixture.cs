@@ -25,23 +25,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             && (command["testCase"] as JObject)?.Value<string>("actionId") == NativeRelationshipPullFixtureId;
 
         private static bool OwnsAcceptedNativeRelationshipCommand(JObject acknowledgment, JObject issued,
-            ReignMainThread.GameScope scope, string campaignId, string gameInstanceId)
-        {
-            JObject accepted = acknowledgment?["command"] as JObject;
-            JObject run = acknowledgment?["run"] as JObject;
-            return scope != null && ReferenceEquals(scope, ReignMainThread.CurrentGameScope)
-                && acknowledgment?.Value<bool?>("ok") == true && acknowledgment.Value<bool?>("idempotent") != true
-                && run?.Value<string>("status") == "running" && run.Value<string>("mode") == "structured_actions"
-                && run.Value<string>("campaignId") == campaignId && run.Value<string>("gameInstanceId") == gameInstanceId
-                && run.Value<string>("runId") == issued.Value<string>("runId")
-                && accepted?.Value<string>("status") == "accepted"
-                && accepted.Value<string>("runId") == issued.Value<string>("runId")
-                && accepted.Value<string>("commandId") == issued.Value<string>("commandId")
-                && !string.IsNullOrEmpty(issued.Value<string>("leaseId"))
-                && accepted.Value<string>("leaseId") == issued.Value<string>("leaseId")
-                && JToken.DeepEquals(accepted["testCase"], issued["testCase"])
-                && JToken.DeepEquals(accepted["enrollment"], issued["enrollment"]);
-        }
+            ReignMainThread.GameScope scope, string campaignId, string gameInstanceId) =>
+            scope != null && ReferenceEquals(scope, ReignMainThread.CurrentGameScope)
+            && ReignRelationshipNativePullWire.MatchesAccepted(acknowledgment, issued, campaignId, gameInstanceId);
 
         private static LiveCommandResult NativeRelationshipPullFixture(JObject test, JObject enrollment)
         {
@@ -356,11 +342,13 @@ namespace ReignBeta.WorldSimulation.Campaign
                         && ReferenceEquals(_successorLoad, ReleaseLoad),
                     ["origin"] = OriginAttempts.Evidence(), ["successor"] = SuccessorAttempts.Evidence()
                 },
-                ["originCoordinatorGeneration"] = Load.CoordinatorGeneration, ["originLoadSessionId"] = Load.LoadSessionId,
-                ["originSharedActivityGeneration"] = Load.RestoreGeneration,
-                ["releaseGameInstanceId"] = ReleaseGameInstance, ["releaseLoadSessionId"] = ReleaseLoad?.LoadSessionId,
+                ["originCoordinatorGeneration"] = Load.CoordinatorGeneration,
+                ["originLoadSessionSha256"] = ReignRelationshipNativePullWire.LoadIdentitySha256(Load.LoadSessionId),
+                ["originSharedActivityGenerationSha256"] = ReignRelationshipNativePullWire.LoadIdentitySha256(Load.RestoreGeneration),
+                ["releaseGameInstanceId"] = ReleaseGameInstance,
+                ["releaseLoadSessionSha256"] = ReignRelationshipNativePullWire.LoadIdentitySha256(ReleaseLoad?.LoadSessionId),
                 ["releaseCoordinatorGeneration"] = ReleaseLoad?.CoordinatorGeneration,
-                ["releaseSharedActivityGeneration"] = ReleaseLoad?.RestoreGeneration,
+                ["releaseSharedActivityGenerationSha256"] = ReignRelationshipNativePullWire.LoadIdentitySha256(ReleaseLoad?.RestoreGeneration),
                 ["nativeCampaignChanged"] = ReleaseLoad != null, ["relationshipOwnerChanged"] = ReleaseLoad != null,
                 ["outcome"] = Volatile.Read(ref _outcome) ?? (Resume.Task.IsCompleted ? "released"
                     : Expiry.IsCompleted ? "expired" : TargetCount == 0 ? "armed" : "held")

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using ModelContextProtocol.Server;
@@ -26,12 +27,13 @@ public static partial class TestingTools
     public static IReadOnlyDictionary<string, object?> GetPartyAgencyTestManifest(
         ReignMcpOptions options)
     {
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
         return new Dictionary<string, object?>
         {
             ["ok"] = true,
             ["schema"] = "reign-party-agency-certification-manifest-v2",
             ["manifestPath"] = PartyAgencyManifestPath(options),
+            ["observedCatalogSha256"] = observedCatalogSha256,
             ["manifest"] = JsonSerializer.Deserialize<object>(manifest.GetRawText())
         };
     }
@@ -60,7 +62,7 @@ public static partial class TestingTools
         runId = RequiredPartyAgencyIdentifier(runId, nameof(runId));
         CampaignTestAuthorization authorization = campaignTests.RequireEnrollment(
             campaignTestRunId, campaignId);
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
         string[] requiredInstances = RequiredPartyAgencyInstances(manifest).ToArray();
         var requested = new PartyAgencyCertificationState
         {
@@ -77,6 +79,7 @@ public static partial class TestingTools
             ProviderConfigurationFingerprint = RequiredPartyAgencyFingerprint(
                 providerConfigurationFingerprint, nameof(providerConfigurationFingerprint)),
             CatalogFingerprint = RequiredPartyAgencyFingerprint(catalogFingerprint, nameof(catalogFingerprint)),
+            PreparedCatalogSha256 = observedCatalogSha256,
             BannerlordVersion = RequiredPartyAgencyFingerprint(bannerlordVersion, nameof(bannerlordVersion)),
             RequiredInstances = requiredInstances.ToList(),
             PreparedUtc = DateTime.UtcNow.ToString("O"),
@@ -120,6 +123,7 @@ public static partial class TestingTools
     {
         if (!PartyAgencyImmutableInputsMatch(existing, requested))
             throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
+        RequirePreparedPartyAgencyCatalog(existing, requested.PreparedCatalogSha256);
         if (captureApprovedArtifacts && existing.ApprovedArtifactWitness?.BelongsTo(
                 existing.RunId, existing.CampaignId, existing.CampaignTestRunId) != true)
             throw new InvalidOperationException("This run was prepared without an approved artifact witness. Capture one when preparing a new run.");
@@ -293,7 +297,9 @@ public static partial class TestingTools
             throw new InvalidOperationException(
                 "Carry-forward requires identical enrollment, provider, Bannerlord, and unaffected runtime fingerprints.");
 
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
+        RequirePreparedPartyAgencyCatalog(source, observedCatalogSha256);
+        RequirePreparedPartyAgencyCatalog(destination, observedCatalogSha256);
         string[] requested = InputGuard.BoundedText(caseInstances ?? string.Empty,
                 nameof(caseInstances), 4000)
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -513,7 +519,7 @@ public static partial class TestingTools
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The prepared Party Agency disposable save no longer matches campaign-test enrollment.");
 
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPreparedPartyAgencyManifest(options, state);
         JsonElement testCase = FindPartyAgencyCase(manifest, caseId);
         string manifestProfile = testCase.GetProperty("profile").GetString() ?? string.Empty;
         if (!string.Equals(profile, manifestProfile, StringComparison.Ordinal))
@@ -789,7 +795,8 @@ public static partial class TestingTools
         variant = OptionalPartyAgencyToken(variant, nameof(variant));
         const string caseId = "PA-NATIVE-017";
         PartyAgencyCertificationState state = ReadPartyAgencyState(options, runId);
-        ValidatePartyAgencyVariant(FindPartyAgencyCase(LoadPartyAgencyManifest(options), caseId), variant);
+        JsonElement manifest = LoadPreparedPartyAgencyManifest(options, state);
+        ValidatePartyAgencyVariant(FindPartyAgencyCase(manifest, caseId), variant);
         if (state.CampaignId != campaignId || state.CampaignTestRunId != campaignTestRunId
             || state.Executions.Count(item => item.StartAccepted && item.NaturalLanguage
                 && item.LiveRunId == stageLiveRunId && item.CaseId == caseId
@@ -969,7 +976,7 @@ public static partial class TestingTools
             throw new InvalidOperationException("The checkpoint belongs to a different Party Agency case or phase.");
         CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
             campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPreparedPartyAgencyManifest(options, state);
         JsonElement testCase = FindPartyAgencyCase(manifest, "PA-NATIVE-017");
         ValidatePartyAgencyVariant(testCase, variant);
         string liveRunId = PartyAgencyLiveRunId(runId, "PA-NATIVE-017-reload", variant);
@@ -1159,7 +1166,8 @@ public static partial class TestingTools
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Party Agency readiness enrollment no longer matches the guarded campaign test.");
 
-        JsonElement manifest = LoadPartyAgencyManifest(options);
+        JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
+        bool catalogMatches = PreparedPartyAgencyCatalogMatches(state, observedCatalogSha256);
         var installed = authorization.TimelineId == state.TimelineId
             ? PartyAgencyApprovedArtifacts.ReadInstalledWitness(PartyAgencyInstalledWitnessPath(options, state.RunId), state)
             : null;
@@ -1167,6 +1175,8 @@ public static partial class TestingTools
         var passedLanguage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var reports = new List<object?>();
         var blockers = new List<string>();
+        if (!catalogMatches)
+            blockers.Add(PartyAgencyPreparedCatalogMismatch);
         foreach (PartyAgencyExecution execution in state.Executions.AsEnumerable().Reverse())
         {
             string instance = PartyAgencyInstanceKey(execution.CaseId, execution.Variant);
@@ -1180,22 +1190,24 @@ public static partial class TestingTools
             bool completed = report.Ok && report.Data.HasValue
                 && string.Equals(FindPartyAgencyString(report.Data.Value, "status"),
                     "completed", StringComparison.OrdinalIgnoreCase);
-            JsonElement testCase = FindPartyAgencyCase(manifest, execution.CaseId);
-            string[] requiredTurns = PartyAgencyAllRequiredTurns(manifest, testCase,
-                execution.Variant);
+            // Keep the historical report and its diagnostics without judging it against different terms.
+            string[] requiredTurns = catalogMatches
+                ? PartyAgencyAllRequiredTurns(manifest, FindPartyAgencyCase(manifest, execution.CaseId),
+                    execution.Variant)
+                : [];
             bool nativeRoundtrip = execution.CaseId.Equals("PA-NATIVE-017", StringComparison.OrdinalIgnoreCase);
             bool noDirectBypass = report.Data.HasValue
                 && !ContainsPartyAgencyDirectActionOperation(report.Data.Value);
             bool transcriptComplete;
             if (nativeRoundtrip)
             {
-                transcriptComplete = completed && report.Data.HasValue
+                transcriptComplete = catalogMatches && completed && report.Data.HasValue
                     && await VerifyPartyAgencyBoundRoundtripAsync(api, state, execution, report.Data.Value,
                         requiredTurns, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                transcriptComplete = requiredTurns.All(turn => report.Data.HasValue
+                transcriptComplete = catalogMatches && requiredTurns.All(turn => report.Data.HasValue
                     && ContainsPartyAgencyTranscriptTurn(report.Data.Value, turn));
             }
             bool casePassed = completed && transcriptComplete && noDirectBypass;
@@ -1245,26 +1257,30 @@ public static partial class TestingTools
         if (missing.Length > 0 && missingBeforeFinal.Length == 0)
             blockers.Add("The final-fingerprint readiness case has not passed.");
 
-        HashSet<string> requiredLanguage = manifest.GetProperty("cases").EnumerateArray()
-            .Where(item => PartyAgencyAllRequiredTurns(manifest, item, string.Empty).Length > 0)
-            .SelectMany(ExpandPartyAgencyCaseInstances)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int requiredLanguageCount = catalogMatches
+            ? manifest.GetProperty("cases").EnumerateArray()
+                .Where(item => PartyAgencyAllRequiredTurns(manifest, item, string.Empty).Length > 0)
+                .SelectMany(ExpandPartyAgencyCaseInstances)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase).Count
+            : 0;
         bool ready = blockers.Count == 0;
         return new Dictionary<string, object?>
         {
             ["ok"] = true,
             ["schema"] = "reign-party-agency-release-readiness-v1",
-            ["readyToDeployForNativeCertification"] = approvedArtifacts,
+            ["readyToDeployForNativeCertification"] = approvedArtifacts && catalogMatches,
+            ["preparedCatalogMatches"] = catalogMatches,
+            ["observedCatalogSha256"] = observedCatalogSha256,
             ["approvedArtifactWitnessAvailable"] = approvedArtifacts,
             ["installedArtifactWitnessAvailable"] = installed is not null,
             ["installedAndLoadedArtifactsAttested"] = false,
             ["readyToRelease"] = ready,
             ["requiredInstanceCount"] = state.RequiredInstances.Count,
             ["passedInstanceCount"] = passed.Count,
-            ["naturalLanguageRequiredInstanceCount"] = requiredLanguage.Count,
+            ["naturalLanguageRequiredInstanceCount"] = requiredLanguageCount,
             ["naturalLanguagePassedInstanceCount"] = passedLanguage.Count,
-            ["naturalLanguageAccuracy"] = requiredLanguage.Count == 0
-                ? 0d : (double)passedLanguage.Count / requiredLanguage.Count,
+            ["naturalLanguageAccuracy"] = requiredLanguageCount == 0
+                ? 0d : (double)passedLanguage.Count / requiredLanguageCount,
             ["falsePositiveConsentTolerance"] = 0,
             ["directDialogueActionBypassTolerance"] = 0,
             ["blockers"] = blockers,
@@ -1612,10 +1628,36 @@ public static partial class TestingTools
             };
     }
 
-    private static JsonElement LoadPartyAgencyManifest(ReignMcpOptions options)
+    private const string PartyAgencyPreparedCatalogMismatch =
+        "The exact prepared Party Agency catalog bytes are missing or have changed. Prepare a new run for certification.";
+
+    private static JsonElement LoadPreparedPartyAgencyManifest(ReignMcpOptions options,
+        PartyAgencyCertificationState state)
     {
-        string path = PartyAgencyManifestPath(options);
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path, Encoding.UTF8));
+        JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
+        RequirePreparedPartyAgencyCatalog(state, observedCatalogSha256);
+        return manifest;
+    }
+
+    private static bool PreparedPartyAgencyCatalogMatches(PartyAgencyCertificationState state,
+        string? observedCatalogSha256) => state.PreparedCatalogSha256 is { Length: 64 }
+        && string.Equals(state.PreparedCatalogSha256, observedCatalogSha256, StringComparison.Ordinal);
+
+    private static void RequirePreparedPartyAgencyCatalog(PartyAgencyCertificationState state,
+        string? observedCatalogSha256)
+    {
+        if (!PreparedPartyAgencyCatalogMatches(state, observedCatalogSha256))
+            throw new InvalidOperationException(PartyAgencyPreparedCatalogMismatch);
+    }
+
+    private static JsonElement LoadPartyAgencyManifest(ReignMcpOptions options, out string observedCatalogSha256)
+    {
+        byte[] bytes = File.ReadAllBytes(PartyAgencyManifestPath(options));
+        observedCatalogSha256 = Convert.ToHexStringLower(SHA256.HashData(bytes));
+        // Use the same BOM-aware UTF-8 default as File.ReadAllText, on the measured bytes.
+        using var input = new MemoryStream(bytes, writable: false);
+        using var reader = new StreamReader(input, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        using JsonDocument document = JsonDocument.Parse(reader.ReadToEnd());
         return document.RootElement.Clone();
     }
 
@@ -1887,6 +1929,7 @@ public sealed record PartyAgencyCertificationState
     public string ServerBuild { get; set; } = "";
     public string ProviderConfigurationFingerprint { get; set; } = "";
     public string CatalogFingerprint { get; set; } = "";
+    public string? PreparedCatalogSha256 { get; init; }
     public string BannerlordVersion { get; set; } = "";
     public string PreparedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";

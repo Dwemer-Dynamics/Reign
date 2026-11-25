@@ -156,6 +156,34 @@ public sealed class RebellionTestingToolsTests
     }
 
     [Fact]
+    public void Native_outbreak_revalidates_authority_and_allegiance_at_callback_boundaries()
+    {
+        string source = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta"), "ReignRebellionCampaignBehavior.CivilWar.cs", "/src/Modules/Rebellion/Campaign/"));
+        int move = source.IndexOf("if (clan.Kingdom == parent) MoveClanToKingdom(clan, rebels);",
+            StringComparison.Ordinal);
+        Assert.True(move >= 0);
+        int stamp = source.IndexOf("member.LastSwitchDay = CurrentDay();", move, StringComparison.Ordinal);
+        Assert.True(stamp > move);
+        string postTransfer = source[move..stamp];
+        Assert.Contains("if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))",
+            postTransfer, StringComparison.Ordinal);
+        Assert.Contains("HoldOutbreak(movement, \"outbreak_authority_changed\");", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("verifiedClans.Add(clan);", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("if (!HasOutbreakAllegiance(verifiedClans, rebels))", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("HoldOutbreak(movement, step);", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("rebels.RulingClan == leaderClan", source, StringComparison.Ordinal);
+        Assert.Contains("FindClan(clan.StringId) == clan", source, StringComparison.Ordinal);
+
+        int founderInstall = source.IndexOf("rebels.RulingClan = leaderClan;", StringComparison.Ordinal);
+        Assert.True(founderInstall >= 0);
+        int policyWrite = source.IndexOf("rebels.AddPolicy(policy);", founderInstall, StringComparison.Ordinal);
+        Assert.True(policyWrite > founderInstall);
+        Assert.Contains("if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;",
+            source[founderInstall..policyWrite], StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Native_host_runs_distinct_profile_fixtures_and_blocks_post_report_recruitment()
     {
         string workspace = TestOptions.FindWorkspace();

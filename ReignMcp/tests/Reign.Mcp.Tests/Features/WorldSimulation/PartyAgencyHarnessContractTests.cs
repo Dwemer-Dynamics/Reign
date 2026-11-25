@@ -1,4 +1,8 @@
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Reign.Mcp.Server;
 
 namespace Reign.Mcp.Tests;
@@ -492,6 +496,146 @@ public sealed class PartyAgencyHarnessContractTests
             source, StringComparison.Ordinal);
         Assert.Contains("PartyAgencyReturnVariantMatches(variant, \"max\", \"maximum\")",
             source, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("same", "utf8", true)]
+    [InlineData("same", "utf8-bom", true)]
+    [InlineData("same", "utf16-bom", true)]
+    [InlineData("newline", "utf8", false)]
+    [InlineData("bom", "utf8", false)]
+    [InlineData("removed", "utf8", false)]
+    [InlineData("swapped", "utf8", false)]
+    [InlineData("legacy", "utf8", false)]
+    public async Task PreparedCatalogGatesReadinessWithoutDiscardingHistoricalReports(
+        string change, string initialEncoding, bool expectedMatch)
+    {
+        DirectoryInfo folder = Directory.CreateTempSubdirectory("reign-party-agency-catalog-");
+        try
+        {
+            const string caseId = "PA-NATIVE-001";
+            const string callerLabel = "caller-catalog-label";
+            const string campaignId = "campaign";
+            const string guardId = "owned-run";
+            const string runId = "catalog-run";
+            const string liveRun = "retained-live-run";
+            string catalog = "{\n  \"cases\": [{ \"id\": \"PA-NATIVE-001\", \"required\": true }]\n}\n";
+            Encoding encoding = initialEncoding switch
+            {
+                "utf8-bom" => new UTF8Encoding(true),
+                "utf16-bom" => Encoding.Unicode,
+                _ => new UTF8Encoding(false)
+            };
+            if (initialEncoding != "utf8")
+                catalog = catalog.Replace("\n", "\r\n", StringComparison.Ordinal);
+            byte[] preparedBytes = [.. encoding.GetPreamble(), .. encoding.GetBytes(catalog)];
+            string catalogPath = Path.Combine(folder.FullName, "ReignServer", "tests", "ReignLiveTest",
+                "scenarios", "party-agency-manifest.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(catalogPath)!);
+            File.WriteAllBytes(catalogPath, preparedBytes);
+
+            var options = TestOptions.Create(folder.FullName) with { AllowVerificationControl = true };
+            var transport = new PartyAgencyCatalogReportHandler(liveRun);
+            using var http = new HttpClient(transport) { BaseAddress = options.ServerBaseUri };
+            var api = new ReignApiClient(http, options, new SensitiveDataRedactor());
+            var campaigns = new CampaignTestService(options, null!, api, new TestingCatalogService(options));
+            campaigns.Prepare(campaignId, "main", "Immutable", guardId, "Party Agency catalog");
+            IReadOnlyDictionary<string, object?> Prepare() => TestingTools.PreparePartyAgencyTest(
+                options, campaigns, null!, campaignId, guardId, runId,
+                "source", "client", "server", "provider", callerLabel);
+            var state = Assert.IsType<PartyAgencyCertificationState>(Prepare()["state"]);
+            string digest = Convert.ToHexStringLower(SHA256.HashData(preparedBytes));
+            Assert.Equal(digest, state.PreparedCatalogSha256);
+            Assert.Equal(callerLabel, state.CatalogFingerprint);
+            Assert.Equal(caseId, Assert.Single(state.RequiredInstances));
+            Assert.Equal(digest, TestingTools.GetPartyAgencyTestManifest(options)["observedCatalogSha256"]);
+
+            string fixtureHash = new('a', 64);
+            state = state with
+            {
+                ApprovedArtifactWitness = new PartyAgencyApprovedArtifactWitness(
+                    PartyAgencyApprovedArtifactWitness.WitnessSchema, runId, campaignId, guardId,
+                    "2026-01-01T00:00:00.0000000Z", fixtureHash, fixtureHash, fixtureHash, fixtureHash,
+                    fixtureHash, "windows-run", fixtureHash, fixtureHash, "linux-run", fixtureHash, fixtureHash,
+                    new PartyAgencyApprovedModule("ReignBeta", Guid.NewGuid(), fixtureHash),
+                    new PartyAgencyApprovedModule("ReignServer", Guid.NewGuid(), fixtureHash))
+            };
+            state.Executions.Add(new PartyAgencyExecution { CaseId = caseId, LiveRunId = liveRun, StartAccepted = true });
+            string statePath = Path.Combine(folder.FullName, ".codex-live-artifacts", "party-agency", runId + ".json");
+            JsonObject durable = JsonSerializer.SerializeToNode(state, new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+            if (change == "legacy")
+                Assert.True(durable.Remove("preparedCatalogSha256"));
+            File.WriteAllText(statePath, durable.ToJsonString());
+            if (change == "newline")
+                File.WriteAllText(catalogPath, catalog.Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(false));
+            if (change == "bom")
+                File.WriteAllText(catalogPath, catalog, new UTF8Encoding(true));
+            if (change == "removed")
+                File.WriteAllText(catalogPath, "{\"cases\":[]}");
+            if (change == "swapped")
+                File.WriteAllText(catalogPath, catalog.Replace(caseId, "PA-NATIVE-002", StringComparison.Ordinal));
+
+            string retainedState = File.ReadAllText(statePath);
+            if (expectedMatch)
+                Assert.Equal("already_prepared", Prepare()["status"]);
+            else
+                Assert.Contains("exact prepared Party Agency catalog bytes",
+                    Assert.Throws<InvalidOperationException>(() => Prepare()).Message, StringComparison.Ordinal);
+
+            var ready = await TestingTools.EvaluatePartyAgencyReleaseReadiness(api, options, campaigns,
+                campaignId, guardId, runId);
+            Assert.Equal(expectedMatch, ready["preparedCatalogMatches"]);
+            Assert.Equal(expectedMatch, ready["readyToDeployForNativeCertification"]);
+            Assert.True(Assert.IsType<bool>(ready["approvedArtifactWitnessAvailable"]));
+            Assert.False(Assert.IsType<bool>(ready["installedAndLoadedArtifactsAttested"]));
+            Assert.False(Assert.IsType<bool>(ready["readyToRelease"]));
+            Assert.Equal(1, ready["requiredInstanceCount"]);
+            Assert.Equal(expectedMatch ? 1 : 0, ready["passedInstanceCount"]);
+            var checkedState = Assert.IsType<PartyAgencyCertificationState>(ready["state"]);
+            Assert.Equal(callerLabel, checkedState.CatalogFingerprint);
+            Assert.Equal(change == "legacy" ? null : digest, checkedState.PreparedCatalogSha256);
+            Assert.Equal(caseId, Assert.Single(checkedState.RequiredInstances));
+
+            var retained = Assert.IsType<Dictionary<string, object?>>(Assert.Single(
+                Assert.IsType<List<object?>>(ready["reports"])));
+            Assert.True(Assert.IsType<bool>(retained["completed"]));
+            Assert.Equal(expectedMatch, retained["passed"]);
+            Assert.True(retained.ContainsKey("artifactIdentityDiagnostics"));
+            var original = Assert.IsType<ApiEnvelope>(retained["report"]);
+            Assert.Equal("original-evidence", original.Data!.Value.GetProperty("reportMarker").GetString());
+            if (!expectedMatch)
+            {
+                Assert.Contains(Assert.IsType<List<string>>(ready["blockers"]), blocker =>
+                    blocker.Contains("exact prepared Party Agency catalog bytes", StringComparison.Ordinal));
+                var mismatch = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                    TestingTools.CheckpointPartyAgencySaveRoundtrip(api, options, campaigns, campaignId,
+                        guardId, runId, "Active", liveRun, "save Reign campaign-test checkpoint"));
+                Assert.Contains("exact prepared Party Agency catalog bytes", mismatch.Message, StringComparison.Ordinal);
+            }
+            Assert.Equal(1, transport.ReportReads);
+            Assert.Equal(retainedState, File.ReadAllText(statePath));
+        }
+        finally { folder.Delete(recursive: true); }
+    }
+
+    private sealed class PartyAgencyCatalogReportHandler(string runId) : HttpMessageHandler
+    {
+        public int ReportReads { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal("/tests/live/run/report", request.RequestUri!.AbsolutePath);
+            Assert.Contains("runId=" + runId, request.RequestUri.Query, StringComparison.Ordinal);
+            ReportReads++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(
+                    """{"ok":true,"status":"completed","reportMarker":"original-evidence"}""",
+                    Encoding.UTF8, "application/json")
+            });
+        }
     }
 
     [Fact]

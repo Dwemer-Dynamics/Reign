@@ -334,19 +334,19 @@ namespace ReignBeta.Rebellion.Campaign
                 }
 
                 rebels = CreateRebelKingdom(movement, parent, challengedRuler, leaderClan, founder);
-                if (rebels == null || rebels.IsEliminated || rebels.RulingClan != leaderClan
-                    || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                 {
                     HoldOutbreak(movement, "rebel_realm_unverified");
                     return;
                 }
 
                 var rebelMembers = MembersOf(movement).Where(x => Same(x.Side, "rebel")).ToList();
+                var verifiedClans = new List<Clan>();
                 foreach (ReignRebellionMembershipRecord member in rebelMembers)
                 {
                     step = "clan_transfer:" + member.ClanStringId;
                     Clan clan = FindClan(member.ClanStringId);
-                    if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                    if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                     {
                         HoldOutbreak(movement, "outbreak_authority_changed");
                         return;
@@ -357,7 +357,15 @@ namespace ReignBeta.Rebellion.Campaign
                         return;
                     }
                     if (clan.Kingdom == parent) MoveClanToKingdom(clan, rebels);
-                    if (clan.Kingdom != rebels)
+                    // Native clan changes can notify listeners synchronously. Recheck the
+                    // exact authority and every verified clan before moving another clan.
+                    if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                    {
+                        HoldOutbreak(movement, "outbreak_authority_changed");
+                        return;
+                    }
+                    verifiedClans.Add(clan);
+                    if (!HasOutbreakAllegiance(verifiedClans, rebels))
                     {
                         HoldOutbreak(movement, step);
                         return;
@@ -367,15 +375,14 @@ namespace ReignBeta.Rebellion.Campaign
                 }
 
                 step = "war_declaration";
-                if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_authority_changed");
                     return;
                 }
                 movement.OriginalRebelStrongholdIdsCsv = string.Join(",", Settlement.All
                     .Where(x => x?.IsFortification == true && x.MapFaction == rebels).Select(x => x.StringId));
-                if (rebels.RulingClan != leaderClan
-                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                if (!HasOutbreakAllegiance(verifiedClans, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_allegiance_unverified");
                     return;
@@ -395,7 +402,7 @@ namespace ReignBeta.Rebellion.Campaign
                 }
                 if (parent.Leader != challengedRuler || rebels.RulingClan != leaderClan
                     || leaderClan.Leader != founder || leaderClan.Kingdom != rebels
-                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                    || !HasOutbreakAllegiance(verifiedClans, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_allegiance_unverified");
                     return;
@@ -555,6 +562,15 @@ namespace ReignBeta.Rebellion.Campaign
                 && !founder.IsPrisoner && leaderClan.Leader == founder;
         }
 
+        private static bool HasEstablishedOutbreakAuthority(Kingdom parent, Hero challengedRuler,
+            Clan leaderClan, Hero founder, Kingdom rebels)
+            => rebels != null && !rebels.IsEliminated && rebels.RulingClan == leaderClan
+                && HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels);
+
+        private static bool HasOutbreakAllegiance(IEnumerable<Clan> clans, Kingdom rebels)
+            => clans.All(clan => !clan.IsEliminated && clan.Kingdom == rebels
+                && FindClan(clan.StringId) == clan);
+
         private Kingdom CreateRebelKingdom(ReignRebellionMovementRecord movement, Kingdom parent,
             Hero challengedRuler, Clan leaderClan, Hero founder)
         {
@@ -576,7 +592,10 @@ namespace ReignBeta.Rebellion.Campaign
             if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
             rebels.RulingClan = leaderClan;
             foreach (PolicyObject policy in parent.ActivePolicies.ToList())
+            {
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
                 if (!rebels.HasPolicy(policy)) rebels.AddPolicy(policy);
+            }
             return rebels;
         }
 
