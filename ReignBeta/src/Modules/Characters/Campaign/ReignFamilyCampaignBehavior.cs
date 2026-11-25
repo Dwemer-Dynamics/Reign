@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
@@ -79,6 +81,73 @@ namespace ReignBeta.Characters.Campaign
         public bool IsManagedPregnancy(Hero mother)
         {
             return mother != null && _conceptions.Any(x => x != null && x.Status == "active" && x.MotherId == mother.StringId);
+        }
+
+        internal JObject ObserveManagedBirth(string motherId, string conceptionId)
+        {
+            var matches = _conceptions.Where(candidate => candidate != null && candidate.MotherId == motherId
+                && (conceptionId == null ? candidate.Status == "active" : candidate.ConceptionId == conceptionId))
+                .Take(2).ToArray();
+            if (matches.Length != 1 || string.IsNullOrEmpty(matches[0].ConceptionId)
+                || (matches[0].Status != "active" && matches[0].Status != "born"))
+                throw new InvalidOperationException("Select one existing active or born managed conception for the exact mother.");
+            var record = matches[0];
+            if (_conceptions.Any(candidate => candidate != null && !ReferenceEquals(candidate, record)
+                && candidate.ConceptionId == record.ConceptionId))
+                throw new InvalidOperationException("The managed conception identity is ambiguous.");
+            Hero mother = ManagedBirthObservationHero(motherId);
+            Hero biological = ManagedBirthObservationHero(record.BiologicalFatherId);
+            Hero legal = ManagedBirthObservationHero(record.LegalFatherId);
+            string intendedLegalId = string.IsNullOrEmpty(record.IntendedLegalFatherId)
+                ? record.LegalFatherId : record.IntendedLegalFatherId;
+            Hero intendedLegal = ManagedBirthObservationHero(intendedLegalId);
+            Hero child = string.IsNullOrEmpty(record.ChildId) ? null : ManagedBirthObservationHero(record.ChildId);
+            var forConception = _parentage.Where(row => row != null && row.ConceptionId == record.ConceptionId).ToArray();
+            string pendingHash = string.Empty;
+            if (!string.IsNullOrWhiteSpace(record.PendingManagedBirthReportJson))
+            {
+                using (var sha = SHA256.Create())
+                    pendingHash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(record.PendingManagedBirthReportJson)))
+                        .Replace("-", "").ToLowerInvariant();
+            }
+            return new JObject
+            {
+                ["schema"] = "reign-managed-birth-native-observation-v1",
+                ["conceptionId"] = record.ConceptionId, ["status"] = record.Status, ["dueDay"] = record.DueDay,
+                ["motherId"] = motherId, ["motherPregnant"] = mother.IsPregnant,
+                ["biologicalFatherId"] = biological.StringId, ["legalFatherId"] = legal.StringId,
+                ["intendedLegalFatherId"] = intendedLegalId,
+                ["childId"] = record.ChildId ?? "", ["nativeChildMotherId"] = child?.Mother?.StringId ?? "",
+                ["nativeChildFatherId"] = child?.Father?.StringId ?? "",
+                ["motherChildIds"] = ManagedBirthObservationChildren(mother),
+                ["biologicalFatherChildIds"] = ManagedBirthObservationChildren(biological),
+                ["legalFatherChildIds"] = ManagedBirthObservationChildren(legal),
+                ["intendedLegalFatherChildIds"] = ManagedBirthObservationChildren(intendedLegal),
+                ["parentageForConceptionCount"] = forConception.Length,
+                ["parentageForChildCount"] = child == null ? 0
+                    : _parentage.Count(row => row != null && row.ChildId == child.StringId),
+                ["matchingParentageCount"] = child == null ? 0 : forConception.Count(row => row.ChildId == child.StringId
+                    && row.MotherId == motherId && row.BiologicalFatherId == biological.StringId
+                    && row.LegalFatherId == legal.StringId),
+                ["pendingReportSha256"] = pendingHash,
+                ["reportInFlight"] = _managedBirthReportsInFlight.ContainsKey(record)
+            };
+        }
+
+        private static Hero ManagedBirthObservationHero(string id)
+        {
+            var hero = string.IsNullOrEmpty(id) ? null : ReignObjectResolver.FindHero(id);
+            if (hero == null || hero.StringId != id)
+                throw new InvalidOperationException("The managed conception lacks an exact native hero identity.");
+            return hero;
+        }
+
+        private static JArray ManagedBirthObservationChildren(Hero parent)
+        {
+            var children = (parent.Children ?? new List<Hero>()).Where(child => child != null).Take(129).ToArray();
+            if (children.Length > 128 || children.Any(child => string.IsNullOrEmpty(child.StringId)))
+                throw new InvalidOperationException("The native child list cannot be measured within the observation bound.");
+            return new JArray(children.Select(child => child.StringId).OrderBy(id => id, StringComparer.Ordinal));
         }
 
         public IReadOnlyList<Hero> LivingPubliclyAcknowledgedChildren(Hero parent)

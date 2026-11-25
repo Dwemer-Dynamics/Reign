@@ -476,14 +476,20 @@ namespace ReignBeta.WorldSimulation.Arrests
             }
 
             _dailyEvidenceReview = fence;
-            _ = Task.Run(() => ReviewDailyEvidenceAsync(fence, day, cases));
+            var saveSync = ReignServices.SaveSync;
+            string savePoint = saveSync?.CurrentSavePointId;
+            // Saving can advance the point without changing the loaded campaign generation.
+            // The owner predicate is invoked only on the game thread.
+            bool OwnsPoint() => OwnsDailyEvidenceReview(fence) && ReferenceEquals(saveSync, ReignServices.SaveSync)
+                && string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal);
+            _ = Task.Run(() => ReviewDailyEvidenceAsync(fence, OwnsPoint, day, cases));
         }
 
         private bool OwnsDailyEvidenceReview(ReignServerClient.RequestFence fence) =>
             ReferenceEquals(Instance, this) && ReferenceEquals(_dailyEvidenceReview, fence)
             && !ReignCampaignInitializationGate.IsPending && fence.IsCurrentActionPoll();
 
-        private async Task ReviewDailyEvidenceAsync(ReignServerClient.RequestFence fence, float day,
+        private async Task ReviewDailyEvidenceAsync(ReignServerClient.RequestFence fence, Func<bool> ownsPoint, float day,
             List<ReignArrestCase> cases)
         {
             bool finished = false;
@@ -493,7 +499,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 foreach (ReignArrestCase item in cases)
                 {
                     var request = await ReignMainThread.InvokeAsync(() =>
-                        CaptureDailyEvidenceRequest(fence, item)).ConfigureAwait(false);
+                        CaptureDailyEvidenceRequest(fence, ownsPoint, item)).ConfigureAwait(false);
                     if (request.RequiresCapturedRepair)
                     {
                         if (!await ReviewCapturedRepairAsync(request.CapturedRepair).ConfigureAwait(false))
@@ -502,7 +508,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                     }
                     if (request.Payload == null)
                     {
-                        if (!await ReignMainThread.InvokeAsync(() => OwnsDailyEvidenceReview(fence)).ConfigureAwait(false))
+                        if (!await ReignMainThread.InvokeAsync(ownsPoint).ConfigureAwait(false))
                             return;
                         continue;
                     }
@@ -537,23 +543,24 @@ namespace ReignBeta.WorldSimulation.Arrests
                 {
                     if (!ReferenceEquals(_dailyEvidenceReview, fence)) return;
                     // A save taken while a response is outstanding can review the unfinished day again.
-                    if (finished && capturedRepairsSettled && OwnsDailyEvidenceReview(fence)) _lastEvidenceReviewDay = day;
+                    if (finished && capturedRepairsSettled && ownsPoint()) _lastEvidenceReviewDay = day;
                     _dailyEvidenceReview = null;
                 }).ConfigureAwait(false);
             }
         }
 
         private (JObject Payload, Func<bool> IsCurrent, Action<JObject> Complete,
-            bool RequiresCapturedRepair, CapturedRepairWork CapturedRepair) CaptureDailyEvidenceRequest(ReignServerClient.RequestFence fence, ReignArrestCase item)
+            bool RequiresCapturedRepair, CapturedRepairWork CapturedRepair) CaptureDailyEvidenceRequest(
+                ReignServerClient.RequestFence fence, Func<bool> ownsPoint, ReignArrestCase item)
         {
-            if (!OwnsDailyEvidenceReview(fence) || !_cases.Contains(item) || !item.AccusationActive || !item.IsOpen)
+            if (!ownsPoint() || !_cases.Contains(item) || !item.AccusationActive || !item.IsOpen)
                 return default;
 
             Hero accused = FindHero(item.AccusedHeroStringId);
             if (!MatchesEvidenceSubject(item, accused)) return default;
             if (item.CauseEstablished)
                 return NeedsCapturedRepair(item)
-                    ? (null, null, null, true, CaptureDailyCapturedRepair(fence, item, accused))
+                    ? (null, null, null, true, CaptureDailyCapturedRepair(fence, ownsPoint, item, accused))
                     : default;
             if (TryGetLocalEvidence(item, accused, out string evidence))
             {
@@ -566,7 +573,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             Hero player = Hero.MainHero;
             JObject payload = BuildEvidencePayload(item, accused);
 
-            bool Current() => OwnsDailyEvidenceReview(fence) && _cases.Contains(item)
+            bool Current() => ownsPoint() && _cases.Contains(item)
                 && item.AccusationActive && item.IsOpen && !item.CauseEstablished
                 && identity.Equals(DailyEvidenceIdentity(item))
                 && ReferenceEquals(Hero.MainHero, player)
@@ -907,7 +914,7 @@ namespace ReignBeta.WorldSimulation.Arrests
         }
 
         private CapturedRepairWork CaptureDailyCapturedRepair(ReignServerClient.RequestFence fence,
-            ReignArrestCase item, Hero accused)
+            Func<bool> ownsPoint, ReignArrestCase item, Hero accused)
         {
             Hero player = Hero.MainHero;
             if (player == null || item.PlayerHeroStringId != player.StringId || !fence.IsCurrentActionPoll()) return null;
@@ -947,7 +954,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             }
 
             var material = BuildCapturedRepairMaterial(item, accused, day, campaign, timeline, generation);
-            bool Current(string expectedIntent) => OwnsDailyEvidenceReview(fence) && fence.IsCurrentActionPoll()
+            bool Current(string expectedIntent) => ownsPoint()
                 && ReferenceEquals(load, ReignSaveSyncCoordinator.CurrentVerifiedLoad)
                 && _cases.Contains(item) && NeedsCapturedRepair(item)
                 && ReferenceEquals(player, Hero.MainHero) && ReferenceEquals(accused, FindHero(item.AccusedHeroStringId))

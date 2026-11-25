@@ -6,6 +6,50 @@ namespace Reign.Mcp.Tests;
 public sealed class RebellionTestingToolsTests
 {
     [Fact]
+    public void OrdinarySurrenderAndRulerReceiptRequireNativeClanReintegration()
+    {
+        string root = TestOptions.FindWorkspace();
+        string path = Path.Combine(root,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.CivilWar.cs");
+        string source = File.ReadAllText(path);
+        string surrender = source[source.IndexOf("public bool TrySurrender(", StringComparison.Ordinal)
+            ..source.IndexOf("public bool SetPlayerClanSide(", StringComparison.Ordinal)];
+        int check = surrender.IndexOf("if (!ResolveCivilWar(", StringComparison.Ordinal);
+        int winner = surrender.IndexOf("won the throne", StringComparison.Ordinal);
+        Assert.True(check >= 0 && winner > check);
+        Assert.Contains("result = OrdinaryReintegrationUnverified;", surrender[check..winner]);
+        Assert.Contains("return false;", surrender[check..winner]);
+
+        string resolver = source[source.IndexOf("private bool ResolveCivilWar(", StringComparison.Ordinal)
+            ..source.IndexOf("private void ApplyNpcMercyJudgment(", StringComparison.Ordinal)];
+        int phase = resolver.IndexOf("movement.ExecutionPhase = \"resolving_reunification\"", StringComparison.Ordinal);
+        int restore = resolver.IndexOf("if (!RestoreCommittedClans(movement, parent, rebels)) return false;", StringComparison.Ordinal);
+        int judgment = resolver.IndexOf("movement.Stage = \"judgment\"", StringComparison.Ordinal);
+        Assert.True(phase >= 0 && restore > phase && judgment > restore);
+        Assert.Contains("OrdinaryResolutionInProgress(movement)) return false;", resolver[..phase]);
+        Assert.Contains("if (clan.Kingdom != destination)", resolver);
+        Assert.Contains("clan_reintegration_unverified:", resolver);
+
+        string ruler = source[source.IndexOf("internal void CompleteRulerJudgment(", StringComparison.Ordinal)
+            ..source.IndexOf("private void OnHeroPrisonerTaken(", StringComparison.Ordinal)];
+        Assert.Contains("if (OrdinaryResolutionInProgress(movement)) throw", ruler);
+        Assert.Contains("if (!ResolveCivilWar(movement, false, \"ruler_judgment\"))", ruler);
+    }
+
+    [Fact]
+    public void ForeignClanNativeFixtureChecksHeldAndCompletedSurrenderReplays()
+    {
+        string root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.PreparationHarness.cs"));
+        Assert.Contains("movement.ExecutionPhase = \"resolving_reunification\";", source);
+        Assert.Contains("heldSurrenderRejected = !TrySurrender(challengedRuler, movement.MovementId, out _)", source);
+        Assert.Contains("movement.ExecutionPhase = originalPhase;", source);
+        Assert.Contains("bool completedSurrenderReplayRejected = resolved", source);
+        Assert.Contains("check(\"reunification_exactly_once\", heldSurrenderRejected && completedSurrenderReplayRejected", source);
+    }
+
+    [Fact]
     public void Manifest_exposes_durable_cli_and_complete_preparation_profiles()
     {
         var manifest = TestingTools.GetRebellionTestManifest(TestOptions.Create());

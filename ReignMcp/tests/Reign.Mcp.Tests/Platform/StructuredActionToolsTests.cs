@@ -6,6 +6,63 @@ namespace Reign.Mcp.Tests;
 public sealed class StructuredActionToolsTests
 {
     [Theory]
+    [InlineData("food")]
+    [InlineData("construction")]
+    [InlineData("security")]
+    [InlineData("loyalty")]
+    public void SpymasterDisruptionObservationPreservesExactSelectorsAndRequiresRecovery(string effectType)
+    {
+        string args = JsonSerializer.Serialize(new { agentHeroId = "lord_1", assignmentId = "agent_1",
+            actionId = "foreign-agent-lord_1-5-" + effectType + "-agent_1", settlementId = "town_1", effectType });
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(SpymasterDisruptionObservationCase(args)));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Equal(args, parsed.GetProperty("arguments").GetRawText());
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"actionId\":\"foreign_agent_1\",\"settlementId\":\"town_1\",\"effectType\":\"prosperity\"}")]
+    [InlineData("{\"agentHeroId\":\"lord_1\",\"assignmentId\":\" agent_1\",\"actionId\":\"foreign_agent_1\",\"settlementId\":\"town_1\",\"effectType\":\"security\"}")]
+    [InlineData("{\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"actionId\":\"foreign_agent_1\",\"effectType\":\"security\",\"settlementId\":4}")]
+    [InlineData("{\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"actionId\":\"foreign_agent_1\",\"effectType\":\"security\",\"settlementId\":\"town_1\",\"settlementId\":\"town_foreign\"}")]
+    [InlineData("{\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"actionId\":\"foreign_agent_1\",\"effectType\":\"security\",\"settlementId\":\"town_1\",\"dispatch\":true}")]
+    public void SpymasterDisruptionObservationRejectsMalformedOrMutationSelectors(string args)
+    {
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(SpymasterDisruptionObservationCase(args)));
+    }
+
+    private static string SpymasterDisruptionObservationCase(string args) =>
+        "[{\"caseId\":\"disruption-read\",\"phase\":\"fixture\",\"kind\":\"fixture\"," +
+        "\"operationId\":\"disruption_before\",\"actionId\":\"fixture.spymaster_disruption_observe\",\"arguments\":" + args + "}]";
+
+    [Theory]
+    [InlineData("{\"motherId\":\"mother_1\"}")]
+    [InlineData("{\"motherId\":\"mother_1\",\"conceptionId\":\"conception-1\"}")]
+    public void ManagedBirthObservationRequiresRecoveryAndPreservesExactArguments(string args)
+    {
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(ManagedBirthObservationCase(args)));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Equal(args, parsed.GetProperty("arguments").GetRawText());
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"conceptionId\":\"only_child\"}")]
+    [InlineData("{\"motherId\":\" mother_1\"}")]
+    [InlineData("{\"motherId\":\"mother_1\",\"conceptionId\":\"\"}")]
+    [InlineData("{\"motherId\":\"mother_1\",\"conceptionId\":5}")]
+    [InlineData("{\"motherId\":\"mother_1\",\"motherId\":\"foreign\"}")]
+    [InlineData("{\"motherId\":\"mother_1\",\"holdAcknowledgement\":true}")]
+    public void ManagedBirthObservationRejectsMissingAmbiguousOrMutationArguments(string args)
+    {
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(ManagedBirthObservationCase(args)));
+    }
+
+    private static string ManagedBirthObservationCase(string args) =>
+        "[{\"caseId\":\"birth-read\",\"phase\":\"fixture\",\"kind\":\"fixture\"," +
+        "\"operationId\":\"birth_before\",\"actionId\":\"fixture.managed_birth_observe\",\"arguments\":" + args + "}]";
+
+    [Theory]
     [InlineData(1)]
     [InlineData(80)]
     public void AcceptedGuideStepKeepsExactTermsAndRequiresRetainedRecovery(int length)

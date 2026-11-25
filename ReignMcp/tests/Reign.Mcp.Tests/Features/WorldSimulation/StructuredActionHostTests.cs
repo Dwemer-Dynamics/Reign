@@ -4,6 +4,41 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 
 public sealed class StructuredActionHostTests
 {
+    [Fact]
+    public void ManagedBirthObservationReturnsScopedResultWithoutTheGenericSnapshot()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+            "WorldSimulation", "Campaign", "ReignLiveInteractionStructuredActionHost.cs"));
+        int gate = source.IndexOf("if (!_armed || enrollment == null", StringComparison.Ordinal);
+        int dispatch = source.IndexOf("if (phase == \"fixture\" && kind == \"fixture\" && c.Value<string>(\"actionId\") == \"fixture.managed_birth_observe\")",
+            StringComparison.Ordinal);
+        int snapshot = source.IndexOf("var evidence = new JObject", StringComparison.Ordinal);
+        Assert.True(gate >= 0 && gate < dispatch && dispatch < snapshot);
+        Assert.Contains("TimeControlMode != CampaignTimeControlMode.Stop", source[gate..dispatch]);
+        Assert.Contains("expected != ActiveSaveName()", source[gate..dispatch]);
+        string branch = source[dispatch..snapshot];
+        Assert.Contains("JObject observation = ObserveStructuredManagedBirth(c, enrollment)", branch);
+        Assert.Contains("return LiveCommandResult.Completed", branch);
+        Assert.Contains("reign-structured-action-evidence-v1", branch);
+        Assert.Contains("[\"result\"] = observation", branch);
+        Assert.DoesNotContain("BuildStructuredActionNativeSnapshot", branch);
+        Assert.DoesNotContain("\"fixture.managed_birth_observe\"", source[snapshot..]);
+
+        int start = source.IndexOf("private static JObject ObserveStructuredManagedBirth", StringComparison.Ordinal);
+        Assert.True(start > snapshot);
+        int end = source.IndexOf("\n        private static ", start + 1, StringComparison.Ordinal);
+        Assert.True(end > start);
+        string observer = source[start..end];
+        Assert.Contains("recoveryCheckpointVerified", observer);
+        Assert.Contains("IsReadyForCampaign(campaign)", observer);
+        Assert.Contains("IsAlignmentPending", observer);
+        Assert.Contains("IsNativeSaveInProgress", observer);
+        Assert.Contains("IsSaveFinalizationPending", observer);
+        Assert.Contains("ReignServices.SaveSync?.CurrentSavePointId != point", observer);
+        Assert.Contains("result[\"gameInstanceId\"] = _gameInstanceId", observer);
+        Assert.Contains("result[\"savePointId\"] = point", observer);
+    }
+
     [Fact] public void RebellionObservationKeepsExactParticipantLinksBoundsAndTheReadOnlyBoundary()
     {
         var source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",

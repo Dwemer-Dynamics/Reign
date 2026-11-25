@@ -200,10 +200,11 @@ namespace ReignBeta.Characters.Campaign
                 RefreshStoryLocationMenu(hadStoryLocations);
             }).ConfigureAwait(false);
         }
-        internal JObject PassiveCheckpointSnapshot()
-        {
-            var sample = ReadPassiveCheckpointWork();
-            return new JObject
+        internal JObject PassiveCheckpointSnapshot() => PassiveCheckpointTelemetry(ReadPassiveCheckpointWork());
+
+        private JObject PassiveCheckpointTelemetry(
+            (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting) sample)
+            => new JObject
             {
                 ["schema"] = NpcLivesCheckpointPolicy.Schema,
                 ["campaignId"] = _campaign,
@@ -215,26 +216,65 @@ namespace ReignBeta.Characters.Campaign
                 ["dueNativePersonalTravel"] = sample.PersonalTravel,
                 ["dueNativeMeetingRelease"] = sample.MeetingReleases
             };
-        }
 
-        internal string PassiveCheckpointBlocker(string campaign, string timeline)
+        internal const string MeetingReleaseCheckpointBlocker = "npc_lives_native_meeting_release_due";
+
+        internal string PassiveCheckpointBlocker(string campaign, string timeline, out NpcSummonedMeeting blockingMeeting)
         {
+            blockingMeeting = null;
             if (string.IsNullOrWhiteSpace(campaign) || string.IsNullOrWhiteSpace(timeline)
                 || _campaign != campaign || _timeline != timeline)
                 return NpcLivesCheckpointPolicy.TelemetryUnavailable;
 
             var sample = ReadPassiveCheckpointWork();
-            return NpcLivesCheckpointPolicy.Blocker(NpcLivesCheckpointPolicy.Schema, true, sample.Ready,
+            string blocker = NpcLivesCheckpointPolicy.Blocker(NpcLivesCheckpointPolicy.Schema, true, sample.Ready,
                 _checkpointMutationInFlight, _outbox.Count, sample.Rewards, sample.PersonalTravel, sample.MeetingReleases);
+            if (blocker == MeetingReleaseCheckpointBlocker)
+                blockingMeeting = sample.SingleDueMeeting;
+            return blocker;
         }
 
-        private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases) ReadPassiveCheckpointWork()
+        private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting)
+            ReadPassiveCheckpointWork()
         {
             bool ready = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
                 && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
-            return (ready, ready ? CountCheckpointLifeRewards() : 0, ready ? CountDuePersonalTravel() : 0,
-                ready ? CountDueMeetingReleases() : 0);
+            if (!ready) return default;
+            int rewards = CountCheckpointLifeRewards();
+            int personalTravel = CountDuePersonalTravel();
+            int meetings = CountDueMeetingReleases(out var singleDueMeeting);
+            return (true, rewards, personalTravel, meetings, singleDueMeeting);
         }
+
+#if !REIGN_EXCLUDE_VERIFICATION
+        internal JObject ObserveMeetingReleaseCheckpoint(string meetingId, int revision, string campaign, string timeline)
+        {
+            if (_campaign != campaign || _timeline != timeline)
+                throw new InvalidOperationException("Meeting observation requires the exact loaded NPC Lives scope.");
+            var sample = ReadPassiveCheckpointWork();
+            if (!sample.Ready)
+                throw new InvalidOperationException("Meeting observation requires ready NPC Lives state on the exact loaded scope.");
+            var rows = _meetingTravel.Values.Select(journey => journey?.Meeting)
+                .Where(meeting => meeting != null && meeting.Id == meetingId).Take(2).ToArray();
+            if (rows.Length != 1 || rows[0].Revision != revision)
+                throw new InvalidOperationException("The exact retained meeting and revision were unavailable or ambiguous.");
+            return new JObject
+            {
+                ["npcLives"] = PassiveCheckpointTelemetry(sample),
+                ["meeting"] = DescribeCheckpointMeeting(rows[0]),
+                ["selectedMeetingDue"] = sample.MeetingReleases > 1 ? JValue.CreateNull()
+                    : new JValue(ReferenceEquals(rows[0], sample.SingleDueMeeting))
+            };
+        }
+
+        internal static JObject DescribeCheckpointMeeting(NpcSummonedMeeting meeting) => new JObject
+        {
+            ["meetingId"] = meeting.Id, ["revision"] = meeting.Revision,
+            ["issuerId"] = meeting.IssuerId, ["targetId"] = meeting.TargetId, ["proposalId"] = meeting.ProposalId,
+            ["settlementId"] = meeting.DestinationId, ["status"] = meeting.Status,
+            ["arrivalDay"] = meeting.ArrivalDay, ["releaseDay"] = meeting.ReleaseDay
+        };
+#endif
 
         private int CountCheckpointLifeRewards()
         {

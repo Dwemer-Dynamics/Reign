@@ -18,6 +18,7 @@ using static ReignBeta.Characters.Campaign.ReignNpcLivesBehavior;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.World;
@@ -54,7 +55,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             try
             {
                 var c = command["testCase"] as JObject ?? throw new InvalidOperationException("Missing bounded case.");
-                await ReignMainThread.InvokeAsync(() => {
+                var directObservation = await ReignMainThread.InvokeAsync<LiveCommandResult>(() => {
                     var enrollment = command["enrollment"] as JObject;
                     string expected = enrollment?.Value<string>("disposableSaveName") ?? "";
                     string baseline = enrollment?.Value<string>("protectedBaselineSaveName") ?? "";
@@ -69,8 +70,19 @@ namespace ReignBeta.WorldSimulation.Campaign
                         || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                         || TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                         throw new InvalidOperationException("NPC Lives requires the exact enrolled paused Current, timeline, game instance and retained recovery checkpoint.");
+                    if (c.Value<string>("phase") == "meeting_release_snapshot")
+                    {
+#if REIGN_EXCLUDE_VERIFICATION
+                        throw new InvalidOperationException("Meeting release observation requires a verification-enabled build.");
+#else
+                        return LiveCommandResult.Completed("Observed the exact native meeting release and current save identity.",
+                            ObserveNpcLivesMeetingRelease(c, enrollment));
+#endif
+                    }
                     _activeRunId = command.Value<string>("runId"); _activeMode = "npc_lives";
+                    return null;
                 }).ConfigureAwait(false);
+                if (directObservation != null) return directObservation;
                 var owner = ReignServices.NpcLives ?? throw new InvalidOperationException("NPC Lives is not initialized.");
                 await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
                 if (c.Value<string>("phase") == "announcement_transport")
@@ -104,6 +116,47 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
             catch (Exception ex) { return LiveCommandResult.Failed(ex.Message); }
         }
+
+#if !REIGN_EXCLUDE_VERIFICATION
+        private static JObject ObserveNpcLivesMeetingRelease(JObject c, JObject enrollment)
+        {
+            string meetingId = c.Value<string>("meetingId") ?? "";
+            string rawRevision = c.Value<string>("revision") ?? "";
+            var invariant = System.Globalization.CultureInfo.InvariantCulture;
+            if (c.Count != 4 || c.Properties().Any(p => p.Value.Type != JTokenType.String
+                || (p.Name != "caseId" && p.Name != "phase" && p.Name != "meetingId" && p.Name != "revision"))
+                || meetingId.Length is < 1 or > 128 || meetingId.Any(ch => !char.IsLetterOrDigit(ch) && ch != '_' && ch != '-' && ch != ':')
+                || !int.TryParse(rawRevision, System.Globalization.NumberStyles.None, invariant, out int revision)
+                || revision < 1 || rawRevision != revision.ToString(invariant))
+                throw new InvalidOperationException("Supply one exact meeting ID and positive revision.");
+
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            string point = ReignServices.SaveSync?.CurrentSavePointId ?? "";
+            int generation = ReignSaveSyncCoordinator.CampaignGeneration;
+            if (!Guid.TryParseExact(point, "N", out _) || !ReignSaveSyncCoordinator.IsReadyForCampaign(campaign)
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCoordinator.IsSaveFinalizationPending)
+                throw new InvalidOperationException("Meeting release observation requires an aligned idle Current with a native point.");
+
+            var owner = ReignServices.NpcLives ?? throw new InvalidOperationException("NPC Lives is not initialized.");
+            JObject result = owner.ObserveMeetingReleaseCheckpoint(meetingId, revision, campaign, timeline);
+            if (generation != ReignSaveSyncCoordinator.CampaignGeneration || point != ReignServices.SaveSync?.CurrentSavePointId
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCoordinator.IsSaveFinalizationPending)
+                throw new InvalidOperationException("The native Current changed during meeting release observation.");
+            var native = ReignSaveSyncCampaignBehavior.NativeSaveObservation();
+            result["schema"] = "reign-npc-lives-meeting-release-observation-v1";
+            result["caseId"] = c.Value<string>("caseId");
+            result["campaignTestRunId"] = enrollment.Value<string>("campaignTestRunId");
+            result["gameInstanceId"] = _gameInstanceId;
+            result["activeSaveName"] = ActiveSaveName();
+            result["savePointId"] = point;
+            result["worldDay"] = CampaignTime.Now.ToDays;
+            result["nativeSaveSequence"] = native.Value<long>("sequence");
+            result["nativeCompletedSequence"] = native.Value<long>("completedSequence");
+            return result;
+        }
+#endif
+
     }
     // Harness-owned NPC Lives native fixtures. Saved and process state stays on ReignNpcLivesBehavior.
     internal static partial class ReignNpcLivesTestControls
