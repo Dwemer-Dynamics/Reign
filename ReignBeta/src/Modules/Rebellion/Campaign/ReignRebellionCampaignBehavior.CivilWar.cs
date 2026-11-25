@@ -588,9 +588,9 @@ namespace ReignBeta.Rebellion.Campaign
                 parent.Color2, parent.Color, leaderClan.HomeSettlement ?? parent.InitialHomeSettlement,
                 parent.EncyclopediaText, parent.FormalName, parent.EncyclopediaRulerTitle);
             if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent)) return null;
+            // Native creation installs the founder before notifying clan-change listeners.
             ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);
-            if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
-            rebels.RulingClan = leaderClan;
+            if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
             foreach (PolicyObject policy in parent.ActivePolicies.ToList())
             {
                 if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;

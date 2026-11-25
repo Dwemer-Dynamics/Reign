@@ -175,12 +175,24 @@ public sealed class RebellionTestingToolsTests
         Assert.Contains("rebels.RulingClan == leaderClan", source, StringComparison.Ordinal);
         Assert.Contains("FindClan(clan.StringId) == clan", source, StringComparison.Ordinal);
 
-        int founderInstall = source.IndexOf("rebels.RulingClan = leaderClan;", StringComparison.Ordinal);
+        int creationStart = source.IndexOf("private Kingdom CreateRebelKingdom(", StringComparison.Ordinal);
+        Assert.True(creationStart >= 0);
+        int creationEnd = source.IndexOf("private void ReconcileCivilWar(", creationStart, StringComparison.Ordinal);
+        Assert.True(creationEnd > creationStart);
+        string creation = source[creationStart..creationEnd];
+        Assert.DoesNotContain(".RulingClan =", creation, StringComparison.Ordinal);
+
+        const string invokeNative = "ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);";
+        const string verifyFounder = "if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;";
+        int founderInstall = creation.IndexOf(invokeNative, StringComparison.Ordinal);
         Assert.True(founderInstall >= 0);
-        int policyWrite = source.IndexOf("rebels.AddPolicy(policy);", founderInstall, StringComparison.Ordinal);
-        Assert.True(policyWrite > founderInstall);
-        Assert.Contains("if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;",
-            source[founderInstall..policyWrite], StringComparison.Ordinal);
+        int inheritPolicies = creation.IndexOf("foreach (PolicyObject policy", founderInstall, StringComparison.Ordinal);
+        Assert.True(inheritPolicies > founderInstall);
+        Assert.Equal(verifyFounder, creation[(founderInstall + invokeNative.Length)..inheritPolicies].Trim());
+        int policyWrite = creation.IndexOf("rebels.AddPolicy(policy);", inheritPolicies, StringComparison.Ordinal);
+        Assert.True(policyWrite > inheritPolicies);
+        Assert.Contains(verifyFounder, creation[inheritPolicies..policyWrite], StringComparison.Ordinal);
+        Assert.Contains("return rebels;", creation[policyWrite..], StringComparison.Ordinal);
     }
 
     [Fact]
