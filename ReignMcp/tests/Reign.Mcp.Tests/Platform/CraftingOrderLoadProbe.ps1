@@ -8,6 +8,8 @@ Set-Location $sandbox
 [Environment]::CurrentDirectory=$sandbox
 $roots=@([IO.Path]::GetDirectoryName($ClientAssembly),(Join-Path $BannerlordPath 'bin/Win64_Shipping_Client'))
 foreach($name in @('Native','SandBox','StoryMode','NavalDLC','Bannerlord.Harmony','Bannerlord.ButterLib','Bannerlord.UIExtenderEx','Bannerlord.MBOptionScreen')){$roots+=Join-Path $BannerlordPath ('Modules/'+$name+'/bin/Win64_Shipping_Client')}
+$harmonyBin=Join-Path $BannerlordPath 'Modules/Bannerlord.Harmony/bin/Win64_Shipping_Client'
+if(-not [IO.File]::Exists((Join-Path $harmonyBin '0Harmony.dll'))){$workshopHarmony=[IO.Path]::GetFullPath((Join-Path $BannerlordPath '../../workshop/content/261550/2859188632/bin/Win64_Shipping_Client'));if([IO.File]::Exists((Join-Path $workshopHarmony '0Harmony.dll'))){$harmonyBin=$workshopHarmony;$roots+=$harmonyBin}}
 $resolver=[ResolveEventHandler]{param($sender,$eventArgs)
     $file=([Reflection.AssemblyName]::new($eventArgs.Name)).Name+'.dll'
     foreach($root in $roots){$p=Join-Path $root $file;if(Test-Path $p){return [Reflection.Assembly]::LoadFrom($p)}}
@@ -23,7 +25,7 @@ function Raw([Type]$t){return [Runtime.Serialization.FormatterServices]::GetUnin
 function Set-Field($obj,[string]$name,$value){$f=[HarmonyLib.AccessTools]::Field($obj.GetType(),$name);if(!$f){throw ('Missing fixture field '+$name)};$f.SetValue($obj,$value)}
 function Set-Property($obj,[string]$name,$value){$p=[HarmonyLib.AccessTools]::Property($obj.GetType(),$name);$p.GetSetMethod($true).Invoke($obj,[object[]](,$value))|Out-Null}
 try {
-    [Reflection.Assembly]::LoadFrom((Join-Path $BannerlordPath 'Modules/Bannerlord.Harmony/bin/Win64_Shipping_Client/0Harmony.dll'))|Out-Null
+    [Reflection.Assembly]::LoadFrom((Join-Path $harmonyBin '0Harmony.dll'))|Out-Null
     $core=[Reflection.Assembly]::LoadFrom((Join-Path $BannerlordPath 'bin/Win64_Shipping_Client/TaleWorlds.Core.dll'))
     $campaign=[Reflection.Assembly]::LoadFrom((Join-Path $BannerlordPath 'bin/Win64_Shipping_Client/TaleWorlds.CampaignSystem.dll'))
     $client=[Reflection.Assembly]::LoadFrom($ClientAssembly)

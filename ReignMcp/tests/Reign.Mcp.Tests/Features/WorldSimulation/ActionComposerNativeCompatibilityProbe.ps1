@@ -17,11 +17,17 @@ Set-Location -LiteralPath $working
 [Environment]::CurrentDirectory = $working
 $clientPath = [IO.Path]::GetFullPath($ClientAssembly)
 $gameBin = Join-Path $BannerlordPath 'bin\Win64_Shipping_Client'
+# Prefer the installed module and fall back to its sibling workshop directory.
+$harmonyBin = Join-Path $BannerlordPath 'Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client'
+if (-not [IO.File]::Exists((Join-Path $harmonyBin '0Harmony.dll'))) {
+    $workshopHarmony = [IO.Path]::GetFullPath((Join-Path $BannerlordPath '..\..\workshop\content\261550\2859188632\bin\Win64_Shipping_Client'))
+    if ([IO.File]::Exists((Join-Path $workshopHarmony '0Harmony.dll'))) { $harmonyBin = $workshopHarmony }
+}
 # Resolve the game's vector implementation first. Never let a copied NuGet
 # facade establish a different identity for native method signatures.
 $script:assemblyRoots = @($gameBin, [IO.Path]::GetDirectoryName($clientPath),
     (Join-Path $BannerlordPath 'Modules\SandBox\bin\Win64_Shipping_Client'),
-    (Join-Path $BannerlordPath 'Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client'))
+    $harmonyBin)
 $resolver = [ResolveEventHandler] {
     param($sender, $eventArgs)
     $name = ([Reflection.AssemblyName]::new($eventArgs.Name)).Name + '.dll'

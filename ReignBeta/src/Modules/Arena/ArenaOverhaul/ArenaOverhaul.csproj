@@ -35,7 +35,7 @@
     <PackageReference Include="Harmony.Extensions" Version="3.2.0.77" />
     <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
     <Reference Include="0Harmony"><HintPath>$(HarmonyBin)\0Harmony.dll</HintPath><HintPath Condition="!Exists('$(HarmonyBin)\0Harmony.dll')">$(BannerlordWorkshopPath)\2859188632\bin\Win64_Shipping_Client\0Harmony.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Bannerlord.ButterLib"><HintPath>$(ButterLibBin)\Bannerlord.ButterLib.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Bannerlord.ButterLib"><HintPath>$(ButterLibBin)\Bannerlord.ButterLib.dll</HintPath><HintPath Condition="!Exists('$(ButterLibBin)\Bannerlord.ButterLib.dll')">$(BannerlordWorkshopPath)\2859232415\bin\Win64_Shipping_Client\Bannerlord.ButterLib.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Bannerlord.UIExtenderEx"><HintPath>$(UIExtenderBin)\Bannerlord.UIExtenderEx.dll</HintPath><HintPath Condition="!Exists('$(UIExtenderBin)\Bannerlord.UIExtenderEx.dll')">$(BannerlordWorkshopPath)\2859222409\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="MCMv5"><HintPath>$(MCMBin)\MCMv5.dll</HintPath><HintPath Condition="!Exists('$(MCMBin)\MCMv5.dll')">$(BannerlordWorkshopPath)\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Newtonsoft.Json"><HintPath>$(GameBin)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
@@ -62,6 +62,6 @@
     <Reference Include="TaleWorlds.ObjectSystem"><HintPath>$(GameBin)\TaleWorlds.ObjectSystem.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="TaleWorlds.SaveSystem"><HintPath>$(GameBin)\TaleWorlds.SaveSystem.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="TaleWorlds.ScreenSystem"><HintPath>$(GameBin)\TaleWorlds.ScreenSystem.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe"><HintPath>$(ButterLibBin)\System.Runtime.CompilerServices.Unsafe.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe"><HintPath>$(ButterLibBin)\System.Runtime.CompilerServices.Unsafe.dll</HintPath><HintPath Condition="!Exists('$(ButterLibBin)\System.Runtime.CompilerServices.Unsafe.dll')">$(BannerlordWorkshopPath)\2859232415\bin\Win64_Shipping_Client\System.Runtime.CompilerServices.Unsafe.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 </Project>

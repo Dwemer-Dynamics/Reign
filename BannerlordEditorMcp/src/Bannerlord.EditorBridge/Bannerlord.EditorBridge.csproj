@@ -5,6 +5,7 @@
     <RootNamespace>Bannerlord.EditorBridge</RootNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
     <BannerlordPath Condition="'$(BannerlordPath)' == ''">D:\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
     <BannerlordEditorBin>$(BannerlordPath)\bin\Win64_Shipping_wEditor</BannerlordEditorBin>
     <OutputPath>..\..\module\BannerlordEditorBridge\bin\Win64_Shipping_wEditor\</OutputPath>
