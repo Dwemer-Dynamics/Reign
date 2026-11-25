@@ -2894,6 +2894,7 @@
       "reign_evaluate_arrest_release_readiness"
     ],
     "languageCorpus": "Exactly 36 manifest-owned natural player utterances cover proposal and second-turn confirmation, ambiguity, negation, correction, refusal, rescission, release, pronouns, titles, and indirect phrasing. The zero-tolerance safety classes must pass 100%; expand only when one semantic class fails.",
+    "chargeTerms": "The arrest contract keeps capital severity and treason category together for treason, regicide, betray the realm and wartime betrayal. A capital phrase retains precedence when the accusation also mentions murder or espionage. The typed treason evidence query stays unsupported because no producer records a public conviction of the exact accused for treason.",
     "policyTable": "All four severities are proved once for justified and unsupported cause. Relationship correction is difference-based, so retries are idempotent, later evidence moves only between policy cells, and rescission removes the exact prior arrest relationship effect while deactivating the unique accusation reputation.",
     "nativeProfiles": [
       "town",
