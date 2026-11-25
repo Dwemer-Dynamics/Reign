@@ -46,10 +46,11 @@ $client = [Reflection.Assembly]::LoadFrom($clientPath)
 $flags = [Reflection.BindingFlags]'Public,NonPublic,Static'
 $cache = $client.GetType('AIPortraits.PortraitCache', $true)
 $derivatives = $client.GetType('AIPortraits.PortraitDerivativeService', $true)
-$source = Join-Path $hero 'custom.png'
-$receipt = Join-Path $hero '.outfit_portrait.json'
+# Use CLR strings for MethodInfo.Invoke. Windows PowerShell wraps Join-Path output.
+$source = [IO.Path]::Combine($hero, 'custom.png')
+$receipt = [IO.Path]::Combine($hero, '.outfit_portrait.json')
 
-$baseMaster = Join-Path $hero 'portrait.png'
+$baseMaster = [IO.Path]::Combine($hero, 'portrait.png')
 if ($Phase -in @('inspect', 'inspect-held')) {
     $current = $derivatives.GetMethod('HasCurrentFullBodyProducts', $flags).Invoke($null, [object[]]@($source, $hero))
     if ($current -ne ($Phase -eq 'inspect')) {
