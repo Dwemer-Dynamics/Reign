@@ -200,7 +200,10 @@ public sealed class ReignSavePayloadCodecTests
         Assert.Contains("var fence = ReignServerClient.RequestFence.Capture();", source);
         Assert.Contains("IsCurrentCampaign && fence.IsCurrentActionPoll()", source);
         Assert.Contains("PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, OwnsPoll)", source);
-        Assert.Contains("ownsPoll() ? Apply(command) : null", source);
+        Assert.Contains("ownsPoll() ? ApplyOrReadSavedReceipt(campaignId, timelineId, command) : null", source);
+        Assert.Contains("retained.CampaignId == campaignId && retained.TimelineId == timelineId && retained.MaterialSha256 == digest", source);
+        Assert.Contains("_nativeEditorReceipts.Add(command.CommandId, receipt);", source);
+        Assert.Contains("dataStore.SyncData(\"_reignCharacterEditor_nativeReceipts_v1\", ref chunks);", source);
         Assert.Contains("result.Applied, result.Errors, ownsPoll)", source);
     }
 
