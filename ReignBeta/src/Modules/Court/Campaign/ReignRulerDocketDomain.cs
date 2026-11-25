@@ -156,6 +156,27 @@ namespace ReignBeta.Court.Campaign
         public bool DemandsRevealed => DemandARevealed && DemandBRevealed;
         public bool IsMurder => string.Equals(TemplateId, "exceptional-murder", StringComparison.OrdinalIgnoreCase);
 
+        internal string PublicMurderArrestEvidenceId(string campaignId, string timelineId, string accusedId)
+        {
+            if (string.IsNullOrWhiteSpace(campaignId) || string.IsNullOrWhiteSpace(timelineId)
+                || string.IsNullOrWhiteSpace(accusedId) || CampaignId != campaignId || TimelineId != timelineId
+                || TemplateId != "exceptional-murder" || !ActivationCommitted || string.IsNullOrWhiteSpace(ActivationReceiptId)
+                || (State != ReignNobleMatterState.Active && State != ReignNobleMatterState.Deferred)
+                || EffectsCommitted || !string.IsNullOrEmpty(SupersededByRecordId)
+                || string.IsNullOrWhiteSpace(MatterId) || MatterId.Contains(",")
+                || string.IsNullOrWhiteSpace(VictimHeroId) || VictimHeroId == accusedId
+                || Participants?.Any(participant => participant?.HeroId == accusedId) != true)
+                return string.Empty;
+
+            var chains = Evidence?.Where(item => string.Equals(item?.EvidenceId, "complete_chain",
+                StringComparison.OrdinalIgnoreCase)).Take(2).ToArray();
+            if (chains == null || chains.Length != 1)
+                return string.Empty;
+            var chain = chains[0];
+            return chain.EvidenceId == "complete_chain" && chain.Revealed && chain.Reliable && chain.CompleteChain
+                && chain.ImplicatesHeroId == accusedId ? "noble_murder:" + MatterId + ":" + chain.EvidenceId : string.Empty;
+        }
+
         public void Normalize()
         {
             Participants = (Participants ?? new List<ReignNobleMatterParticipant>())

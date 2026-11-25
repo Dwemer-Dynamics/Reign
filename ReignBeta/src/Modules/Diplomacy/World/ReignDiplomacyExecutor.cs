@@ -22,6 +22,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.World;
+using ReignBeta.Shared.Dialogue;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Rulers;
 using ReignBeta.WorldSimulation.World;
@@ -37,7 +38,10 @@ namespace ReignBeta.Diplomacy.World
         {
             // An interrupted ransom can leave a formerly valid captive already released.
             // Keep its saved attempt authoritative ahead of ordinary validation.
-            if (action?.Type == ReignWorldActionType.DiplomacyRansomPackage && !TryReadRansomExecution(action, out _))
+            ReignActionResult priorRansom = ReadOrdinaryRansom(action, publish: true);
+            if (priorRansom != null) return priorRansom;
+            if (action?.Type == ReignWorldActionType.DiplomacyRansomPackage
+                && (action.IsTerminal || !TryReadRansomExecution(action, out _)))
                 return UnverifiedRansomPackage();
 
             if (!ReignActionValidator.Validate(action, out string validationFailure))
@@ -249,7 +253,8 @@ namespace ReignBeta.Diplomacy.World
             string rebelKingdomId = ReadStringTerm(action.TermsJson, "rebelKingdomId", string.Empty);
             string movementId = ReadStringTerm(action.TermsJson, "movementId", string.Empty);
             Kingdom rebels = ReignObjectResolver.FindKingdom(rebelKingdomId);
-            if (sponsor == null || parent == null || rebels == null || rebels.IsEliminated)
+            var rebellion = ReignServices.Rebellion;
+            if (sponsor == null || rebellion?.FindMutableBackingMovement(movementId, parent, rebels) == null)
                 return ReignActionResult.FailTerminal("Rebellion backing target is obsolete.", "backing_obsolete", "backing_obsolete");
 
             ReignWorldActionRecord agreementAction = new ReignWorldActionRecord
@@ -264,7 +269,8 @@ namespace ReignBeta.Diplomacy.World
             };
             ReignServices.AI?.RecordAgreementFromAction(agreementAction,
                 "rebellion_backing", 0f, true);
-            ReignServices.Rebellion?.RecordForeignBacking(movementId, sponsor.StringId, action.ActionId);
+            if (!rebellion.RecordForeignBacking(movementId, sponsor.StringId, action.ActionId))
+                return ReignActionResult.FailTerminal("Rebellion backing authority changed.", "backing_obsolete", "backing_obsolete");
             if (!sponsor.IsAtWarWith(parent))
             {
                 if (ReignServices.AI != null)
@@ -592,88 +598,170 @@ namespace ReignBeta.Diplomacy.World
 
         private static ReignActionResult RansomPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
-            if (!TryReadRansomExecution(action, out JObject execution)) return UnverifiedRansomPackage();
-
+            var native = new ReignNativeRansom();
             var recorder = ReignServices.AI;
             Hero payee = actor?.Leader, payer = target?.Leader;
-            string terms = action.TermsJson;
+            var owner = new NativeRansomWorldAction
+            {
+                CampaignId = native.CampaignId, TimelineId = native.TimelineId, ActionId = action.ActionId,
+                IdentityJson = OrdinaryRansomIdentity(action)
+            };
+            string binding = owner.Binding();
             bool AuthorityIsCurrent() => recorder != null && ReignServices.AI == recorder
                 && actor != null && target != null && actor != target && !actor.IsEliminated && !target.IsEliminated
                 && payee?.IsAlive == true && payer?.IsAlive == true && payee != payer
-                && actor.Leader == payee && target.Leader == payer && action.TermsJson == terms;
-            if (!AuthorityIsCurrent())
-                return ReignActionResult.ValidationFailed("The two ransom authorities are no longer available.");
+                && actor.Leader == payee && target.Leader == payer && OrdinaryRansomIdentity(action) == owner.IdentityJson;
+            if (!native.OwnsLoadedWorld() || !AuthorityIsCurrent() || string.IsNullOrWhiteSpace(action.ActionId))
+                return ReignActionResult.ValidationFailed("The two ransom authorities or the loaded campaign are no longer available.");
 
+            string terms = action.TermsJson;
             string prisonerId = ReadStringTerm(terms, "prisonerHeroStringId", string.Empty);
             bool named = !string.IsNullOrWhiteSpace(prisonerId);
             Hero namedPrisoner = named ? ReignObjectResolver.FindHero(prisonerId) : null;
             if (named && namedPrisoner == null)
                 return ReignActionResult.ValidationFailed("The named prisoner is unavailable for this ransom.");
 
-            var prisoners = named
-                ? new List<PrisonerExchangeRelease> { new PrisonerExchangeRelease(namedPrisoner, null, actor) }
-                : CapturePrisonerExchange(target, actor, ReadIntTerm(terms, "maxPrisoners", 5));
-            if (prisoners.Count == 0 || prisoners.Any(prisoner => !prisoner.IsInExpectedCustody()))
+            // These aliases separately control the native release reason and the explicit payment.
+            bool byRansom = !named || ReadIntTerm(terms, "gold", ReadIntTerm(terms, "GoldAmount", 0)) > 0;
+            List<Hero> selection = named ? new List<Hero> { namedPrisoner }
+                : CapturePrisonerExchange(target, actor, ReadIntTerm(terms, "maxPrisoners", 5)).Select(leg => leg.Hero).ToList();
+            if (selection.Count == 0)
                 return ReignActionResult.ValidationFailed("The ransom requires prisoners held in the offering kingdom's current custody.");
 
-            // Existing terms have separate aliases for the native release reason and the explicit payment.
-            bool byRansom = !named || ReadIntTerm(terms, "gold", ReadIntTerm(terms, "GoldAmount", 0)) > 0;
-            int gold = ReadIntTerm(terms, "gold", ReadIntTerm(terms, "ransomGold", prisoners.Count * 10000));
-            bool CanPay() => gold <= 0 || (payer.Gold >= gold && (long)payee.Gold + gold <= int.MaxValue);
-            if (!CanPay())
-                return ReignActionResult.ValidationFailed("The agreed ransom cannot be transferred in full.");
-
-            execution[OrdinaryRansomMarker] = new JObject
+            string method = byRansom ? "ransom" : "peace";
+            var captives = selection.Select(hero => new ReignNativeRansom.Captive(hero, method,
+                party => party.MapFaction == actor && (named || hero.Clan?.Kingdom == target))).ToList();
+            int gold = Math.Max(0, ReadIntTerm(terms, "gold", ReadIntTerm(terms, "ransomGold", selection.Count * 10000)));
+            string key = NativeRansomWorldAction.Key(owner.CampaignId, owner.TimelineId, owner.ActionId);
+            var material = new JObject
             {
-                ["actorKingdomId"] = actor.StringId, ["targetKingdomId"] = target.StringId,
-                ["payerHeroId"] = payer.StringId, ["recipientHeroId"] = payee.StringId, ["gold"] = gold,
-                ["prisonerIds"] = new JArray(prisoners.Select(prisoner => prisoner.Hero.StringId))
+                ["actor"] = actor.StringId, ["actorName"] = actor.InformalName.ToString(),
+                ["target"] = target.StringId, ["targetName"] = target.InformalName.ToString(),
+                ["payer"] = payer.StringId, ["payee"] = payee.StringId, ["payeeName"] = payee.Name?.ToString() ?? "",
+                ["namedPrisoner"] = named ? namedPrisoner.StringId : "",
+                ["prisonerName"] = namedPrisoner?.Name?.ToString() ?? "",
+                ["day"] = (float)CampaignTime.Now.ToDays
             };
-            action.ExecutionSnapshotJson = execution.ToString(Newtonsoft.Json.Formatting.None);
+            NativeRansomAttempt attempt = native.Execute(key, binding, material, captives, AuthorityIsCurrent,
+                payee, payer, payee, gold, owner);
+            if (attempt == null)
+                return ReignActionResult.ValidationFailed("The exact rostered custody and ransom payment could not be verified.");
+            if (!native.OwnsLoadedWorld() || !AuthorityIsCurrent()) return UnverifiedRansomPackage();
+            return PresentOrdinaryRansom(action, key, attempt, recorder, publish: true, fresh: true);
+        }
 
-            string goldObservation;
+        private static string OrdinaryRansomIdentity(ReignWorldActionRecord action) => new JObject
+        {
+            ["id"] = action.ActionId, ["type"] = action.TypeValue, ["source"] = action.Source,
+            ["actorKingdom"] = action.ActorKingdomStringId, ["targetKingdom"] = action.TargetKingdomStringId,
+            ["actorHero"] = action.ActorHeroStringId, ["targetHero"] = action.TargetHeroStringId,
+            ["actorClan"] = action.ActorClanStringId, ["targetClan"] = action.TargetClanStringId,
+            ["targetSettlement"] = action.TargetSettlementStringId, ["termsHash"] = action.TermsHash,
+            ["authorization"] = action.AuthorizationMode, ["negotiation"] = action.NegotiationId, ["terms"] = action.TermsJson
+        }.ToString(Newtonsoft.Json.Formatting.None);
+
+        internal static ReignActionResult ReadOrdinaryRansom(ReignWorldActionRecord action, bool publish, string requestedActionId = null)
+        {
+            if (action != null && action.Type != ReignWorldActionType.DiplomacyRansomPackage) return null;
+            string id = action?.ActionId ?? requestedActionId;
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            var native = new ReignNativeRansom();
+            if (native.OwnsLoadedWorld())
+            {
+                string key = NativeRansomWorldAction.Key(native.CampaignId, native.TimelineId, id);
+                if (native.Journal.IsRunning(key)) return ReignActionResult.Progress("The native ransom is still being verified.");
+                if (native.Journal.TryFindWorldAction(native.CampaignId, native.TimelineId, id, out NativeRansomAttempt attempt))
+                    return PresentOrdinaryRansom(action, key, attempt, ReignServices.AI, publish && action != null, fresh: false);
+            }
+
+            if (action == null || TryReadRansomExecution(action, out JObject execution)) return null;
+            if (!string.IsNullOrEmpty((execution?[OrdinaryRansomMarker] as JObject)?.Value<string>("receiptId")))
+                return ReignActionResult.Progress("The exact ransom receipt is unavailable in the loaded campaign scope.");
+            // Old terminal actions remain historical. An older interrupted marker
+            // cannot authorize an attempt or acquire a typed completion receipt.
+            return action.Status != ReignWorldActionStatus.Completed ? UnverifiedRansomPackage() : null;
+        }
+
+        private static ReignActionResult PresentOrdinaryRansom(ReignWorldActionRecord action, string key,
+            NativeRansomAttempt attempt, ReignAICampaignBehavior recorder, bool publish, bool fresh)
+        {
+            if (attempt?.WorldAction == null
+                || (action != null && attempt.WorldAction.IdentityJson != OrdinaryRansomIdentity(action))) return UnverifiedRansomPackage();
+            if (!attempt.IsVerified() || attempt.Payment == null)
+                return UnverifiedRansomPackage().WithDiagnostic("ransomPhase", attempt.State.ToString())
+                    .WithDiagnostic("holdReason", attempt.HoldReason);
+            JObject material, identity;
             try
             {
-                foreach (PrisonerExchangeRelease prisoner in prisoners)
-                {
-                    if (!AuthorityIsCurrent() || !prisoner.IsInExpectedCustody()) return UnverifiedRansomPackage();
-                    if (byRansom) EndCaptivityAction.ApplyByRansom(prisoner.Hero, payee);
-                    else EndCaptivityAction.ApplyByPeace(prisoner.Hero, payee);
-                    if (!prisoner.WasReleased()) return UnverifiedRansomPackage();
-                }
-
-                if (!AuthorityIsCurrent() || !CanPay() || prisoners.Any(prisoner => !prisoner.WasReleased()))
-                    return UnverifiedRansomPackage();
-                int payerBefore = payer.Gold, payeeBefore = payee.Gold;
-                goldObservation = ApplyGoldTransfer(payer, payee, gold);
-                if ((gold > 0 && ((long)payerBefore - payer.Gold != gold || (long)payee.Gold - payeeBefore != gold))
-                    || !AuthorityIsCurrent() || prisoners.Any(prisoner => !prisoner.WasReleased()))
-                    return UnverifiedRansomPackage();
-                if (recorder.RecordAgreementFromAction(action, "ransom_package", 0f, true) == null)
-                    return UnverifiedRansomPackage();
+                material = JObject.Parse(attempt.MaterialJson);
+                identity = JObject.Parse(attempt.WorldAction.IdentityJson);
             }
-            catch (Exception ex)
-            {
-                ReignLog.Exception("Ordinary ransom interrupted action=" + action.ActionId, ex);
+            catch (Newtonsoft.Json.JsonException) { return UnverifiedRansomPackage(); }
+            if (identity["type"]?.Type != JTokenType.Integer
+                || identity.Value<int>("type") != (int)ReignWorldActionType.DiplomacyRansomPackage
+                || identity.Value<string>("id") != attempt.WorldAction.ActionId
+                || material.Value<string>("actor") != identity.Value<string>("actorKingdom")
+                || material.Value<string>("target") != identity.Value<string>("targetKingdom")
+                || material.Value<string>("payer") != attempt.Payment.PayerId
+                || material.Value<string>("payee") != attempt.Payment.RecipientId
+                || material["day"]?.Type != JTokenType.Float && material["day"]?.Type != JTokenType.Integer)
                 return UnverifiedRansomPackage();
+
+            string receiptId = "ransom_" + key;
+            if (!string.IsNullOrEmpty(attempt.PublicationId) && attempt.PublicationId != receiptId)
+                return UnverifiedRansomPackage();
+            if (attempt.PublicationId != receiptId)
+            {
+                if (!publish) return ReignActionResult.Progress("The verified ransom receipt is awaiting publication.");
+                try
+                {
+                    if (recorder?.RecordRansomAgreementFromAction(action, receiptId, material.Value<float>("day"), fresh) == null)
+                        return UnverifiedRansomPackage();
+                }
+                catch (Exception ex)
+                {
+                    ReignLog.Exception("Verified ransom receipt awaits publication action=" + action.ActionId, ex);
+                    return ReignActionResult.Progress("The verified ransom receipt is awaiting publication.");
+                }
+                attempt.PublicationId = receiptId;
             }
 
-            int released = prisoners.Count;
-            string summary = gold > 0
-                ? target.InformalName + " paid ransom for " + released + " noble prisoner(s)."
-                : actor.InformalName + " released " + released + " noble prisoner(s).";
-            ReignActionResult result = ReignActionResult.Done(summary);
-            if (gold > 0)
-                result.WithEffect("gold_transfer", "hero", payee.StringId, payee.Name?.ToString() ?? string.Empty, goldObservation);
-            result.WithEffect("prisoners_released", "kingdom", target.StringId, target.InformalName.ToString(), "released=" + released)
-                .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=ransom_package");
-            if (namedPrisoner != null)
+            NativeRansomPayment payment = attempt.Payment;
+            string named = material.Value<string>("namedPrisoner") ?? "";
+            if (publish)
             {
-                result.WithEffect("prisoner_release", "hero", namedPrisoner.StringId, namedPrisoner.Name.ToString(), byRansom ? "method=ransom" : "method=peace")
-                    .WithChangedEntity("hero", namedPrisoner.StringId, namedPrisoner.Name.ToString(), "prisoner_released");
+                JObject execution;
+                try { execution = JObject.Parse(action.ExecutionSnapshotJson ?? "{}"); }
+                catch (Newtonsoft.Json.JsonException) { execution = new JObject(); }
+                execution[OrdinaryRansomMarker] = new JObject
+                {
+                    ["receiptId"] = receiptId, ["releases"] = JArray.FromObject(attempt.Releases),
+                    ["payment"] = ReignNativeRansom.PaymentReceipt(payment)
+                };
+                action.ExecutionSnapshotJson = execution.ToString(Newtonsoft.Json.Formatting.None);
             }
+            string summary = payment.Amount > 0
+                ? material.Value<string>("targetName") + " paid ransom for " + attempt.Releases.Count + " noble prisoner(s)."
+                : material.Value<string>("actorName") + " released " + attempt.Releases.Count + " noble prisoner(s).";
+            ReignActionResult result = ReignActionResult.Done(summary);
+            if (payment.Amount > 0)
+            {
+                string observation = ObserveGoldTransferBalances(payment.Amount, payment.Before.Payer, payment.After.Payer,
+                    payment.Before.Recipient, payment.After.Recipient, payment.Invoked, true).ToString(Newtonsoft.Json.Formatting.None);
+                result.WithEffect("gold_transfer", "hero", payment.RecipientId, material.Value<string>("payeeName"),
+                    "from=" + payment.PayerId + ";amount=" + payment.Amount.ToString(CultureInfo.InvariantCulture) + ";observation=" + observation);
+            }
+            result.WithEffect("prisoners_released", "kingdom", material.Value<string>("target"),
+                material.Value<string>("targetName"), "released=" + attempt.Releases.Count)
+                .WithEffect("treaty_recorded", "kingdom", material.Value<string>("target"),
+                    material.Value<string>("targetName"), "kind=ransom_package");
+            NativeRansomRelease namedLeg = attempt.Releases.FirstOrDefault(leg => leg.HeroId == named);
+            if (namedLeg != null)
+                result.WithEffect("prisoner_release", "hero", named, material.Value<string>("prisonerName"), "method=" + namedLeg.Method)
+                    .WithChangedEntity("hero", named, material.Value<string>("prisonerName"), "prisoner_released");
             return result;
         }
+
 
         private static bool TryReadRansomExecution(ReignWorldActionRecord action, out JObject execution)
         {
@@ -682,6 +770,11 @@ namespace ReignBeta.Diplomacy.World
             catch (Newtonsoft.Json.JsonException) { return false; }
             return execution.Property(OrdinaryRansomMarker) == null;
         }
+
+        internal static bool RetainLegacyRansomAttempt(ReignWorldActionRecord action)
+            => action?.Type == ReignWorldActionType.DiplomacyRansomPackage
+                && !TryReadRansomExecution(action, out JObject execution)
+                && string.IsNullOrEmpty((execution?[OrdinaryRansomMarker] as JObject)?.Value<string>("receiptId"));
 
         private static ReignActionResult UnverifiedRansomPackage()
         {

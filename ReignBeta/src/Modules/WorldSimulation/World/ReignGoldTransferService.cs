@@ -17,7 +17,9 @@ namespace ReignBeta.WorldSimulation.World
         private GoldPaymentLedger _ledger = new GoldPaymentLedger();
         private string _serialized = "";
         private string _tradePackagesSerialized = "";
+        private string _ransomJournalSerialized = "";
         internal LegacyTradeJournal TradePackages { get; private set; } = new LegacyTradeJournal();
+        internal NativeRansomJournal Ransoms { get; private set; } = new NativeRansomJournal();
         public static ReignGoldTransferService Instance => ReignServices.GoldTransferService;
         public override void RegisterEvents() { ReignServices.GoldTransferService = this; }
         public override void SyncData(IDataStore store)
@@ -27,14 +29,17 @@ namespace ReignBeta.WorldSimulation.World
                 _serialized = JsonConvert.SerializeObject(_ledger);
                 if (TradePackages != null)
                     _tradePackagesSerialized = JsonConvert.SerializeObject(TradePackages);
+                _ransomJournalSerialized = JsonConvert.SerializeObject(Ransoms);
             }
             store.SyncData("_reign_gold_receipts_v1", ref _serialized);
             if (store.IsLoading)
             {
                 _tradePackagesSerialized = "";
+                _ransomJournalSerialized = "";
                 TradePackages = null;
             }
             store.SyncData("_reign_legacy_trade_packages_v1", ref _tradePackagesSerialized);
+            store.SyncData("_reign_native_ransom_journal_v1", ref _ransomJournalSerialized);
             if (store.IsLoading)
             {
                 _ledger = string.IsNullOrEmpty(_serialized) ? new GoldPaymentLedger() : JsonConvert.DeserializeObject<GoldPaymentLedger>(_serialized);
@@ -45,6 +50,11 @@ namespace ReignBeta.WorldSimulation.World
                 if (tradePackages == null || tradePackages.Version != 1 || tradePackages.Receipts == null)
                     throw new InvalidOperationException("Unsupported Reign trade journal save data.");
                 TradePackages = tradePackages;
+                var ransoms = string.IsNullOrEmpty(_ransomJournalSerialized) ? new NativeRansomJournal()
+                    : JsonConvert.DeserializeObject<NativeRansomJournal>(_ransomJournalSerialized);
+                if (ransoms == null || ransoms.Version != 1 || ransoms.Attempts == null)
+                    throw new InvalidOperationException("Unsupported Reign ransom journal save data.");
+                Ransoms = ransoms;
             }
         }
         public JArray Snapshot(Hero hero) => JArray.FromObject(_ledger.Receipts

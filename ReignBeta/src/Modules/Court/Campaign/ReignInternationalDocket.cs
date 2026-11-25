@@ -318,7 +318,8 @@ namespace ReignBeta.Court.Campaign
 
         private bool RefreshLegacyInternationalPaymentTerms(ReignCourtLifeMatter matter)
         {
-            if (matter.Source != ReignDocketSource.International || !matter.IsPending || matter.EffectsCommitted) return false;
+            if (matter.Source != ReignDocketSource.International || !matter.IsPending || matter.EffectsCommitted
+                || HasDirectCourtRansomAttempt(matter)) return false;
             JObject data = ParseObject(matter.PayloadJson);
             if (data.Value<bool?>("nativeEffectCommitted") == true || data.Value<bool?>("nativeActionStarted") == true
                 || data["referredResolutionTerms"] != null || matter.State == ReignCourtLifeMatterState.Deferred) return false;
@@ -455,6 +456,7 @@ namespace ReignBeta.Court.Campaign
             ReignRulerDocketState state = EnsureRulerDocketState();
             foreach (ReignCourtLifeMatter matter in state.CourtLifeMatters.Where(x => x.Source == ReignDocketSource.International && x.IsPending).ToList())
             {
+                if (TryReconcileDirectCourtRansom(matter, null, out _, out _)) continue;
                 if (TryReconcileDirectCourtPayment(matter, null, out _, out _)) continue;
                 Kingdom origin = Kingdom.All.FirstOrDefault(x => x?.StringId == matter.KingdomId);
                 JObject data = ParseObject(matter.PayloadJson);
@@ -513,7 +515,7 @@ namespace ReignBeta.Court.Campaign
                     foreach (JObject reply in (response.Raw["replies"] as JArray ?? new JArray()).OfType<JObject>())
                     {
                         ReignCourtLifeMatter matter = state.CourtLifeMatters.FirstOrDefault(x => x.MatterId == reply.Value<string>("matter_id"));
-                        if (matter == null || !matter.IsPending) continue;
+                        if (matter == null || !matter.IsPending || HasDirectCourtRansomAttempt(matter)) continue;
                         JObject data = ParseObject(matter.PayloadJson);
                         if (data.Value<bool?>("replyPromoted") == true || !MatchesInternationalReferral(matter, data, reply)) continue;
                         string status = reply.Value<string>("status") ?? "pending";
@@ -559,7 +561,8 @@ namespace ReignBeta.Court.Campaign
             && (data.Value<bool?>("replyReady") == true || (data.Value<double?>("referralDueDay") ?? double.MaxValue) <= day + 8d / 24d);
 
         public int DueInternationalReplyCount(int day) => EnsureRulerDocketState().CourtLifeMatters.Count(x =>
-            x.Source == ReignDocketSource.International && x.IsPending && InternationalReplyDue(ParseObject(x.PayloadJson), day));
+            x.Source == ReignDocketSource.International && x.IsPending && !HasDirectCourtRansomAttempt(x)
+            && InternationalReplyDue(ParseObject(x.PayloadJson), day));
 
         public int PromoteInternationalReplies(int day, int maximum)
         {
@@ -568,6 +571,7 @@ namespace ReignBeta.Court.Campaign
                 .OrderBy(x => ParseObject(x.PayloadJson).Value<double?>("referralDueDay") ?? double.MaxValue).ThenBy(x => x.MatterId).ToList())
             {
                 if (promoted >= maximum) break;
+                if (HasDirectCourtRansomAttempt(matter)) continue;
                 JObject data = ParseObject(matter.PayloadJson);
                 if (!InternationalReplyDue(data, day)) continue;
                 // Reserve the daily slot before asynchronous delivery, so a due reply cannot be crowded out by new petitions.
@@ -753,7 +757,7 @@ namespace ReignBeta.Court.Campaign
 
         private void RefreshSavedInternationalOffer(ReignCourtLifeMatter matter)
         {
-            if (matter.Source != ReignDocketSource.International) return;
+            if (matter.Source != ReignDocketSource.International || HasDirectCourtRansomAttempt(matter)) return;
             JObject data = ParseObject(matter.PayloadJson);
             if (data.Value<bool?>("replyPromoted") != true || data.Value<bool?>("sovereignAuthorized") != true
                 || data.Value<bool?>("nativeActionStarted") == true || data.Value<bool?>("nativeEffectCommitted") == true)
@@ -782,7 +786,7 @@ namespace ReignBeta.Court.Campaign
 
         private void PublishInternationalReply(ReignCourtLifeMatter matter, JObject data)
         {
-            if (data.Value<bool?>("replyPromoted") == true || data.Value<bool?>("replyReady") != true) return;
+            if (HasDirectCourtRansomAttempt(matter) || data.Value<bool?>("replyPromoted") == true || data.Value<bool?>("replyReady") != true) return;
             JObject reply = data["reply"] as JObject;
             if (!MatchesInternationalReferral(matter, data, reply)) return;
             JObject normalized = SovereignCourtAction(reply);

@@ -9,7 +9,6 @@ using ReignBeta.Campaign;
 using ReignBeta.Shared.Dialogue;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Actions;
 using ReignBeta.Court.Integration;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
@@ -28,6 +27,7 @@ namespace ReignBeta.Court.Campaign
             if (matter == null || matter.Source != ReignDocketSource.International || !matter.IsPending
                 || matter.State == ReignCourtLifeMatterState.Deferred || matter.EffectsCommitted || !HasRoyalCommandAccess)
             { summary = "The international audience is not available for revised terms."; return false; }
+            if (TryReconcileDirectCourtRansom(matter, null, out _, out summary)) return false;
             if (TryReconcileDirectCourtPayment(matter, null, out _, out summary)) return false;
             JObject data = ParseObject(matter.PayloadJson);
             if (data.Value<bool?>("nativeEffectCommitted") == true || data.Value<bool?>("nativeActionStarted") == true)
@@ -88,6 +88,8 @@ namespace ReignBeta.Court.Campaign
             summary = string.Empty;
             if (matter == null || matter.Source != ReignDocketSource.International || !HasRoyalCommandAccess)
             { summary = "This decision requires a royal audience."; return false; }
+            if (TryReconcileDirectCourtRansom(matter, decision, out bool ransomRecovered, out summary))
+                return ransomRecovered;
             if (matter.EffectsCommitted) { summary = matter.DecisionSummary; return true; }
             if (TryReconcileDirectCourtPayment(matter, decision, out bool recovered, out summary)) return recovered;
             if (RefreshLegacyInternationalPaymentTerms(matter))
@@ -196,16 +198,7 @@ namespace ReignBeta.Court.Campaign
             }
             else if (option == "accept" && data.Value<string>("remedy") == "prisoner")
             {
-                Hero captive = FindHero(data.Value<string>("captiveId"));
-                if (captive == null || !captive.IsPrisoner || captive.PartyBelongedToAsPrisoner?.Owner != Hero.MainHero)
-                { summary = "The named prisoner is no longer in your custody."; return false; }
-                bool ransom = data.Value<bool?>("ransom") == true;
-                if (ransom && paymentPayer.Gold < gold) { summary = "The foreign ruler can no longer afford the offered ransom."; return false; }
-                EndCaptivityAction.ApplyByReleasedByChoice(captive, Hero.MainHero);
-                if (captive.IsPrisoner) { summary = "The native release action did not complete."; return false; }
-                JObject releaseReceipt = new JObject { ["releasedHeroId"] = captive.StringId, ["isPrisoner"] = false, ["ransomGold"] = ransom ? gold : 0 };
-                if (ransom) releaseReceipt["payment"] = ExecuteInternationalPayment(paymentPayer, paymentRecipient, gold);
-                data["nativeReceipt"] = releaseReceipt;
+                return TryExecuteDirectCourtRansom(matter, data, offeredTerms, origin, paymentPayer, paymentRecipient, out summary);
             }
             else if (IsDirectInternationalPayment(data, option))
             {
@@ -240,7 +233,8 @@ namespace ReignBeta.Court.Campaign
             matter.PayloadJson = data.ToString(Formatting.None);
             ReignRulerDocketState state = EnsureRulerDocketState();
             state.InternationalReceiptsJson = state.InternationalReceiptsJson ?? new List<string>();
-            state.InternationalReceiptsJson.Add(new JObject { ["matterId"] = matter.MatterId, ["receiptId"] = matter.ResolutionReceiptId,
+            if (!state.InternationalReceiptsJson.Any(encoded => ParseObject(encoded).Value<string>("receiptId") == matter.ResolutionReceiptId))
+                state.InternationalReceiptsJson.Add(new JObject { ["matterId"] = matter.MatterId, ["receiptId"] = matter.ResolutionReceiptId,
                 ["effectsCommitted"] = true, ["outcome"] = option, ["severityRank"] = (int)matter.Severity,
                 ["foreign"] = presentation["foreign"].DeepClone(), ["player"] = presentation["player"].DeepClone(), ["channel"] = presentation["channel"],
                 ["continuityVersion"] = 1, ["title"] = presentation.Value<string>("title") ?? matter.Title, ["summary"] = summary,
@@ -335,16 +329,143 @@ namespace ReignBeta.Court.Campaign
             return true;
         }
 
-        private static JObject ExecuteInternationalPayment(Hero payer, Hero recipient, int gold)
-        {
-            int beforePayer = payer.Gold, beforeRecipient = recipient.Gold;
-            GiveGoldAction.ApplyBetweenCharacters(payer, recipient, gold, true);
-            return new JObject { ["gold"] = gold, ["payerId"] = payer.StringId, ["recipientId"] = recipient.StringId,
-                ["payerBefore"] = beforePayer, ["payerAfter"] = payer.Gold, ["recipientBefore"] = beforeRecipient, ["recipientAfter"] = recipient.Gold };
-        }
-
         private static bool IsDirectInternationalPayment(JObject data, string option)
             => option == "compensate" || option == "compromise" || (option == "accept" && DirectPaymentText(data, "remedy") == "gift");
+
+        private const string DirectRansomReceiptType = "reign-direct-court-prisoner-v1";
+
+        private static string DirectRansomKey(ReignCourtLifeMatter matter)
+            => ReignNativeRansom.Key("court_matter", matter.CampaignId, matter.TimelineId, matter.MatterId);
+
+        private static bool HasDirectCourtRansomAttempt(ReignCourtLifeMatter matter)
+            => matter?.Source == ReignDocketSource.International
+                && ReignServices.GoldTransferService?.Ransoms.HasAttempt(DirectRansomKey(matter)) == true;
+
+        private bool TryExecuteDirectCourtRansom(ReignCourtLifeMatter matter, JObject data, JObject terms,
+            Kingdom origin, Hero payer, Hero recipient, out string summary)
+        {
+            var native = new ReignNativeRansom();
+            string captiveId = DirectPaymentText(terms, "captiveId");
+            bool ransom = data.Value<bool?>("ransom") == true;
+            Hero player = Hero.MainHero, foreignRuler = origin?.Leader;
+            bool OwnsConfirmation() => OwnsDirectCourtPayment(matter) && HasRoyalCommandAccess
+                && matter.CampaignId == Session?.CampaignId && matter.TimelineId == Session?.TimelineId
+                && matter.IsPending && !matter.EffectsCommitted
+                && Hero.MainHero == player && origin?.IsEliminated == false && origin.Leader == foreignRuler
+                && foreignRuler?.IsAlive == true && foreignRuler.StringId == DirectPaymentText(data, "foreignRulerId")
+                && JToken.DeepEquals(terms, ParseObject(matter.Options.FirstOrDefault(row => row.OptionId == "accept")?.TermsJson));
+            if (!OwnsConfirmation() || !native.OwnsLoadedWorld() || string.IsNullOrWhiteSpace(captiveId)
+                || captiveId != DirectPaymentText(data, "captiveId") || terms["ransom"]?.Type != JTokenType.Boolean
+                || terms.Value<bool>("ransom") != ransom || (ransom && (payer != foreignRuler || recipient != player)))
+            {
+                summary = "The exact accepted prisoner terms no longer match this court and its named parties.";
+                return false;
+            }
+
+            var captive = new ReignNativeRansom.Captive(FindHero(captiveId), "choice", party => party.Owner == player);
+            JObject material = FreezeDirectCourtPayment(matter, data, "accept", terms);
+            int? amount = ransom ? terms.Value<int?>("gold") : null;
+            if (ransom && !amount.HasValue)
+            { summary = "The exact accepted prisoner terms have no ransom amount."; return false; }
+            NativeRansomAttempt attempt = native.Execute(DirectRansomKey(matter), ReignCourtTerms.Hash(material.ToString(Formatting.None)),
+                material, new[] { captive }, OwnsConfirmation, player, payer, recipient, amount);
+            if (attempt == null)
+            {
+                summary = "The named prisoner is no longer in your verified custody or the exact ransom cannot be transferred.";
+                return false;
+            }
+            if (!native.OwnsLoadedWorld() || !OwnsConfirmation())
+            {
+                summary = "The court context changed during the native prisoner settlement. Do not repeat it.";
+                return false;
+            }
+            return PublishDirectCourtRansom(matter, attempt, fresh: true, out summary);
+        }
+
+        private bool TryReconcileDirectCourtRansom(ReignCourtLifeMatter matter, JObject decision, out bool completed, out string summary)
+        {
+            completed = false;
+            summary = "";
+            if (!HasDirectCourtRansomAttempt(matter)) return false;
+            var native = new ReignNativeRansom();
+            if (!OwnsDirectCourtPayment(matter) || !native.OwnsLoadedWorld())
+            {
+                summary = "This prisoner settlement belongs to a different court or timeline.";
+                return true;
+            }
+
+            NativeRansomAttempt attempt = native.Journal.Find(DirectRansomKey(matter));
+            if (attempt?.State == NativeRansomState.Held && !matter.EffectsCommitted)
+                matter.DecisionSummary = "The earlier prisoner settlement is incomplete or cannot be verified. Do not repeat the release or payment.";
+            if (!PublishDirectCourtRansom(matter, attempt, fresh: false, out summary)) return true;
+            JObject terms = ParseObject(attempt.MaterialJson)["terms"] as JObject;
+            completed = decision == null || (DirectPaymentText(decision, "optionId") == "accept"
+                && (decision["terms"] == null || JToken.DeepEquals(decision["terms"], terms)));
+            if (!completed) summary = "The earlier prisoner settlement was recorded. The requested decision was not executed.";
+            return true;
+        }
+
+        private bool PublishDirectCourtRansom(ReignCourtLifeMatter matter, NativeRansomAttempt attempt, bool fresh, out string summary)
+        {
+            summary = "The earlier prisoner settlement is incomplete or cannot be verified. Do not repeat the release or payment.";
+            if (attempt?.IsVerified() != true || attempt.Releases.Count != 1 || attempt.Releases[0].Method != "choice"
+                || attempt.Binding != ReignCourtTerms.Hash(attempt.MaterialJson)) return false;
+            JObject material = ParseObject(attempt.MaterialJson);
+            if (DirectPaymentText(material, "campaignId") != matter.CampaignId || DirectPaymentText(material, "timelineId") != matter.TimelineId
+                || DirectPaymentText(material, "matterId") != matter.MatterId || DirectPaymentText(material, "reignId") != matter.ReignId
+                || DirectPaymentText(material, "optionId") != "accept" || !(material["terms"] is JObject terms)
+                || !(material["receiptContext"] is JObject context) || DirectPaymentText(context, "remedy") != "prisoner"
+                || !(context["foreign"] is JObject foreign) || !(context["player"] is JObject player)
+                || !(context["paymentParties"] is JArray) || !(context["witnessHeroIds"] is JArray)
+                || DirectPaymentText(foreign, "kingdomId") != matter.KingdomId
+                || DirectPaymentText(terms, "captiveId") != attempt.Releases[0].HeroId || terms["ransom"]?.Type != JTokenType.Boolean)
+                return false;
+
+            bool ransom = terms.Value<bool>("ransom");
+            NativeRansomPayment payment = attempt.Payment;
+            if (ransom != (payment != null) || (ransom &&
+                (!JToken.DeepEquals(terms["gold"], new JValue(payment.Amount)) || payment.Amount > 1000000
+                    || payment.PayerId != DirectPaymentText(context, "foreignRulerId") || payment.RecipientId != DirectPaymentText(player, "leaderHeroId")
+                    || payment.PayerId != DirectPaymentText(terms, "payerHeroId") || payment.RecipientId != DirectPaymentText(terms, "recipientHeroId"))))
+                return false;
+
+            string resolutionId = matter.MatterId + "_resolution";
+            if (!string.IsNullOrEmpty(attempt.PublicationId))
+            {
+                if (attempt.PublicationId != resolutionId || !matter.EffectsCommitted || matter.ResolutionReceiptId != resolutionId
+                    || matter.SelectedOptionId != "accept") return false;
+                summary = matter.DecisionSummary;
+                return true;
+            }
+
+            JObject data = ParseObject(matter.PayloadJson);
+            var receipt = new JObject
+            {
+                ["schema"] = DirectRansomReceiptType, ["releasedHeroId"] = attempt.Releases[0].HeroId,
+                ["originalCaptorId"] = attempt.Releases[0].CaptorId, ["originalRosterCountBefore"] = attempt.Releases[0].RosterCount,
+                ["originalRosterCountAfter"] = attempt.Releases[0].Observed.OriginalRosterCount,
+                ["isPrisoner"] = false, ["hasCaptor"] = false,
+                ["ransom"] = ransom, ["ransomGold"] = payment?.Amount ?? 0
+            };
+            if (payment != null) receipt["payment"] = ReignNativeRansom.PaymentReceipt(payment);
+            if (matter.EffectsCommitted && (matter.ResolutionReceiptId != resolutionId || matter.SelectedOptionId != "accept"
+                || !JToken.DeepEquals(receipt, data["nativeReceipt"]))) return false;
+            data["nativeReceipt"] = receipt;
+            data["nativeEffectCommitted"] = true;
+            data["nativeOptionId"] = "accept";
+            CompleteInternationalCourtSettlement(matter, data, "accept", payment?.Amount ?? 0,
+                out summary, context, recoveredPayment: !fresh || matter.EffectsCommitted);
+            var history = EnsureRulerDocketState().History;
+            if (!history.Any(row => row.RecordId == resolutionId))
+                history.Add(new ReignDocketHistoryRecord { RecordId = resolutionId, ReignId = matter.ReignId,
+                    Type = "court_life_international", Outcome = "accept", Day = CurrentDay(),
+                    Summary = (DirectPaymentText(context, "title") ?? matter.Title) + ": " + summary,
+                    Detail = "Audience " + matter.MatterId + "; template " + matter.TemplateId,
+                    PetitionId = matter.MatterId, TranscriptId = matter.TranscriptId, SceneAssetPath = matter.SceneAssetPath });
+            attempt.PublicationId = resolutionId;
+            StateChanged?.Invoke();
+            return true;
+        }
 
         private static string DirectPaymentText(JObject source, string key) => (source?[key] as JValue)?.Value as string;
 
@@ -524,6 +645,8 @@ namespace ReignBeta.Court.Campaign
 
         private bool StartInternationalReferral(ReignCourtLifeMatter matter, JObject data, JObject decision, out string summary)
         {
+            if (HasDirectCourtRansomAttempt(matter))
+            { summary = "The earlier prisoner settlement must be reconciled before these terms can change."; return false; }
             summary = "The exact terms are being sent to the represented ruler; no agreement has executed.";
             ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x => x.IsResident && x.OriginKingdomStringId == matter.KingdomId);
             if (posting == null) { summary = "The ambassador must be present before sending a referral."; return false; }

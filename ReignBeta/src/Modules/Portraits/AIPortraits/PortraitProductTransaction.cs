@@ -171,6 +171,11 @@ namespace AIPortraits
 
         internal static void WriteRecoverable(string directory, IReadOnlyCollection<string> managedNames,
             params (string Path, byte[] Bytes)[] files)
+            => WriteRecoverable(directory, managedNames, null, null, null, null, files);
+
+        internal static void WriteRecoverable(string directory, IReadOnlyCollection<string> managedNames,
+            Action<int, string>? validateStaged, Action? validateBasis, Action? validate,
+            Action<bool>? observeCommitBoundary, params (string Path, byte[] Bytes)[] files)
         {
             directory = ResolveRecoveryDirectory(directory);
             var names = ValidateManagedNames(managedNames);
@@ -184,12 +189,16 @@ namespace AIPortraits
             {
                 for (int index = 0; index < files.Length; index++)
                 {
-                    using var writer = OpenNewDurableFile(items[index].TemporaryPath);
-                    stagedCount++;
-                    writer.Write(files[index].Bytes, 0, files[index].Bytes.Length);
-                    writer.Flush(true);
+                    using (var writer = OpenNewDurableFile(items[index].TemporaryPath))
+                    {
+                        stagedCount++;
+                        writer.Write(files[index].Bytes, 0, files[index].Bytes.Length);
+                        writer.Flush(true);
+                    }
+                    validateStaged?.Invoke(index, items[index].TemporaryPath);
                 }
-                CommitRecoverable(directory, items, managedNames, () => { });
+                CommitRecoverable(directory, items, managedNames, validate ?? (() => { }),
+                    validateBasis, observeCommitBoundary);
             }
             finally
             {
@@ -204,7 +213,8 @@ namespace AIPortraits
         }
 
         internal static void CommitRecoverable(string directory, IEnumerable<FileCommit> files,
-            IReadOnlyCollection<string> managedNames, Action validate)
+            IReadOnlyCollection<string> managedNames, Action validate,
+            Action? validateBasis = null, Action<bool>? observeCommitBoundary = null)
         {
             directory = ResolveRecoveryDirectory(directory);
             var names = ValidateManagedNames(managedNames);
@@ -246,6 +256,7 @@ namespace AIPortraits
 
                 if (entries.Any(entry => RecoveryDigest(entry.Destination(directory)) != entry.Before))
                     throw new IOException("The current portrait changed before publication.");
+                validateBasis?.Invoke();
                 foreach (var item in items) item.OwnedByJournal = true;
                 publishingMarker = true;
                 string preparedDigest = PublishRecoveryMarker(marker, id, entries);
@@ -260,6 +271,7 @@ namespace AIPortraits
                     items[index].Commit();
                 }
 
+                observeCommitBoundary?.Invoke(false);
                 validate();
                 if (entries.Any(entry => RecoveryDigest(entry.Destination(directory)) != entry.After))
                     throw new IOException("The complete portrait publication did not match its staged files.");
@@ -268,6 +280,7 @@ namespace AIPortraits
                 // WSL cannot use ReplaceFile. Both phases are the same flushed
                 // manifest, and moving to an absent name is atomic on its share.
                 File.Move(marker, committedMarker);
+                observeCommitBoundary?.Invoke(true);
             }
             catch (Exception failure)
             {

@@ -71,21 +71,13 @@ namespace ReignBeta.WorldSimulation.World
             {
                 string movementId = ReadStringTerm(action.TermsJson, "movementId", string.Empty);
                 string rebelKingdomId = ReadStringTerm(action.TermsJson, "rebelKingdomId", string.Empty);
-                ReignRebellionMovementRecord movement = ReignServices.Rebellion?.Movements
-                    .FirstOrDefault(x => x != null && string.Equals(x.MovementId, movementId, StringComparison.OrdinalIgnoreCase));
-                if (movement == null || movement.ResolutionApplied
-                    || !string.Equals(movement.Stage, "civil_war", StringComparison.OrdinalIgnoreCase))
-                {
-                    reason = "The rebellion backing request is missing, resolved, or obsolete.";
-                    return false;
-                }
-                if (!string.Equals(movement.ParentKingdomStringId, target.StringId, StringComparison.OrdinalIgnoreCase)
-                    || !string.Equals(movement.RebelKingdomStringId, rebelKingdomId, StringComparison.OrdinalIgnoreCase))
-                {
-                    reason = "The backing action does not match the authoritative rebellion sides.";
-                    return false;
-                }
                 Kingdom rebelKingdom = ReignObjectResolver.FindKingdom(rebelKingdomId);
+                ReignRebellionMovementRecord movement = ReignServices.Rebellion?.FindMutableBackingMovement(movementId, target, rebelKingdom);
+                if (movement == null)
+                {
+                    reason = "Backing requires the exact active civil war with no outstanding recognition.";
+                    return false;
+                }
                 if (!IsLiveKingdom(rebelKingdom) || actor == rebelKingdom
                     || actor == target || actor.IsAtWarWith(rebelKingdom))
                 {

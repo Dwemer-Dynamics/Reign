@@ -21,6 +21,11 @@ namespace ReignBeta.WorldSimulation.World
     {
         public static ReignActionResult Execute(ReignWorldActionRecord action)
         {
+            // Exact admitted receipts recover before the active-war check, which
+            // properly rejects a new negotiation once its native peace is observed.
+            if (action?.Type == ReignWorldActionType.PoliticsResolveCivilWar
+                && ReignServices.Rebellion?.TryRecoverRecognizedIndependence(action, out ReignActionResult recognition) == true)
+                return recognition;
             if (!ReignActionValidator.Validate(action, out string validationFailure))
             {
                 return ReignActionResult.ValidationFailed(validationFailure);

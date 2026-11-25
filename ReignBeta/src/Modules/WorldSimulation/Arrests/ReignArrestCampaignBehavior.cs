@@ -465,6 +465,9 @@ namespace ReignBeta.WorldSimulation.Arrests
             if (ReignCampaignInitializationGate.IsPending || day - _lastEvidenceReviewDay < 0.95f
                 || _dailyEvidenceReview?.IsCurrent() == true)
                 return;
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            if (!fence.IsCurrentActionPoll()) return;
+
             var cases = _cases.Where(item => item.AccusationActive && item.IsOpen).ToList();
             if (cases.Count == 0)
             {
@@ -472,14 +475,13 @@ namespace ReignBeta.WorldSimulation.Arrests
                 return;
             }
 
-            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
             _dailyEvidenceReview = fence;
             _ = Task.Run(() => ReviewDailyEvidenceAsync(fence, day, cases));
         }
 
         private bool OwnsDailyEvidenceReview(ReignServerClient.RequestFence fence) =>
             ReferenceEquals(Instance, this) && ReferenceEquals(_dailyEvidenceReview, fence)
-            && !ReignCampaignInitializationGate.IsPending && fence.IsCurrent();
+            && !ReignCampaignInitializationGate.IsPending && fence.IsCurrentActionPoll();
 
         private async Task ReviewDailyEvidenceAsync(ReignServerClient.RequestFence fence, float day,
             List<ReignArrestCase> cases)
@@ -553,7 +555,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 return NeedsCapturedRepair(item)
                     ? (null, null, null, true, CaptureDailyCapturedRepair(fence, item, accused))
                     : default;
-            if (TryGetLocalEspionageEvidence(item, accused, out string evidence))
+            if (TryGetLocalEvidence(item, accused, out string evidence))
             {
                 MarkEstablishedEvidence(item, "established", evidence);
                 ContinueDailyArrestMaintenance(item, accused, true);
@@ -563,8 +565,6 @@ namespace ReignBeta.WorldSimulation.Arrests
             var identity = DailyEvidenceIdentity(item);
             Hero player = Hero.MainHero;
             JObject payload = BuildEvidencePayload(item, accused);
-            payload["campaignId"] = ReignServerClient.GetCampaignId();
-            payload["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
 
             bool Current() => OwnsDailyEvidenceReview(fence) && _cases.Contains(item)
                 && item.AccusationActive && item.IsOpen && !item.CauseEstablished
@@ -577,7 +577,7 @@ namespace ReignBeta.WorldSimulation.Arrests
                 if (!Current()) return;
                 try
                 {
-                    ApplyEvidenceResponse(item, response);
+                    ApplyEvidenceResponse(item, payload, response);
                 }
                 catch (Exception ex)
                 {
@@ -786,16 +786,16 @@ namespace ReignBeta.WorldSimulation.Arrests
                 if (item != null) MarkUnsupportedEvidence(item);
                 return;
             }
-            if (TryGetLocalEspionageEvidence(item, accused, out string evidence))
+            if (TryGetLocalEvidence(item, accused, out string evidence))
             {
                 MarkEstablishedEvidence(item, "established", evidence);
                 return;
             }
             try
             {
-                JObject response = ReignServerClient.EvaluateArrestEvidenceAsync(BuildEvidencePayload(item, accused))
-                    .GetAwaiter().GetResult();
-                ApplyEvidenceResponse(item, response);
+                JObject payload = BuildEvidencePayload(item, accused);
+                JObject response = ReignServerClient.EvaluateArrestEvidenceAsync(payload).GetAwaiter().GetResult();
+                ApplyEvidenceResponse(item, payload, response);
             }
             catch (Exception ex)
             {
@@ -806,19 +806,20 @@ namespace ReignBeta.WorldSimulation.Arrests
 
         private static JObject BuildEvidencePayload(ReignArrestCase item, Hero accused) => new JObject
         {
+            ["schema"] = ReignArrestEvidenceResponse.RequestSchema,
+            ["campaignId"] = ReignServerClient.GetCampaignId(),
+            ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
             ["accusedHeroId"] = accused?.StringId ?? string.Empty,
             ["chargeCategory"] = item?.ChargeCategory ?? string.Empty,
             ["accusation"] = item?.RawAccusation ?? string.Empty
         };
 
-        private static void ApplyEvidenceResponse(ReignArrestCase item, JObject response)
+        private static void ApplyEvidenceResponse(ReignArrestCase item, JObject request, JObject response)
         {
-            if (response?.Value<bool?>("ok") == true && response.Value<bool?>("causeEstablished") == true
-                && string.Equals(response.Value<string>("accusedHeroId"), item.AccusedHeroStringId, StringComparison.Ordinal))
-            {
-                string evidence = string.Join(",", (response["evidenceIds"] as JArray ?? new JArray()).Values<string>());
-                MarkEstablishedEvidence(item, response.Value<string>("evidenceStatus") ?? "established", evidence);
-            }
+            if (request.Value<string>("accusedHeroId") == item.AccusedHeroStringId
+                && request.Value<string>("chargeCategory") == item.ChargeCategory
+                && ReignArrestEvidenceResponse.TryRead(request, response, out string evidence))
+                MarkEstablishedEvidence(item, "established", evidence);
             else
                 MarkUnsupportedEvidence(item);
         }
@@ -844,14 +845,18 @@ namespace ReignBeta.WorldSimulation.Arrests
             !string.IsNullOrWhiteSpace(item?.AccusedHeroStringId)
             && string.Equals(item.AccusedHeroStringId, accused?.StringId, StringComparison.Ordinal);
 
-        private bool TryGetLocalEspionageEvidence(ReignArrestCase item, Hero accused, out string evidence)
+        private static bool TryGetLocalEvidence(ReignArrestCase item, Hero accused, out string evidence)
         {
             evidence = string.Empty;
 #if !REIGN_EXCLUDE_COURT
-            if (item?.ChargeCategory != "espionage" || !MatchesEvidenceSubject(item, accused))
+            if (!MatchesEvidenceSubject(item, accused))
                 return false;
             ICourtWorldBridge court = ReignServices.CourtWorld;
-            return court != null && court.HasExposedAgentEvidence(accused, out evidence);
+            if (court == null)
+                return false;
+            if (item.ChargeCategory == "espionage")
+                return court.HasExposedAgentEvidence(accused, out evidence);
+            return item.ChargeCategory == "murder" && court.HasPublicMurderArrestEvidence(accused, out evidence);
 #else
             return false;
 #endif

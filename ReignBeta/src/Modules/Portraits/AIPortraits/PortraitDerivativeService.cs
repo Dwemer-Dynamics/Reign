@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -305,60 +306,130 @@ public static class PortraitDerivativeService
 			&& File.Exists(Path.Combine(outputDirectory, OutfitReceiptFileName));
 
 	public static bool HasCurrentFullBodyProducts(string sourcePath, string outputDirectory)
-		=> TryReadCurrentV2(sourcePath, outputDirectory, out var _);
+	{
+		if (string.IsNullOrWhiteSpace(outputDirectory)) return false;
+		lock (PortraitCache.ProductCommitLock(outputDirectory))
+			return !PortraitProductTransaction.HasRecoveryJournal(outputDirectory)
+				&& TryReadCurrentV2(sourcePath, outputDirectory, out var _);
+	}
 
 	private static bool PrepareV2(WorkItem item)
 	{
-		FileInfo sourceInfo = new FileInfo(item.SourcePath);
-		byte[] sourceBytes = File.ReadAllBytes(item.SourcePath);
-		if (IsJpeg(sourceBytes))
-		{
-			sourceBytes = JpegToPng.Convert(sourceBytes);
-		}
-		byte[] rgba = PngReencode.DecodeToRgba(sourceBytes, out int sourceWidth, out int sourceHeight);
-		if (rgba == null || sourceWidth <= 0 || sourceHeight <= 0)
-		{
-			return false;
-		}
-
-		if (!TryReadPersistedFaceFocus(item.SourcePath, item.OutputDirectory, sourceBytes, out PortraitFaceFocus focus))
-		{
-			Debug.Print("[AIPortraits] Refusing legacy fallback crop for full-body portrait " + item.Id
-				+ "; a server-validated face-focus receipt or prior focused manifest is required.");
-			return false;
-		}
-
-		PortraitDerivativeBuild build = PortraitDerivativeCore.BuildV2(
-			rgba,
-			sourceWidth,
-			sourceHeight,
-			sourceInfo,
-			PngEncoder.EncodeRgba,
-			focus);
-		byte[] manifestBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(build.Manifest, Formatting.Indented));
-		if (!PortraitDerivativeCore.CommitV2(item.SourcePath, item.OutputDirectory, build, manifestBytes, out string error))
-		{
-			Debug.Print("[AIPortraits] V2 derivative commit failed for " + item.Id + ": " + error);
-			return false;
-		}
-
-		_ready[item.Key] = ToReadySet(build.Manifest, item.SourcePath, item.OutputDirectory);
+		PortraitDerivativeManifestV2 manifest = BuildAndPublishV2(item.SourcePath, item.OutputDirectory);
+		if (manifest == null) return false;
+		_ready[item.Key] = ToReadySet(manifest, item.SourcePath, item.OutputDirectory);
 		return true;
 	}
 
-	private static bool TryReadPersistedFaceFocus(string sourcePath, string outputDirectory, byte[] sourceBytes, out PortraitFaceFocus focus)
+	// The worker owns the per-directory product lock for this entire operation.
+	private static PortraitDerivativeManifestV2 BuildAndPublishV2(string sourcePath, string outputDirectory,
+		Action<bool> observeCommitBoundary = null)
+	{
+		FileInfo sourceInfo = new FileInfo(sourcePath);
+		byte[] sourceBytes = File.ReadAllBytes(sourcePath);
+		string outfitReceiptPath = Path.Combine(outputDirectory, OutfitReceiptFileName);
+		byte[] outfitReceiptBytes = IsOutfitCustomSource(sourcePath, outputDirectory)
+			? File.ReadAllBytes(outfitReceiptPath) : null;
+		JObject outfitReceipt = null;
+		if (outfitReceiptBytes != null)
+		{
+			using var reader = new StreamReader(new MemoryStream(outfitReceiptBytes), Encoding.UTF8);
+			try { outfitReceipt = JObject.Parse(reader.ReadToEnd()); }
+			catch (JsonException) { return null; }
+		}
+		bool confirmedOutfit = IsConfirmedOutfitReceipt(outfitReceipt);
+		byte[] pngBytes = IsJpeg(sourceBytes) ? JpegToPng.Convert(sourceBytes) : sourceBytes;
+		byte[] rgba = PngReencode.DecodeToRgba(pngBytes, out int sourceWidth, out int sourceHeight);
+		if (rgba == null || sourceWidth <= 0 || sourceHeight <= 0) return null;
+
+		string outfitSourceHash = outfitReceipt == null ? null : HashBytes(confirmedOutfit ? sourceBytes : pngBytes);
+		if (!TryReadPersistedFaceFocus(outputDirectory, outfitReceipt, outfitSourceHash, out PortraitFaceFocus focus))
+		{
+			Debug.Print("[AIPortraits] Refusing legacy fallback crop for full-body portrait " + sourcePath
+				+ "; a server-validated face-focus receipt or prior focused manifest is required.");
+			return null;
+		}
+
+		PortraitDerivativeBuild build = PortraitDerivativeCore.BuildV2(
+			rgba, sourceWidth, sourceHeight, sourceInfo, PngEncoder.EncodeRgba, focus);
+		byte[] manifestBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(build.Manifest, Formatting.Indented));
+		if (confirmedOutfit)
+		{
+			if (!string.Equals(sourceInfo.DirectoryName, Path.GetFullPath(outputDirectory), StringComparison.OrdinalIgnoreCase))
+				throw new IOException("The confirmed outfit source and derivative directory do not match.");
+			PublishOutfitDerivatives(sourcePath, outputDirectory, outfitReceiptPath, outfitSourceHash,
+				HashBytes(outfitReceiptBytes), build, manifestBytes, observeCommitBoundary);
+		}
+		else if (!PortraitDerivativeCore.CommitV2(sourcePath, outputDirectory, build, manifestBytes, out string error))
+		{
+			Debug.Print("[AIPortraits] V2 derivative commit failed for " + sourcePath + ": " + error);
+			return null;
+		}
+
+		return build.Manifest;
+	}
+
+	private static void PublishOutfitDerivatives(string sourcePath, string outputDirectory, string receiptPath,
+		string sourceHash, string receiptHash, PortraitDerivativeBuild build, byte[] manifestBytes,
+		Action<bool> observeCommitBoundary)
+	{
+		PortraitDerivativeManifestV2 manifest = build.Manifest;
+		var products = new (string Name, byte[] Bytes, int Width, int Height)[]
+		{
+			(ThumbnailFileName, build.ThumbnailPng, manifest.ThumbnailWidth, manifest.ThumbnailHeight),
+			(PartyThumbnailFileName, build.PartyThumbnailPng, manifest.PartyThumbnailWidth, manifest.PartyThumbnailHeight),
+			(PortraitFileName, build.PortraitPng, manifest.PortraitWidth, manifest.PortraitHeight),
+			(ZoomFileName, build.ZoomPng, manifest.ZoomWidth, manifest.ZoomHeight),
+			(ManifestFileName, manifestBytes, 0, 0)
+		};
+
+		void VerifyBasis()
+		{
+			if (HashBytes(File.ReadAllBytes(sourcePath)) != sourceHash || HashBytes(File.ReadAllBytes(receiptPath)) != receiptHash)
+				throw new IOException("The confirmed outfit portrait or its focus receipt changed during derivative preparation.");
+		}
+
+		void VerifyStaged(int index, string path)
+		{
+			var product = products[index];
+			if (product.Width > 0 && !PortraitDerivativeCore.HasPngDimensions(path, product.Width, product.Height))
+				throw new InvalidDataException("A staged outfit derivative failed PNG validation: " + product.Name);
+		}
+
+		void VerifyComplete()
+		{
+			VerifyBasis();
+			if (!PortraitDerivativeCore.IsCurrentV2(manifest, sourcePath, outputDirectory))
+				throw new InvalidDataException("The complete outfit derivative product failed manifest validation.");
+		}
+
+		VerifyBasis();
+		PortraitProductTransaction.WriteRecoverable(outputDirectory, products.Select(product => product.Name).ToArray(),
+			VerifyStaged, VerifyBasis, VerifyComplete, observeCommitBoundary,
+			products.Select(product => (Path.Combine(outputDirectory, product.Name), product.Bytes)).ToArray());
+	}
+
+	private static bool IsConfirmedOutfitReceipt(JObject receipt) =>
+		receipt?["reignOutfitOperationId"]?.Type == JTokenType.String
+		&& !string.IsNullOrWhiteSpace(receipt.Value<string>("reignOutfitOperationId"));
+
+	private static string HashBytes(byte[] bytes)
+	{
+		using var sha = SHA256.Create();
+		return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+	}
+
+	private static bool TryReadPersistedFaceFocus(string outputDirectory, JObject outfitReceipt,
+		string outfitSourceHash, out PortraitFaceFocus focus)
 	{
 		focus = null;
 		try
 		{
-			if (IsOutfitCustomSource(sourcePath, outputDirectory))
+			if (outfitReceipt != null)
 			{
-				JObject outfitReceipt = JObject.Parse(File.ReadAllText(Path.Combine(outputDirectory, OutfitReceiptFileName), Encoding.UTF8));
-				string sourceHash;
-				using (var sha = SHA256.Create()) sourceHash = BitConverter.ToString(sha.ComputeHash(sourceBytes)).Replace("-", "").ToLowerInvariant();
 				return outfitReceipt.Value<string>("schema") == "reign-portrait-product-v1"
 					&& outfitReceipt.Value<bool?>("accepted") == true
-					&& outfitReceipt["master"]?.Value<string>("sha256") == sourceHash
+					&& outfitReceipt["master"]?.Value<string>("sha256") == outfitSourceHash
 					&& TryReadFaceFocus(outfitReceipt["focus"] as JObject, out focus);
 			}
 			string receiptPath = Path.Combine(outputDirectory, PortraitCache.GenerationReceiptFileName);
@@ -634,12 +705,30 @@ public static class PortraitDerivativeService
 			return false;
 		}
 
-		string portrait = Path.Combine(outputDirectory, PortraitCache.PortraitFileName);
-		if (File.Exists(portrait) && TryReadCurrentV2(portrait, outputDirectory, out var _))
-		{
-			sourcePath = portrait;
-		}
+		sourcePath = ResolvePreferredV2Source(sourcePath, outputDirectory);
 		return true;
+	}
+
+	private static string ResolvePreferredV2Source(string sourcePath, string outputDirectory)
+	{
+		string portrait = Path.Combine(outputDirectory, PortraitCache.PortraitFileName);
+		if (!File.Exists(portrait) || !TryReadCurrentV2(portrait, outputDirectory, out var _))
+			return sourcePath;
+
+		// A prepared rollback can restore an otherwise current base derivative
+		// set. The retained, already confirmed outfit must still get rebuilt.
+		if (IsOutfitCustomSource(sourcePath, outputDirectory))
+		{
+			try
+			{
+				string receipt = File.ReadAllText(Path.Combine(outputDirectory, OutfitReceiptFileName), Encoding.UTF8);
+				if (IsConfirmedOutfitReceipt(JObject.Parse(receipt))) return sourcePath;
+			}
+			catch (JsonException) { }
+			catch (IOException) { }
+			catch (UnauthorizedAccessException) { }
+		}
+		return portrait;
 	}
 
 	private static bool TryFindSourceInDirectory(string directory, out string sourcePath)

@@ -27,6 +27,7 @@ using ReignBeta.Diplomacy.Campaign;
 using ReignBeta.Diplomacy.UI;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.Persistence.Integration;
+using ReignBeta.Shared.Characters;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
@@ -167,6 +168,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
 
             long expectedSequence = (nativeBefore.Value<long?>("sequence") ?? 0L) + 1L;
+            string npcLivesBlocker = string.Empty;
             bool queued = await ReignMainThread.InvokeAsync(() =>
             {
                 // A periodic scheduling hold never grants permission to save over real work.
@@ -182,7 +184,21 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (hasPartyAgencyStage && !PartyAgencyCheckpointMatchesStage(partyAgencyStage as JObject, saveName))
                     return false;
                 if (ownership != null)
+                {
+                    try
+                    {
+                        npcLivesBlocker = ReignServices.NpcLives?.PassiveCheckpointBlocker(
+                            ownership.Value<string>("campaignId"), ownership.Value<string>("timelineId"))
+                            ?? NpcLivesCheckpointPolicy.TelemetryUnavailable;
+                    }
+                    catch (Exception ex)
+                    {
+                        ReignLog.Warn("NPC Lives checkpoint work could not be observed: " + ex.Message);
+                        npcLivesBlocker = NpcLivesCheckpointPolicy.TelemetryUnavailable;
+                    }
+                    if (npcLivesBlocker.Length > 0) return false;
                     expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation().Value<long>("sequence") + 1L;
+                }
                 // Save Sync registers before Bannerlord's completion callback
                 // reveals the SaveAs name. Supplying the intended name here lets
                 // the server treat an overwrite as a rotation and reserve the
@@ -201,6 +217,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             }).ConfigureAwait(false);
             if (!queued)
             {
+                if (npcLivesBlocker.Length > 0)
+                    return LiveCommandResult.Failed("NPC Lives was not idle at checkpoint submission. No native save was queued.",
+                        CheckpointNotQueuedEvidence(ownership, new JObject { ["npcLivesCheckpointBlocker"] = npcLivesBlocker }));
                 if (ownership != null)
                     return CheckpointNotQueued(ownership, "Native saving, in-flight work, or a changed checkpoint identity prevented SaveAs.");
                 return LiveCommandResult.Failed(

@@ -50,6 +50,8 @@ namespace ReignBeta.Court.Campaign
             if (!HasRoyalCommandAccess || matter == null || !matter.IsPending
                 || !EnsureRulerDocketState().CourtLifeMatters.Contains(matter))
             { error = "This audience is no longer available at your court."; return false; }
+            if (HasDirectCourtRansomAttempt(matter))
+            { error = "The earlier prisoner settlement has to be reconciled before the audience can reopen."; return false; }
             if (matter.AvailableDay > CurrentCourtLifeDay())
             { error = "Your visitors have not arrived yet."; return false; }
             if (matter.State == ReignCourtLifeMatterState.Deferred)
@@ -75,6 +77,7 @@ namespace ReignBeta.Court.Campaign
         {
             summary = string.Empty;
             if (matter == null) { summary = "The audience is missing."; return false; }
+            if (TryReconcileDirectCourtRansom(matter, decision, out bool ransomRecovered, out summary)) return ransomRecovered;
             if (matter.EffectsCommitted) { summary = matter.DecisionSummary; return true; }
             if (matter.Source == ReignDocketSource.International
                 && TryReconcileDirectCourtPayment(matter, decision, out bool recovered, out summary)) return recovered;
@@ -107,7 +110,9 @@ namespace ReignBeta.Court.Campaign
             if (string.IsNullOrWhiteSpace(matter.ResolutionReceiptId)) matter.ResolutionReceiptId = "court_life_decision_" + matter.MatterId;
             matter.EffectsCommitted = true;
             matter.State = ReignCourtLifeMatterState.Resolved;
-            EnsureRulerDocketState().History.Add(new ReignDocketHistoryRecord {
+            var history = EnsureRulerDocketState().History;
+            if (!history.Any(row => row.RecordId == matter.ResolutionReceiptId))
+                history.Add(new ReignDocketHistoryRecord {
                 RecordId = matter.ResolutionReceiptId, ReignId = matter.ReignId,
                 Type = "court_life_" + matter.Source.ToString().ToLowerInvariant(),
                 Outcome = optionId, Day = CurrentDay(), Summary = matter.Title + ": " + summary,
@@ -125,7 +130,7 @@ namespace ReignBeta.Court.Campaign
         internal JObject BuildCourtLifeApiPayload(ReignCourtLifeMatter matter)
         {
             RefreshLegacyInternationalPaymentTerms(matter);
-            EnsureInternationalCaptiveContext(matter);
+            if (!HasDirectCourtRansomAttempt(matter)) EnsureInternationalCaptiveContext(matter);
             return new JObject {
                 ["campaignId"] = matter.CampaignId, ["timelineId"] = matter.TimelineId,
                 ["matterId"] = matter.MatterId, ["templateId"] = matter.TemplateId,

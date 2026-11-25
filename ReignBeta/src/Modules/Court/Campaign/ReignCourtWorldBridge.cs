@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Runtime;
 using ReignBeta.Spymaster.Campaign;
 using ReignBeta.WorldSimulation.Actions;
@@ -59,6 +61,26 @@ namespace ReignBeta.Court.Campaign
                 .Select(action => "foreign_agent_action:" + action.ActionId));
             evidence = string.Join(",", ids.Distinct(StringComparer.OrdinalIgnoreCase));
             return true;
+        }
+
+        bool ICourtWorldBridge.HasPublicMurderArrestEvidence(Hero accused, out string evidence)
+        {
+            evidence = string.Empty;
+            var history = ReignServices.WorldHistory;
+            if (string.IsNullOrWhiteSpace(accused?.StringId) || !ReignCampaignIdentity.HasActiveCampaign()
+                || ReignSaveSyncCoordinator.IsAlignmentPending || history?.TimelineReady != true
+                || !ReferenceEquals(ReignServices.CourtWorld, this) || _rulerDocketState?.NobleMatters == null)
+                return false;
+
+            string campaignId = ReignCampaignIdentity.CurrentCampaignId();
+            string timelineId = history.TimelineId;
+            foreach (var matter in _rulerDocketState.NobleMatters)
+            {
+                evidence = matter?.PublicMurderArrestEvidenceId(campaignId, timelineId, accused.StringId) ?? string.Empty;
+                if (evidence.Length > 0)
+                    return true;
+            }
+            return false;
         }
     }
 }

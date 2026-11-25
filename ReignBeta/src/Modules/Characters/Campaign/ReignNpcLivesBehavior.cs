@@ -202,19 +202,38 @@ namespace ReignBeta.Characters.Campaign
         }
         internal JObject PassiveCheckpointSnapshot()
         {
-            bool snapshotReady = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
-                && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
+            var sample = ReadPassiveCheckpointWork();
             return new JObject
             {
-                ["schema"] = "reign-npc-lives-checkpoint-v2",
+                ["schema"] = NpcLivesCheckpointPolicy.Schema,
                 ["campaignId"] = _campaign,
                 ["timelineId"] = _timeline,
-                ["snapshotReady"] = snapshotReady,
+                ["snapshotReady"] = sample.Ready,
                 ["mutationInFlight"] = _checkpointMutationInFlight,
                 ["pendingReceipts"] = _outbox.Count,
-                ["dueNativeRewards"] = snapshotReady ? CountCheckpointLifeRewards() : 0,
-                ["dueNativePersonalTravel"] = snapshotReady ? CountDuePersonalTravel() : 0
+                ["dueNativeRewards"] = sample.Rewards,
+                ["dueNativePersonalTravel"] = sample.PersonalTravel,
+                ["dueNativeMeetingRelease"] = sample.MeetingReleases
             };
+        }
+
+        internal string PassiveCheckpointBlocker(string campaign, string timeline)
+        {
+            if (string.IsNullOrWhiteSpace(campaign) || string.IsNullOrWhiteSpace(timeline)
+                || _campaign != campaign || _timeline != timeline)
+                return NpcLivesCheckpointPolicy.TelemetryUnavailable;
+
+            var sample = ReadPassiveCheckpointWork();
+            return NpcLivesCheckpointPolicy.Blocker(NpcLivesCheckpointPolicy.Schema, true, sample.Ready,
+                _checkpointMutationInFlight, _outbox.Count, sample.Rewards, sample.PersonalTravel, sample.MeetingReleases);
+        }
+
+        private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases) ReadPassiveCheckpointWork()
+        {
+            bool ready = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
+                && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
+            return (ready, ready ? CountCheckpointLifeRewards() : 0, ready ? CountDuePersonalTravel() : 0,
+                ready ? CountDueMeetingReleases() : 0);
         }
 
         private int CountCheckpointLifeRewards()
