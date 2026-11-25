@@ -1,6 +1,7 @@
 using ReignLiveTest;
 using ReignBeta.Shared.Characters;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Reign.Mcp.Tests;
 
@@ -192,20 +193,62 @@ public sealed class PassiveWorldCheckpointPolicyTests
         string path = Path.Combine(TestOptions.FindWorkspace(),
             "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.Checkpoints.cs");
         string source = File.ReadAllText(path);
-        int queue = source.IndexOf("bool queued = await ReignMainThread.InvokeAsync", StringComparison.Ordinal);
-        Assert.True(queue >= 0);
+        static int RequiredIndex(string text, string step)
+        {
+            int index = text.IndexOf(step, StringComparison.Ordinal);
+            Assert.True(index >= 0, $"Missing native checkpoint source step: {step}");
+            return index;
+        }
+
+        int queue = RequiredIndex(source, "bool queued = await ReignMainThread.InvokeAsync");
         int end = source.IndexOf("}).ConfigureAwait(false);", queue, StringComparison.Ordinal);
-        Assert.True(end > queue);
+        Assert.True(end > queue, "Could not identify the native submission callback.");
         string block = source[queue..end];
-        int owner = block.IndexOf("if (ownership != null && !ValidCheckpointDestination(ownership, saveName))", StringComparison.Ordinal);
-        int sample = block.IndexOf("NpcLives?.PassiveCheckpointBlocker(", StringComparison.Ordinal);
-        int refuse = block.IndexOf("if (npcLivesBlocker.Length > 0) return false;", StringComparison.Ordinal);
-        int sequence = block.IndexOf("expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation()", StringComparison.Ordinal);
-        int expect = block.IndexOf("ExpectNativeSaveName(saveName);", StringComparison.Ordinal);
-        int save = block.IndexOf("SaveHandler.SaveAs(saveName);", StringComparison.Ordinal);
-        Assert.True(owner >= 0 && sample > owner && refuse > sample && sequence > refuse && expect > sequence && save > expect);
-        Assert.Contains("CheckpointNotQueuedEvidence(ownership, new JObject { [\"npcLivesCheckpointBlocker\"] = npcLivesBlocker })",
-            source, StringComparison.Ordinal);
+        int owner = RequiredIndex(block, "if (ownership != null && !ValidCheckpointDestination(ownership, saveName))");
+        int sample = RequiredIndex(block, "NpcLives?.PassiveCheckpointBlocker(");
+        const string blockerPattern = @"^(?<indent>[ \t]*)if \(npcLivesBlocker\.Length > 0\)[ \t]*\r?\n"
+            + @"\k<indent>\{[ \t]*\r?\n(?<body>[\s\S]*?)"
+            + @"^\k<indent>[ \t]+return false;[ \t]*\r?\n\k<indent>\}";
+        Match refusal = Regex.Match(block, blockerPattern, RegexOptions.Multiline);
+        Assert.True(refusal.Success, "The NPC Lives blocker must return false from its own guard.");
+        string refusalBody = refusal.Groups["body"].Value;
+        Assert.Contains("npcLivesBlocker == ReignNpcLivesBehavior.MeetingReleaseCheckpointBlocker",
+            refusalBody, StringComparison.Ordinal);
+        Assert.Contains("meetingReleaseWitness = CaptureCheckpointMeetingRefusal(command, ownership, saveName,",
+            refusalBody, StringComparison.Ordinal);
+        int sequence = RequiredIndex(block, "expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation()");
+        int expect = RequiredIndex(block, "ExpectNativeSaveName(saveName);");
+        int save = RequiredIndex(block, "SaveHandler.SaveAs(saveName);");
+        Assert.True(owner < sample && sample < refusal.Index && refusal.Index + refusal.Length <= sequence
+            && sequence < expect && expect < save,
+            $"Wrong native checkpoint order: owner={owner}, sample={sample}, refusal={refusal.Index}, "
+            + $"sequence={sequence}, expect={expect}, SaveAs={save}.");
+        Assert.Matches(@"\Aif \(ownership != null && !ValidCheckpointDestination\(ownership, saveName\)\)\s*return false;",
+            block[owner..sample]);
+        Assert.Contains("""ownership.Value<string>("campaignId"), ownership.Value<string>("timelineId"), out blockingMeeting)""",
+            block[sample..refusal.Index], StringComparison.Ordinal);
+
+        string afterSubmission = source[end..];
+        int notQueued = RequiredIndex(afterSubmission, "if (!queued)");
+        int nativeStart = RequiredIndex(afterSubmission, "DateTime nativeStartDeadline");
+        Assert.True(notQueued < nativeStart, "The rejected callback must be handled before waiting for native save start.");
+        string failure = afterSubmission[notQueued..nativeStart];
+        int blocker = RequiredIndex(failure, "if (npcLivesBlocker.Length > 0)");
+        int evidence = RequiredIndex(failure, """var evidence = new JObject { ["npcLivesCheckpointBlocker"] = npcLivesBlocker };""");
+        int witness = RequiredIndex(failure, """if (meetingReleaseWitness != null) evidence["npcLivesMeetingReleaseWitness"] = meetingReleaseWitness;""");
+        int failed = RequiredIndex(failure, "return LiveCommandResult.Failed(");
+        int failedEnd = failure.IndexOf(';', failed);
+        Assert.True(blocker < evidence && evidence < witness && witness < failed && failed < failedEnd,
+            "A blocked callback must attach the blocker and optional witness before returning failure.");
+        Assert.Contains("CheckpointNotQueuedEvidence(ownership, evidence)", failure[failed..failedEnd],
+            StringComparison.Ordinal);
+
+        int helper = RequiredIndex(source, "private static JObject CheckpointNotQueuedEvidence(JObject ownership, JObject evidence)");
+        string marker = source[helper..];
+        string markerBody = marker[..RequiredIndex(marker, "return evidence;")];
+        Assert.Contains("""evidence["nativeSaveQueued"] = false;""", markerBody, StringComparison.Ordinal);
+        Assert.Contains("""if (ownership != null) evidence["checkpointNotSubmitted"] = ownership.Value<string>("id");""",
+            markerBody, StringComparison.Ordinal);
     }
 
     [Theory]

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Reign.Mcp.Server;
 
 namespace Reign.Mcp.Tests;
@@ -424,23 +425,29 @@ public sealed class PartyAgencyHarnessContractTests
         string[] rules = catalog.RootElement.GetProperty("partyAgency").GetProperty("deterministicAssertions")
             .EnumerateArray().Select(rule => rule.GetString()!).ToArray();
 
-        // Keep the native observation gate consistent with the shipped timing policy and save values.
-        foreach ((string constant, string value) in new[]
+        using JsonDocument manifest = ReadPartyAgencyManifest(root);
+        JsonElement policy = manifest.RootElement.GetProperty("policy");
+        foreach ((string field, string constant, int value) in new[]
         {
-            ("OpenEndedReviewDays", "30"), ("MinimumFixedTermDays", "1"),
-            ("MinimumReturnHours", "1"), ("MaximumReturnHours", "12")
+            ("openEndedReviewDays", "OpenEndedReviewDays", 30),
+            ("fixedTermMinimumDays", "MinimumFixedTermDays", 1),
+            ("minimumReturnHours", "MinimumReturnHours", 1),
+            ("maximumReturnHours", "MaximumReturnHours", 12)
         })
         {
+            Assert.Equal(value, policy.GetProperty(field).GetInt32());
             Assert.Contains($"{constant} = {value}f", behavior, StringComparison.Ordinal);
             Assert.Contains($"ReignTemporaryPartyGuestCampaignBehavior.{constant} == {value}f", host,
                 StringComparison.Ordinal);
         }
+        const int fixedTermMaximumDays = 126;
+        Assert.Equal(fixedTermMaximumDays, policy.GetProperty("fixedTermMaximumDays").GetInt32());
         string calendar = File.ReadAllText(Path.Combine(guestRoot, "Runtime", "ReignCalendarService.cs"));
-        Assert.Contains("DaysPerYear = 126d", calendar, StringComparison.Ordinal);
+        Assert.Contains($"DaysPerYear = {fixedTermMaximumDays}d", calendar, StringComparison.Ordinal);
         Assert.Contains("MaximumFixedTermDays = (float)ReignCalendarService.DaysPerYear", behavior,
             StringComparison.Ordinal);
-        Assert.Contains("ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == 126f", host,
-            StringComparison.Ordinal);
+        Assert.Contains($"ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == {fixedTermMaximumDays}f",
+            host, StringComparison.Ordinal);
         string[] phases = { "Active", "ReviewDue", "Departing", "Returning", "Completed", "HostileBanishmentPending", "AwaitingStart" };
         for (int index = 0; index < phases.Length; index++)
             Assert.Contains($"{phases[index]} = {index}", record, StringComparison.Ordinal);
@@ -642,10 +649,25 @@ public sealed class PartyAgencyHarnessContractTests
     public void ManifestOwnsFortyNaturalLanguageAndNativeReleaseCases()
     {
         string root = TestOptions.FindWorkspace();
-        string path = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios",
-            "party-agency-manifest.json");
-        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        using JsonDocument document = ReadPartyAgencyManifest(root);
         JsonElement manifest = document.RootElement;
+        using JsonDocument release = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(root, "ReignServer", "release", "release.json")));
+        string? approvedVersion = release.RootElement.GetProperty("supportedPlatform")
+            .GetProperty("bannerlordVersion").GetString();
+        Assert.False(string.IsNullOrWhiteSpace(approvedVersion));
+        Assert.Equal(approvedVersion, manifest.GetProperty("requiredBannerlordVersion").GetString());
+        XElement nativeDependency = Assert.Single(XDocument.Load(Path.Combine(root, "ReignBeta", "SubModule.xml"))
+            .Descendants("DependedModuleMetadata").Where(node => (string?)node.Attribute("id") == "Native"));
+        Assert.Equal(approvedVersion, (string?)nativeDependency.Attribute("version"));
+
+        string? gameRoot = Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH");
+        if (!string.IsNullOrWhiteSpace(gameRoot))
+        {
+            XElement? native = XDocument.Load(Path.Combine(gameRoot, "Modules", "Native", "SubModule.xml")).Root;
+            Assert.Equal(approvedVersion, (string?)native?.Element("Version")?.Attribute("value"));
+        }
+
         Assert.Equal(2, manifest.GetProperty("schemaVersion").GetInt32());
         Assert.False(manifest.GetProperty("preparedOnly").GetBoolean());
         Assert.True(manifest.GetProperty("autonomous").GetBoolean());
@@ -675,6 +697,10 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains(cases, item => item.GetProperty("id").GetString() == "PA-NATIVE-021"
             && item.GetProperty("expected").GetProperty("guestEquipmentProtected").GetBoolean());
     }
+
+    private static JsonDocument ReadPartyAgencyManifest(string root) =>
+        JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
+            "scenarios", "party-agency-manifest.json")));
 
     [Fact]
     public void McpSurfaceDerivesTheDisposableSaveAndProhibitsActionBypass()
