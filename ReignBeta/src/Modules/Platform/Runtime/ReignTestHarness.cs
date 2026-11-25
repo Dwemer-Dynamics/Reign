@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
 using TaleWorlds.CampaignSystem;
 
 namespace ReignBeta.Platform.Runtime
@@ -39,6 +42,10 @@ namespace ReignBeta.Platform.Runtime
         // Product forwarders into harness-owned controls. Each answers as the harness does when
         // no fixture has armed it: nothing held, nothing captured, no prepared draw or roll.
         bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Characters.Campaign.ReignNpcLivesBehavior lives, JObject row);
+        Task<Action<string>> HoldNativeRelationshipResponse(ReignRelationshipCampaignBehavior relationship,
+            Func<bool> owns, IReadOnlyList<ReignNativeRelationSyncTarget> targets, JArray rawTargets);
+        void ObserveNativeRelationshipTarget(ReignRelationshipCampaignBehavior relationship,
+            ReignNativeRelationSyncTarget target, bool nativeSetterInvoked, int? before, int? after, string disposition);
         void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset);
         bool TryConsumeRulerJudgmentDraw(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw);
         bool TryConsumeRulerCaptureRoll(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, Hero hero, out double roll);
@@ -132,6 +139,10 @@ namespace ReignBeta.Platform.Runtime
             public CampaignBehaviorBase CreateSocialBalanceHarnessBehavior() => null;
             public void RecordSocialBalanceOverride(string kind, JObject evidence) { }
             public bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Characters.Campaign.ReignNpcLivesBehavior lives, JObject row) => false;
+            public Task<Action<string>> HoldNativeRelationshipResponse(ReignRelationshipCampaignBehavior relationship,
+                Func<bool> owns, IReadOnlyList<ReignNativeRelationSyncTarget> targets, JArray rawTargets) => null;
+            public void ObserveNativeRelationshipTarget(ReignRelationshipCampaignBehavior relationship,
+                ReignNativeRelationSyncTarget target, bool nativeSetterInvoked, int? before, int? after, string disposition) { }
             public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset) { }
             public bool TryConsumeRulerJudgmentDraw(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) { draw = 0; return false; }
             public bool TryConsumeRulerCaptureRoll(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, Hero hero, out double roll) { roll = 0; return false; }

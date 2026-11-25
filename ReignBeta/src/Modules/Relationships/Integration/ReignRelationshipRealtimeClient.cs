@@ -74,6 +74,7 @@ namespace ReignBeta.Relationships.Integration
 
         internal static async Task PullRelationshipNativeTargetsAsync(Func<bool> requestOwner = null)
         {
+            Action<string> fixtureOutcome = null;
             try
             {
                 var scope = await ReignMainThread.InvokeAsync(() =>
@@ -99,8 +100,9 @@ namespace ReignBeta.Relationships.Integration
                 if (response?.Value<bool?>("ok") != true)
                     throw new InvalidOperationException(response?.Value<string>("error")
                         ?? "Native relationship pull was rejected.");
+                JArray rawTargets = response["targets"] as JArray ?? new JArray();
                 List<ReignNativeRelationSyncTarget> targets =
-                    (response["targets"] as JArray ?? new JArray()).OfType<JObject>()
+                    rawTargets.OfType<JObject>()
                     .Select(row => new ReignNativeRelationSyncTarget
                     {
                         PairKey = row.Value<string>("pairKey") ?? string.Empty,
@@ -109,10 +111,22 @@ namespace ReignBeta.Relationships.Integration
                         TargetRelation = row.Value<int?>("targetRelation") ?? 0,
                         Revision = row.Value<int?>("revision") ?? 1
                     }).ToList();
+                if (requestOwner == null && targets.Count > 0)
+                {
+                    var hold = ReignTestHarness.Current.HoldNativeRelationshipResponse(scope.Behavior, Owns, targets, rawTargets);
+                    if (hold != null)
+                        fixtureOutcome = await hold.ConfigureAwait(false);
+                }
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    ReignRequestOwnership.Ensure(Owns, "applying native relationship targets");
+                    try { ReignRequestOwnership.Ensure(Owns, "applying native relationship targets"); }
+                    catch (OperationCanceledException)
+                    {
+                        fixtureOutcome?.Invoke("owner_abandoned");
+                        throw;
+                    }
                     scope.Behavior.MergeNativeSyncTargets(scope.Timeline, targets);
+                    fixtureOutcome?.Invoke("applied");
                     RelationshipNativePullIntervalMs = targets.Count >= RelationshipNativePullBatchSize
                         ? 15
                         : targets.Count > 0 ? 50 : 10000;
@@ -126,6 +140,7 @@ namespace ReignBeta.Relationships.Integration
             }
             finally
             {
+                fixtureOutcome?.Invoke("inconclusive");
                 RelationshipNativePullInFlight = false;
             }
         }

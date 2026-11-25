@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Platform.Runtime;
 using ReignBeta.Reputation.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
 using ReignBeta.WorldSimulation.Rulers;
 
 namespace ReignBeta.WorldSimulation.Campaign
@@ -40,6 +44,12 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         public bool HoldNpcLivesAnnouncementDelivery(ReignNpcLivesBehavior lives, JObject row) =>
             ReignNpcLivesTestControls.HoldAnnouncementDeliveryForNativeTest(lives, row);
+        public Task<Action<string>> HoldNativeRelationshipResponse(ReignRelationshipCampaignBehavior relationship,
+            Func<bool> owns, IReadOnlyList<ReignNativeRelationSyncTarget> targets, JArray rawTargets) =>
+            ReignLiveInteractionTestHost.HoldNativeRelationshipResponse(relationship, owns, targets, rawTargets);
+        public void ObserveNativeRelationshipTarget(ReignRelationshipCampaignBehavior relationship,
+            ReignNativeRelationSyncTarget target, bool nativeSetterInvoked, int? before, int? after, string disposition) =>
+            ReignLiveInteractionTestHost.ObserveNativeRelationshipTarget(relationship, target, nativeSetterInvoked, before, after, disposition);
         public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset) =>
             ReignBeta.Government.Testing.ReignGovernmentTestControls.CaptureGovernmentLoadFingerprintPhase(government, phase, reset);
         public bool TryConsumeRulerJudgmentDraw(ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) =>

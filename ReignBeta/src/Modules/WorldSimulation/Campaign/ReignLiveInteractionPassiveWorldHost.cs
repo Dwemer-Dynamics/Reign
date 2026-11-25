@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.UI;
@@ -17,6 +19,7 @@ using ReignBeta.Dialogue.Integration;
 using ReignBeta.Diplomacy.Campaign;
 using ReignBeta.Diplomacy.UI;
 using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Persistence.Campaign;
 using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Campaign;
@@ -131,7 +134,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                             return result;
                         }
                         case "world_snapshot":
-                            return PassiveWorldSnapshot();
+                            return PassiveWorldSnapshot(command);
                         case "world_economy_test":
                         {
                             var evidence = ReignBeta.WorldSimulation.Economy.ReignWarEconomyTestHost.Run(command, GameInstanceId);
@@ -586,7 +589,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 new JObject { ["worldDay"] = worldDay });
         }
 
-        private static LiveCommandResult PassiveWorldSnapshot()
+        private static LiveCommandResult PassiveWorldSnapshot(JObject command)
         {
             TaleWorlds.CampaignSystem.Campaign campaign =
                 TaleWorlds.CampaignSystem.Campaign.Current;
@@ -596,29 +599,83 @@ namespace ReignBeta.WorldSimulation.Campaign
             Settlement settlement = Hero.MainHero?.CurrentSettlement;
             GameMenu menu = campaign.CurrentMenuContext?.GameMenu;
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            return LiveCommandResult.Completed(
-                "Captured the passive-world native checkpoint state.",
-                new JObject
+            string saveName = ActiveSaveName();
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
+            string pointId = ReignServices.SaveSync?.CurrentSavePointId ?? string.Empty;
+            var snapshot = new JObject
+            {
+                ["campaignId"] = campaignId,
+                ["activeSaveName"] = saveName,
+                ["checkpointGameInstanceId"] = _gameInstanceId,
+                ["checkpointSavePointId"] = pointId,
+                ["timelineId"] = timelineId,
+                ["worldDay"] = CampaignTime.Now.ToDays,
+                ["timeMode"] = campaign.TimeControlMode.ToString(),
+                ["settlementId"] = settlement?.StringId ?? string.Empty,
+                ["settlementName"] = settlement?.Name?.ToString() ?? string.Empty,
+                ["safeSettlement"] = settlement != null && (settlement.IsTown || settlement.IsCastle),
+                ["waitMenu"] = menu?.IsWaitMenu == true,
+                ["waitActive"] = menu?.IsWaitActive == true,
+                ["diplomacyAnnouncementOpen"] =
+                    ReignDiplomacyAnnouncementScreenManager.IsOpen,
+                ["nativeDiplomacyNoticesPending"] =
+                    CountNativeDiplomacyMapNotices(),
+                ["saveSyncReady"] = ReignSaveSyncCoordinator.IsReadyForCampaign(campaignId),
+                ["saveSyncAlignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending
+            };
+            if (IsPostArmCurrentDiagnosticSnapshot(command))
+            {
+                snapshot["snapshotMode"] = PostArmCurrentDiagnosticMode;
+                var current = ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timelineId, saveName, pointId);
+                if (current != null) snapshot["verifiedCurrentLoadObservation"] = current;
+            }
+            return LiveCommandResult.Completed("Captured the passive-world native checkpoint state.", snapshot);
+        }
+
+        private static JObject ObservePassiveWorldCurrentLoad(JObject command, TaleWorlds.CampaignSystem.Campaign campaign,
+            string campaignId, string timelineId, string saveName, string pointId)
+        {
+            if (!_armed || !ReferenceEquals(campaign, _observedCampaign)
+                || command.Value<string>("gameInstanceId") != _gameInstanceId
+                || command.Value<string>("campaignId") != campaignId || campaign.TimeControlMode != CampaignTimeControlMode.Stop
+                || string.IsNullOrEmpty(saveName) || !saveName.StartsWith("ReignTest_", StringComparison.Ordinal)
+                || !saveName.EndsWith("_Current", StringComparison.Ordinal) || !Guid.TryParseExact(pointId, "N", out _)
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                || ReignSaveSyncCoordinator.IsAlignmentPending || !ReignSaveSyncCoordinator.IsReadyForCampaign(campaignId))
+                return null;
+
+            var load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            string configuredOrigin = ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl());
+            string activityGeneration = ReignServices.WorldHistory?.SharedActivityGeneration;
+            if (load == null || load.CampaignId != campaignId || load.SavePointId != pointId
+                || load.Result != "no_op" && load.Result != "rolled_back"
+                || load.CoordinatorGeneration < 1 || !Guid.TryParseExact(load.LoadSessionId, "N", out _)
+                || string.IsNullOrEmpty(activityGeneration) || load.RestoreGeneration != activityGeneration
+                || load.Origin != configuredOrigin || !Uri.TryCreate(load.Origin, UriKind.Absolute, out Uri origin)
+                || !origin.IsLoopback || origin.Scheme != Uri.UriSchemeHttp)
+                return null;
+
+            // Report observation digests. The raw session and restore identifiers can bind production terminal reports.
+            using (var process = Process.GetCurrentProcess())
+            using (var hash = SHA256.Create())
+            {
+                var observation = new JObject
                 {
-                    ["campaignId"] = campaignId,
-                    ["activeSaveName"] = ActiveSaveName(),
-                    ["checkpointGameInstanceId"] = _gameInstanceId,
-                    ["checkpointSavePointId"] = ReignServices.SaveSync?.CurrentSavePointId ?? string.Empty,
-                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
-                    ["worldDay"] = CampaignTime.Now.ToDays,
-                    ["timeMode"] = campaign.TimeControlMode.ToString(),
-                    ["settlementId"] = settlement?.StringId ?? string.Empty,
-                    ["settlementName"] = settlement?.Name?.ToString() ?? string.Empty,
-                    ["safeSettlement"] = settlement != null && (settlement.IsTown || settlement.IsCastle),
-                    ["waitMenu"] = menu?.IsWaitMenu == true,
-                    ["waitActive"] = menu?.IsWaitActive == true,
-                    ["diplomacyAnnouncementOpen"] =
-                        ReignDiplomacyAnnouncementScreenManager.IsOpen,
-                    ["nativeDiplomacyNoticesPending"] =
-                        CountNativeDiplomacyMapNotices(),
-                    ["saveSyncReady"] = ReignSaveSyncCoordinator.IsReadyForCampaign(campaignId),
-                    ["saveSyncAlignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending
-                });
+                    ["schema"] = "reign-native-verified-current-observation-v1",
+                    ["campaignId"] = campaignId, ["timelineId"] = timelineId, ["saveName"] = saveName,
+                    ["savePointId"] = pointId, ["gameInstanceId"] = _gameInstanceId,
+                    ["nativeProcessId"] = process.Id, ["clientProcessInstanceId"] = PartyAgencyClientProcessInstanceId,
+                    ["coordinatorGeneration"] = load.CoordinatorGeneration, ["origin"] = load.Origin,
+                    ["loadResult"] = load.Result,
+                    ["loadSessionSha256"] = BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(load.LoadSessionId)))
+                        .Replace("-", string.Empty),
+                    ["restoreGenerationSha256"] = BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(activityGeneration)))
+                        .Replace("-", string.Empty)
+                };
+                return ReferenceEquals(load, ReignSaveSyncCoordinator.CurrentVerifiedLoad)
+                    && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress && !ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                    ? observation : null;
+            }
         }
 
         private static async Task<LiveCommandResult> PassiveWorldDeleteCheckpointAsync(

@@ -63,6 +63,44 @@ public sealed class StructuredActionToolsTests
         "\"operationId\":\"birth_before\",\"actionId\":\"fixture.managed_birth_observe\",\"arguments\":" + args + "}]";
 
     [Theory]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB","revision":3}""", true)]
+    [InlineData("""{"control":"arm_pair","pairKey":"adultA|adultB"}""", true)]
+    [InlineData("""{"control":"arm_pair","pairKey":"adultA|adultB","revision":3}""", false)]
+    [InlineData("""{"control":"arm_pair","pairKey":"adultA|adultB","targetRelation":25}""", false)]
+    [InlineData("""{"control":"arm_pair","pairKey":"adultA|adultB","pairKey":"adultA|adultC"}""", false)]
+    [InlineData("""{"control":"arm_pair","pairKey":"adultA|adultB|adultC"}""", false)]
+    [InlineData("""{"control":"arm_pair","pairKey":"|adultB"}""", false)]
+    [InlineData("""{"control":"arm_pair"}""", false)]
+    [InlineData("""{"control":"observe"}""", true)]
+    [InlineData("""{"control":"release"}""", true)]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB","revision":0}""", false)]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB","revision":"3"}""", false)]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB","revision":2147483648}""", false)]
+    [InlineData("""{"control":"arm","pairKey":"|adultB","revision":3}""", false)]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB ","revision":3}""", false)]
+    [InlineData("""{"control":"arm","pairKey":"adultA|adultB","revision":3,"response":"invented"}""", false)]
+    [InlineData("""{"control":"observe","control":"release"}""", false)]
+    [InlineData("""{"control":"release","pairKey":"adultA|adultB"}""", false)]
+    public void RelationshipPullControlRequiresOneExactCaseAndRecoveryCheckpoint(string arguments, bool accepted)
+    {
+        string single = """
+            [{"caseId":"one","phase":"fixture","kind":"fixture","actionId":"fixture.relationship_native_pull",
+            "operationId":"response-1","arguments":ARGUMENTS}]
+            """.Replace("ARGUMENTS", arguments);
+        if (!accepted)
+        {
+            Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(single));
+            return;
+        }
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(single));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(
+            single[..^1] + """,{"caseId":"two","phase":"catalog"}]"""));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(
+            single.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
+    }
+
+    [Theory]
     [InlineData(1)]
     [InlineData(80)]
     public void AcceptedGuideStepKeepsExactTermsAndRequiresRetainedRecovery(int length)
@@ -531,6 +569,149 @@ public sealed class StructuredActionToolsTests
         else
             Assert.Throws<InvalidOperationException>(() =>
                 CampaignTestCheckpointOwnership.ReadRestartedGameInstance(receipt, evidence));
+    }
+
+    [Theory]
+    [InlineData("valid")]
+    [InlineData("legacy")]
+    [InlineData("armed_baseline")]
+    [InlineData("pending_checkpoint")]
+    [InlineData("foreign_attempt")]
+    [InlineData("same_instance")]
+    [InlineData("foreign_run")]
+    [InlineData("foreign_command")]
+    [InlineData("duplicate_commands")]
+    [InlineData("not_stopped")]
+    [InlineData("alignment_pending")]
+    [InlineData("stale_live_point")]
+    [InlineData("foreign_observed_generation")]
+    [InlineData("foreign_observed_point")]
+    [InlineData("foreign_origin")]
+    [InlineData("origin_with_path")]
+    [InlineData("unverified_load")]
+    [InlineData("malformed_session_digest")]
+    [InlineData("ordinary_snapshot")]
+    [InlineData("unmarked_snapshot_result")]
+    [InlineData("already_running")]
+    [InlineData("restart_missing_save")]
+    [InlineData("restart_missing_runtime")]
+    [InlineData("restart_not_running")]
+    [InlineData("restart_not_ready")]
+    [InlineData("restart_offline")]
+    [InlineData("restart_other_instance")]
+    [InlineData("restart_other_timeline")]
+    [InlineData("restart_other_process_nonce")]
+    [InlineData("restart_other_pid")]
+    [InlineData("restart_duplicate_pid")]
+    [InlineData("snapshot_invalid_pid")]
+    public void PostArmCurrentObservationRequiresTheExactPausedReloadAndIsDiagnosticOnly(string mutation)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var receipt = state.CheckpointReceipts[0];
+        string original = receipt.Attempt.GameInstanceId;
+        string processInstance = Guid.NewGuid().ToString("N");
+        const int nativeProcessId = 38192;
+        string reloaded = mutation == "same_instance" ? original : "fresh-native-instance";
+        if (mutation == "pending_checkpoint") state.PendingCheckpoint = receipt.Attempt;
+        if (mutation == "foreign_attempt")
+            receipt = receipt with { Attempt = receipt.Attempt with { Id = Guid.NewGuid().ToString("N") } };
+        string scope = mutation == "armed_baseline" ? state.BaselineSaveName : state.CurrentSaveName;
+        string alternate = Guid.NewGuid().ToString("N");
+        string origin = mutation == "foreign_origin" ? "http://example.com"
+            : mutation == "origin_with_path" ? "http://127.0.0.1:8089/api" : "http://127.0.0.1:8089";
+        var observation = new
+        {
+            schema = "reign-native-verified-current-observation-v1", campaignId = state.CampaignId,
+            timelineId = state.TimelineId, saveName = scope, gameInstanceId = reloaded,
+            savePointId = mutation == "foreign_observed_point" ? alternate : receipt.SavePointId,
+            nativeProcessId = mutation == "snapshot_invalid_pid" ? 0 : nativeProcessId, clientProcessInstanceId = processInstance,
+            origin, coordinatorGeneration = mutation == "foreign_observed_generation" ? 0 : 17,
+            loadResult = mutation == "unverified_load" ? "degraded" : "no_op",
+            loadSessionSha256 = mutation == "malformed_session_digest" ? alternate : new string('A', 64),
+            restoreGenerationSha256 = new string('B', 64)
+        };
+        var command = new
+        {
+            runId = mutation == "foreign_command" ? "elsewhere" : "live-run", commandId = "snapshot-command",
+            campaignId = state.CampaignId, gameInstanceId = reloaded, operation = "world_snapshot", status = "completed",
+            snapshotMode = mutation == "ordinary_snapshot" ? "" : "post_arm_current_diagnostic",
+            result = new
+            {
+                campaignId = state.CampaignId, timelineId = state.TimelineId, activeSaveName = scope,
+                checkpointGameInstanceId = reloaded, checkpointSavePointId = mutation == "stale_live_point" ? alternate : receipt.SavePointId,
+                timeMode = mutation == "not_stopped" ? "StoppablePlay" : "Stop", saveSyncReady = true,
+                saveSyncAlignmentPending = mutation == "alignment_pending",
+                snapshotMode = mutation == "unmarked_snapshot_result" ? "" : "post_arm_current_diagnostic",
+                verifiedCurrentLoadObservation = mutation == "legacy" ? null : observation
+            }
+        };
+        var native = FixtureCall(new
+        {
+            ok = true, found = true, runId = "live-run", campaignId = state.CampaignId, mode = "passive_world",
+            status = "completed", gameInstanceId = mutation == "foreign_run" ? "old-instance" : reloaded,
+            commands = mutation == "duplicate_commands" ? new[] { command, command } : new[] { command }
+        });
+        var restartedRuntime = new
+        {
+            ok = true, gameOnline = mutation != "restart_offline",
+            runtime = new
+            {
+                campaignId = state.CampaignId, gameInstanceId = mutation == "restart_other_instance" ? "separate-instance" : reloaded,
+                activeSaveName = scope,
+                saveSync = new { ready = mutation != "restart_not_ready", alignmentPending = false,
+                    timelineId = mutation == "restart_other_timeline" ? "other-timeline" : state.TimelineId },
+                executionIdentity = new { clientProcessInstanceId = mutation == "restart_other_process_nonce" ? alternate : processInstance }
+            }
+        };
+        var restart = FixtureCall(new
+        {
+            ok = true, status = mutation == "already_running" ? "already_running" : "restarted",
+            running = mutation != "restart_not_running", saveName = mutation == "restart_missing_save" ? "" : state.CurrentSaveName,
+            processIds = mutation == "restart_duplicate_pid" ? new[] { nativeProcessId, nativeProcessId }
+                : new[] { mutation == "restart_other_pid" ? nativeProcessId + 1 : nativeProcessId },
+            runtime = mutation == "restart_missing_runtime" ? null : restartedRuntime
+        });
+        var read = CampaignTestCheckpointOwnership.ReadPostArmCurrentObservation(state, receipt, restart, native, original, reloaded);
+        if (mutation != "valid")
+        {
+            Assert.Null(read);
+            return;
+        }
+        JsonElement evidence = JsonSerializer.SerializeToElement(read);
+        Assert.True(evidence.GetProperty("diagnosticOnly").GetBoolean());
+        Assert.Equal(receipt.Attempt.Id, evidence.GetProperty("checkpointAttemptId").GetString());
+        Assert.Equal(receipt.Sha256, evidence.GetProperty("checkpointSha256").GetString());
+        Assert.Equal(reloaded, evidence.GetProperty("reloadedGameInstanceId").GetString());
+        Assert.Equal(17, evidence.GetProperty("coordinatorGeneration").GetInt32());
+        Assert.Equal(nativeProcessId, evidence.GetProperty("nativeProcessId").GetInt32());
+        Assert.False(evidence.TryGetProperty("clientProcessInstanceId", out _));
+        Assert.False(evidence.TryGetProperty("loadSessionId", out _));
+        Assert.False(evidence.TryGetProperty("restoreGeneration", out _));
+    }
+
+    [Fact]
+    public void ExplicitCurrentDiagnosticBypassesHarnessActivationOnFreshCompletionAndReplay()
+    {
+        string root = TestOptions.FindWorkspace();
+        string campaign = Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation", "Campaign");
+        string host = File.ReadAllText(Path.Combine(campaign, "ReignLiveInteractionTestHost.cs"));
+        string passive = File.ReadAllText(Path.Combine(campaign, "ReignLiveInteractionPassiveWorldHost.cs"));
+        string controller = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
+            "Features", "WorldSimulation", "PassiveWorldControl.cs"));
+
+        int guard = host.IndexOf("private static bool IsPostArmCurrentDiagnosticSnapshot", StringComparison.Ordinal);
+        int activate = host.IndexOf("private static void ActivateHarnessRun", StringComparison.Ordinal);
+        string predicate = host[guard..activate];
+        Assert.Contains("== \"world_snapshot\"", predicate);
+        Assert.Contains("== \"passive_world\"", predicate);
+        Assert.Contains("command[\"snapshotMode\"]?.Type == JTokenType.String", predicate);
+        int earlyExit = host.IndexOf("if (IsPostArmCurrentDiagnosticSnapshot(command)) return;", activate, StringComparison.Ordinal);
+        int ownership = host.IndexOf("_activeRunId =", activate, StringComparison.Ordinal);
+        Assert.InRange(earlyExit, activate + 1, ownership - 1);
+        Assert.Contains("if (completed.Status == \"completed\")", host);
+        Assert.Contains("if (result.Status == \"completed\")", host);
+        Assert.Contains("if (IsPostArmCurrentDiagnosticSnapshot(command))", passive);
+        Assert.Contains("if (postArmCurrentDiagnostic) snapshotFields[\"snapshotMode\"]", controller);
     }
 
     [Theory]

@@ -54,6 +54,8 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 var c = command["testCase"] as JObject ?? throw new InvalidOperationException("Missing structured test case.");
                 if (c.ToString(Formatting.None).Length > 65536) throw new InvalidOperationException("Structured case exceeds the input bound.");
+                if (IsNativeRelationshipPullFixture(command))
+                    return NativeRelationshipPullFixture(c, enrollment);
                 string phase = c.Value<string>("phase") ?? "", kind = c.Value<string>("kind") ?? "";
                 string id = c.Value<string>("operationId") ?? "";
                 if (new[] { "run", "preview", "status", "fixture" }.Contains(phase)

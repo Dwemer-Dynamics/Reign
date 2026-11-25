@@ -307,6 +307,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                 JObject acknowledgment = await ReignLiveTestServerClient.AcknowledgeLiveTestCommandAsync(
                     execution?.GameInstanceId ?? _gameInstanceId, runId, commandId,
                     "accepted", "Command accepted by the loaded campaign.", execution).ConfigureAwait(false);
+                if (IsNativeRelationshipPullFixture(command) && !OwnsAcceptedNativeRelationshipCommand(
+                    acknowledgment, command, pollNativeScope, pollCampaignId, pollGameInstanceId))
+                    return;
                 if (execution != null && (!HasAcceptedPartyAgencyAcknowledgment(acknowledgment, execution)
                     || !IsCurrentPartyAgencyExecution(execution)))
                     return;
@@ -413,8 +416,17 @@ namespace ReignBeta.WorldSimulation.Campaign
                 _gameInstanceId, PartyAgencyClientProcessInstanceId);
         }
 
+        private const string PostArmCurrentDiagnosticMode = "post_arm_current_diagnostic";
+
+        private static bool IsPostArmCurrentDiagnosticSnapshot(JObject command) =>
+            command?.Value<string>("operation") == "world_snapshot"
+            && command.Value<string>("mode") == "passive_world"
+            && command["snapshotMode"]?.Type == JTokenType.String
+            && command.Value<string>("snapshotMode") == PostArmCurrentDiagnosticMode;
+
         private static void ActivateHarnessRun(JObject command)
         {
+            if (IsPostArmCurrentDiagnosticSnapshot(command)) return;
             string operation = command?.Value<string>("operation") ?? string.Empty;
             bool socialBalance = operation.StartsWith("social_", StringComparison.OrdinalIgnoreCase);
             bool passiveWorld = operation.StartsWith("world_", StringComparison.OrdinalIgnoreCase);
