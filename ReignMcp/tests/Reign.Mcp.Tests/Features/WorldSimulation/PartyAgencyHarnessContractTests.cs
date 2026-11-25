@@ -658,7 +658,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.False(string.IsNullOrWhiteSpace(approvedVersion));
         Assert.Equal(approvedVersion, manifest.GetProperty("requiredBannerlordVersion").GetString());
         XElement nativeDependency = Assert.Single(XDocument.Load(Path.Combine(root, "ReignBeta", "SubModule.xml"))
-            .Descendants("DependedModuleMetadata").Where(node => (string?)node.Attribute("id") == "Native"));
+            .Descendants("DependedModuleMetadata"), node => (string?)node.Attribute("id") == "Native");
         Assert.Equal(approvedVersion, (string?)nativeDependency.Attribute("version"));
 
         string? gameRoot = Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH");
