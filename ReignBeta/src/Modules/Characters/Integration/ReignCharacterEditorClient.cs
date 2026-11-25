@@ -13,18 +13,46 @@ namespace ReignBeta.Characters.Integration
     internal static class ReignCharacterEditorClient
     {
         internal static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync(
-            string campaignId, string timelineId, string restoreGeneration, Func<bool> ownsPoll)
+            string campaignId, string timelineId, string restoreGeneration, string nativeEditorSession, Func<bool> ownsPoll)
         {
             List<ReignCharacterEditorCommand> result = new List<ReignCharacterEditorCommand>();
             try
             {
+                var request = new JObject { ["campaignId"] = campaignId, ["timelineId"] = timelineId,
+                    ["sharedActivityGeneration"] = restoreGeneration };
+                if (nativeEditorSession.Length > 0) request["editorNativeLoadSessionId"] = nativeEditorSession;
                 JObject response = await PostOwnedJsonAsync("/character-editor/native/poll",
-                    new JObject { ["campaignId"] = campaignId, ["timelineId"] = timelineId,
-                        ["sharedActivityGeneration"] = restoreGeneration }, ownsPoll).ConfigureAwait(false);
+                    request, ownsPoll).ConfigureAwait(false);
                 foreach (JObject row in (response["commands"] as JArray ?? new JArray()).OfType<JObject>())
                 {
+                    var lineage = row["manualOriginLineageId"];
+                    var material = row["manualOriginMaterialSha256"];
+                    var session = row["editorNativeLoadSessionId"];
+                    var receiptOnly = row["nativeReceiptOnly"];
+                    var automaticId = row["automaticOriginId"];
+                    var automaticMaterial = row["automaticOriginMaterialSha256"];
+                    bool ownedManual = lineage != null || material != null || session != null;
+                    bool ownedAutomatic = automaticId != null || automaticMaterial != null;
+                    if (ownedManual && ownedAutomatic || !ownedManual && !ownedAutomatic && receiptOnly != null) continue;
+                    if (ownedAutomatic && (automaticId?.Type != JTokenType.String || automaticMaterial?.Type != JTokenType.String
+                        || receiptOnly?.Type != JTokenType.Boolean || !IsNativeOwnerNonce(automaticId.Value<string>())
+                        || !IsNativeOriginDigest(automaticMaterial.Value<string>()) || row["claimId"]?.Type != JTokenType.String
+                        || !IsNativeOwnerNonce(row.Value<string>("claimId"))))
+                        continue;
+                    if (ownedManual && (lineage?.Type != JTokenType.String || material?.Type != JTokenType.String
+                        || session?.Type != JTokenType.String || receiptOnly?.Type != JTokenType.Boolean
+                        || !IsNativeOwnerNonce(lineage.Value<string>()) || !IsNativeOriginDigest(material.Value<string>())
+                        || !IsNativeOwnerNonce(session.Value<string>()) || session.Value<string>() != nativeEditorSession
+                        || row["claimId"]?.Type != JTokenType.String || !IsNativeOwnerNonce(row.Value<string>("claimId"))))
+                        continue;
                     result.Add(new ReignCharacterEditorCommand
                     {
+                        ManualOriginLineageId = ownedManual ? lineage.Value<string>() : "",
+                        ManualOriginMaterialSha256 = ownedManual ? material.Value<string>() : "",
+                        ManualClaimSessionId = ownedManual ? session.Value<string>() : "",
+                        AutomaticOriginId = ownedAutomatic ? automaticId.Value<string>() : "",
+                        AutomaticOriginMaterialSha256 = ownedAutomatic ? automaticMaterial.Value<string>() : "",
+                        ReceiptOnly = (ownedManual || ownedAutomatic) && receiptOnly.Value<bool>(),
                         CommandId = row.Value<string>("command_id") ?? string.Empty,
                         ClaimId = row.Value<string>("claimId") ?? string.Empty,
                         HeroId = row.Value<string>("hero_id") ?? string.Empty,
@@ -56,13 +84,32 @@ namespace ReignBeta.Characters.Integration
                     report["sharedActivityGeneration"] = restoreGeneration;
                     report["claimId"] = command.ClaimId;
                 }
+                if (command.IsManualNative)
+                {
+                    report["manualOriginLineageId"] = command.ManualOriginLineageId;
+                    report["manualOriginMaterialSha256"] = command.ManualOriginMaterialSha256;
+                    report["editorNativeLoadSessionId"] = command.ManualClaimSessionId;
+                    report["nativeReceiptOnly"] = command.ReceiptOnly;
+                }
+                if (command.IsAutomaticNative)
+                {
+                    report["automaticOriginId"] = command.AutomaticOriginId;
+                    report["automaticOriginMaterialSha256"] = command.AutomaticOriginMaterialSha256;
+                    report["nativeReceiptOnly"] = command.ReceiptOnly;
+                }
                 await PostOwnedJsonAsync("/character-editor/native/report", report, ownsPoll).ConfigureAwait(false);
             }
             catch (ReignRequestOwnerAbandonedException) { throw; }
             catch (Exception ex) { ReignLog.Warn("Character editor command report failed: " + ex.Message); }
         }
 
-        public static Task<JObject> InitializeNotableMbtiProfilesAsync(IList<Hero> notableHeroes)
+        internal static bool IsNativeOwnerNonce(string value) =>
+            Guid.TryParseExact(value, "N", out Guid nonce) && nonce.ToString("N") == value;
+        internal static bool IsNativeOriginDigest(string value) =>
+            value?.Length == 64 && value.All(Uri.IsHexDigit);
+
+        public static Task<JObject> InitializeNotableMbtiProfilesAsync(IList<Hero> notableHeroes,
+            string startupCampaign = null, JObject startupOwner = null, Func<bool> ownsPreparation = null)
         {
             JArray heroes = new JArray();
             foreach (Hero hero in notableHeroes ?? new List<Hero>())
@@ -82,22 +129,34 @@ namespace ReignBeta.Characters.Integration
                     ["traits"] = NativePersonalityTraits(hero)
                 });
             }
-            return PostJsonAsync("/notables/mbti/initialize", new JObject
+            var payload = new JObject
             {
-                ["campaignId"] = GetCampaignId(),
+                ["campaignId"] = startupCampaign ?? GetCampaignId(),
                 ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
                 ["heroes"] = heroes
-            });
+            };
+            return PostNotableStartupAsync("/notables/mbti/initialize", payload, startupOwner, ownsPreparation);
         }
 
-        public static Task<JObject> ConfirmNotableMbtiProfilesAsync(JArray observations)
+        public static Task<JObject> ConfirmNotableMbtiProfilesAsync(JArray observations,
+            string startupCampaign = null, JObject startupOwner = null, Func<bool> ownsPreparation = null)
         {
-            return PostJsonAsync("/notables/mbti/confirm-batch", new JObject
+            var payload = new JObject
             {
-                ["campaignId"] = GetCampaignId(),
+                ["campaignId"] = startupCampaign ?? GetCampaignId(),
                 ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
                 ["observations"] = observations ?? new JArray()
-            });
+            };
+            return PostNotableStartupAsync("/notables/mbti/confirm-batch", payload, startupOwner, ownsPreparation);
+        }
+
+        private static Task<JObject> PostNotableStartupAsync(string route, JObject payload, JObject owner,
+            Func<bool> ownsPreparation)
+        {
+            if (owner == null) return PostJsonAsync(route, payload);
+            payload["typedNotableStartupVersion"] = 1;
+            payload["startupNativeOwner"] = owner.DeepClone();
+            return PostOwnedJsonAsync(route, payload, ownsPreparation);
         }
 
         public static JObject NativePersonalityTraits(Hero hero)
@@ -117,6 +176,14 @@ namespace ReignBeta.Characters.Integration
     {
         public string CommandId { get; set; } = string.Empty;
         internal string ClaimId { get; set; } = string.Empty;
+        internal string ManualOriginLineageId { get; set; } = string.Empty;
+        internal string ManualOriginMaterialSha256 { get; set; } = string.Empty;
+        internal string ManualClaimSessionId { get; set; } = string.Empty;
+        internal bool ReceiptOnly { get; set; }
+        internal bool IsManualNative => ManualOriginLineageId.Length > 0;
+        internal string AutomaticOriginId { get; set; } = string.Empty;
+        internal string AutomaticOriginMaterialSha256 { get; set; } = string.Empty;
+        internal bool IsAutomaticNative => AutomaticOriginId.Length > 0;
         public string HeroId { get; set; } = string.Empty;
         public bool Dangerous { get; set; }
         public string Confirmation { get; set; } = string.Empty;

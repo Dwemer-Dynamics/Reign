@@ -60,6 +60,41 @@ public sealed class ArrestTestingToolsTests
             matter.PublicMurderArrestEvidenceId(campaign, timeline, accused));
     }
 
+    [Fact]
+    public void NativeEspionageEvidenceUsesTheCurrentExposedAssignmentWithoutUnscopedActionHistory()
+    {
+        string source = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(TestOptions.FindWorkspace(), "ReignBeta"), "ReignCourtWorldBridge.cs"));
+        int start = source.IndexOf("bool ICourtWorldBridge.HasExposedAgentEvidence(", StringComparison.Ordinal);
+        Assert.True(start >= 0, "The native espionage evidence bridge is missing.");
+        int end = source.IndexOf("bool ICourtWorldBridge.HasPublicMurderArrestEvidence(", start, StringComparison.Ordinal);
+        Assert.True(end > start, "The native espionage evidence bridge boundary is missing.");
+        string exposure = source[start..end];
+
+        foreach (string guard in new[]
+                 {
+                     "ReignCampaignIdentity.HasActiveCampaign()",
+                     "ReignSaveSyncCoordinator.IsAlignmentPending",
+                     "history?.TimelineReady != true",
+                     "ReferenceEquals(ReignServices.CourtWorld, this)"
+                 })
+        {
+            int position = exposure.IndexOf(guard, StringComparison.Ordinal);
+            Assert.True(position >= 0 && position < exposure.IndexOf("SpymasterState", StringComparison.Ordinal),
+                "The exposure lookup must follow the ownership guard " + guard + ".");
+        }
+
+        Assert.Contains("candidate?.Exposed == true", exposure, StringComparison.Ordinal);
+        Assert.Contains("!candidate.ExposurePending", exposure, StringComparison.Ordinal);
+        Assert.Contains("string.Equals(candidate.AgentHeroStringId, accusedId, StringComparison.Ordinal)", exposure,
+            StringComparison.Ordinal);
+        Assert.Contains("string.Equals(candidate.AssignmentTimelineId, timeline, StringComparison.Ordinal)", exposure,
+            StringComparison.Ordinal);
+        Assert.Contains("evidence = \"foreign_agent:\" + agent.AgentHeroStringId;", exposure, StringComparison.Ordinal);
+        Assert.DoesNotContain("ForeignAgentActions", exposure, StringComparison.Ordinal);
+        Assert.DoesNotContain("foreign_agent_action:", exposure, StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("exact", true)]
     [InlineData("old-server", false)]

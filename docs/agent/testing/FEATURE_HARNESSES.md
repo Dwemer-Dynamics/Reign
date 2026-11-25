@@ -706,6 +706,8 @@ The existing relationships suite covers invariant/overflow-safe optional receipt
 
 Run RB-NATIVE-003 on the approved disposable Current. The fixture first checks that a held ordinary resolving phase cannot report a new surrender or move the recruited clan. It restores the fixture phase, runs the real resolution, verifies the foreign clan and living family returned to the exact recorded origin, and checks that repeating the surrender does not apply another effect.
 
+RB-NATIVE-004 remains optional and its prepare command is held. A separately verified operator grant must bind the registered checkpoint, exact native process and loaded Save Sync session to the mutation before the case can run. The public enrollment and native observation supply evidence only. After that admission exists, the case will require an eligible vassal on paused Current, the measured native founder interruption, a separate guarded checkpoint, and a fresh process loading the new registered Current. Verify must preserve the same realm, founder, roster and World History through retry. Persisted hold and ordinary resumption require separate evidence.
+
 Ordinary resolution keeps its saved resolving phase when an intended native clan destination cannot be verified. It does not publish a victory or native ruler-judgment receipt from that held state. The held-phase fixture exercises replay admission in one session. A real partial native save and reload and an interrupted outbreak still need separate controlled evidence.
 
 ## Arrest public murder evidence witness
@@ -719,3 +721,8 @@ Run one fixture.arrest_murder_evidence_witness case through reign_test_structure
 The live test reporter writes telemetry for the disposable campaign and can mark the active Save Sync sidecar dirty. Restore the exact owned Current and verify its checkpoint bytes and adopted point before further use. The post-restore snapshot can mark the sidecar dirty again.
 
 This records the live local evidence decision. Keep separate evidence of actual arrest preparation, the remote espionage route, and broader native custody acceptance.
+
+
+## Character Editor native Save Sync provenance
+
+Save Sync can distinguish a registered locally verified native load from an unregistered or degraded continuation. When opted in, a registered native load establishes a server-owned lineage for its exact timeline. A normal subsequent checkpoint can retain that lineage only through the original verified load session and the same timeline, including reused snapshot contents. A degraded continuation or unsupported transport cannot inherit the preceding Editor lineage. Newly loading its later registered checkpoint receives a distinct lineage. A first campaign and its first successful registration retain normal play and automatic character preparation. Mixed native Character Editor work needs a later verified load of a registered native save. A legacy or disabled load cannot rely on a previous owner. These markers are prerequisites for revision and queue admission. They do not stamp legacy commands or authorize delivery by themselves.

@@ -5,6 +5,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 using Reign.Core.Contracts.Platform;
 
 namespace Reign.Mcp.Server;
@@ -40,12 +42,21 @@ public sealed record PartyAgencyInstalledArtifactWitness(
     string Schema, string RunId, string CampaignId, string CampaignTestRunId, string TimelineId,
     string DisposableSaveName, string CapturedUtc, string ApprovedWitnessSha256, string InstallationRecordSha256,
     string LinuxRuntimeVersion, PartyAgencyApprovedModule Client, PartyAgencyApprovedModule Server,
-    PartyAgencyApprovedModule CampaignSystem, PartyAgencyApprovedModule Core)
+    PartyAgencyApprovedModule CampaignSystem, PartyAgencyApprovedModule Core,
+    string InstalledNativeVersion = "", string InstalledNativeManifestSha256 = "")
 {
-    internal const string WitnessSchema = "reign-party-agency-installed-artifacts-v1";
+    internal const string WitnessSchema = "reign-party-agency-installed-artifacts-v2";
+    internal const string LegacyWitnessSchema = "reign-party-agency-installed-artifacts-v1";
 
     internal bool BelongsTo(PartyAgencyCertificationState state, PartyAgencyApprovedArtifactWitness approval) =>
-        Schema == WitnessSchema && RunId == state.RunId && CampaignId == state.CampaignId
+        Schema == WitnessSchema
+        && PartyAgencyApprovedArtifacts.IsNativeVersion(InstalledNativeVersion)
+        && InstalledNativeVersion == state.BannerlordVersion
+        && PartyAgencyApprovedArtifacts.IsSha256(InstalledNativeManifestSha256)
+        && BelongsToEnrollment(state, approval);
+
+    internal bool BelongsToEnrollment(PartyAgencyCertificationState state, PartyAgencyApprovedArtifactWitness approval) =>
+        RunId == state.RunId && CampaignId == state.CampaignId
         && CampaignTestRunId == state.CampaignTestRunId
         && !string.IsNullOrWhiteSpace(TimelineId) && TimelineId == state.TimelineId
         && !string.IsNullOrWhiteSpace(DisposableSaveName) && DisposableSaveName == state.DisposableSaveName
@@ -175,6 +186,9 @@ internal static class PartyAgencyApprovedArtifacts
             || Digest(Property(activation.Root, "files"), ServerArtifact) != approval.Server.Sha256)
             throw new InvalidDataException("The active Linux manifest does not bind the approved server assembly.");
 
+        using var nativeManifest = OpenPhysicalRead(Path.Combine(
+            install.BannerlordRoot, "Modules", "Native", "SubModule.xml"));
+        var (nativeVersion, nativeManifestSha256) = ReadNativeManifest(nativeManifest, state.BannerlordVersion);
         const string shipping = "Win64_Shipping_Client";
         string clientBin = Path.Combine(install.ModuleRoot, "bin", shipping);
         string gameBin = Path.Combine(install.BannerlordRoot, "bin", shipping);
@@ -188,15 +202,20 @@ internal static class PartyAgencyApprovedArtifacts
         var witness = new PartyAgencyInstalledArtifactWitness(PartyAgencyInstalledArtifactWitness.WitnessSchema,
             state.RunId, state.CampaignId, state.CampaignTestRunId, state.TimelineId, state.DisposableSaveName,
             DateTimeOffset.UtcNow.ToString("O"), ApprovalWitnessSha256(approval), record.Sha256,
-            version, client, server, campaignSystem, core);
+            version, client, server, campaignSystem, core, nativeVersion, nativeManifestSha256);
         if (!witness.BelongsTo(state, approval))
             throw new InvalidDataException("The installed managed identities do not match the approved enrollment.");
         return witness;
     }
 
     internal static PartyAgencyInstalledArtifactWitness? ReadInstalledWitness(
-        string path, PartyAgencyCertificationState state)
+        string path, PartyAgencyCertificationState state, bool rejectLegacy = false) =>
+        ReadInstalledWitness(path, state, out _, rejectLegacy);
+
+    internal static PartyAgencyInstalledArtifactWitness? ReadInstalledWitness(
+        string path, PartyAgencyCertificationState state, out bool legacyReceipt, bool rejectLegacy = false)
     {
+        legacyReceipt = false;
         var approval = state.ApprovedArtifactWitness;
         if (approval is null) return null;
         try
@@ -204,6 +223,14 @@ internal static class PartyAgencyApprovedArtifacts
             using var document = new BoundJson(path, maxBytes: 64 * 1024);
             var witness = document.Root.Deserialize<PartyAgencyInstalledArtifactWitness>(
                 new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            if (witness?.Schema == PartyAgencyInstalledArtifactWitness.LegacyWitnessSchema
+                && witness.BelongsToEnrollment(state, approval))
+            {
+                if (rejectLegacy)
+                    throw new InvalidDataException("This run has a legacy installed artifact receipt. Prepare a new certification run.");
+                legacyReceipt = true;
+                return null;
+            }
             return witness is not null && witness.BelongsTo(state, approval)
                 ? witness : throw new InvalidDataException("Installed artifact evidence belongs to a different certification.");
         }
@@ -216,6 +243,34 @@ internal static class PartyAgencyApprovedArtifacts
 
     internal static bool IsRuntimeVersion(string? value) =>
         value is { Length: <= 40 } && Regex.IsMatch(value, @"\A[0-9]{14}-[0-9]+\z");
+
+    internal static bool IsNativeVersion(string? value) =>
+        value is { Length: <= 32 } && Regex.IsMatch(value, @"\Av[0-9]+(?:\.[0-9]+){2,3}\z");
+
+    internal static (string Version, string Sha256) ReadNativeManifest(Stream stream, string requiredVersion)
+    {
+        const int maxBytes = 64 * 1024;
+        if (stream.Length is < 1 or > maxBytes)
+            throw new InvalidDataException("The installed Native manifest exceeds its read bound.");
+        byte[] bytes = new byte[(int)stream.Length];
+        stream.ReadExactly(bytes);
+        using var input = new MemoryStream(bytes, writable: false);
+        using var reader = XmlReader.Create(input, new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            MaxCharactersInDocument = maxBytes,
+            XmlResolver = null
+        });
+        XElement root = XDocument.Load(reader).Root
+            ?? throw new InvalidDataException("The installed Native manifest has no module.");
+        var ids = root.Elements("Id").Take(2).ToArray();
+        var versions = root.Elements("Version").Take(2).ToArray();
+        string? version = versions.Length == 1 ? (string?)versions[0].Attribute("value") : null;
+        if (root.Name != "Module" || ids.Length != 1 || (string?)ids[0].Attribute("value") != "Native"
+            || version is null || !IsNativeVersion(version) || version != requiredVersion)
+            throw new InvalidDataException("The installed Native module does not match the required Bannerlord version.");
+        return (version, Convert.ToHexStringLower(SHA256.HashData(bytes)));
+    }
 
     private static string ReadRuntimeVersion(string path)
     {

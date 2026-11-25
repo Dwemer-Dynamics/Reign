@@ -171,6 +171,7 @@ namespace ReignBeta.Persistence.Campaign
             payload["nativeSaveName"] = ActiveNativeSaveName();
             payload["nativeCreationUtc"] = NativeSaveCreationUtc();
             payload["registrationConfirmed"] = _registrationConfirmed;
+            payload["editorNativeOwnerVersion"] = 1;
             payload["calendarFirstUse"] = CanCreateCalendar;
             ReignSaveSyncCoordinator.BeginLoadedSave(payload);
         }
@@ -250,6 +251,11 @@ namespace ReignBeta.Persistence.Campaign
                 string campaignId = ReignCampaignIdentity.CurrentCampaignId();
                 _calendarSha256 = ReignCalendarService.FlushForSavePoint(campaignId);
                 JObject payload = BuildPayload(campaignId);
+                var loaded = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+                if (loaded != null && loaded.CampaignId == campaignId
+                    && loaded.RestoreGeneration == ReignServices.WorldHistory?.SharedActivityGeneration
+                    && loaded.Origin == ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl()))
+                    payload["editorNativeOwnerSessionId"] = loaded.LoadSessionId;
                 lock (NativeSaveObservationGate)
                     payload["nativeSaveName"] = _expectedNativeSaveName ?? string.Empty;
                 payload["worldHistoryOutboxDrained"] = historyDrained;

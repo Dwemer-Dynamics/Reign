@@ -17,6 +17,7 @@ using TaleWorlds.Localization;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Persistence.Save;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
 
@@ -45,9 +46,12 @@ namespace ReignBeta.Characters.Campaign
         private bool _notableBackgroundInitializationInFlight;
         private float _lastPollDay = -1000f;
         private float _lastIdentitySyncDay = -1000f;
+        // Coordinated with the fully qualified server browser and native dispatcher.
+        private static bool OwnedManualNativeEditorDeliveryReady => false;
         private bool _nativeEditorReceiptStorageReady = true;
         private List<string> _unreadableNativeEditorReceipts;
         private Dictionary<string, NativeEditorReceipt> _nativeEditorReceipts = new Dictionary<string, NativeEditorReceipt>(StringComparer.Ordinal);
+        private readonly HashSet<string> _restoredNativeEditorReceiptIds = new HashSet<string>(StringComparer.Ordinal);
 
         public ReignCharacterEditorCampaignBehavior()
         {
@@ -75,6 +79,7 @@ namespace ReignBeta.Characters.Campaign
                     : _unreadableNativeEditorReceipts;
             dataStore.SyncData("_reignCharacterEditor_nativeReceipts_v1", ref chunks);
             if (!dataStore.IsLoading) return;
+            _restoredNativeEditorReceiptIds.Clear();
 
             try
             {
@@ -85,6 +90,7 @@ namespace ReignBeta.Characters.Campaign
                 if (loaded.Any(pair => string.IsNullOrEmpty(pair.Key) || pair.Value == null || !pair.Value.IsValid()))
                     throw new InvalidOperationException("A native editor receipt is incomplete.");
                 _nativeEditorReceipts = loaded;
+                _restoredNativeEditorReceiptIds.UnionWith(loaded.Keys);
                 _nativeEditorReceiptStorageReady = true;
                 _unreadableNativeEditorReceipts = null;
             }
@@ -156,8 +162,37 @@ namespace ReignBeta.Characters.Campaign
             DateTime startedUtc = DateTime.UtcNow;
             try
             {
-                JObject initialized = await ReignCharacterEditorClient.InitializeNotableMbtiProfilesAsync(notables).ConfigureAwait(false);
+                bool typedStartup = OwnedManualNativeEditorDeliveryReady;
+                ReignServerClient.RequestFence startupFence = null;
+                string startupCampaign = null;
+                JObject startupOwner = null;
+                bool OwnsStartup() => IsCurrentCampaign && startupFence?.IsCurrentActionPoll() == true
+                    && ReignCampaignInitializationGate.IsActiveGeneration(generationId);
+                Task<JObject> initialize;
+                if (typedStartup)
+                {
+                    initialize = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        startupFence = ReignServerClient.RequestFence.Capture();
+                        if (!OwnsStartup())
+                            throw new InvalidOperationException("The notable startup belongs to a different native preparation.");
+                        startupCampaign = ReignServerClient.GetCampaignId();
+                        startupOwner = new JObject
+                        {
+                            ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
+                            ["restoreGeneration"] = startupFence.SharedActivityGeneration,
+                            ["preparationId"] = generationId
+                        };
+                        return ReignCharacterEditorClient.InitializeNotableMbtiProfilesAsync(notables, startupCampaign,
+                            startupOwner, OwnsStartup);
+                    }).ConfigureAwait(false);
+                }
+                else initialize = ReignCharacterEditorClient.InitializeNotableMbtiProfilesAsync(notables);
+                JObject initialized = await initialize.ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
+                if (typedStartup && (initialized?.Value<int?>("typedNotableStartupVersion") != 1
+                    || !JToken.DeepEquals(initialized["startupNativeOwner"], startupOwner)))
+                    throw new InvalidOperationException("The server did not acknowledge the exact native startup owner.");
                 if (initialized?.Value<bool?>("ok") != true)
                     throw new InvalidOperationException("The server did not generate every notable personality ("
                         + (initialized?.Value<int?>("assignmentCount") ?? 0) + " of "
@@ -178,6 +213,8 @@ namespace ReignBeta.Characters.Campaign
                 JArray observations = await ReignMainThread.InvokeAsync(() =>
                 {
                     EnsureActiveGeneration(generationId);
+                    if (typedStartup && !OwnsStartup())
+                        throw new InvalidOperationException("The notable startup no longer owns the loaded campaign.");
                     Dictionary<string, Hero> byId = notables
                         .Where(x => x != null && !string.IsNullOrWhiteSpace(x.StringId))
                         .ToDictionary(x => x.StringId, x => x, StringComparer.OrdinalIgnoreCase);
@@ -187,24 +224,35 @@ namespace ReignBeta.Characters.Campaign
                         string heroId = assignment.Value<string>("heroId") ?? string.Empty;
                         if (!byId.TryGetValue(heroId, out Hero hero))
                             throw new InvalidOperationException("Notable '" + heroId + "' no longer exists in the loaded campaign.");
+                        if (assignment["deferNativeTraitsToQueue"]?.Type == JTokenType.Boolean
+                            && assignment.Value<bool>("deferNativeTraitsToQueue"))
+                        {
+                            applied.Add(new JObject { ["heroId"] = heroId, ["status"] = "native_delivery_deferred" });
+                            continue;
+                        }
+                        string startupSession = assignment.Value<string>("startupNativeSessionId") ?? "";
+                        if (typedStartup && (assignment["startupNativeSessionId"]?.Type != JTokenType.String
+                            || !ReignCharacterEditorClient.IsNativeOwnerNonce(startupSession)))
+                            throw new InvalidOperationException("Notable '" + heroId + "' has no current startup reservation.");
                         if (!hero.IsAlive)
                         {
-                            applied.Add(new JObject
-                            {
-                                ["heroId"] = heroId,
-                                ["status"] = "obsolete"
-                            });
+                            var retired = new JObject { ["heroId"] = heroId, ["status"] = "obsolete" };
+                            if (typedStartup) retired["startupNativeSessionId"] = startupSession;
+                            applied.Add(retired);
                             continue;
                         }
                         JObject traits = assignment["nativeTraits"] as JObject;
                         if (traits == null || traits.Count != 5)
                             throw new InvalidOperationException("Notable '" + heroId + "' has an incomplete native trait assignment.");
-                        ApplyTraits(hero, traits);
-                        applied.Add(new JObject
+                        if (!typedStartup || !JToken.DeepEquals(ReignCharacterEditorClient.NativePersonalityTraits(hero), traits))
+                            ApplyTraits(hero, traits);
+                        var measured = new JObject
                         {
                             ["heroId"] = heroId,
                             ["traits"] = ReignCharacterEditorClient.NativePersonalityTraits(hero)
-                        });
+                        };
+                        if (typedStartup) measured["startupNativeSessionId"] = startupSession;
+                        applied.Add(measured);
                     }
                     return applied;
                 }).ConfigureAwait(false);
@@ -214,15 +262,28 @@ namespace ReignBeta.Characters.Campaign
                     notables.Count);
                 progress?.Invoke(observations.Count, notables.Count, "Confirming native personality traits");
 
-                JObject confirmed = await ReignCharacterEditorClient.ConfirmNotableMbtiProfilesAsync(observations).ConfigureAwait(false);
+                var confirm = typedStartup
+                    ? await ReignMainThread.InvokeAsync(() => ReignCharacterEditorClient.ConfirmNotableMbtiProfilesAsync(
+                        observations, startupCampaign, startupOwner, OwnsStartup)).ConfigureAwait(false)
+                    : ReignCharacterEditorClient.ConfirmNotableMbtiProfilesAsync(observations);
+                JObject confirmed = await confirm.ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
-                if (confirmed?.Value<bool?>("ok") != true
-                    || (confirmed?.Value<int?>("confirmedCount") ?? -1) != notables.Count)
-                    throw new InvalidOperationException("Native traits could not be confirmed for every notable ("
-                        + (confirmed?.Value<int?>("confirmedCount") ?? 0) + " of " + notables.Count + ").");
+                int confirmedCount = confirmed?.Value<int?>("confirmedCount") ?? -1;
+                int expectedDeferredCount = observations.OfType<JObject>()
+                    .Count(item => item.Value<string>("status") == "native_delivery_deferred");
+                JToken deferred = confirmed?["deferredCount"];
+                int deferredCount = deferred == null ? 0 : deferred.Type == JTokenType.Integer ? deferred.Value<int>() : -1;
+                if (confirmed?.Value<bool?>("ok") != true || deferredCount != expectedDeferredCount
+                    || confirmedCount + deferredCount != notables.Count)
+                    throw new InvalidOperationException("The server did not acknowledge every notable startup observation ("
+                        + Math.Max(confirmedCount, 0) + " confirmed, " + deferredCount + " deferred).");
+                if (deferredCount > 0)
+                    ReignLog.Info(deferredCount + " notable assignments retained their existing native delivery owners.");
 
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (typedStartup && !OwnsStartup())
+                        throw new InvalidOperationException("The notable startup no longer owns the loaded campaign.");
                     _notableBackgroundInitializationComplete = true;
                     _notableBackgroundInitializationInFlight = false;
                 }).ConfigureAwait(false);
@@ -268,22 +329,31 @@ namespace ReignBeta.Characters.Campaign
             string campaignId = ReignServerClient.GetCampaignId();
             var fence = ReignServerClient.RequestFence.Capture();
             string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
+            var verified = OwnedManualNativeEditorDeliveryReady ? ReignSaveSyncCoordinator.CurrentVerifiedLoad : null;
+            if (verified != null && (verified.CampaignId != campaignId || verified.RestoreGeneration != fence.SharedActivityGeneration
+                || !ReignCharacterEditorClient.IsNativeOwnerNonce(verified.LoadSessionId)))
+                verified = null;
             bool OwnsPoll() => IsCurrentCampaign && fence.IsCurrentActionPoll()
-                && !ReignCampaignInitializationGate.IsPending;
+                && !ReignCampaignInitializationGate.IsPending
+                && (verified == null || ReferenceEquals(verified, ReignSaveSyncCoordinator.CurrentVerifiedLoad));
             if (!OwnsPoll()) return;
             _lastPollDay = day;
             _polling = true;
-            _ = PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, OwnsPoll);
+            _ = PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, verified?.LoadSessionId ?? "", OwnsPoll);
         }
 
-        private async Task PollAsync(string campaignId, string timelineId, string restoreGeneration, Func<bool> ownsPoll)
+        private async Task PollAsync(string campaignId, string timelineId, string restoreGeneration, string nativeEditorSession,
+            Func<bool> ownsPoll)
         {
             try
             {
                 var commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync(campaignId,
-                    timelineId, restoreGeneration, ownsPoll).ConfigureAwait(false);
+                    timelineId, restoreGeneration, nativeEditorSession, ownsPoll).ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
+                    if (command.IsAutomaticNative && !OwnedManualNativeEditorDeliveryReady) continue;
+                    if (command.IsManualNative && (nativeEditorSession.Length == 0 || command.ManualClaimSessionId != nativeEditorSession))
+                        continue;
                     NativeEditorReceipt result = await ReignMainThread.InvokeAsync(() =>
                         ownsPoll() ? ApplyOrReadSavedReceipt(campaignId, timelineId, command) : null).ConfigureAwait(false);
                     if (result == null)
@@ -302,7 +372,9 @@ namespace ReignBeta.Characters.Campaign
 
         private NativeEditorReceipt ApplyOrReadSavedReceipt(string campaignId, string timelineId, ReignCharacterEditorCommand command)
         {
-            if (string.IsNullOrEmpty(command.CommandId)) return null;
+            if (string.IsNullOrEmpty(command.CommandId) || command.ReceiptOnly
+                && !_restoredNativeEditorReceiptIds.Contains(command.CommandId))
+                return null;
             // Property order is part of the native edit because some fields depend on earlier changes.
             var material = new JObject { ["hero"] = command.HeroId, ["dangerous"] = command.Dangerous,
                 ["confirmation"] = command.Confirmation, ["changes"] = command.Changes };
@@ -311,17 +383,24 @@ namespace ReignBeta.Characters.Campaign
             if (_nativeEditorReceipts.TryGetValue(command.CommandId, out var retained))
             {
                 // The same saved outcome can answer a newly issued claim for the exact command.
-                if (retained.CampaignId == campaignId && retained.TimelineId == timelineId && retained.MaterialSha256 == digest)
+                if (retained.Matches(campaignId, timelineId, digest, command))
                     return retained;
                 ReignLog.Warn("The saved Character Editor receipt does not match the current command or campaign scope.");
                 return null;
             }
+
+            // A reissued or restored claim can only read the native receipt saved with this campaign.
+            if (command.ReceiptOnly) return null;
 
             // The native effect and its receipt are recorded in the same campaign-thread callback.
             var result = Apply(command);
             var receipt = new NativeEditorReceipt
             {
                 CampaignId = campaignId, TimelineId = timelineId, MaterialSha256 = digest,
+                ManualOriginLineageId = command.IsManualNative ? command.ManualOriginLineageId : null,
+                ManualOriginMaterialSha256 = command.IsManualNative ? command.ManualOriginMaterialSha256 : null,
+                AutomaticOriginId = command.IsAutomaticNative ? command.AutomaticOriginId : null,
+                AutomaticOriginMaterialSha256 = command.IsAutomaticNative ? command.AutomaticOriginMaterialSha256 : null,
                 Applied = result.Applied.ToArray(), Errors = result.Errors.ToArray()
             };
             _nativeEditorReceipts.Add(command.CommandId, receipt);
@@ -359,6 +438,7 @@ namespace ReignBeta.Characters.Campaign
             CharacterEditorApplyResult result = new CharacterEditorApplyResult();
             Hero hero = ReignObjectResolver.FindHero(command?.HeroId);
             if (hero == null) { result.Errors.Add("Hero was not found in this savegame."); return result; }
+            if (command.IsAutomaticNative) return ApplyTypedAutomaticNotableTraits(hero, command, result);
             if (!hero.IsAlive
                 && (command?.CommandId ?? string.Empty).StartsWith(
                     "notable_mbti_native_", StringComparison.OrdinalIgnoreCase))
@@ -378,6 +458,31 @@ namespace ReignBeta.Characters.Campaign
                 }
                 catch (Exception ex) { result.Errors.Add(property.Name + ": " + ex.Message); }
             }
+            return result;
+        }
+
+        private static CharacterEditorApplyResult ApplyTypedAutomaticNotableTraits(Hero hero, ReignCharacterEditorCommand command,
+            CharacterEditorApplyResult result)
+        {
+            if (!hero.IsAlive)
+            {
+                result.Errors.Add("The notable is no longer living.");
+                return result;
+            }
+            try
+            {
+                var names = new[] { "valor", "generosity", "honor", "mercy", "calculating" };
+                var traits = command.Changes?["traits"] as JObject;
+                if (command.Changes?.Count != 1 || traits?.Count != names.Length
+                    || names.Any(key => traits[key]?.Type != JTokenType.Integer || traits.Value<long>(key) < -2 || traits.Value<long>(key) > 2))
+                    throw new InvalidOperationException("Typed notable traits are outside the supported native range or shape.");
+                ApplyTraits(hero, traits);
+                var observed = ReignCharacterEditorClient.NativePersonalityTraits(hero);
+                if (names.Any(key => observed.Value<long>(key) != traits.Value<long>(key)))
+                    throw new InvalidOperationException("The measurable native traits did not match the requested values.");
+                result.Applied.Add("traits");
+            }
+            catch (Exception ex) { result.Errors.Add("traits: " + ex.Message); }
             return result;
         }
 
@@ -470,14 +575,35 @@ namespace ReignBeta.Characters.Campaign
             public string CampaignId { get; set; }
             public string TimelineId { get; set; }
             public string MaterialSha256 { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public string ManualOriginLineageId { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public string ManualOriginMaterialSha256 { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public string AutomaticOriginId { get; set; }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public string AutomaticOriginMaterialSha256 { get; set; }
             public string[] Applied { get; set; }
             public string[] Errors { get; set; }
 
             [JsonIgnore]
             public string Status => Errors.Length == 0 ? "completed" : Applied.Length > 0 ? "partially_applied" : "failed";
 
+            public bool Matches(string campaign, string timeline, string material, ReignCharacterEditorCommand command) =>
+                CampaignId == campaign && TimelineId == timeline && MaterialSha256 == material
+                && (ManualOriginLineageId ?? "") == command.ManualOriginLineageId
+                && (ManualOriginMaterialSha256 ?? "") == command.ManualOriginMaterialSha256
+                && (AutomaticOriginId ?? "") == command.AutomaticOriginId
+                && (AutomaticOriginMaterialSha256 ?? "") == command.AutomaticOriginMaterialSha256;
+
             public bool IsValid() => !string.IsNullOrEmpty(CampaignId) && !string.IsNullOrEmpty(TimelineId)
                 && MaterialSha256?.Length == 64 && MaterialSha256.All(Uri.IsHexDigit)
+                && (string.IsNullOrEmpty(ManualOriginLineageId) && string.IsNullOrEmpty(ManualOriginMaterialSha256)
+                    || ReignCharacterEditorClient.IsNativeOwnerNonce(ManualOriginLineageId)
+                        && ReignCharacterEditorClient.IsNativeOriginDigest(ManualOriginMaterialSha256))
+                && (string.IsNullOrEmpty(AutomaticOriginId) && string.IsNullOrEmpty(AutomaticOriginMaterialSha256)
+                    || string.IsNullOrEmpty(ManualOriginLineageId) && ReignCharacterEditorClient.IsNativeOwnerNonce(AutomaticOriginId)
+                        && ReignCharacterEditorClient.IsNativeOriginDigest(AutomaticOriginMaterialSha256))
                 && Applied != null && Errors != null && Applied.All(value => value != null) && Errors.All(value => value != null);
         }
 

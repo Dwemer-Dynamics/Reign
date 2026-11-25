@@ -2,6 +2,26 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Retained ownership in stock notable startup
+
+A stock startup batch can include a notable with a retained startup reservation
+or typed native command. The server returns that hero with a defer flag and no
+native trait material. The client skips the setter and requires the server to
+acknowledge exactly the deferred observations it sent. The ordinary assignment
+and confirmation stay the same for heroes without a retained marker. An old
+client may stop startup on the held entry. It has no trait grant for that hero.
+
+Run the named stock fallback cases in `contracts.notable_mbti` or
+`pipeline.notable_mbti` on the same successful isolated Release artifact. Check
+that forged trait or obsolete observations leave the marker and files intact,
+that the background and failed-hero paths preserve held rows, and that ordinary
+legacy work still completes. Deferred observations do not settle the retained
+operation or authorize its replay. A retained manual editor authority or revision
+also holds stock work for that notable. The construction entry points check
+before upserting or writing traits. A false request flag cannot erase a stored
+notable profile or SQL row. An already-ready profile can be read while held
+without changing its files. Forced generation of a held profile is deferred.
+
 ## Entire pregenerated roster completeness (2026-11-12)
 
 The shipped catalogs must cover all 453 native Sandbox/War Sails nobles and all

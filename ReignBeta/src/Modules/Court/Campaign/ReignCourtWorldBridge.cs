@@ -43,8 +43,13 @@ namespace ReignBeta.Court.Campaign
         {
             evidence = string.Empty;
             string accusedId = accused?.StringId;
-            if (string.IsNullOrWhiteSpace(accusedId)) return false;
-            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            var history = ReignServices.WorldHistory;
+            if (string.IsNullOrWhiteSpace(accusedId) || !ReignCampaignIdentity.HasActiveCampaign()
+                || ReignSaveSyncCoordinator.IsAlignmentPending || history?.TimelineReady != true
+                || !ReferenceEquals(ReignServices.CourtWorld, this))
+                return false;
+
+            string timeline = history.TimelineId;
             ReignSpymasterState state = SpymasterState;
             ReignForeignAgentRecord agent = state?.ForeignAgents?.FirstOrDefault(candidate => candidate?.Exposed == true
                 && !candidate.ExposurePending
@@ -54,12 +59,8 @@ namespace ReignBeta.Court.Campaign
                     ? string.IsNullOrEmpty(candidate.AssignmentId)
                     : string.Equals(candidate.AssignmentTimelineId, timeline, StringComparison.Ordinal)));
             if (agent == null) return false;
-            List<string> ids = new List<string> { "foreign_agent:" + agent.AgentHeroStringId };
-            ids.AddRange((state.ForeignAgentActions ?? new List<ReignForeignAgentActionRecord>())
-                .Where(action => action?.Detected == true && string.Equals(action.AgentHeroStringId,
-                    agent.AgentHeroStringId, StringComparison.Ordinal))
-                .Select(action => "foreign_agent_action:" + action.ActionId));
-            evidence = string.Join(",", ids.Distinct(StringComparer.OrdinalIgnoreCase));
+            // Detected actions only retain a hero ID, without the assignment or timeline.
+            evidence = "foreign_agent:" + agent.AgentHeroStringId;
             return true;
         }
 

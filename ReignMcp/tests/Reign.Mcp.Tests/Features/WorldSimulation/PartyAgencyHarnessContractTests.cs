@@ -10,6 +10,31 @@ namespace Reign.Mcp.Tests;
 
 public sealed class PartyAgencyHarnessContractTests
 {
+    [Fact]
+    public void PartyAgencyInstalledNativeVersionMatchesPinnedCatalogAndExactManifestBytes()
+    {
+        const string xml = "<Module><Id value='Native'/><Version value='v1.5.7'/></Module>";
+        byte[] bytes = Encoding.UTF8.GetBytes(xml);
+        using var manifest = new MemoryStream(bytes);
+        Assert.Equal(("v1.5.7", Convert.ToHexStringLower(SHA256.HashData(bytes))),
+            PartyAgencyApprovedArtifacts.ReadNativeManifest(manifest, "v1.5.7"));
+        JsonElement catalog = JsonSerializer.SerializeToElement(new { requiredBannerlordVersion = "v1.5.7" });
+        TestingTools.RequirePartyAgencyNativeCatalogVersion(catalog, "v1.5.7");
+        Assert.Throws<InvalidDataException>(() => TestingTools.RequirePartyAgencyNativeCatalogVersion(catalog, "v1.4.8"));
+        manifest.Position = 0;
+        Assert.Throws<InvalidDataException>(() => PartyAgencyApprovedArtifacts.ReadNativeManifest(manifest, "v1.4.8"));
+    }
+
+    [Theory]
+    [InlineData("<Module><Id value='SandBox'/><Version value='v1.5.7'/></Module>")]
+    [InlineData("<Module><Id value='Native'/><Id value='Native'/><Version value='v1.5.7'/></Module>")]
+    [InlineData("<Module><Id value='Native'/><Version value='v1.4.8'/><Version value='v1.5.7'/></Module>")]
+    public void PartyAgencyInstalledNativeVersionRejectsWrongOrAmbiguousModule(string xml)
+    {
+        using var manifest = new MemoryStream(Encoding.UTF8.GetBytes(xml));
+        Assert.Throws<InvalidDataException>(() => PartyAgencyApprovedArtifacts.ReadNativeManifest(manifest, "v1.5.7"));
+    }
+
     [Theory]
     [InlineData("match", "observed_metadata_only", "matches", "matches", true)]
     [InlineData("client_mismatch", "observed_metadata_only", "differs", "matches", true)]
@@ -50,14 +75,14 @@ public sealed class PartyAgencyHarnessContractTests
         var state = new PartyAgencyCertificationState
         {
             RunId = "certification", CampaignId = "campaign", CampaignTestRunId = "enrollment",
-            DisposableSaveName = "Test_Current", TimelineId = "branch",
+            DisposableSaveName = "Test_Current", TimelineId = "branch", BannerlordVersion = "v1.5.7",
             ApprovedArtifactWitness = mutation == "no_witness" ? null : witness
         };
         var installed = new PartyAgencyInstalledArtifactWitness(PartyAgencyInstalledArtifactWitness.WitnessSchema,
             "certification", "campaign", "enrollment", "branch", "Test_Current", "2026-11-24T06:10:00.0000000+00:00",
             PartyAgencyApprovedArtifacts.ApprovalWitnessSha256(witness), hash, "20261124114300-1",
             witness.Client, witness.Server, new PartyAgencyApprovedModule("TaleWorlds.CampaignSystem", expectedCampaign, hash),
-            new PartyAgencyApprovedModule("TaleWorlds.Core", expectedCore, hash));
+            new PartyAgencyApprovedModule("TaleWorlds.Core", expectedCore, hash), "v1.5.7", hash);
         installed = mutation switch
         {
             "wrong_installed_approval" => installed with { ApprovedWitnessSha256 = new string('b', 64) },
@@ -276,6 +301,11 @@ public sealed class PartyAgencyHarnessContractTests
     [InlineData("wrong_phase")]
     [InlineData("wrong_native_command")]
     [InlineData("wrong_save")]
+    [InlineData("wrong_original_timeline")]
+    [InlineData("missing_original_timeline")]
+    [InlineData("receipt_after_issue")]
+    [InlineData("same_issue_time")]
+    [InlineData("malformed_issue_time")]
     public void PartyAgencyCheckpointRequiresOneExactAcceptedNativeStage(string mutation)
     {
         const string receipt = "party_agency_save_stage_fba930e74e0144a0917b3a91e2e579dd";
@@ -291,7 +321,14 @@ public sealed class PartyAgencyHarnessContractTests
                 {
                     commandId = "native-command", campaignId = "target-campaign",
                     runId = "stage-run", gameInstanceId = "game-before",
-                    leaseId = "original-execution-lease", executionRetryGeneration = 1
+                    leaseId = "original-execution-lease", executionRetryGeneration = 1,
+                    observedUtc = mutation switch
+                    {
+                        "receipt_after_issue" => "2026-11-24T06:10:29.9999999-06:00",
+                        "same_issue_time" => "2026-11-24T06:10:30.0000000-06:00",
+                        "malformed_issue_time" => "invalid",
+                        _ => "2026-11-24T06:10:30.0000001-06:00"
+                    }
                 }
             },
             result = new
@@ -320,18 +357,41 @@ public sealed class PartyAgencyHarnessContractTests
             {
                 campaignId = mutation == "foreign_campaign" ? "other-campaign" : "target-campaign",
                 campaignTestRunId = "campaign-test", certificationRunId = mutation == "foreign_run" ? "other-run" : "cert-run",
-                disposableSaveName = "Test_Current"
+                disposableSaveName = "Test_Current",
+                timelineId = mutation == "wrong_original_timeline" ? "other" : "before"
             },
             commands = mutation == "duplicate_stage" ? new[] { command, command } : new[] { command }
         });
+        if (mutation == "missing_original_timeline")
+        {
+            JsonObject raw = JsonNode.Parse(report.GetRawText())!.AsObject();
+            Assert.True(raw["enrollment"]!.AsObject().Remove("timelineId"));
+            report = JsonSerializer.SerializeToElement(raw);
+        }
         var observed = TestingTools.ReadPartyAgencyCheckpointStage(report, "target-campaign",
             "campaign-test", "cert-run", "stage-run", "Active", "Test_Current");
-        if (mutation == "valid")
+        if (mutation is "valid" or "same_issue_time" or "receipt_after_issue" or "malformed_issue_time"
+            or "wrong_original_timeline" or "missing_original_timeline")
         {
             Assert.NotNull(observed);
             Assert.Equal("original-execution-lease", observed.ExecutionLeaseId);
             Assert.Equal("exact-agreement", observed.Agreement.AgreementId);
             Assert.Equal(3, observed.Agreement.AgreementRevision);
+            string hash = new('a', 64);
+            var client = new PartyAgencyApprovedModule("ReignBeta", Guid.NewGuid(), hash);
+            var server = new PartyAgencyApprovedModule("ReignServer", Guid.NewGuid(), hash);
+            var campaign = new PartyAgencyApprovedModule("TaleWorlds.CampaignSystem", Guid.NewGuid(), hash);
+            var core = new PartyAgencyApprovedModule("TaleWorlds.Core", Guid.NewGuid(), hash);
+            var installed = new PartyAgencyInstalledArtifactWitness(
+                PartyAgencyInstalledArtifactWitness.WitnessSchema,
+                "cert-run", "target-campaign", "campaign-test", "before", "Test_Current",
+                "2026-11-24T06:10:30.0000000-06:00", hash, hash, "20261124000000-1",
+                client, server, campaign, core, "v1.5.7", hash);
+            if (mutation is "valid" or "same_issue_time")
+                TestingTools.RequirePartyAgencyInstalledBeforeStage(installed, report, "target-campaign", observed);
+            else
+                Assert.Throws<InvalidOperationException>(() =>
+                    TestingTools.RequirePartyAgencyInstalledBeforeStage(installed, report, "target-campaign", observed));
         }
         else
         {
@@ -514,6 +574,9 @@ public sealed class PartyAgencyHarnessContractTests
     [InlineData("removed", "utf8", false)]
     [InlineData("swapped", "utf8", false)]
     [InlineData("legacy", "utf8", false)]
+    [InlineData("native-version", "utf8", true)]
+    [InlineData("timeline", "utf8", true)]
+    [InlineData("legacy-installed", "utf8", true)]
     public async Task PreparedCatalogGatesReadinessWithoutDiscardingHistoricalReports(
         string change, string initialEncoding, bool expectedMatch)
     {
@@ -526,7 +589,7 @@ public sealed class PartyAgencyHarnessContractTests
             const string guardId = "owned-run";
             const string runId = "catalog-run";
             const string liveRun = "retained-live-run";
-            string catalog = "{\n  \"cases\": [{ \"id\": \"PA-NATIVE-001\", \"required\": true }]\n}\n";
+            string catalog = "{\n  \"requiredBannerlordVersion\": \"v1.5.7\",\n  \"cases\": [{ \"id\": \"PA-NATIVE-001\", \"required\": true }]\n}\n";
             Encoding encoding = initialEncoding switch
             {
                 "utf8-bom" => new UTF8Encoding(true),
@@ -549,7 +612,8 @@ public sealed class PartyAgencyHarnessContractTests
             campaigns.Prepare(campaignId, "main", "Immutable", guardId, "Party Agency catalog");
             IReadOnlyDictionary<string, object?> Prepare() => TestingTools.PreparePartyAgencyTest(
                 options, campaigns, null!, campaignId, guardId, runId,
-                "source", "client", "server", "provider", callerLabel);
+                "source", "client", "server", "provider", callerLabel,
+                change == "native-version" ? "v1.4.8" : "v1.5.7");
             var state = Assert.IsType<PartyAgencyCertificationState>(Prepare()["state"]);
             string digest = Convert.ToHexStringLower(SHA256.HashData(preparedBytes));
             Assert.Equal(digest, state.PreparedCatalogSha256);
@@ -560,6 +624,7 @@ public sealed class PartyAgencyHarnessContractTests
             string fixtureHash = new('a', 64);
             state = state with
             {
+                TimelineId = change == "timeline" ? "expired" : state.TimelineId,
                 ApprovedArtifactWitness = new PartyAgencyApprovedArtifactWitness(
                     PartyAgencyApprovedArtifactWitness.WitnessSchema, runId, campaignId, guardId,
                     "2026-01-01T00:00:00.0000000Z", fixtureHash, fixtureHash, fixtureHash, fixtureHash,
@@ -573,6 +638,32 @@ public sealed class PartyAgencyHarnessContractTests
             if (change == "legacy")
                 Assert.True(durable.Remove("preparedCatalogSha256"));
             File.WriteAllText(statePath, durable.ToJsonString());
+            string? legacyPath = null;
+            string? legacyReceipt = null;
+            if (change == "legacy-installed")
+            {
+                var approval = state.ApprovedArtifactWitness!;
+                var installed = new PartyAgencyInstalledArtifactWitness(
+                    PartyAgencyInstalledArtifactWitness.LegacyWitnessSchema,
+                    state.RunId, state.CampaignId, state.CampaignTestRunId, state.TimelineId,
+                    state.DisposableSaveName, "2026-01-02T00:00:00.0000000Z",
+                    PartyAgencyApprovedArtifacts.ApprovalWitnessSha256(approval), fixtureHash,
+                    "20261124114300-1", approval.Client, approval.Server,
+                    new PartyAgencyApprovedModule("TaleWorlds.CampaignSystem", Guid.NewGuid(), fixtureHash),
+                    new PartyAgencyApprovedModule("TaleWorlds.Core", Guid.NewGuid(), fixtureHash),
+                    "", "");
+                JsonObject historical = JsonSerializer.SerializeToNode(installed,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+                Assert.True(historical.Remove("installedNativeVersion"));
+                Assert.True(historical.Remove("installedNativeManifestSha256"));
+                legacyPath = Path.ChangeExtension(statePath, ".installed-artifacts.json");
+                legacyReceipt = historical.ToJsonString();
+                File.WriteAllText(legacyPath, legacyReceipt);
+                Assert.Null(PartyAgencyApprovedArtifacts.ReadInstalledWitness(legacyPath, state));
+                Assert.Contains("Prepare a new certification run",
+                    Assert.Throws<InvalidDataException>(() => PartyAgencyApprovedArtifacts.ReadInstalledWitness(
+                        legacyPath, state, rejectLegacy: true)).Message, StringComparison.Ordinal);
+            }
             if (change == "newline")
                 File.WriteAllText(catalogPath, catalog.Replace("\n", "\r\n", StringComparison.Ordinal), new UTF8Encoding(false));
             if (change == "bom")
@@ -583,7 +674,9 @@ public sealed class PartyAgencyHarnessContractTests
                 File.WriteAllText(catalogPath, catalog.Replace(caseId, "PA-NATIVE-002", StringComparison.Ordinal));
 
             string retainedState = File.ReadAllText(statePath);
-            if (expectedMatch)
+            if (change == "timeline")
+                Assert.Contains("changed timeline", Assert.Throws<InvalidOperationException>(() => Prepare()).Message, StringComparison.Ordinal);
+            else if (expectedMatch)
                 Assert.Equal("already_prepared", Prepare()["status"]);
             else
                 Assert.Contains("exact prepared Party Agency catalog bytes",
@@ -592,7 +685,11 @@ public sealed class PartyAgencyHarnessContractTests
             var ready = await TestingTools.EvaluatePartyAgencyReleaseReadiness(api, options, campaigns,
                 campaignId, guardId, runId);
             Assert.Equal(expectedMatch, ready["preparedCatalogMatches"]);
-            Assert.Equal(expectedMatch, ready["readyToDeployForNativeCertification"]);
+            Assert.Equal(expectedMatch && change is not ("native-version" or "timeline" or "legacy-installed"),
+                ready["readyToDeployForNativeCertification"]);
+            Assert.Equal(change == "legacy-installed", ready["legacyInstalledArtifactReceipt"]);
+            Assert.Equal(change != "native-version" && change != "removed", ready["preparedNativeVersionMatches"]);
+            Assert.False(Assert.IsType<bool>(ready["installedArtifactWitnessAvailable"]));
             Assert.True(Assert.IsType<bool>(ready["approvedArtifactWitnessAvailable"]));
             Assert.False(Assert.IsType<bool>(ready["installedAndLoadedArtifactsAttested"]));
             Assert.False(Assert.IsType<bool>(ready["readyToRelease"]));
@@ -621,6 +718,8 @@ public sealed class PartyAgencyHarnessContractTests
             }
             Assert.Equal(1, transport.ReportReads);
             Assert.Equal(retainedState, File.ReadAllText(statePath));
+            if (legacyPath is not null)
+                Assert.Equal(legacyReceipt, File.ReadAllText(legacyPath));
         }
         finally { folder.Delete(recursive: true); }
     }

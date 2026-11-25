@@ -54,7 +54,7 @@ public static partial class TestingTools
         string providerConfigurationFingerprint,
         string catalogFingerprint,
         string bannerlordVersion = "v1.4.8",
-        [Description("For a new run only, verify and pin both original approved build reports and their managed artifacts. This does not inspect the installation or prove execution.")]
+        [Description("For a new run only, pin both approved build reports and their managed artifacts. Supply the current catalog Native version. This does not inspect the installation or prove execution.")]
         bool captureApprovedArtifacts = false)
     {
         campaignId = RequiredPartyAgencyIdentifier(campaignId, nameof(campaignId));
@@ -93,11 +93,14 @@ public static partial class TestingTools
                 return ReadPreparedPartyAgencyRun(existing, requested, manifest, captureApprovedArtifacts);
         }
         if (captureApprovedArtifacts)
+        {
+            RequirePartyAgencyNativeCatalogVersion(manifest, requested.BannerlordVersion);
             requested = requested with
             {
                 ApprovedArtifactWitness = PartyAgencyApprovedArtifacts.Capture(
                     options, validation, runId, campaignId, campaignTestRunId)
             };
+        }
 
         lock (PartyAgencyStateGate)
         {
@@ -124,9 +127,15 @@ public static partial class TestingTools
         if (!PartyAgencyImmutableInputsMatch(existing, requested))
             throw new InvalidOperationException("The Party Agency run id is already prepared with different immutable enrollment or fingerprint inputs.");
         RequirePreparedPartyAgencyCatalog(existing, requested.PreparedCatalogSha256);
-        if (captureApprovedArtifacts && existing.ApprovedArtifactWitness?.BelongsTo(
-                existing.RunId, existing.CampaignId, existing.CampaignTestRunId) != true)
-            throw new InvalidOperationException("This run was prepared without an approved artifact witness. Capture one when preparing a new run.");
+        if (existing.ApprovedArtifactWitness is not null && existing.TimelineId != requested.TimelineId)
+            throw new InvalidOperationException("The reviewed Party Agency enrollment changed timeline.");
+        if (captureApprovedArtifacts)
+        {
+            RequirePartyAgencyNativeCatalogVersion(manifest, existing.BannerlordVersion);
+            if (existing.ApprovedArtifactWitness?.BelongsTo(
+                    existing.RunId, existing.CampaignId, existing.CampaignTestRunId) != true)
+                throw new InvalidOperationException("This run was prepared without an approved artifact witness. Capture one when preparing a new run.");
+        }
         return PartyAgencyStateEnvelope(existing, "already_prepared", manifest);
     }
 
@@ -708,13 +717,8 @@ public static partial class TestingTools
                     "observe", expected, evidenceReceipt));
         }
 
-        // Retain the observed installation before any live command can issue.
         if (state.ApprovedArtifactWitness is not null)
-        {
-            if (authorization.TimelineId != state.TimelineId)
-                throw new InvalidOperationException("The reviewed Party Agency enrollment changed timeline.");
-            RetainPartyAgencyInstalledWitness(options, state);
-        }
+            RequirePartyAgencyInstalledWitness(options, state, manifest, authorization, allowFirstObservation: true);
 
         ApiEnvelope liveRun = await api.PostAsync("/tests/live/run/start", new
         {
@@ -811,6 +815,13 @@ public static partial class TestingTools
             : null;
         if (stage == null)
             throw new InvalidOperationException("The selected command has no verified native stage result.");
+        if (state.ApprovedArtifactWitness is not null)
+        {
+            CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
+                campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+            var installed = RequirePartyAgencyInstalledWitness(options, state, manifest, authorization);
+            RequirePartyAgencyInstalledBeforeStage(installed, observed.Data!.Value, campaignId, stage);
+        }
 
         return await campaignTests.CheckpointPartyAgencyPhaseAsync(campaignTestRunId, campaignId, confirmation,
             stage, saveTimeoutSeconds, catchUpTimeoutSeconds, cancellationToken).ConfigureAwait(false);
@@ -979,6 +990,17 @@ public static partial class TestingTools
         JsonElement manifest = LoadPreparedPartyAgencyManifest(options, state);
         JsonElement testCase = FindPartyAgencyCase(manifest, "PA-NATIVE-017");
         ValidatePartyAgencyVariant(testCase, variant);
+        if (state.ApprovedArtifactWitness is not null)
+        {
+            ApiEnvelope prepared = await ReadPartyAgencyLiveReport(api, campaignId, stage.LiveRunId,
+                cancellationToken).ConfigureAwait(false);
+            if (!prepared.Ok || !prepared.Data.HasValue
+                || ReadPartyAgencyCheckpointStage(prepared.Data.Value, campaignId, campaignTestRunId,
+                    runId, stage.LiveRunId, variant, state.DisposableSaveName) != stage)
+                throw new InvalidOperationException("The original native Party Agency stage could not be verified.");
+            var installed = RequirePartyAgencyInstalledWitness(options, state, manifest, authorization);
+            RequirePartyAgencyInstalledBeforeStage(installed, prepared.Data.Value, campaignId, stage);
+        }
         string liveRunId = PartyAgencyLiveRunId(runId, "PA-NATIVE-017-reload", variant);
         object[] steps =
         {
@@ -1168,8 +1190,12 @@ public static partial class TestingTools
 
         JsonElement manifest = LoadPartyAgencyManifest(options, out string observedCatalogSha256);
         bool catalogMatches = PreparedPartyAgencyCatalogMatches(state, observedCatalogSha256);
-        var installed = authorization.TimelineId == state.TimelineId
-            ? PartyAgencyApprovedArtifacts.ReadInstalledWitness(PartyAgencyInstalledWitnessPath(options, state.RunId), state)
+        bool timelineMatches = authorization.TimelineId == state.TimelineId;
+        bool nativeVersionMatches = PartyAgencyNativeCatalogVersionMatches(manifest, state.BannerlordVersion);
+        bool legacyInstalledReceipt = false;
+        var installed = timelineMatches
+            ? PartyAgencyApprovedArtifacts.ReadInstalledWitness(
+                PartyAgencyInstalledWitnessPath(options, state.RunId), state, out legacyInstalledReceipt)
             : null;
         var passed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var passedLanguage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1251,6 +1277,12 @@ public static partial class TestingTools
             state.RunId, state.CampaignId, state.CampaignTestRunId) == true;
         if (!approvedArtifacts)
             blockers.Add("The run has no pinned approved build artifact witness.");
+        if (!timelineMatches)
+            blockers.Add("The reviewed Party Agency enrollment changed timeline.");
+        if (!nativeVersionMatches)
+            blockers.Add("The prepared Bannerlord version differs from the current catalog Native version.");
+        if (legacyInstalledReceipt)
+            blockers.Add("The run has a legacy installed artifact receipt. Prepare a new certification run.");
         blockers.Add("Installed and loaded artifact evidence has not been attested for this run.");
         string[] missing = state.RequiredInstances
             .Where(instance => !passed.Contains(instance)).ToArray();
@@ -1268,8 +1300,11 @@ public static partial class TestingTools
         {
             ["ok"] = true,
             ["schema"] = "reign-party-agency-release-readiness-v1",
-            ["readyToDeployForNativeCertification"] = approvedArtifacts && catalogMatches,
+            ["readyToDeployForNativeCertification"] = approvedArtifacts && catalogMatches
+                && timelineMatches && nativeVersionMatches && !legacyInstalledReceipt,
+            ["legacyInstalledArtifactReceipt"] = legacyInstalledReceipt,
             ["preparedCatalogMatches"] = catalogMatches,
+            ["preparedNativeVersionMatches"] = nativeVersionMatches,
             ["observedCatalogSha256"] = observedCatalogSha256,
             ["approvedArtifactWitnessAvailable"] = approvedArtifacts,
             ["installedArtifactWitnessAvailable"] = installed is not null,
@@ -1661,6 +1696,17 @@ public static partial class TestingTools
         return document.RootElement.Clone();
     }
 
+    internal static void RequirePartyAgencyNativeCatalogVersion(JsonElement manifest, string version)
+    {
+        if (!PartyAgencyNativeCatalogVersionMatches(manifest, version))
+            throw new InvalidDataException("Approved Party Agency certification requires the current catalog Native version.");
+    }
+
+    private static bool PartyAgencyNativeCatalogVersionMatches(JsonElement manifest, string version) =>
+        manifest.TryGetProperty("requiredBannerlordVersion", out JsonElement declared)
+        && declared.ValueKind == JsonValueKind.String
+        && PartyAgencyApprovedArtifacts.IsNativeVersion(version) && declared.GetString() == version;
+
     private static string PartyAgencyManifestPath(ReignMcpOptions options)
     {
         string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
@@ -1800,12 +1846,18 @@ public static partial class TestingTools
     private static string PartyAgencyInstalledWitnessPath(ReignMcpOptions options, string runId) =>
         Path.ChangeExtension(PartyAgencyStatePath(options, runId), ".installed-artifacts.json");
 
-    private static void RetainPartyAgencyInstalledWitness(
-        ReignMcpOptions options, PartyAgencyCertificationState state)
+    private static PartyAgencyInstalledArtifactWitness RequirePartyAgencyInstalledWitness(
+        ReignMcpOptions options, PartyAgencyCertificationState state, JsonElement manifest,
+        CampaignTestAuthorization authorization, bool allowFirstObservation = false)
     {
+        if (authorization.TimelineId != state.TimelineId)
+            throw new InvalidOperationException("The reviewed Party Agency enrollment changed timeline.");
+        RequirePartyAgencyNativeCatalogVersion(manifest, state.BannerlordVersion);
         string path = PartyAgencyInstalledWitnessPath(options, state.RunId);
+        var retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state, rejectLegacy: true);
+        if (retained is null && !allowFirstObservation)
+            throw new InvalidOperationException("The approved Party Agency stage has no prior installed artifact receipt.");
         var observed = PartyAgencyApprovedArtifacts.CaptureInstalled(state);
-        var retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state);
         if (retained is null)
         {
             try { WritePartyAgencyEvidence(path, observed, overwrite: false); }
@@ -1813,10 +1865,23 @@ public static partial class TestingTools
             {
                 // Another starter may have retained the first observation.
             }
-            retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state);
+            retained = PartyAgencyApprovedArtifacts.ReadInstalledWitness(path, state, rejectLegacy: true);
         }
         if (retained is null || !retained.MatchesInstallation(observed))
             throw new InvalidOperationException("Installed artifacts changed after this Party Agency certification was bound.");
+        return retained;
+    }
+
+    internal static void RequirePartyAgencyInstalledBeforeStage(PartyAgencyInstalledArtifactWitness installed,
+        JsonElement report, string campaignId, PartyAgencyCheckpointStage stage)
+    {
+        string timeline = PartyAgencySaveText(PartyAgencySaveProperty(report, "enrollment"), "timelineId");
+        if (timeline.Length == 0 || timeline != installed.TimelineId)
+            throw new InvalidOperationException("The original Party Agency stage belongs to a different campaign timeline.");
+        JsonElement command = ReadPartyAgencySaveCommand(report, "party_agency_stage_save_phase");
+        JsonElement issued = ReadPartyAgencyIssuedExecution(command, campaignId, stage.LiveRunId, stage.GameInstanceId);
+        if (!installed.CapturedBeforeIssuance(PartyAgencySaveText(issued, "observedUtc")))
+            throw new InvalidOperationException("The installed artifact receipt does not precede the original Party Agency stage.");
     }
 
     private static void WritePartyAgencyEvidence<T>(string path, T evidence, bool overwrite)

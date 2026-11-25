@@ -94,9 +94,20 @@ try {
         $product = $derivatives.GetMethod('BuildAndPublishV2', $flags).Invoke($null, [object[]]@($source, $hero, $observe))
     }
     catch {
-        if ($Phase -eq 'changed-receipt' -and
-            $_.Exception.GetBaseException().Message -eq 'The confirmed outfit portrait or its focus receipt changed during derivative preparation.') {
-            exit 88
+        if ($Phase -eq 'changed-receipt') {
+            $failure = $_.Exception
+            while (($failure -is [System.Management.Automation.MethodInvocationException] -or
+                    $failure -is [Reflection.TargetInvocationException]) -and $null -ne $failure.InnerException) {
+                $failure = $failure.InnerException
+            }
+            $transaction = [Reflection.Assembly]::LoadFrom([IO.Path]::Combine([IO.Path]::GetDirectoryName($clientPath), 'ReignBeta.Core.dll')).GetType('AIPortraits.PortraitProductTransaction', $true)
+            $hasJournal = $transaction.GetMethod('HasRecoveryJournal', $flags).Invoke($null, [object[]]@($hero))
+            if ($failure.GetType() -eq [IO.IOException] -and $null -eq $failure.InnerException -and
+                $failure.Message -ceq 'The confirmed outfit portrait or its focus receipt changed during derivative preparation.' -and
+                -not $hasJournal) {
+                exit 88
+            }
+            [Console]::Error.WriteLine("Changed-receipt failure: $($failure.GetType().FullName), HRESULT $($failure.HResult), recovery journal: $hasJournal.")
         }
         throw
     }

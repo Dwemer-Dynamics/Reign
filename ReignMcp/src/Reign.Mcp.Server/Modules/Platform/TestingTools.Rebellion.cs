@@ -14,7 +14,7 @@ public static partial class TestingTools
     private static readonly string[] RebellionProfiles = { "smoke", "feature", "pledges",
         "reporting", "summons", "verdicts", "declaration", "save_prepare", "save_verify",
         "resolution", "native_setup", "language_observe", "travel_prepare", "travel_verify", "mixed_transfer",
-        "foreign_reintegration", "cleanup" };
+        "foreign_reintegration", "outbreak_reload_prepare", "outbreak_reload_verify", "cleanup" };
 
     [McpServerTool(Name = "reign_get_rebellion_test_manifest", ReadOnly = true,
         Destructive = false, Idempotent = true, UseStructuredContent = true)]
@@ -196,25 +196,41 @@ public static partial class TestingTools
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The requested Rebellion case does not match its prepared campaign-test enrollment.");
-        CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
-            campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        JsonElement testCase = FindRebellionCase(LoadRebellionManifest(options), caseId);
+        string manifestProfile = testCase.GetProperty("profile").GetString() ?? string.Empty;
+        bool outbreakReload = caseId == "RB-NATIVE-004" && manifestProfile == "outbreak_reload";
+        CampaignTestAuthorization authorization;
+        CampaignCheckpointReceipt? checkpoint = null;
+        if (outbreakReload)
+        {
+            if (stage is not ("prepare" or "verify") || !string.IsNullOrWhiteSpace(targetSearch))
+                throw new ArgumentException("Outbreak reload has fixed prepare and verify stages without a caller-selected hero.");
+            if (stage == "prepare")
+                throw new InvalidOperationException("Outbreak preparation is held pending independent operator authority.");
+            (authorization, checkpoint, _) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
+                campaignTestRunId, campaignId, true, cancellationToken, postArmCurrentDiagnostic: true).ConfigureAwait(false);
+            campaignTests.RequireRetainedRecoveryCheckpoint(authorization);
+        }
+        else
+            authorization = await campaignTests.RequireArmedOwnedSaveAsync(
+                campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
         if (!string.Equals(state.DisposableSaveName, authorization.CurrentSaveName,
                 StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException(
                 "The prepared Rebellion disposable save no longer matches campaign-test enrollment.");
 
-        JsonElement testCase = FindRebellionCase(LoadRebellionManifest(options), caseId);
-        string manifestProfile = testCase.GetProperty("profile").GetString() ?? string.Empty;
         bool staged = manifestProfile.Equals("travel_save_roundtrip", StringComparison.Ordinal);
         string profile = manifestProfile;
-        if (staged)
+        if (outbreakReload)
+            profile = stage == "prepare" ? "outbreak_reload_prepare" : "outbreak_reload_verify";
+        else if (staged)
         {
             if (stage == "run")
                 throw new ArgumentException("Travel save-roundtrip requires prepare and verify stages.", nameof(stage));
             profile = stage == "prepare" ? "travel_prepare" : "travel_verify";
         }
         else if (stage != "run")
-            throw new ArgumentException("Only travel save-roundtrip supports staged execution.", nameof(stage));
+            throw new ArgumentException("Only manifest-owned reload cases support staged execution.", nameof(stage));
 
         bool language = manifestProfile == "language" || staged && stage == "prepare";
         var steps = new List<object>();
@@ -297,21 +313,29 @@ public static partial class TestingTools
                 timeoutSeconds = 600 });
         }
         string liveRunId = RebellionLiveRunId(runId, caseId, stage);
+        var enrollment = new Dictionary<string, object>
+        {
+            ["campaignId"] = campaignId, ["campaignTestRunId"] = campaignTestRunId, ["certificationRunId"] = runId,
+            ["disposableSaveName"] = authorization.CurrentSaveName, ["protectedBaselineSaveName"] = authorization.BaselineSaveName,
+            ["timelineId"] = authorization.TimelineId, ["sourceFingerprint"] = state.SourceFingerprint,
+            ["clientBuild"] = state.ClientBuild, ["serverBuild"] = state.ServerBuild,
+            ["providerConfigurationFingerprint"] = state.ProviderConfigurationFingerprint,
+            ["catalogFingerprint"] = state.CatalogFingerprint, ["bannerlordVersion"] = state.BannerlordVersion
+        };
+        if (checkpoint != null)
+        {
+            enrollment["source"] = "reign_mcp_rebellion_outbreak_reload";
+            enrollment["recoveryCheckpointVerified"] = true;
+            enrollment["checkpointSavePointId"] = checkpoint.SavePointId;
+            enrollment["checkpointSha256"] = checkpoint.Sha256.ToUpperInvariant();
+        }
         ApiEnvelope started = await api.PostAsync("/tests/live/run/start", new
         {
             schemaVersion = 2, campaignId, runId = liveRunId,
             mode = "individual_chat",
             label = "Rebellion certification " + caseId + " " + stage,
             presentation = "visible", effects = "guarded", autoCompleteWhenIdle = true,
-            enrollment = new
-            {
-                campaignId, campaignTestRunId, certificationRunId = runId,
-                disposableSaveName = authorization.CurrentSaveName,
-                protectedBaselineSaveName = authorization.BaselineSaveName,
-                authorization.TimelineId, state.SourceFingerprint, state.ClientBuild,
-                state.ServerBuild, state.ProviderConfigurationFingerprint,
-                state.CatalogFingerprint, state.BannerlordVersion
-            },
+            enrollment,
             caseId, stage, naturalLanguageRequired = language, steps
         }, cancellationToken).ConfigureAwait(false);
         state.Executions.Add(new RebellionCertificationExecution
@@ -357,6 +381,8 @@ public static partial class TestingTools
         };
         var passed = state.ContractPasses.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var reports = new List<object?>();
+        var preparedOutbreaks = new HashSet<string>(StringComparer.Ordinal);
+        var verifiedOutbreaks = new HashSet<string>(StringComparer.Ordinal);
         foreach (RebellionCertificationExecution execution in state.Executions.AsEnumerable().Reverse())
         {
             string instance = RebellionExecutionInstance(execution);
@@ -372,8 +398,13 @@ public static partial class TestingTools
             bool evidenceBound = report.Data.HasValue
                 && RebellionReportMatchesPreparedEvidence(report.Data.Value, state,
                     execution.LiveRunId);
-            bool casePassed = execution.StartAccepted && completed && noBypass && evidenceBound;
-            if (casePassed) passed.Add(instance);
+            string outbreakMovement = execution.CaseId == "RB-NATIVE-004" && report.Data.HasValue
+                ? ReadRebellionOutbreakReportMovement(report.Data.Value, execution.Stage) : "";
+            bool casePassed = execution.StartAccepted && completed && noBypass && evidenceBound
+                && (execution.CaseId != "RB-NATIVE-004" || outbreakMovement.Length > 0);
+            if (casePassed && execution.CaseId != "RB-NATIVE-004") passed.Add(instance);
+            if (casePassed && outbreakMovement.Length > 0)
+                (execution.Stage == "prepare" ? preparedOutbreaks : verifiedOutbreaks).Add(outbreakMovement);
             reports.Add(new Dictionary<string, object?>
             {
                 ["instance"] = instance, ["liveRunId"] = execution.LiveRunId,
@@ -382,8 +413,13 @@ public static partial class TestingTools
                 ["passed"] = casePassed, ["report"] = report
             });
         }
+        if (preparedOutbreaks.Overlaps(verifiedOutbreaks))
+        {
+            passed.Add("RB-NATIVE-004::prepare");
+            passed.Add("RB-NATIVE-004::verify");
+        }
         string[] missing = state.RequiredInstances.Where(instance =>
-            instance.Equals("RB-NATIVE-001", StringComparison.OrdinalIgnoreCase)
+            IsStagedRebellionCase(instance)
                 ? !passed.Contains(instance + "::prepare") || !passed.Contains(instance + "::verify")
                 : !passed.Contains(instance)).ToArray();
         var blockers = new List<string>();
@@ -422,7 +458,7 @@ public static partial class TestingTools
         profile = (profile ?? string.Empty).Trim().ToLowerInvariant();
         if (!RebellionProfiles.Contains(profile, StringComparer.Ordinal)
             || profile is "native_setup" or "language_observe" or "mixed_transfer"
-                or "foreign_reintegration")
+                or "foreign_reintegration" or "outbreak_reload_prepare" or "outbreak_reload_verify")
             throw new ArgumentException("Unsupported legacy rebellion profile.", nameof(profile));
         if (profile is not ("smoke" or "feature"))
             disposableSaveName = RequiredRebellionSaveName(disposableSaveName);
@@ -455,7 +491,8 @@ public static partial class TestingTools
     {
         foreach (string group in new[] { "languageCases", "deterministicCases", "nativeCases" })
             foreach (JsonElement item in manifest.GetProperty(group).EnumerateArray())
-                yield return item.GetProperty("id").GetString() ?? string.Empty;
+                if (!item.TryGetProperty("required", out var required) || required.ValueKind != JsonValueKind.False)
+                    yield return item.GetProperty("id").GetString() ?? string.Empty;
     }
 
     private static JsonElement FindRebellionCase(JsonElement manifest, string caseId)
@@ -495,9 +532,41 @@ public static partial class TestingTools
             .ToLowerInvariant();
     }
 
+    private static bool IsStagedRebellionCase(string caseId) =>
+        caseId.Equals("RB-NATIVE-001", StringComparison.OrdinalIgnoreCase)
+        || caseId.Equals("RB-NATIVE-004", StringComparison.OrdinalIgnoreCase);
+
     private static string RebellionExecutionInstance(RebellionCertificationExecution execution) =>
-        execution.CaseId.Equals("RB-NATIVE-001", StringComparison.OrdinalIgnoreCase)
+        IsStagedRebellionCase(execution.CaseId)
             ? execution.CaseId + "::" + execution.Stage : execution.CaseId;
+
+    internal static string ReadRebellionOutbreakReportMovement(JsonElement report, string stage)
+    {
+        static bool Exact(JsonElement node, string property, string expected) =>
+            node.ValueKind == JsonValueKind.Object && node.TryGetProperty(property, out var value)
+            && value.ValueKind == JsonValueKind.String && value.GetString() == expected;
+        static bool True(JsonElement node, string property) =>
+            node.ValueKind == JsonValueKind.Object && node.TryGetProperty(property, out var value)
+            && value.ValueKind == JsonValueKind.True;
+        string expectedProfile = stage == "prepare" ? "outbreak_reload_prepare"
+            : stage == "verify" ? "outbreak_reload_verify" : "";
+        if (expectedProfile.Length == 0 || report.ValueKind != JsonValueKind.Object
+            || !report.TryGetProperty("commands", out var commands) || commands.ValueKind != JsonValueKind.Array
+            || commands.GetArrayLength() != 1)
+            return "";
+        var command = commands[0];
+        if (!Exact(command, "operation", "rebellion_test") || !Exact(command, "profile", expectedProfile)
+            || !Exact(command, "caseId", "RB-NATIVE-004") || !Exact(command, "status", "completed")
+            || !command.TryGetProperty("result", out var result) || !True(result, "passed")
+            || !result.TryGetProperty("nativeBoundary", out var boundary) || boundary.ValueKind != JsonValueKind.Object
+            || !boundary.TryGetProperty("rebelRealmId", out var realm) || realm.ValueKind != JsonValueKind.String
+            || string.IsNullOrEmpty(realm.GetString())
+            || !boundary.TryGetProperty("movementId", out var movement) || movement.ValueKind != JsonValueKind.String)
+            return "";
+        bool complete = stage == "prepare" || True(result, "separateNativeProcess") && True(result, "retainedHold")
+            && True(result, "sameRealmFounderAndAllegiance") && True(result, "replayPublishedNothing");
+        return complete ? movement.GetString() ?? "" : "";
+    }
 
     private static string RebellionStatePath(ReignMcpOptions options, string runId)
     {

@@ -199,9 +199,31 @@ public sealed class ReignSavePayloadCodecTests
         Assert.Contains("if (!IsCurrentCampaign || _identitySyncing || Hero.MainHero == null) return;", source);
         Assert.Contains("var fence = ReignServerClient.RequestFence.Capture();", source);
         Assert.Contains("IsCurrentCampaign && fence.IsCurrentActionPoll()", source);
-        Assert.Contains("PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, OwnsPoll)", source);
-        Assert.Contains("ownsPoll() ? ApplyOrReadSavedReceipt(campaignId, timelineId, command) : null", source);
-        Assert.Contains("retained.CampaignId == campaignId && retained.TimelineId == timelineId && retained.MaterialSha256 == digest", source);
+        Assert.Contains("var verified = OwnedManualNativeEditorDeliveryReady ? ReignSaveSyncCoordinator.CurrentVerifiedLoad : null;", source);
+        Assert.Contains("verified.CampaignId != campaignId || verified.RestoreGeneration != fence.SharedActivityGeneration", source);
+        Assert.Contains("!ReignCharacterEditorClient.IsNativeOwnerNonce(verified.LoadSessionId)", source);
+        Assert.Contains("(verified == null || ReferenceEquals(verified, ReignSaveSyncCoordinator.CurrentVerifiedLoad))", source);
+
+        int ownerCheck = source.IndexOf("if (!OwnsPoll()) return;", StringComparison.Ordinal);
+        int pollStart = source.IndexOf(
+            "PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, verified?.LoadSessionId ?? \"\", OwnsPoll)",
+            StringComparison.Ordinal);
+        int pollRequest = source.IndexOf("timelineId, restoreGeneration, nativeEditorSession, ownsPoll).ConfigureAwait(false)", StringComparison.Ordinal);
+        int sessionCheck = source.IndexOf(
+            "if (command.IsManualNative && (nativeEditorSession.Length == 0 || command.ManualClaimSessionId != nativeEditorSession))",
+            StringComparison.Ordinal);
+        int nativeApply = source.IndexOf("ownsPoll() ? ApplyOrReadSavedReceipt(campaignId, timelineId, command) : null", StringComparison.Ordinal);
+        int report = source.IndexOf("result.Applied, result.Errors, ownsPoll)", StringComparison.Ordinal);
+        Assert.True(ownerCheck >= 0 && pollStart > ownerCheck && pollRequest > pollStart,
+            "Check the current owner before polling and carry its captured session and fence into the request.");
+        Assert.True(sessionCheck > pollRequest && nativeApply > sessionCheck && report > nativeApply,
+            "Check the manual claim session before applying under the same owner and reporting the result.");
+        Assert.Contains("retained.Matches(campaignId, timelineId, digest, command)", source);
+        Assert.Contains("CampaignId == campaign && TimelineId == timeline && MaterialSha256 == material", source);
+        Assert.Contains("(ManualOriginLineageId ?? \"\") == command.ManualOriginLineageId", source);
+        Assert.Contains("(ManualOriginMaterialSha256 ?? \"\") == command.ManualOriginMaterialSha256", source);
+        Assert.Contains("(AutomaticOriginId ?? \"\") == command.AutomaticOriginId", source);
+        Assert.Contains("(AutomaticOriginMaterialSha256 ?? \"\") == command.AutomaticOriginMaterialSha256", source);
         Assert.Contains("_nativeEditorReceipts.Add(command.CommandId, receipt);", source);
         Assert.Contains("dataStore.SyncData(\"_reignCharacterEditor_nativeReceipts_v1\", ref chunks);", source);
         Assert.Contains("result.Applied, result.Errors, ownsPoll)", source);

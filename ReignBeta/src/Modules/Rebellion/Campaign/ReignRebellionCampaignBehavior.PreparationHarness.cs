@@ -486,6 +486,119 @@ namespace ReignBeta.Rebellion.Campaign
             };
         }
 
+        private const string OutbreakReloadWitnessField = "disposableFounderInterruptionV1";
+
+        internal JObject RunOutbreakReloadFixture(bool verifying, string runId, string enrollmentId, string save,
+            string campaign, string timeline, string point, string loadSession, string origin, string process)
+        {
+            var prior = _movements.Where(row => row != null
+                && (ParseObject(row.ExecutionSnapshotJson)[OutbreakReloadWitnessField] as JObject)?.Value<string>("runId") == runId)
+                .ToArray();
+            JObject Failure(string reason) => new JObject { ["passed"] = false, ["error"] = reason };
+            string[] RealmIds() => Kingdom.All.Where(realm => realm != null).Select(realm => realm.StringId)
+                .OrderBy(id => id, StringComparer.Ordinal).ToArray();
+
+            JObject ReadNativeBoundary(ReignRebellionMovementRecord row, Kingdom parent, Kingdom rebels)
+            {
+                var founderClan = FindClan(row.LeaderClanStringId);
+                var founder = FindHero(row.LeaderHeroStringId);
+                var ruler = FindHero(row.OriginalRulerHeroStringId);
+                if (!HasEstablishedOutbreakAuthority(parent, ruler, founderClan, founder, rebels)
+                    || parent.IsAtWarWith(rebels) || rebels.IsAtWarWith(parent)
+                    || Kingdom.All.Count(realm => realm?.StringId == row.RebelKingdomStringId) != 1
+                    || rebels.Clans.Count != 1 || !rebels.Clans.Contains(founderClan))
+                    return null;
+                var loyalties = new JObject();
+                foreach (var member in MembersOf(row).OrderBy(member => member.ClanStringId, StringComparer.Ordinal))
+                {
+                    var clan = FindClan(member.ClanStringId);
+                    if (clan == null || clan.IsEliminated || clan.Kingdom != (clan == founderClan ? rebels : parent))
+                        return null;
+                    loyalties.Add(member.ClanStringId, clan.Kingdom.StringId);
+                }
+                return new JObject
+                {
+                    ["movementId"] = row.MovementId, ["parentRealmId"] = parent.StringId,
+                    ["rebelRealmId"] = rebels.StringId, ["founderClanId"] = founderClan.StringId,
+                    ["founderHeroId"] = founder.StringId, ["challengedRulerId"] = ruler.StringId,
+                    ["memberNativeRealms"] = loyalties
+                };
+            }
+
+            bool Held(ReignRebellionMovementRecord row) => row.Stage == "declared" && !row.ResolutionApplied
+                && row.ExecutionPhase == "outbreak_recovery_pending"
+                && row.ResolutionCause == "fixture_verified_founder_interruption"
+                && string.IsNullOrEmpty(row.WinningSide);
+
+            if (verifying)
+            {
+                if (prior.Length != 1) return Failure("Expected one interruption serialized by this exact certification run.");
+                var row = prior[0];
+                JObject snapshot = ParseObject(row.ExecutionSnapshotJson);
+                var retained = (JObject)snapshot[OutbreakReloadWitnessField];
+                if (retained.Value<string>("campaign") != campaign || retained.Value<string>("timeline") != timeline
+                    || retained.Value<string>("enrollmentId") != enrollmentId || retained.Value<string>("save") != save
+                    || retained.Value<string>("origin") != origin
+                    || string.IsNullOrEmpty(retained.Value<string>("fromPoint")) || retained.Value<string>("fromPoint") == point
+                    || string.IsNullOrEmpty(retained.Value<string>("fromLoad")) || retained.Value<string>("fromLoad") == loadSession
+                    || string.IsNullOrEmpty(retained.Value<string>("fromProcess")) || retained.Value<string>("fromProcess") == process
+                    || !Held(row))
+                    return Failure("The saved owner, new exact checkpoint, or separate native process does not match.");
+                Kingdom parent = FindKingdom(row.ParentKingdomStringId);
+                Kingdom rebels = FindKingdom(row.RebelKingdomStringId);
+                var before = ReadNativeBoundary(row, parent, rebels);
+                var history = ReignServices.WorldHistory;
+                if (before == null || !JToken.DeepEquals(before, retained["nativeBoundary"]) || history == null)
+                    return Failure("The actual prior realm and founder did not survive the owned reload.");
+                string heldSnapshot = row.ExecutionSnapshotJson;
+                string[] beforeRealmIds = RealmIds();
+                long sequence = history.Sequence;
+                // The held row was proven above. Observe its shared core guard directly so
+                // an external cohort prefix on the ordinary entry point cannot produce a pass.
+                StartCivilWarCore(row, null);
+                bool unchanged = Held(row) && heldSnapshot == row.ExecutionSnapshotJson
+                    && beforeRealmIds.SequenceEqual(RealmIds(), StringComparer.Ordinal)
+                    && JToken.DeepEquals(before, ReadNativeBoundary(row, parent, rebels))
+                    && ReferenceEquals(history, ReignServices.WorldHistory) && history.Sequence == sequence;
+                return new JObject
+                {
+                    ["passed"] = unchanged, ["separateNativeProcess"] = true,
+                    ["newLoadedSavePointId"] = point, ["retainedHold"] = true,
+                    ["sameRealmFounderAndAllegiance"] = unchanged, ["replayPublishedNothing"] = unchanged,
+                    ["nativeBoundary"] = before, ["error"] = unchanged ? "" : "Held outbreak changed on reentry."
+                };
+            }
+
+            if (prior.Length != 0) return Failure("This certification run already owns an interrupted movement.");
+            Clan playerClan = Clan.PlayerClan;
+            Kingdom startingRealm = playerClan?.Kingdom;
+            string refusal = DeclarationPreflightFailure(startingRealm, playerClan, startingRealm?.Leader);
+            if (!string.IsNullOrEmpty(refusal)) return Failure(refusal);
+            string[] initialRealmIds = RealmIds();
+            ReignRebellionMovementRecord interrupted = null;
+            JObject boundary = null;
+            bool declared = TryStartDirectedMovement(startingRealm, playerClan, Enumerable.Empty<Clan>(), out _,
+                (row, rebels) =>
+                {
+                    interrupted = row;
+                    boundary = ReadNativeBoundary(row, startingRealm, rebels);
+                });
+            if (declared || interrupted == null || boundary == null || !Held(interrupted)
+                || !RealmIds().Except(initialRealmIds, StringComparer.Ordinal).SequenceEqual(new[] { interrupted.RebelKingdomStringId }))
+                return Failure("The real verified native founder step did not enter the exact interrupted boundary.");
+
+            JObject execution = ParseObject(interrupted.ExecutionSnapshotJson);
+            execution[OutbreakReloadWitnessField] = new JObject
+            {
+                ["runId"] = runId, ["enrollmentId"] = enrollmentId, ["save"] = save,
+                ["campaign"] = campaign, ["timeline"] = timeline, ["origin"] = origin,
+                ["fromPoint"] = point, ["fromLoad"] = loadSession, ["fromProcess"] = process,
+                ["nativeBoundary"] = boundary.DeepClone()
+            };
+            interrupted.ExecutionSnapshotJson = execution.ToString(Newtonsoft.Json.Formatting.None);
+            return new JObject { ["passed"] = true, ["prepareSavePointId"] = point, ["nativeBoundary"] = boundary };
+        }
+
         private static Clan PrepareHarnessNonPlayerRuler(Kingdom kingdom)
         {
             if (kingdom == null || Clan.PlayerClan == null) return null;
