@@ -20,6 +20,8 @@ $ErrorActionPreference = 'Stop'
 # Provisioning and cutover are separate from source validation. Default invocation
 # is read-only; this script never switches a launcher, stops Skyrim, drops a source
 # database, unregisters a distro, or overwrites an existing target database.
+# Provision targets the current server baseline: a clean Debian 13 (trixie) rootfs
+# with Debian's PostgreSQL 17. A Debian 12 / PostgreSQL 15 rootfs is refused.
 if ($SourceDistro -notmatch '^[A-Za-z0-9_.-]+$' -or $SourceDistro -eq $TargetDistro) {
     throw 'Source must be a distinct, simple WSL distribution name.'
 }
@@ -27,7 +29,7 @@ $plan = [ordered]@{
     schema = 'reign_database_isolation_v1'; mode = $Mode
     sourceDistro = $SourceDistro; sourcePort = 5432
     targetDistro = $TargetDistro; targetPort = $TargetPort
-    database = 'Reign'; owner = 'dwemer'; postgresMajor = 15
+    database = 'Reign'; owner = 'dwemer'; debianVersion = '13'; postgresMajor = 17
     cutoverPerformed = $false; originalDatabaseRetained = $true
 }
 if ($Mode -eq 'Plan') { $plan | ConvertTo-Json; return }
@@ -52,7 +54,7 @@ function Assert-ReignHash([string]$Path, [string]$Expected) {
 }
 
 if ($Mode -eq 'Provision') {
-    if (!$RootfsTar -or !$DatabasePassword) { throw 'Provision requires a verified clean Debian 12 rootfs and the Reign database password as SecureString.' }
+    if (!$RootfsTar -or !$DatabasePassword) { throw 'Provision requires a verified clean Debian 13 rootfs and the Reign database password as SecureString.' }
     Assert-ReignHash $RootfsTar $RootfsSha256
     $distros = ((& wsl.exe --list --quiet) -replace "`0", '')
     if ($distros.Trim() -contains $TargetDistro) { throw 'Target distro already exists; refusing to overwrite it.' }
@@ -61,10 +63,13 @@ if ($Mode -eq 'Provision') {
     & wsl.exe --import $TargetDistro ([IO.Path]::GetFullPath($InstallDirectory)) ([IO.Path]::GetFullPath($RootfsTar)) --version 2
     if ($LASTEXITCODE -ne 0) { throw 'WSL import failed; no source state changed.' }
     $os = Invoke-ReignWsl $TargetDistro @('cat', '/etc/os-release')
-    if ($os -notmatch 'ID=debian' -or $os -notmatch 'VERSION_ID="12"') { throw 'Imported rootfs must be clean Debian 12. Inspect it before continuing.' }
+    if ($os -notmatch '(?m)^ID=debian\s*$' -or $os -notmatch '(?m)^VERSION_ID="13"\s*$') { throw 'Imported rootfs must be clean Debian 13. Inspect it before continuing.' }
+    # A clean rootfs has no PostgreSQL state; never adopt an existing cluster of any major.
+    & wsl.exe -d $TargetDistro -u root -- test ! -e /etc/postgresql -a ! -e /var/lib/postgresql
+    if ($LASTEXITCODE -ne 0) { throw 'Imported rootfs already contains PostgreSQL state. Inspect it before continuing.' }
     $null = Invoke-ReignWsl $TargetDistro @('apt-get', 'update')
-    $null = Invoke-ReignWsl $TargetDistro @('env', 'DEBIAN_FRONTEND=noninteractive', 'apt-get', 'install', '-y', 'postgresql-15', 'postgresql-client-15')
-    $null = Invoke-ReignWsl $TargetDistro @('pg_conftool', '15', 'main', 'set', 'port', "$TargetPort")
+    $null = Invoke-ReignWsl $TargetDistro @('env', 'DEBIAN_FRONTEND=noninteractive', 'apt-get', 'install', '-y', 'postgresql-17', 'postgresql-client-17')
+    $null = Invoke-ReignWsl $TargetDistro @('pg_conftool', '17', 'main', 'set', 'port', "$TargetPort")
     $null = Invoke-ReignWsl $TargetDistro @('service', 'postgresql', 'restart')
     $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($DatabasePassword)
     try {
