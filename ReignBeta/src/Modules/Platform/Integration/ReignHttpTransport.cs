@@ -572,7 +572,7 @@ namespace ReignBeta.Platform.Integration
         // Court observes the shared breaker. Save Sync owns its readiness gates
         // and continues to report reachability without taking a recovery claim.
         internal static async Task<DirectJsonResponse> PostDirectJsonAsync(HttpClient client, string route,
-            string json, bool checkAvailability = false)
+            string json, bool checkAvailability = false, Func<bool> requestOwner = null)
         {
             long probeClaim = 0;
             if (checkAvailability && !ReignServerEndpoint.TryBeginRequest(out string unavailable, out probeClaim))
@@ -587,8 +587,9 @@ namespace ReignBeta.Platform.Integration
                     {
                         Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
                     })
-                    using (HttpResponseMessage response = await attempt.SendAsync(client, request).ConfigureAwait(false))
                     {
+                        await EnsureRequestOwnerAsync(requestOwner, "direct transport dispatch").ConfigureAwait(false);
+                        using HttpResponseMessage response = await attempt.SendAsync(client, request).ConfigureAwait(false);
                         string body = await ReadBodyAsync(response).ConfigureAwait(false);
                         timer.Stop();
                         ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);

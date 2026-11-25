@@ -62,6 +62,8 @@ namespace ReignBeta.Court.Campaign
         private bool _courtWeddingReportInFlight;
         internal CourtSession _session;
         private long _serverRevision;
+        // The royal docket can be reused across sittings.
+        private object _courtSittingOwner = new object();
         private bool _serverSessionOpened;
         private float _lastServerTickDay = -1000f;
         internal bool _serverRequestInFlight;
@@ -355,6 +357,7 @@ namespace ReignBeta.Court.Campaign
             int day = CurrentDay();
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
             string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
+            _courtSittingOwner = new object();
             bool reuseRoyalDocket = authority == ReignCourtAuthority.Royal && _session != null && _session.Authority == ReignCourtAuthority.Royal
                 && string.Equals(_session.CampaignId, campaignId, StringComparison.Ordinal) && string.Equals(_session.TimelineId, timelineId, StringComparison.Ordinal);
             if (reuseRoyalDocket)
@@ -397,6 +400,7 @@ namespace ReignBeta.Court.Campaign
         public void CloseSession(string reason)
         {
             if (_session == null) return;
+            _courtSittingOwner = new object();
             if (_serverSessionOpened) _ = CloseServerSessionAsync(reason);
             _session.State = ReignCourtSessionState.Closed;
             _session.ClosedDay = CurrentDayFloat();
@@ -805,8 +809,8 @@ namespace ReignBeta.Court.Campaign
                 _consecutiveAuthorityFailures = 0;
                 _lastAuthorityFailureReason = reason ?? string.Empty;
             }
-            _consecutiveAuthorityFailures = ReignCourtAuthorityStability.RecordFailure(
-                _consecutiveAuthorityFailures);
+            _consecutiveAuthorityFailures = ReignCourtAuthorityStability.RecordObservedFailure(
+                _consecutiveAuthorityFailures, ref _courtSittingOwner);
             return ReignCourtAuthorityStability.ShouldInterrupt(_consecutiveAuthorityFailures);
         }
 

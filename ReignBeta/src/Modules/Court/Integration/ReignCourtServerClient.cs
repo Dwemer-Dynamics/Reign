@@ -456,7 +456,8 @@ namespace ReignBeta.Court.Integration
             }
         }
 
-        public static Task<ReignCourtServerResponse> ValidateSupplyTransferAsync(ReignSupplyTransferRequest request)
+        internal static async Task<ReignCourtServerResponse> ValidateSupplyTransferAsync(ReignSupplyTransferRequest request,
+            long sessionRevision, string sharedActivityGeneration, Func<bool> requestOwner)
         {
             JObject transfer = new JObject
             {
@@ -471,10 +472,34 @@ namespace ReignBeta.Court.Integration
                 ["goldRecipientStringId"] = request?.GoldRecipientStringId ?? string.Empty,
                 ["vassalConsentGranted"] = request?.VassalConsentGranted ?? false
             };
-            JObject payload = BasePayload(request?.CommandId ?? string.Empty, 0);
+            string commandId = request?.CommandId ?? string.Empty;
+            JObject payload = BasePayload(commandId, sessionRevision);
+            payload["sharedActivityGeneration"] = sharedActivityGeneration;
             payload["transfer"] = transfer;
-            payload["termsHash"] = ReignCourtTerms.Hash(transfer.ToString(Formatting.None));
-            return PostAsync("/court/supply/validate", payload);
+            string termsHash = ReignCourtTerms.Hash(transfer.ToString(Formatting.None));
+            payload["termsHash"] = termsHash;
+
+            ReignCourtServerResponse response = await PostAsync("/court/supply/validate-owned", payload, requestOwner).ConfigureAwait(false);
+            if (!response.Ok) return response;
+
+            var expectedAction = (JObject)transfer.DeepClone();
+            expectedAction["type"] = "transfer_item";
+            expectedAction["commandId"] = commandId;
+            JObject receipt = response.Raw;
+            if (receipt == null || !JToken.DeepEquals(receipt["result"], "court_supply_transfer_validated")
+                || !JToken.DeepEquals(receipt["campaignId"], payload["campaignId"])
+                || !JToken.DeepEquals(receipt["timelineId"], payload["timelineId"])
+                || !JToken.DeepEquals(receipt["sessionId"], payload["sessionId"])
+                || !JToken.DeepEquals(receipt["sessionRevision"], payload["expectedRevision"])
+                || !JToken.DeepEquals(receipt["sharedActivityGeneration"], payload["sharedActivityGeneration"])
+                || !JToken.DeepEquals(receipt["commandId"], payload["commandId"])
+                || !JToken.DeepEquals(receipt["termsHash"], payload["termsHash"])
+                || response.NativeActions.Count != 1 || !JToken.DeepEquals(response.NativeActions[0], expectedAction))
+            {
+                return new ReignCourtServerResponse { Error = "The supply validation did not match the exact requested transfer." };
+            }
+
+            return response;
         }
 
         public static Task<ReignCourtServerResponse> ValidateNativeActionAsync(JObject action, string commandId)
@@ -524,9 +549,11 @@ namespace ReignBeta.Court.Integration
             catch (Exception ex) { return new ReignCourtServerResponse { Ok = false, Error = ex.Message }; }
             try
             {
+                await ReignRequestOwnership.EnsureAsync(requestOwner, "Court readiness").ConfigureAwait(false);
                 string json = (payload ?? new JObject()).ToString(Formatting.None);
                 ReignHttpTransport.DirectJsonResponse response =
-                    await ReignHttpTransport.PostDirectJsonAsync(Client, route, json, checkAvailability: true).ConfigureAwait(false);
+                    await ReignHttpTransport.PostDirectJsonAsync(Client, route, json, checkAvailability: true,
+                        requestOwner: requestOwner).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + response.StatusCode + ": " + response.Body };
                 JObject result = response.Json;
                 return new ReignCourtServerResponse

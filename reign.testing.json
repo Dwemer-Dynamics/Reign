@@ -1747,6 +1747,24 @@
     "safety": "Provider-free deterministic checks use the non-listening artifact-bound Verification Lab. Provider/native examples require existing cost and exact disposable-campaign gates. No normal save mutation. Native identity, service persistence, home privacy, teleport/native chat, invitation/recruitment and save/load still need the bounded in-game session.",
     "guide": "docs/agent/ENCOUNTERED_RESIDENTS_IMPLEMENTATION.md"
   },
+  "courtSupplyTransfer": {
+    "schema": "reign-court-supply-ownership-v1",
+    "nativeOwnership": "The game thread captures the loaded campaign, active Court behavior and sitting, live royal access, the exact capital designation revision and host, and the Save Sync point before validation. The owner is checked after readiness, before dispatch and before native replay or effect. Changes to the designation invalidate the owner even if the same town is selected again. The first observed authority failure retires the owner during grace and recovery cannot revive it. An unobserved ruler change away and back is outside this guarantee. The owned server route requires the exact active capital session revision and restore generation before storing the command and audit. The response echoes the same ownership, command and terms with one exact transfer_item action.",
+    "contractChecks": [
+      "CourtSupplyOwnerGatePrecedesNativeReplayOrTransfer",
+      "CourtSupplyValidationRequiresOneExactEchoedTransfer",
+      "CourtSupplyOwnerPassesThroughReadinessAndEachDirectDispatch",
+      "owned_supply_stale_restore_rejects_before_replay_or_writes",
+      "owned_supply_current_restore_accepts_once",
+      "CourtSupplyRequiresLiveRoyalAccessAndTheOriginalCapitalDesignation",
+      "owned_supply_stale_sitting_rejects_before_replay",
+      "owned_supply_closed_spelling_rejects_before_writes",
+      "owned_supply_inactive_spelling_rejects_before_writes",
+      "owned_supply_interrupted_spelling_rejects_before_writes",
+      "CourtSupplyHeldReplyIsRetiredByObservedAuthorityLossEvenAfterRecovery"
+    ],
+    "nativeAcceptance": "Use an enrolled disposable Court and the existing Send 25 Grain command. Verify current-scope success and both native roster deltas. Hold readiness and retire the loaded owner or Save Sync point before dispatch. Separately hold a valid reply while capital status or royal authority changes within the same Court sitting, including redesignation back to the original town. Hold another valid reply through one ordinary authority failure during grace and recovery of the original ruler within that sitting. Require both rosters and the native command ledger to remain unchanged, then require a fresh valid request to apply. Paid partial effects and restart recovery require separate measured proof."
+  },
   "courtAudienceArtwork": {
     "schema": "reign-court-audience-art-v1",
     "verification": "CourtAudienceSceneTests and ScenePreparationTests through changed/Tier 3 validation; existing Court and persistence boundary checks.",

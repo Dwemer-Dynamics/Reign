@@ -40,13 +40,17 @@ namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {
-        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null)
+        private const string CourtOwnedActionUnavailable = "This court action belongs to a different loaded court or Save Sync point.";
+
+        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null,
+            Func<bool> requestOwner = null, Action onSuccess = null)
         {
             return await ReignMainThread.InvokeAsync(() =>
             {
                 JArray receipts = new JArray();
                 try
                 {
+                    if (requestOwner != null && !requestOwner()) throw new InvalidOperationException(CourtOwnedActionUnavailable);
                     var commands = (actions ?? new JArray()).OfType<JObject>().ToList();
                     if (commands.Count > 1 && commands.Any(a => a.Value<string>("type") == "marriage_response"
                         || ReignMarriageService.HasMarriageIntent(ReignCourtDialogueClient.ParseCourtWorldAction(a["action"] as JObject ?? a["worldAction"] as JObject))))
@@ -229,6 +233,7 @@ namespace ReignBeta.Court.Campaign
                         receipt["ok"] = true;
                         receipts.Add(receipt);
                     }
+                    onSuccess?.Invoke();
                     return new NativeCourtExecution { Success = true, Receipt = new JObject { ["ok"] = true, ["actions"] = receipts } };
                 }
                 catch (Exception ex)
