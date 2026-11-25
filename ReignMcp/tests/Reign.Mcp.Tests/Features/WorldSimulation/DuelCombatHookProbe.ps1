@@ -6,7 +6,9 @@ $working=Join-Path $EvidenceDirectory 'sandbox\bin\Win64_Shipping_Client'
 Set-Location -LiteralPath $working
 [Environment]::CurrentDirectory=$working
 $gameBin=Join-Path $BannerlordPath 'bin\Win64_Shipping_Client'
-$script:duelRoots=@($gameBin,[IO.Path]::GetDirectoryName($ClientAssembly),(Join-Path $BannerlordPath 'Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client'),(Join-Path $BannerlordPath 'Modules\SandBox\bin\Win64_Shipping_Client'))
+$harmonyBin=Join-Path $BannerlordPath 'Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client'
+if(-not [IO.File]::Exists((Join-Path $harmonyBin '0Harmony.dll'))){$workshopHarmony=[IO.Path]::GetFullPath((Join-Path $BannerlordPath '..\..\workshop\content\261550\2859188632\bin\Win64_Shipping_Client'));if([IO.File]::Exists((Join-Path $workshopHarmony '0Harmony.dll'))){$harmonyBin=$workshopHarmony}}
+$script:duelRoots=@($gameBin,[IO.Path]::GetDirectoryName($ClientAssembly),$harmonyBin,(Join-Path $BannerlordPath 'Modules\SandBox\bin\Win64_Shipping_Client'))
 $resolver=[ResolveEventHandler]{param($sender,$eventArgs)
     $name=([Reflection.AssemblyName]::new($eventArgs.Name)).Name+'.dll'
     foreach($root in $script:duelRoots){$path=Join-Path $root $name;if([IO.File]::Exists($path)){return [Reflection.Assembly]::LoadFrom($path)}}

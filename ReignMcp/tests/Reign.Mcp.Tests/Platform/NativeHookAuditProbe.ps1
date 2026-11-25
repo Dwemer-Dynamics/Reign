@@ -10,6 +10,8 @@ $roots=@([IO.Path]::GetDirectoryName($ClientAssembly),(Join-Path $BannerlordPath
 foreach($module in @('Native','SandBox','StoryMode','NavalDLC','Bannerlord.Harmony','Bannerlord.ButterLib','Bannerlord.UIExtenderEx','Bannerlord.MBOptionScreen')){
     $roots+=Join-Path $BannerlordPath ('Modules/'+$module+'/bin/Win64_Shipping_Client')
 }
+$harmonyBin=Join-Path $BannerlordPath 'Modules/Bannerlord.Harmony/bin/Win64_Shipping_Client'
+if(-not [IO.File]::Exists((Join-Path $harmonyBin '0Harmony.dll'))){$workshopHarmony=[IO.Path]::GetFullPath((Join-Path $BannerlordPath '../../workshop/content/261550/2859188632/bin/Win64_Shipping_Client'));if([IO.File]::Exists((Join-Path $workshopHarmony '0Harmony.dll'))){$harmonyBin=$workshopHarmony;$roots+=$harmonyBin}}
 $resolver=[ResolveEventHandler]{param($sender,$eventArgs)
     $name=([Reflection.AssemblyName]::new($eventArgs.Name)).Name+'.dll'
     foreach($root in $roots){$p=Join-Path $root $name;if([IO.File]::Exists($p)){return [Reflection.Assembly]::LoadFrom($p)}}
@@ -22,7 +24,7 @@ $garrisonOwner='reign.fixture.native-garrison-arguments'
 $garrisonChecks=0;$legacyGarrisonArityRejected=$false
 $ok=$false;$failure='';$bindings=@();$rows=[Collections.Generic.List[object]]::new();$unresolved=[Collections.Generic.List[object]]::new()
 try {
-    [Reflection.Assembly]::LoadFrom((Join-Path $BannerlordPath 'Modules/Bannerlord.Harmony/bin/Win64_Shipping_Client/0Harmony.dll')) | Out-Null
+    [Reflection.Assembly]::LoadFrom((Join-Path $harmonyBin '0Harmony.dll')) | Out-Null
     foreach($root in $roots){if(Test-Path $root){foreach($file in Get-ChildItem $root -Filter '*.dll'){
         if($file.Name -match '^(TaleWorlds\.|SandBox|StoryMode|NavalDLC)'){try{[Reflection.Assembly]::LoadFrom($file.FullName)|Out-Null}catch{}}
     }}}
