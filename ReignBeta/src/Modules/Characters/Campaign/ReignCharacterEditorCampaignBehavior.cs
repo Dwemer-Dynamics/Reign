@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -13,6 +16,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Persistence.Save;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
 
@@ -41,6 +45,9 @@ namespace ReignBeta.Characters.Campaign
         private bool _notableBackgroundInitializationInFlight;
         private float _lastPollDay = -1000f;
         private float _lastIdentitySyncDay = -1000f;
+        private bool _nativeEditorReceiptStorageReady = true;
+        private List<string> _unreadableNativeEditorReceipts;
+        private Dictionary<string, NativeEditorReceipt> _nativeEditorReceipts = new Dictionary<string, NativeEditorReceipt>(StringComparer.Ordinal);
 
         public ReignCharacterEditorCampaignBehavior()
         {
@@ -61,6 +68,33 @@ namespace ReignBeta.Characters.Campaign
             dataStore.SyncData("_reignCharacterEditor_lastPollDay", ref _lastPollDay);
             dataStore.SyncData("_reignIdentity_lastSyncDay", ref _lastIdentitySyncDay);
             dataStore.SyncData("_reignNotableBackgroundInitializationComplete", ref _notableBackgroundInitializationComplete);
+            List<string> chunks = null;
+            if (dataStore.IsSaving)
+                chunks = _nativeEditorReceiptStorageReady
+                    ? ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_nativeEditorReceipts))
+                    : _unreadableNativeEditorReceipts;
+            dataStore.SyncData("_reignCharacterEditor_nativeReceipts_v1", ref chunks);
+            if (!dataStore.IsLoading) return;
+
+            try
+            {
+                var loaded = ReignSavePayloadCodec.DecodeAuthoritativeState(chunks, null,
+                    json => JObject.Parse(json, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error })
+                        .ToObject<Dictionary<string, NativeEditorReceipt>>(),
+                    () => new Dictionary<string, NativeEditorReceipt>(StringComparer.Ordinal));
+                if (loaded.Any(pair => string.IsNullOrEmpty(pair.Key) || pair.Value == null || !pair.Value.IsValid()))
+                    throw new InvalidOperationException("A native editor receipt is incomplete.");
+                _nativeEditorReceipts = loaded;
+                _nativeEditorReceiptStorageReady = true;
+                _unreadableNativeEditorReceipts = null;
+            }
+            catch (Exception ex) when (ex is JsonException || ex is System.IO.InvalidDataException
+                || ex is FormatException || ex is InvalidOperationException)
+            {
+                _nativeEditorReceiptStorageReady = false;
+                _unreadableNativeEditorReceipts = chunks;
+                ReignLog.Warn("Character editor native receipts could not be loaded. The saved receipts were retained and new native edits are paused.");
+            }
         }
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
@@ -228,6 +262,7 @@ namespace ReignBeta.Characters.Campaign
         private void StartPoll(bool force)
         {
             if (!IsCurrentCampaign || _polling || Hero.MainHero == null) return;
+            if (!_nativeEditorReceiptStorageReady) return;
             float day = (float)CampaignTime.Now.ToDays;
             if (!force && day - _lastPollDay < 0.2f) return;
             string campaignId = ReignServerClient.GetCampaignId();
@@ -249,18 +284,48 @@ namespace ReignBeta.Characters.Campaign
                     timelineId, restoreGeneration, ownsPoll).ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
-                    CharacterEditorApplyResult result = await ReignMainThread.InvokeAsync(() =>
-                        ownsPoll() ? Apply(command) : null).ConfigureAwait(false);
-                    if (result == null) return;
-                    string status = result.Errors.Count == 0 ? "completed"
-                        : result.Applied.Count > 0 ? "partially_applied" : "failed";
+                    NativeEditorReceipt result = await ReignMainThread.InvokeAsync(() =>
+                        ownsPoll() ? ApplyOrReadSavedReceipt(campaignId, timelineId, command) : null).ConfigureAwait(false);
+                    if (result == null)
+                    {
+                        if (!await ReignMainThread.InvokeAsync(ownsPoll).ConfigureAwait(false)) return;
+                        continue;
+                    }
                     await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(campaignId, timelineId,
-                        restoreGeneration, command, status, result.Applied, result.Errors, ownsPoll).ConfigureAwait(false);
+                        restoreGeneration, command, result.Status, result.Applied, result.Errors, ownsPoll).ConfigureAwait(false);
                 }
             }
             catch (ReignRequestOwnerAbandonedException) { }
             catch (Exception ex) { ReignLog.Warn("Character editor campaign poll failed: " + ex.Message); }
             finally { _polling = false; }
+        }
+
+        private NativeEditorReceipt ApplyOrReadSavedReceipt(string campaignId, string timelineId, ReignCharacterEditorCommand command)
+        {
+            if (string.IsNullOrEmpty(command.CommandId)) return null;
+            // Property order is part of the native edit because some fields depend on earlier changes.
+            var material = new JObject { ["hero"] = command.HeroId, ["dangerous"] = command.Dangerous,
+                ["confirmation"] = command.Confirmation, ["changes"] = command.Changes };
+            using var sha = SHA256.Create();
+            string digest = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(material.ToString(Formatting.None)))).Replace("-", "");
+            if (_nativeEditorReceipts.TryGetValue(command.CommandId, out var retained))
+            {
+                // The same saved outcome can answer a newly issued claim for the exact command.
+                if (retained.CampaignId == campaignId && retained.TimelineId == timelineId && retained.MaterialSha256 == digest)
+                    return retained;
+                ReignLog.Warn("The saved Character Editor receipt does not match the current command or campaign scope.");
+                return null;
+            }
+
+            // The native effect and its receipt are recorded in the same campaign-thread callback.
+            var result = Apply(command);
+            var receipt = new NativeEditorReceipt
+            {
+                CampaignId = campaignId, TimelineId = timelineId, MaterialSha256 = digest,
+                Applied = result.Applied.ToArray(), Errors = result.Errors.ToArray()
+            };
+            _nativeEditorReceipts.Add(command.CommandId, receipt);
+            return receipt;
         }
 
         private void StartIdentitySync(bool force)
@@ -398,6 +463,22 @@ namespace ReignBeta.Characters.Campaign
             PropertyInfo property = typeof(Hero).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(x => x.Name.Equals(key, StringComparison.OrdinalIgnoreCase) && x.CanWrite);
             if (property == null || value == null || value.Type == JTokenType.Object || value.Type == JTokenType.Array) return false;
             object converted = Convert.ChangeType(value.ToString(), property.PropertyType, System.Globalization.CultureInfo.InvariantCulture); property.SetValue(hero, converted, null); return true;
+        }
+
+        private sealed class NativeEditorReceipt
+        {
+            public string CampaignId { get; set; }
+            public string TimelineId { get; set; }
+            public string MaterialSha256 { get; set; }
+            public string[] Applied { get; set; }
+            public string[] Errors { get; set; }
+
+            [JsonIgnore]
+            public string Status => Errors.Length == 0 ? "completed" : Applied.Length > 0 ? "partially_applied" : "failed";
+
+            public bool IsValid() => !string.IsNullOrEmpty(CampaignId) && !string.IsNullOrEmpty(TimelineId)
+                && MaterialSha256?.Length == 64 && MaterialSha256.All(Uri.IsHexDigit)
+                && Applied != null && Errors != null && Applied.All(value => value != null) && Errors.All(value => value != null);
         }
 
         private sealed class CharacterEditorApplyResult { public readonly List<string> Applied = new List<string>(); public readonly List<string> Errors = new List<string>(); }
