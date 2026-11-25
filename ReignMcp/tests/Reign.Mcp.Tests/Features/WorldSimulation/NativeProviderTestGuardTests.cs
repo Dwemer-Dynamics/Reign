@@ -12,15 +12,52 @@ public sealed class NativeProviderTestGuardTests : IDisposable
     public NativeProviderTestGuardTests() => Directory.CreateDirectory(_root);
     public void Dispose() => Directory.Delete(_root, true);
 
-    private void Arm()
+    private const string FixtureBaselineHash = "abababababababababababababababababababababababababababababababab";
+
+    private void Arm(string? baselineHash = FixtureBaselineHash,
+        string currentSaveName = "owned-current")
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Marker)!);
-        File.WriteAllText(Marker, JsonSerializer.Serialize(new Dictionary<string, string>
+        var owner = new Dictionary<string, string>
         {
             ["schema"] = NativeProviderTestGuard.Schema, ["runId"] = "run", ["campaignId"] = "campaign",
-            ["timelineId"] = "timeline", ["taskId"] = _task, ["currentSaveName"] = "owned-current",
+            ["timelineId"] = "timeline", ["taskId"] = _task, ["currentSaveName"] = currentSaveName,
             ["baselineSaveName"] = "immutable-original"
-        }));
+        };
+        if (baselineHash is not null) owner["baselineSha256"] = baselineHash;
+        File.WriteAllText(Marker, JsonSerializer.Serialize(owner));
+    }
+
+    [Fact]
+    public void TownPrewarmDeferralIsOwnerScopedAndLeavesTheTripwireIntact()
+    {
+        var guard = new NativeProviderTestGuard(_root);
+        Assert.False(guard.ShouldDeferTownNotablePrewarm("campaign"));
+        Arm();
+        Assert.True(guard.ShouldDeferTownNotablePrewarm("campaign"));
+        Assert.False(guard.ShouldDeferTownNotablePrewarm("Campaign"));
+        Assert.False(guard.ShouldDeferTownNotablePrewarm("another campaign"));
+        Assert.True((bool)guard.Snapshot()["cleanProviderFreeRun"]!);
+        Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(Marker)!, "provider-free-attempts-*.json"));
+
+        File.Delete(Marker);
+        Assert.True(guard.ShouldDeferTownNotablePrewarm("campaign"));
+        Assert.Throws<NativeProviderTestBlockedException>(() => guard.BeforeDispatch("http_text_or_image"));
+        Assert.Equal(1L, guard.Snapshot()["blockedAttemptsSinceProcessStart"]);
+        Assert.False(new NativeProviderTestGuard(_root).ShouldDeferTownNotablePrewarm("campaign"));
+    }
+
+    [Theory]
+    [InlineData(null, "owned-current")]
+    [InlineData("invalid", "owned-current")]
+    [InlineData("zzababababababababababababababababababababababababababababababab", "owned-current")]
+    [InlineData(FixtureBaselineHash, "IMMUTABLE-ORIGINAL")]
+    public void TownPrewarmDeferralRequiresAHashedBaselineAndDistinctCurrent(string? hash, string currentSaveName)
+    {
+        Arm(hash, currentSaveName);
+        var guard = new NativeProviderTestGuard(_root);
+        Assert.False(guard.ShouldDeferTownNotablePrewarm("campaign"));
+        Assert.Throws<NativeProviderTestBlockedException>(() => guard.BeforeDispatch("http_text_or_image"));
     }
 
     [Fact]
@@ -65,6 +102,7 @@ public sealed class NativeProviderTestGuardTests : IDisposable
         if (kind == "directory") Directory.CreateDirectory(Marker);
         else File.WriteAllText(Marker, kind == "oversized" ? new string('x', 16385) : kind == "missing_identity" ? "{}" : "{broken");
         var guard = new NativeProviderTestGuard(_root);
+        Assert.False(guard.ShouldDeferTownNotablePrewarm("campaign"));
         Assert.Throws<NativeProviderTestBlockedException>(() => guard.BeforeDispatch("http_text_or_image"));
         Assert.True((bool)guard.Snapshot()["armed"]!);
         Assert.False((bool)guard.Snapshot()["zeroDispatchEvidence"]!);
