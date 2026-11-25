@@ -1,4 +1,7 @@
 using AIPortraits;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text.Json;
 using Xunit.Abstractions;
 
 namespace Reign.Mcp.Tests;
@@ -589,6 +592,199 @@ public sealed class PortraitProductTransactionTests
             AssertNoRecoveryFiles(root);
         });
     }
+    [ValidatedClientFact]
+    public async Task ConfirmedOutfitDerivativesSettleBothSidesOfTheCommitAcrossClientProcesses()
+    {
+        string client = MapBarInputSafetyTests.CurrentClientArtifact()!;
+        string workspace = Path.GetFullPath(TestOptions.FindWorkspace());
+        string id = "reign-d49-" + Guid.NewGuid().ToString("N");
+        string root = Path.Combine(workspace, ".codex-build", id);
+        string evidence = Path.Combine(new DirectoryInfo(AppContext.BaseDirectory).Parent!.FullName,
+            "portrait-derivative-restart", id);
+        Directory.CreateDirectory(root);
+        Directory.CreateDirectory(evidence);
+        try
+        {
+            var receipts = new List<object>();
+            foreach (bool committed in new[] { false, true })
+            {
+                string phase = committed ? "committed" : "prepared";
+                string fixture = Path.Combine(root, phase);
+                string hero = Path.Combine(fixture, "hero");
+                string shared = Path.Combine(fixture, "shared");
+                string other = Path.Combine(fixture, "other-save");
+                foreach (string directory in new[] { hero, shared, other }) Directory.CreateDirectory(directory);
+
+                string source = Path.Combine(hero, "custom.png");
+                string outfit = Path.Combine(hero, ".outfit_portrait.json");
+                string baseMaster = Path.Combine(hero, "portrait.png");
+                string baseReceipt = Path.Combine(hero, ".ai_generation.json");
+                string sharedFile = Path.Combine(shared, "portrait.png");
+                string otherFile = Path.Combine(other, "custom.png");
+                File.WriteAllBytes(sharedFile, DerivativeFixturePng(30));
+                File.WriteAllBytes(otherFile, DerivativeFixturePng(60));
+
+                WriteDerivativeFixture(baseMaster, baseReceipt, 90, id + "-old");
+                await RunDerivativeChild(workspace, client, root, hero, "publish", 0);
+                string[] outputs = { "thumbnail.png", "thumbnail_wide.png", "portrait_chest.png",
+                    "zoom.png", ".portrait_derivatives.json" };
+                string[] paths = outputs.Select(name => Path.Combine(hero, name)).ToArray();
+                Assert.All(paths, path => Assert.True(File.Exists(path), path));
+                byte[] oldWide = File.ReadAllBytes(paths[1]);
+                File.Delete(paths[1]);
+                string?[] before = paths.Select(HashIfPresent).ToArray();
+
+                WriteDerivativeFixture(source, outfit, 180, id + "-new");
+                string[] retained = { source, outfit, baseMaster, baseReceipt, sharedFile, otherFile };
+                string?[] retainedHashes = retained.Select(HashIfPresent).ToArray();
+                Assert.All(retainedHashes, hash => Assert.NotNull(hash));
+
+                await RunDerivativeChild(workspace, client, root, hero, phase, committed ? 87 : 86);
+                string marker = Path.Combine(hero, committed ? PortraitProductTransaction.CommittedRecoveryMarkerName
+                    : PortraitProductTransaction.RecoveryMarkerName);
+                Assert.True(File.Exists(marker));
+                Assert.False(File.Exists(Path.Combine(hero, committed ? PortraitProductTransaction.RecoveryMarkerName
+                    : PortraitProductTransaction.CommittedRecoveryMarkerName)));
+                string?[] attempted = paths.Select(HashIfPresent).ToArray();
+                Assert.All(attempted, hash => Assert.NotNull(hash));
+                Assert.All(Enumerable.Range(0, paths.Length), index => Assert.NotEqual(before[index], attempted[index]));
+                Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
+                await RunDerivativeChild(workspace, client, root, hero, "inspect-held", 0);
+
+                await RunDerivativeChild(workspace, client, root, hero, "recover", 0);
+                string?[] settled = paths.Select(HashIfPresent).ToArray();
+                Assert.Equal(committed ? attempted : before, settled);
+                Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
+                AssertNoRecoveryFiles(hero);
+                if (committed) await RunDerivativeChild(workspace, client, root, hero, "inspect", 0);
+
+                await RunDerivativeChild(workspace, client, root, hero, "recover", 0);
+                Assert.Equal(settled, paths.Select(HashIfPresent).ToArray());
+                Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
+                AssertNoRecoveryFiles(hero);
+
+                if (!committed)
+                {
+                    byte[] oldReceipt = File.ReadAllBytes(outfit);
+                    await RunDerivativeChild(workspace, client, root, hero, "changed-receipt", 88);
+                    Assert.Equal(before, paths.Select(HashIfPresent).ToArray());
+                    Assert.Equal(retainedHashes[0], HashIfPresent(source));
+                    Assert.Equal(oldReceipt.Concat(System.Text.Encoding.UTF8.GetBytes(Environment.NewLine)).ToArray(),
+                        File.ReadAllBytes(outfit));
+                    Assert.Equal(retainedHashes.Skip(2).ToArray(), retained.Skip(2).Select(HashIfPresent).ToArray());
+                    AssertNoRecoveryFiles(hero);
+
+                    // Restore the known missing fixture file to prove that an
+                    // otherwise valid old base manifest cannot hide the outfit.
+                    File.WriteAllBytes(paths[1], oldWide);
+                    await RunDerivativeChild(workspace, client, root, hero, "inspect-outfit-source", 0);
+                    await RunDerivativeChild(workspace, client, root, hero, "publish-outfit", 0);
+                    await RunDerivativeChild(workspace, client, root, hero, "inspect", 0);
+                    Assert.Equal(attempted, paths.Select(HashIfPresent).ToArray());
+                    Assert.Equal(retainedHashes[0], HashIfPresent(source));
+                    Assert.Equal(retainedHashes.Skip(2).ToArray(), retained.Skip(2).Select(HashIfPresent).ToArray());
+                    AssertNoRecoveryFiles(hero);
+                }
+                receipts.Add(new { phase, outputs, before, attempted, settled, retainedHashes });
+            }
+            File.WriteAllText(Path.Combine(evidence, "restart-evidence.json"), JsonSerializer.Serialize(new
+            {
+                clientSha256 = HashIfPresent(client),
+                cases = receipts
+            }, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        finally
+        {
+            string generated = Path.GetFullPath(Path.Combine(workspace, ".codex-build"));
+            if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(root)), generated, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(Path.GetFileName(root), id, StringComparison.Ordinal)
+                || (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0)
+                throw new InvalidOperationException("Portrait fixture cleanup escaped its owned directory.");
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static string? HashIfPresent(string path)
+    {
+        if (!File.Exists(path)) return null;
+        using var stream = File.OpenRead(path);
+        return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();
+    }
+
+    private static void WriteDerivativeFixture(string source, string receipt, byte color, string id)
+    {
+        File.WriteAllBytes(source, DerivativeFixturePng(color));
+        File.SetLastWriteTimeUtc(source, new DateTime(2020, 1, 1, 0, color / 6, 0, DateTimeKind.Utc));
+        File.WriteAllText(receipt, JsonSerializer.Serialize(new
+        {
+            schema = "reign-portrait-product-v1",
+            accepted = true,
+            reignOutfitOperationId = id,
+            master = new { sha256 = HashIfPresent(source) },
+            focus = new
+            {
+                method = "fixture_detected_face", model = "fixture", confidence = 0.99, candidateCount = 1,
+                x = 0.4, y = 0.08, width = 0.2, height = 0.14
+            }
+        }));
+    }
+
+    private static byte[] DerivativeFixturePng(byte color)
+    {
+        const int width = 768, height = 1024;
+        byte[] pixels = new byte[width * height * 4];
+        for (int index = 0; index < pixels.Length; index += 4)
+        {
+            pixels[index] = color;
+            pixels[index + 1] = (byte)(color / 2);
+            pixels[index + 2] = (byte)(color / 3);
+            pixels[index + 3] = 255;
+        }
+        return PngEncoder.EncodeRgba(pixels, width, height);
+    }
+
+    private static async Task RunDerivativeChild(string workspace, string client, string root, string hero,
+        string phase, int expectedExit)
+    {
+        string shell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0");
+        var start = new ProcessStartInfo(Path.Combine(shell, "powershell.exe"))
+        {
+            UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = root,
+            RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true
+        };
+        start.Environment["PSModulePath"] = Path.Combine(shell, "Modules");
+        start.Environment["REIGN_VALIDATION_MODE"] = "1";
+        foreach (string argument in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+            Path.Combine(workspace, "ReignMcp/tests/Reign.Mcp.Tests/Platform/PortraitDerivativeRestartProbe.ps1"),
+            "-Workspace", workspace, "-ClientAssembly", client, "-FixtureRoot", root, "-HeroDirectory", hero,
+            "-Phase", phase, "-BannerlordPath", Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")! })
+            start.ArgumentList.Add(argument);
+        using var child = Process.Start(start) ?? throw new InvalidOperationException("Could not start portrait restart probe.");
+        child.StandardInput.Close();
+        Task<string> stdout = child.StandardOutput.ReadToEndAsync();
+        Task<string> stderr = child.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        try { await child.WaitForExitAsync(timeout.Token); }
+        catch (OperationCanceledException)
+        {
+            child.Kill(true);
+            await child.WaitForExitAsync();
+            throw new TimeoutException("The isolated portrait restart child did not exit in phase " + phase);
+        }
+        string diagnostic = (await stdout) + (await stderr);
+        Assert.True(child.ExitCode == expectedExit, $"{phase} returned {child.ExitCode}, expected {expectedExit}. {diagnostic}");
+    }
+
+    private sealed class ValidatedClientFactAttribute : FactAttribute
+    {
+        public ValidatedClientFactAttribute()
+        {
+            if (!OperatingSystem.IsWindows() || MapBarInputSafetyTests.CurrentClientArtifact() == null
+                || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")))
+                Skip = "Requires same-run canonical Windows client artifact and licensed game references.";
+        }
+    }
+
     private static void AssertNoRecoveryFiles(string root)
     {
         AssertNoTemporaryFiles(root);

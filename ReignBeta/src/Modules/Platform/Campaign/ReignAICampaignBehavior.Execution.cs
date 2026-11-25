@@ -407,6 +407,26 @@ namespace ReignBeta.Platform.Campaign
         }
 
         public ReignDiplomaticAgreementRecord RecordAgreementFromAction(ReignWorldActionRecord action, string kind, float durationDays, bool isPublic)
+            => RecordAgreement(action, kind, durationDays, isPublic, null, CurrentDay(), supersedeCurrent: true);
+
+        internal ReignDiplomaticAgreementRecord RecordRansomAgreementFromAction(ReignWorldActionRecord action,
+            string receiptId, float observedDay, bool fresh)
+        {
+            var recorded = _agreements.Where(row => row?.AgreementId == receiptId).Take(2).ToArray();
+            if (recorded.Length > 0)
+            {
+                ReignDiplomaticAgreementRecord prior = recorded[0];
+                return recorded.Length == 1 && prior.Kind == "ransom_package"
+                    && prior.ActorKingdomStringId == action.ActorKingdomStringId
+                    && prior.TargetKingdomStringId == action.TargetKingdomStringId
+                    && prior.TermsJson == (action.TermsJson ?? string.Empty)
+                    ? prior : null;
+            }
+            return RecordAgreement(action, "ransom_package", 0f, true, receiptId, observedDay, supersedeCurrent: fresh);
+        }
+
+        private ReignDiplomaticAgreementRecord RecordAgreement(ReignWorldActionRecord action, string kind,
+            float durationDays, bool isPublic, string agreementId, float observedDay, bool supersedeCurrent)
         {
             if (action == null)
             {
@@ -419,11 +439,12 @@ namespace ReignBeta.Platform.Campaign
                 canonicalKind = action.Type.ToString();
             }
 
-            float now = CurrentDay();
-            float expire = durationDays > 0f ? now + durationDays : 0f;
-            foreach (ReignDiplomaticAgreementRecord existing in _agreements.Where(x => x != null && x.IsActive && SameAgreementPair(x, action) && x.Kind == canonicalKind))
+            float expire = durationDays > 0f ? observedDay + durationDays : 0f;
+            var active = _agreements.Where(x => x != null && x.IsActive && SameAgreementPair(x, action) && x.Kind == canonicalKind).ToArray();
+            if (supersedeCurrent)
             {
-                EndAgreement(existing, "superseded", string.Empty, string.Empty, now);
+                foreach (ReignDiplomaticAgreementRecord existing in active)
+                    EndAgreement(existing, "superseded", string.Empty, string.Empty, observedDay);
             }
 
             ReignDiplomaticAgreementRecord record = new ReignDiplomaticAgreementRecord
@@ -437,12 +458,13 @@ namespace ReignBeta.Platform.Campaign
                 TargetSettlementStringId = action.TargetSettlementStringId ?? string.Empty,
                 Reason = action.Reason ?? string.Empty,
                 TermsJson = action.TermsJson ?? string.Empty,
-                CreatedDay = now,
+                CreatedDay = observedDay,
                 ExpireDay = expire,
                 IsPublic = isPublic,
-                IsActive = true
+                IsActive = supersedeCurrent || active.Length == 0
             };
 
+            if (agreementId != null) record.AgreementId = agreementId;
             _agreements.Add(record);
             ReignLog.Info("Recorded diplomatic agreement " + record.AgreementId + " kind=" + record.Kind);
             return record;

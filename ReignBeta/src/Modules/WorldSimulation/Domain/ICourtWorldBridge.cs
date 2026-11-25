@@ -30,6 +30,7 @@ namespace ReignBeta.WorldSimulation.Domain
 
         // Arrests and custody.
         bool HasExposedAgentEvidence(Hero accused, out string evidence);
+        bool HasPublicMurderArrestEvidence(Hero accused, out string evidence);
         bool IsProtectedDocketCustody(Hero prisoner);
 
         // Economy and settlement effects.

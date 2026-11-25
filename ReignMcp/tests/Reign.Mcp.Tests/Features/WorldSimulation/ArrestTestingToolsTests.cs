@@ -1,9 +1,112 @@
+using Newtonsoft.Json.Linq;
+using ReignBeta.Court.Campaign;
+using ReignBeta.WorldSimulation.Arrests;
 using Reign.Mcp.Server;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class ArrestTestingToolsTests
 {
+    [Theory]
+    [InlineData("exact", true)]
+    [InlineData("deferred", true)]
+    [InlineData("unrevealed", false)]
+    [InlineData("unreliable", false)]
+    [InlineData("incomplete", false)]
+    [InlineData("duplicate-chain", false)]
+    [InlineData("reserved", false)]
+    [InlineData("wrong-campaign", false)]
+    [InlineData("wrong-timeline", false)]
+    [InlineData("actor-case-variant", false)]
+    [InlineData("victim", false)]
+    [InlineData("formally-accused-only", false)]
+    [InlineData("acquitted", false)]
+    [InlineData("convicted", false)]
+    [InlineData("reversed", false)]
+    public void MurderRequiresAPublicCompleteChainForTheExactImplicatedHero(string changed, bool accepted)
+    {
+        var chain = new ReignNobleEvidenceItem
+        {
+            EvidenceId = "complete_chain", ImplicatesHeroId = "implicated",
+            Revealed = true, Reliable = true, CompleteChain = true
+        };
+        var matter = new ReignNobleDocketMatter
+        {
+            MatterId = "matter", CampaignId = "campaign", TimelineId = "timeline", TemplateId = "exceptional-murder",
+            ActivationCommitted = true, ActivationReceiptId = "activation", State = ReignNobleMatterState.Active,
+            VictimHeroId = "victim", ActualCulpritHeroId = "private-only",
+            Participants = [new() { HeroId = "implicated" }, new() { HeroId = "named", Role = "formally_accused" }],
+            Evidence = [chain]
+        };
+        string campaign = "campaign", timeline = "timeline", accused = "implicated";
+        switch (changed)
+        {
+            case "deferred": matter.State = ReignNobleMatterState.Deferred; break;
+            case "unrevealed": chain.Revealed = false; matter.ActualCulpritHeroId = accused; break;
+            case "unreliable": chain.Reliable = false; break;
+            case "incomplete": chain.CompleteChain = false; break;
+            case "duplicate-chain": matter.Evidence.Add(new() { EvidenceId = "Complete_Chain" }); break;
+            case "reserved": matter.ActivationCommitted = false; break;
+            case "wrong-campaign": campaign = "other"; break;
+            case "wrong-timeline": timeline = "other"; break;
+            case "actor-case-variant": accused = "Implicated"; break;
+            case "victim": accused = "victim"; chain.ImplicatesHeroId = accused; break;
+            case "formally-accused-only": accused = "named"; break;
+            case "acquitted": matter.State = ReignNobleMatterState.Acquitted; break;
+            case "convicted": matter.State = ReignNobleMatterState.Convicted; matter.ConvictedHeroId = accused; break;
+            case "reversed": matter.State = ReignNobleMatterState.Reversed; break;
+        }
+        Assert.Equal(accepted ? "noble_murder:matter:complete_chain" : "",
+            matter.PublicMurderArrestEvidenceId(campaign, timeline, accused));
+    }
+
+    [Theory]
+    [InlineData("exact", true)]
+    [InlineData("old-server", false)]
+    [InlineData("campaignId", false)]
+    [InlineData("timelineId", false)]
+    [InlineData("chargeCategory", false)]
+    [InlineData("accusedHeroId", false)]
+    [InlineData("evidenceStatus", false)]
+    [InlineData("wrong-role", false)]
+    [InlineData("wrong-subject", false)]
+    [InlineData("unknown-kind", false)]
+    [InlineData("legacy-id-mismatch", false)]
+    [InlineData("empty", false)]
+    [InlineData("hidden", false)]
+    [InlineData("coerced-boolean", false)]
+    public void EvidenceResponseBindsChargeOwnerAndTypedActor(string changed, bool accepted)
+    {
+        var request = JObject.Parse("""
+            {"schema":"reign-arrest-evidence-request-v2","campaignId":"campaign","timelineId":"timeline",
+            "chargeCategory":"espionage","accusedHeroId":"npc"}
+            """);
+        var response = JObject.Parse("""
+            {"schema":"reign-arrest-evidence-response-v2","campaignId":"campaign","timelineId":"timeline",
+            "chargeCategory":"espionage","accusedHeroId":"npc","evidenceStatus":"established",
+            "ok":true,"causeEstablished":true,"hiddenAgentInformationRevealed":false,
+            "evidenceIds":["foreign_agent:npc:sponsor"],
+            "evidence":[{"kind":"foreign_agent_exposure","subjectRole":"agent","subjectHeroId":"npc",
+            "evidenceId":"foreign_agent:npc:sponsor"}]}
+            """);
+        var row = (JObject)response["evidence"]![0]!;
+        switch (changed)
+        {
+            case "exact": break;
+            case "old-server": response.Remove("schema"); response.Remove("evidence"); break;
+            case "wrong-role": row["subjectRole"] = "witness"; break;
+            case "wrong-subject": row["subjectHeroId"] = "other"; break;
+            case "unknown-kind": row["kind"] = "generic_world_event"; break;
+            case "legacy-id-mismatch": response["evidenceIds"] = new JArray("foreign_agent:npc:other"); break;
+            case "empty": response["evidence"] = new JArray(); break;
+            case "hidden": response["hiddenAgentInformationRevealed"] = true; break;
+            case "coerced-boolean": response["causeEstablished"] = "true"; break;
+            default: response[changed] = "other"; break;
+        }
+        Assert.Equal(accepted, ReignArrestEvidenceResponse.TryRead(request, response, out string evidenceId));
+        Assert.Equal(accepted ? "foreign_agent:npc:sponsor" : "", evidenceId);
+    }
+
     [Fact]
     public void Manifest_exposes_one_durable_cli_and_both_test_surfaces()
     {

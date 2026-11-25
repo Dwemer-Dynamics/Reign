@@ -319,36 +319,88 @@ namespace ReignBeta.Characters.Campaign
                 + " will arrive in " + state.ArrivalDelayDays.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)
                 + " days; both will stay " + state.StayDays.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " days after arrival."));
         }
-        private void AdvanceMeeting(NpcMeetingJourney journey, double now)
+        // The owned save command can temporarily pause this scheduler. The
+        // next eligible native travel tick still owns any release already due.
+        private int CountDueMeetingReleases()
+        {
+            double now = CampaignTime.Now.ToDays;
+            if (!TravelSafe() || !LifeTravelTickDue(now)) return 0;
+
+            int due = 0;
+            foreach (var journey in _meetingTravel.Values)
+            {
+                var meeting = journey?.Meeting;
+                if (meeting?.CanComplete(now) != true) continue;
+                Hero issuer = ReignActionService.HeroById(meeting.IssuerId);
+                Hero target = ReignActionService.HeroById(meeting.TargetId);
+                bool canAdvance = CanAdvanceMeeting(journey, issuer, target, out string interruption, out _);
+                if (NpcLivesCheckpointPolicy.MeetingReleaseCanDrain(interruption.Length > 0, canAdvance,
+                    canAdvance && MeetingCampInBattle(meeting, target))) due++;
+            }
+            return due;
+        }
+
+        private bool CanAdvanceMeeting(NpcMeetingJourney journey, Hero issuer, Hero target,
+            out string interruption, out bool releaseTargetArmy)
         {
             var meeting = journey.Meeting;
-            Hero issuer = ReignActionService.HeroById(meeting.IssuerId), target = ReignActionService.HeroById(meeting.TargetId);
-            string unavailable = MeetingParticipantProblem(issuer, "The issuer");
-            if (unavailable.Length == 0) unavailable = MeetingParticipantProblem(target, "The summoned person");
-            if (unavailable.Length > 0) { InterruptMeeting(journey, "The meeting was interrupted: " + unavailable); return; }
+            releaseTargetArmy = false;
+            interruption = MeetingParticipantProblem(issuer, "The issuer");
+            if (interruption.Length == 0) interruption = MeetingParticipantProblem(target, "The summoned person");
+            if (interruption.Length > 0)
+            {
+                interruption = "The meeting was interrupted: " + interruption;
+                return false;
+            }
             bool field = FieldMeetingPoint(meeting.DestinationId, out _);
             if (!CanSummon(issuer, target) || !SafeMeetingPlace(issuer, meeting.DestinationId) || !SafeMeetingPlace(target, meeting.DestinationId)
                 || field && !CanHostFieldMeeting(issuer) && issuer.PartyBelongedTo?.MapEvent == null)
-            { InterruptMeeting(journey, "The meeting is no longer possible because its authority or destination changed."); return; }
-            if (!ReignNpcLivesPatches.VerifyReady()) return;
+            {
+                interruption = "The meeting is no longer possible because its authority or destination changed.";
+                return false;
+            }
+            if (!ReignNpcLivesPatches.VerifyReady()) return false;
             // Never move a participant out of a live battle or native transition.
             if (issuer.PartyBelongedTo?.MapEvent != null || target.PartyBelongedTo?.MapEvent != null
                 || issuer.PartyBelongedTo?.IsCurrentlyAtSea == true || target.PartyBelongedTo?.IsCurrentlyAtSea == true
-                || issuer.PartyBelongedTo?.IsTransitionInProgress == true || target.PartyBelongedTo?.IsTransitionInProgress == true) return;
+                || issuer.PartyBelongedTo?.IsTransitionInProgress == true || target.PartyBelongedTo?.IsTransitionInProgress == true) return false;
             if (issuer.PartyBelongedTo?.Army != null)
-            { InterruptMeeting(journey, issuer.Name + " can no longer host the meeting while committed to army duties."); return; }
+            {
+                interruption = issuer.Name + " can no longer host the meeting while committed to army duties.";
+                return false;
+            }
             if (meeting.Status != "meeting" && !meeting.ScheduledArrivalDay.HasValue)
             {
-                InterruptMeeting(journey, "This older summons needs a new agreement with a scheduled arrival date."); return;
+                interruption = "This older summons needs a new agreement with a scheduled arrival date.";
+                return false;
             }
             if (meeting.Status == "meeting" && target.PartyBelongedTo?.Army != null)
             {
                 if (!journey.ReleaseArmy || !CanReleaseMeetingArmy(issuer, target))
-                { InterruptMeeting(journey, target.Name + " cannot remain because army duties prevent an authorized release."); return; }
-                target.PartyBelongedTo.Army = null;
+                {
+                    interruption = target.Name + " cannot remain because army duties prevent an authorized release.";
+                    return false;
+                }
+                releaseTargetArmy = true;
             }
-            if (meeting.SoloAttendance && _lifeDuties.TryGetValue(target.StringId, out var attendance)
-                && attendance.Camp?.Protected == true && LifeParty(attendance.Camp.PartyId)?.MapEvent != null) return;
+            return true;
+        }
+
+        private bool MeetingCampInBattle(NpcSummonedMeeting meeting, Hero target)
+            => meeting.SoloAttendance && _lifeDuties.TryGetValue(target.StringId, out var attendance)
+                && attendance.Camp?.Protected == true && LifeParty(attendance.Camp.PartyId)?.MapEvent != null;
+
+        private void AdvanceMeeting(NpcMeetingJourney journey, double now)
+        {
+            var meeting = journey.Meeting;
+            Hero issuer = ReignActionService.HeroById(meeting.IssuerId), target = ReignActionService.HeroById(meeting.TargetId);
+            if (!CanAdvanceMeeting(journey, issuer, target, out string interruption, out bool releaseTargetArmy))
+            {
+                if (interruption.Length > 0) InterruptMeeting(journey, interruption);
+                return;
+            }
+            if (releaseTargetArmy) target.PartyBelongedTo.Army = null;
+            if (MeetingCampInBattle(meeting, target)) return;
             if (meeting.Status == "meeting")
             {
                 if (meeting.ReleaseDay.HasValue && now < meeting.ReleaseDay.Value)

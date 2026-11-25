@@ -122,6 +122,11 @@ namespace ReignBeta.Rebellion.Campaign
                 result = "You must declare and lead an active rebellion before recruiting lords.";
                 return false;
             }
+            if (!CanMutateLiveCivilWar(movement))
+            {
+                result = "Lords can join only while the exact civil war is active and no recognition owns it.";
+                return false;
+            }
             if (targetLord == null || !targetLord.IsLord || targetLord.IsDead || targetLord.IsPrisoner
                 || targetClan == null || targetClan.IsEliminated || targetClan == Clan.PlayerClan)
             {
@@ -157,19 +162,32 @@ namespace ReignBeta.Rebellion.Campaign
 
         public bool TryJoinNpcRebellion(Hero player, Hero rebelLeader, out string result)
         {
+            ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => IsCivilWar(x) && !x.IsPlayerLed
+                && Same(x.LeaderHeroStringId, rebelLeader?.StringId));
+            return TryJoinNpcRebellion(player, rebelLeader, movement, out result);
+        }
+
+        private bool TryJoinNpcRebellion(Hero player, Hero rebelLeader,
+            ReignRebellionMovementRecord movement, out string result)
+        {
             result = string.Empty;
             if (player != Hero.MainHero || Clan.PlayerClan?.Leader != player)
             {
                 result = "Only the player clan leader can join a rebellion this way.";
                 return false;
             }
-            ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => IsCivilWar(x) && !x.IsPlayerLed
-                && Same(x.LeaderHeroStringId, rebelLeader?.StringId));
             Kingdom parent = FindKingdom(movement?.ParentKingdomStringId);
             Kingdom rebels = FindKingdom(movement?.RebelKingdomStringId);
-            if (movement == null || parent == null || rebels == null || Clan.PlayerClan?.Kingdom != parent)
+            if (movement == null || movement.IsPlayerLed || rebelLeader == null
+                || !Same(movement.LeaderHeroStringId, rebelLeader.StringId)
+                || parent == null || rebels == null || Clan.PlayerClan?.Kingdom != parent)
             {
                 result = "You can join only the active rebel leader opposing your current kingdom.";
+                return false;
+            }
+            if (!CanMutateLiveCivilWar(movement))
+            {
+                result = "You can join only while the exact civil war is active and no recognition owns it.";
                 return false;
             }
             if (player.IsDead || player.IsPrisoner)
@@ -200,6 +218,11 @@ namespace ReignBeta.Rebellion.Campaign
                 result = "No active rebellion matches this surrender.";
                 return false;
             }
+            if (HasRecognitionAttempt(movement))
+            {
+                result = "An earlier negotiated recognition owns this civil war and must be reconciled.";
+                return false;
+            }
             if (Same(movement.LeaderHeroStringId, surrenderingLeader?.StringId))
             {
                 ResolveCivilWar(movement, false, "rebel_leader_surrendered");
@@ -224,7 +247,7 @@ namespace ReignBeta.Rebellion.Campaign
                 return true;
             }
             ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => IsCivilWar(x) && Same(x.MovementId, movementId));
-            return TryJoinNpcRebellion(Hero.MainHero, FindHero(movement?.LeaderHeroStringId), out result);
+            return TryJoinNpcRebellion(Hero.MainHero, FindHero(movement?.LeaderHeroStringId), movement, out result);
         }
 
         private ReignRebellionMovementRecord CreateMovement(Kingdom kingdom, Clan leaderClan, bool playerLed, int weekIndex)
@@ -554,7 +577,7 @@ namespace ReignBeta.Rebellion.Campaign
 
         private void ReconcileCivilWar(ReignRebellionMovementRecord movement)
         {
-            if (!IsCivilWar(movement)) return;
+            if (!IsCivilWar(movement) || HasRecognitionAttempt(movement)) return;
             // A native heir transition may complete death before the judgment's
             // political resolution resumes on the application tick.
             if (ReignRulerCampaignBehavior.HoldsCivilWar(movement.MovementId)) return;
@@ -621,6 +644,8 @@ namespace ReignBeta.Rebellion.Campaign
         {
             var movement = _movements.FirstOrDefault(m => m.MovementId == judgment.MovementId);
             if (movement == null || movement.ResolutionApplied) return;
+            if (HasRecognitionAttempt(movement))
+                throw new InvalidOperationException("An earlier negotiated recognition owns this civil war.");
             var parent = FindKingdom(movement.ParentKingdomStringId);
             var rebels = FindKingdom(movement.RebelKingdomStringId);
             var oldRuler = ReignRulerCampaignBehavior.HeroById(movement.OriginalRulerHeroStringId);
@@ -1008,7 +1033,7 @@ namespace ReignBeta.Rebellion.Campaign
             member.RelationBonusApplied = true;
         }
 
-        private void FinalizeResolution(ReignRebellionMovementRecord movement)
+        private void FinalizeResolution(ReignRebellionMovementRecord movement, float? observedDay = null)
         {
             if (movement == null) return;
             if (!string.IsNullOrWhiteSpace(movement.BackingSponsorKingdomStringId)
@@ -1024,8 +1049,8 @@ namespace ReignBeta.Rebellion.Campaign
             movement.Stage = "resolved";
             movement.ResolutionApplied = true;
             movement.ExecutionPhase = "verified";
-            movement.UpdatedDay = CurrentDay();
-            movement.CooldownUntilDay = Math.Max(movement.CooldownUntilDay, CurrentDay() + RealmCooldownDays);
+            movement.UpdatedDay = observedDay ?? CurrentDay();
+            movement.CooldownUntilDay = Math.Max(movement.CooldownUntilDay, movement.UpdatedDay + RealmCooldownDays);
             CloseResolvedPreparationPlots(_plots, _movements);
             EmitHistory(movement, "civil_war_resolved", "completed", movement.WinningLeaderHeroStringId,
                 "The rebellion ended in " + movement.Resolution.Replace('_', ' ')
@@ -1050,6 +1075,7 @@ namespace ReignBeta.Rebellion.Campaign
         {
             foreach (ReignRebellionMovementRecord movement in _movements.Where(x => x != null && !x.RelationshipRulesMigrated).ToList())
             {
+                if (HasRecognitionAttempt(movement)) continue;
                 movement.RelationshipRulesMigrated = true;
                 if (IsCivilWar(movement))
                 {

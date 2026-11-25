@@ -76,10 +76,24 @@ namespace ReignBeta.Rebellion.Campaign
         public IReadOnlyList<ReignRebellionSummonsRecord> Summonses => _summonses;
         public IReadOnlyList<ReignNegotiatedActionRecord> Negotiations => _negotiations;
 
+        private ReignRebellionMovementRecord FindMutableCivilWar(string movementId)
+        {
+            if (string.IsNullOrWhiteSpace(movementId)) return null;
+            var matches = _movements.Where(x => x != null && Same(x.MovementId, movementId)).Take(2).ToArray();
+            return matches.Length == 1 && CanMutateLiveCivilWar(matches[0]) ? matches[0] : null;
+        }
+
+        internal ReignRebellionMovementRecord FindMutableBackingMovement(string movementId, Kingdom parent, Kingdom rebels)
+        {
+            ReignRebellionMovementRecord movement = FindMutableCivilWar(movementId);
+            return movement != null && parent != null && rebels != null
+                && Same(movement.ParentKingdomStringId, parent.StringId) && Same(movement.RebelKingdomStringId, rebels.StringId)
+                ? movement : null;
+        }
+
         public bool RecordForeignBacking(string movementId, string sponsorKingdomId, string actionId)
         {
-            ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => x != null
-                && Same(x.MovementId, movementId) && IsCivilWar(x));
+            ReignRebellionMovementRecord movement = FindMutableCivilWar(movementId);
             if (movement == null) return false;
             movement.BackingStatus = "completed";
             movement.BackingAskedKingdomStringId = sponsorKingdomId ?? string.Empty;
@@ -183,7 +197,7 @@ namespace ReignBeta.Rebellion.Campaign
 
         private void TryEvaluateForeignBacking()
         {
-            if (_backingEvaluationPending || !_movements.Any(x => IsCivilWar(x)
+            if (_backingEvaluationPending || !_movements.Any(x => CanMutateLiveCivilWar(x)
                 && (string.IsNullOrWhiteSpace(x.BackingStatus)
                     || Same(x.BackingStatus, "pending_evaluation")
                     || Same(x.BackingStatus, "accepted_pending_execution")
@@ -200,13 +214,15 @@ namespace ReignBeta.Rebellion.Campaign
                 bool OwnsRequest() => ReferenceEquals(Instance, this) && fence.IsCurrentActionPoll();
                 if (!OwnsRequest()) return;
 
-                var movements = _movements.ToList();
-                var owners = movements.Where(IsCivilWar)
-                    .Where(movement => !string.IsNullOrWhiteSpace(movement.MovementId))
+                var eligible = _movements.Where(movement => movement != null && !string.IsNullOrWhiteSpace(movement.MovementId))
                     .GroupBy(movement => movement.MovementId, StringComparer.OrdinalIgnoreCase)
-                    .Where(group => group.Count() == 1)
-                    .ToDictionary(group => group.Key, group => CaptureBackingMovementOwner(group.Single()),
-                        StringComparer.OrdinalIgnoreCase);
+                    .Where(group => group.Count() == 1).Select(group => group.Single()).Where(CanMutateLiveCivilWar).ToList();
+                if (eligible.Count == 0) return;
+                var owners = eligible.ToDictionary(movement => movement.MovementId, CaptureBackingMovementOwner,
+                    StringComparer.OrdinalIgnoreCase);
+                // The server still mirrors older non-war and resolved records, including realm cooldowns.
+                var movements = _movements.Where(movement => !IsCivilWar(movement)
+                    || owners.ContainsKey(movement.MovementId ?? string.Empty)).ToList();
                 ReignRebellionEvaluationResult result = await ReignRebellionServerClient.EvaluateRebellionsAsync(
                     movements, _memberships.ToList(), fence.SharedActivityGeneration, OwnsRequest).ConfigureAwait(false);
                 if (result.Ok && result.Updates.Count > 0)
@@ -261,8 +277,8 @@ namespace ReignBeta.Rebellion.Campaign
                     string movementId = update.Value<string>("movementId") ?? string.Empty;
                     if (update["backingStatus"] == null || !batch.OwnsMovement.TryGetValue(movementId, out var ownsMovement))
                         continue;
-                    ReignRebellionMovementRecord movement = _movements.FirstOrDefault(x => x != null && Same(x.MovementId, movementId));
-                    if (!ownsMovement(movement)) continue;
+                    ReignRebellionMovementRecord movement = FindMutableCivilWar(movementId);
+                    if (movement == null || !ownsMovement(movement)) continue;
                     batch.OwnsMovement.Remove(movementId);
                     movement.BackingStatus = update.Value<string>("backingStatus") ?? movement.BackingStatus;
                     movement.BackingAskedKingdomStringId = update.Value<string>("backingAskedKingdomId") ?? string.Empty;
@@ -1034,7 +1050,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void ActivatePreparedPledges(ReignRebellionPlotRecord plot,
             ReignRebellionMovementRecord movement)
         {
-            if (plot == null || movement == null || plot.PledgesActivated) return;
+            if (plot == null || plot.PledgesActivated || !CanMutateLiveCivilWar(movement)) return;
             foreach (ReignRebellionPledgeRecord pledge in _pledges.Where(x => x != null
                 && Same(x.PlotId, plot.PlotId) && Same(x.Decision, "pledge") && !x.Activated).ToList())
             {
@@ -1223,13 +1239,13 @@ namespace ReignBeta.Rebellion.Campaign
             return false;
         }
 
-        public ReignActionResult ResolveNegotiatedSettlement(ReignWorldActionRecord action)
+        internal ReignActionResult ResolveNegotiatedSettlement(ReignWorldActionRecord action)
         {
-            if (action == null)
+            if (action?.Type != ReignWorldActionType.PoliticsResolveCivilWar)
                 return ReignActionResult.ValidationFailed("Civil-war settlement action is missing.");
+            if (TryRecoverRecognizedIndependence(action, out ReignActionResult prior)) return prior;
             JObject terms = ParseObject(action.TermsJson);
-            string politicalResult = ReadString(terms, "politicalResult");
-            if (!Same(politicalResult, "recognized_independence"))
+            if (ReadString(terms, "politicalResult") != "recognized_independence")
                 return ReignActionResult.ValidationFailed(
                     "Only a safeguarded recognition of rebel independence may negotiate an active civil war to peace.");
 
@@ -1238,46 +1254,13 @@ namespace ReignBeta.Rebellion.Campaign
             Kingdom parent = FindKingdom(ReadString(terms, "parentKingdomId"));
             Hero rebelRuler = FindHero(action.ActorHeroStringId);
             Hero parentRuler = FindHero(action.TargetHeroStringId);
-            if (!ValidateRecognizedIndependenceContext(movementId, rebels, parent,
-                    rebelRuler, parentRuler, out string contextFailure))
+            if (!ValidateRecognizedIndependenceContext(movementId, rebels, parent, rebelRuler, parentRuler, out string contextFailure))
                 return ReignActionResult.ValidationFailed(contextFailure);
 
-            ReignRebellionMovementRecord movement = _movements.First(x =>
-                IsCivilWar(x) && Same(x.MovementId, movementId));
-            movement.ExecutionPhase = "resolving_recognized_independence";
-            if (rebels.IsAtWarWith(parent)) MakePeaceAction.Apply(rebels, parent);
-            if (rebels.IsAtWarWith(parent))
-            {
-                movement.ExecutionPhase = "civil_war";
-                return ReignActionResult.FailRetryable(
-                    "The civil-war peace action did not take effect.",
-                    "recognition_peace_not_applied", "state_verification", 0.25f);
-            }
-
-            movement.WinningSide = "negotiated";
-            movement.Resolution = "recognized_independence";
-            movement.ResolutionCause = "recognized_by_challenged_ruler";
-            movement.WinningLeaderHeroStringId = rebelRuler.StringId;
-            movement.JudgmentsPending = false;
-            movement.UpdatedDay = CurrentDay();
-            movement.CooldownUntilDay = CurrentDay() + 63f;
-            ReignServices.AI?.RecordAgreementFromAction(action,
-                "recognized_independence", 63f, true);
-            FinalizeResolution(movement);
-
-            return ReignActionResult.Done(parentRuler.Name + " recognized "
-                    + rebels.InformalName + " as a separate sovereign kingdom; both realms remain independent and are now at peace.")
-                .WithChangedEntity("kingdom", rebels.StringId,
-                    rebels.InformalName.ToString(), "independence_recognized")
-                .WithChangedEntity("kingdom", parent.StringId,
-                    parent.InformalName.ToString(), "civil_war_peace_accepted")
-                .WithEffect("peace_made", "kingdom", parent.StringId,
-                    parent.InformalName.ToString(), "counterpart=" + rebels.StringId)
-                .WithEffect("treaty_recorded", "kingdom", rebels.StringId,
-                    rebels.InformalName.ToString(), "kind=recognized_independence;durationDays=63")
-                .WithDiagnostic("movementId", movementId)
-                .WithDiagnostic("sovereignty", "separate_kingdoms");
+            ReignRebellionMovementRecord movement = _movements.First(row => IsCivilWar(row) && Same(row.MovementId, movementId));
+            return BeginRecognition(movement, action, rebels, parent, rebelRuler, parentRuler);
         }
+
 
         public bool ValidateRecognizedIndependenceContext(string movementId,
             Kingdom rebels, Kingdom parent, Hero rebelRuler, Hero parentRuler,
@@ -1292,6 +1275,12 @@ namespace ReignBeta.Rebellion.Campaign
                 || rebels == parent)
             {
                 reason = "Recognition terms do not match the exact active rebel and parent realms.";
+                return false;
+            }
+            if (HasRecognitionAttempt(movement)
+                || movement.ExecutionPhase?.StartsWith("resolving", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                reason = "An earlier resolution already owns this civil war.";
                 return false;
             }
             if (!rebels.IsAtWarWith(parent))

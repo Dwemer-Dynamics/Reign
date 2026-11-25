@@ -157,6 +157,8 @@ namespace ReignBeta.Platform.Campaign
         public ReignActionResult GetLastActionResult(string actionId)
         {
             var saved = _actions.FirstOrDefault(a => a != null && a.ActionId == actionId);
+            var ransom = ReignDiplomacyExecutor.ReadOrdinaryRansom(saved, publish: false, requestedActionId: actionId);
+            if (ransom != null) return ransom;
             if (IsUncertainExecutionHeld(saved)) return UncertainExecutionResult();
             if (!string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)) return result;
             if (saved == null) return null;
@@ -319,9 +321,9 @@ namespace ReignBeta.Platform.Campaign
         private void PruneSaveBackedHistory()
         {
             _actions = (_actions ?? new List<ReignWorldActionRecord>())
-                .Where(x => x != null && (!x.IsTerminal || DurableDialogueReceipt(x)))
+                .Where(x => x != null && (!x.IsTerminal || RetainActionReceipt(x)))
                 .Concat((_actions ?? new List<ReignWorldActionRecord>())
-                    .Where(x => x != null && x.IsTerminal && !DurableDialogueReceipt(x))
+                    .Where(x => x != null && x.IsTerminal && !RetainActionReceipt(x))
                     .OrderByDescending(x => x.LastAttemptDay)
                     .ThenByDescending(x => x.CreatedDay)
                     .Take(128))
@@ -465,6 +467,9 @@ namespace ReignBeta.Platform.Campaign
         private static bool DurableDialogueReceipt(ReignWorldActionRecord action) => action.ActionId != null
             && (action.ActionId.StartsWith("pa_", StringComparison.Ordinal) || action.ActionId.StartsWith("da_", StringComparison.Ordinal)
                 || action.ActionId.StartsWith("sa_", StringComparison.Ordinal));
+
+        private static bool RetainActionReceipt(ReignWorldActionRecord action)
+            => DurableDialogueReceipt(action) || ReignDiplomacyExecutor.RetainLegacyRansomAttempt(action);
 
         public ReignWorldActionRecord QueueDeclareWar(Kingdom actor, Kingdom target, string reason)
         {

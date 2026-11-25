@@ -31,6 +31,10 @@
              Link="Shared\ReignCalendarStore.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Integration\ReignCourtAudienceScene.cs"
              Link="Shared\ReignCourtAudienceScene.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Campaign\ReignRulerDocketDomain.cs"
+             Link="Shared\ReignRulerDocketDomain.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Arrests\ReignArrestEvidenceResponse.cs"
+             Link="Shared\ReignArrestEvidenceResponse.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"
              Link="Shared\PngEncoder.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngReencode.cs"
