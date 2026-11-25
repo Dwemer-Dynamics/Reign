@@ -242,7 +242,7 @@ namespace ReignBeta.Characters.Campaign
         }
 
         private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting,
-            int WeddingAttendanceReleases) ReadPassiveCheckpointWork()
+            int WeddingAttendanceReleases) ReadPassiveCheckpointWork(bool meetingOnly = false)
         {
             bool ready = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
                 && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
@@ -250,7 +250,8 @@ namespace ReignBeta.Characters.Campaign
             int rewards = CountCheckpointLifeRewards();
             int personalTravel = CountDuePersonalTravel();
             int meetings = CountDueMeetingReleases(out var singleDueMeeting);
-            return (true, rewards, personalTravel, meetings, singleDueMeeting, CountDueWeddingAttendanceReleases());
+            int weddingReleases = meetingOnly ? 0 : CountDueWeddingAttendanceReleases();
+            return (true, rewards, personalTravel, meetings, singleDueMeeting, weddingReleases);
         }
 
 #if !REIGN_EXCLUDE_VERIFICATION
@@ -258,7 +259,7 @@ namespace ReignBeta.Characters.Campaign
         {
             if (_campaign != campaign || _timeline != timeline)
                 throw new InvalidOperationException("Meeting observation requires the exact loaded NPC Lives scope.");
-            var sample = ReadPassiveCheckpointWork();
+            var sample = ReadPassiveCheckpointWork(meetingOnly: true);
             if (!sample.Ready)
                 throw new InvalidOperationException("Meeting observation requires ready NPC Lives state on the exact loaded scope.");
             var rows = _meetingTravel.Values.Select(journey => journey?.Meeting)

@@ -174,6 +174,8 @@ public sealed class PassiveWorldCheckpointPolicyTests
         Assert.Contains("meetingOnly ? NpcLivesCheckpointPolicy.MeetingObservationSchema : NpcLivesCheckpointPolicy.Schema",
             native, StringComparison.Ordinal);
         Assert.Contains("if (!meetingOnly)", native, StringComparison.Ordinal);
+        Assert.Contains("ReadPassiveCheckpointWork(meetingOnly: true)", native, StringComparison.Ordinal);
+        Assert.Contains("meetingOnly ? 0 : CountDueWeddingAttendanceReleases()", native, StringComparison.Ordinal);
         Assert.Contains("PassiveCheckpointTelemetry(sample, meetingOnly: true)", native, StringComparison.Ordinal);
         Assert.Contains("Blocker(NpcLivesCheckpointPolicy.Schema", native, StringComparison.Ordinal);
         string checkpoints = File.ReadAllText(Path.Combine(root,
