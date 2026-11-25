@@ -667,14 +667,31 @@ namespace ReignBeta.Characters.Campaign
             EnterSettlementAction.ApplyForCharacterOnly(hero, home);
         }
 
+        private static bool WeddingAttendanceNeedsRelease(string ownerId, Hero hero, Settlement town)
+            => ReignServices.Relationship?.OwnsWeddingAttendance(ownerId) != true
+                || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town);
+
+        private int CountDueWeddingAttendanceReleases()
+        {
+            if (!TravelSafe() || !LifeTravelTickDue(CampaignTime.Now.ToDays)) return 0;
+
+            int due = 0;
+            foreach (var row in _weddingAttendance)
+            {
+                var hero = ReignActionService.HeroById(row.Key);
+                var town = Settlement.Find(row.Value.TownId);
+                if (WeddingAttendanceNeedsRelease(row.Value.OwnerId, hero, town)) due++;
+            }
+            return due;
+        }
+
         private void RefreshWeddingAttendance()
         {
             foreach (var row in _weddingAttendance.ToList())
             {
                 var hero = ReignActionService.HeroById(row.Key);
                 var town = Settlement.Find(row.Value.TownId);
-                if (ReignServices.Relationship?.OwnsWeddingAttendance(row.Value.OwnerId) != true
-                    || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town))
+                if (WeddingAttendanceNeedsRelease(row.Value.OwnerId, hero, town))
                 {
                     ReleaseWeddingGuest(row.Key, row.Value);
                     continue;

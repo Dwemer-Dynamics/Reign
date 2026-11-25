@@ -203,10 +203,12 @@ namespace ReignBeta.Characters.Campaign
         internal JObject PassiveCheckpointSnapshot() => PassiveCheckpointTelemetry(ReadPassiveCheckpointWork());
 
         private JObject PassiveCheckpointTelemetry(
-            (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting) sample)
-            => new JObject
+            (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting,
+                int WeddingAttendanceReleases) sample, bool meetingOnly = false)
+        {
+            var telemetry = new JObject
             {
-                ["schema"] = NpcLivesCheckpointPolicy.Schema,
+                ["schema"] = meetingOnly ? NpcLivesCheckpointPolicy.MeetingObservationSchema : NpcLivesCheckpointPolicy.Schema,
                 ["campaignId"] = _campaign,
                 ["timelineId"] = _timeline,
                 ["snapshotReady"] = sample.Ready,
@@ -216,6 +218,10 @@ namespace ReignBeta.Characters.Campaign
                 ["dueNativePersonalTravel"] = sample.PersonalTravel,
                 ["dueNativeMeetingRelease"] = sample.MeetingReleases
             };
+            if (!meetingOnly)
+                telemetry["dueNativeWeddingAttendanceRelease"] = sample.WeddingAttendanceReleases;
+            return telemetry;
+        }
 
         internal const string MeetingReleaseCheckpointBlocker = "npc_lives_native_meeting_release_due";
 
@@ -228,14 +234,15 @@ namespace ReignBeta.Characters.Campaign
 
             var sample = ReadPassiveCheckpointWork();
             string blocker = NpcLivesCheckpointPolicy.Blocker(NpcLivesCheckpointPolicy.Schema, true, sample.Ready,
-                _checkpointMutationInFlight, _outbox.Count, sample.Rewards, sample.PersonalTravel, sample.MeetingReleases);
+                _checkpointMutationInFlight, _outbox.Count, sample.Rewards, sample.PersonalTravel, sample.MeetingReleases,
+                sample.WeddingAttendanceReleases);
             if (blocker == MeetingReleaseCheckpointBlocker)
                 blockingMeeting = sample.SingleDueMeeting;
             return blocker;
         }
 
-        private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting)
-            ReadPassiveCheckpointWork()
+        private (bool Ready, int Rewards, int PersonalTravel, int MeetingReleases, NpcSummonedMeeting SingleDueMeeting,
+            int WeddingAttendanceReleases) ReadPassiveCheckpointWork()
         {
             bool ready = NativeCampaign.Current != null && Current(NativeCampaign.Current, _epoch)
                 && _initialized && Generation.Length > 0 && State.CampaignId == _campaign && State.TimelineId == _timeline;
@@ -243,7 +250,7 @@ namespace ReignBeta.Characters.Campaign
             int rewards = CountCheckpointLifeRewards();
             int personalTravel = CountDuePersonalTravel();
             int meetings = CountDueMeetingReleases(out var singleDueMeeting);
-            return (true, rewards, personalTravel, meetings, singleDueMeeting);
+            return (true, rewards, personalTravel, meetings, singleDueMeeting, CountDueWeddingAttendanceReleases());
         }
 
 #if !REIGN_EXCLUDE_VERIFICATION
@@ -260,7 +267,7 @@ namespace ReignBeta.Characters.Campaign
                 throw new InvalidOperationException("The exact retained meeting and revision were unavailable or ambiguous.");
             return new JObject
             {
-                ["npcLives"] = PassiveCheckpointTelemetry(sample),
+                ["npcLives"] = PassiveCheckpointTelemetry(sample, meetingOnly: true),
                 ["meeting"] = DescribeCheckpointMeeting(rows[0]),
                 ["selectedMeetingDue"] = sample.MeetingReleases > 1 ? JValue.CreateNull()
                     : new JValue(ReferenceEquals(rows[0], sample.SingleDueMeeting))

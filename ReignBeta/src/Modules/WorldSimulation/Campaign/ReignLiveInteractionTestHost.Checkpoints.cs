@@ -442,7 +442,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["gameInstanceId"] = _gameInstanceId, ["activeSaveName"] = active, ["savePointId"] = point,
                 ["worldDay"] = CampaignTime.Now.ToDays, ["nativeSaveSequence"] = native.Value<long>("sequence"),
                 ["nativeCompletedSequence"] = native.Value<long>("completedSequence"),
-                ["npcLivesSchema"] = NpcLivesCheckpointPolicy.Schema, ["dueNativeMeetingRelease"] = 1,
+                ["npcLivesSchema"] = NpcLivesCheckpointPolicy.MeetingObservationSchema, ["dueNativeMeetingRelease"] = 1,
                 ["blocker"] = blocker, ["meeting"] = ReignNpcLivesBehavior.DescribeCheckpointMeeting(meeting)
             };
         }
