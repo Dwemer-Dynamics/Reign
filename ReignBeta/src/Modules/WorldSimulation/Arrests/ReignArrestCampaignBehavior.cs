@@ -852,7 +852,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             !string.IsNullOrWhiteSpace(item?.AccusedHeroStringId)
             && string.Equals(item.AccusedHeroStringId, accused?.StringId, StringComparison.Ordinal);
 
-        private static bool TryGetLocalEvidence(ReignArrestCase item, Hero accused, out string evidence)
+        internal static bool TryGetLocalEvidence(ReignArrestCase item, Hero accused, out string evidence)
         {
             evidence = string.Empty;
 #if !REIGN_EXCLUDE_COURT

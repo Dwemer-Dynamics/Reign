@@ -58,6 +58,8 @@ namespace ReignBeta.Court.Campaign
         private List<CastleRoomSessionRecord> _castleRoomSessions = new List<CastleRoomSessionRecord>();
         private List<CastleBathHistoryRecord> _castleBathHistory = new List<CastleBathHistoryRecord>();
         private List<string> _appliedNativeCommandIds = new List<string>();
+        private ReignCourtSupplyJournal _paidSupplyJournal = new ReignCourtSupplyJournal();
+        private List<string> _paidSupplyJournalChunks;
         private List<string> _courtWeddingReceipts = new List<string>();
         private bool _courtWeddingReportInFlight;
         internal CourtSession _session;
@@ -192,6 +194,7 @@ namespace ReignBeta.Court.Campaign
                 _spymasterStateJson = string.Empty;
                 _spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(
                     EnsureSpymasterState(), Formatting.None));
+                _paidSupplyJournalChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_paidSupplyJournal, Formatting.None));
                 PrepareRulerDocketForSave();
             }
             dataStore.SyncData("_reignCourt_session", ref _session);
@@ -212,6 +215,14 @@ namespace ReignBeta.Court.Campaign
             dataStore.SyncData("_reignCourt_castleRoomSessions", ref _castleRoomSessions);
             dataStore.SyncData("_reignCourt_castleBathHistory", ref _castleBathHistory);
             dataStore.SyncData("_reignCourt_appliedNativeCommandIds", ref _appliedNativeCommandIds);
+            if (dataStore.IsLoading) _paidSupplyJournalChunks = null;
+            dataStore.SyncData("_reignCourt_paidSupplyJournalV1", ref _paidSupplyJournalChunks);
+            if (dataStore.IsLoading)
+            {
+                _paidSupplyJournal = ReignSavePayloadCodec.DecodeAuthoritativeState(_paidSupplyJournalChunks, null,
+                    JsonConvert.DeserializeObject<ReignCourtSupplyJournal>, () => new ReignCourtSupplyJournal());
+                _paidSupplyJournal.EnsureReadable();
+            }
             dataStore.SyncData("_reignCourt_weddingReceiptsV1", ref _courtWeddingReceipts);
             if (dataStore.IsLoading && _courtWeddingReceipts == null) _courtWeddingReceipts = new List<string>();
             dataStore.SyncData("_reignCourt_serverRevision", ref _serverRevision);

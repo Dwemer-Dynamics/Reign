@@ -453,7 +453,7 @@ namespace ReignBeta.WorldSimulation.Economy
         // War Sails delegates these model methods to the initialized MBGameModel base.
         // Only the reviewed official wrapper and its immediate, exact Reign instance count.
         // A model elsewhere in the chain does not prove an arbitrary wrapper calls it.
-        private static JObject ModelRoute(object actual, Type expected, string knownNavalWrapper)
+        internal static JObject ModelRoute(object actual, Type expected, string knownNavalWrapper)
         {
             Type actualType = actual?.GetType();
             Type baseType = null;

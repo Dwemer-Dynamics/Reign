@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Extensions;
+using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
@@ -84,6 +87,8 @@ namespace ReignBeta.Court.Campaign
         public int TargetBefore;
         public int TargetAfter;
         public int GoldTransferred;
+        internal CourtPaidSupplyReceipt PaidReceipt;
+        internal bool Replayed;
     }
 
     public static class ReignCourtSupplyService
@@ -198,6 +203,7 @@ namespace ReignBeta.Court.Campaign
 
         public static ReignSupplyTransferResult ApplyTransfer(ReignSupplyTransferRequest request, ReignCourtAuthority authority)
         {
+            if (request?.GoldAmount > 0) return Failed("A paid supply transfer requires the owned Court payment path.");
             string error = ValidateTransfer(request, authority, out Settlement source, out Settlement target, out ItemObject item,
                 out Hero payerHero, out Settlement payerSettlement, out Hero recipientHero, out Settlement recipientSettlement);
             if (!string.IsNullOrEmpty(error)) return Failed(error);
@@ -211,10 +217,6 @@ namespace ReignBeta.Court.Campaign
                 {
                     source.ItemRoster.AddToCounts(item, -request.ItemAmount);
                     target.ItemRoster.AddToCounts(item, request.ItemAmount);
-                    if (request.GoldAmount > 0)
-                    {
-                        ApplyGold(payerHero, payerSettlement, recipientHero, recipientSettlement, request.GoldAmount);
-                    }
                     AppliedCommands.Add(request.CommandId);
                     return new ReignSupplyTransferResult
                     {
@@ -238,9 +240,119 @@ namespace ReignBeta.Court.Campaign
             }
         }
 
+        internal static ReignSupplyTransferResult ApplyOwnedPaidTransfer(ReignSupplyTransferRequest request,
+            ReignCourtAuthority authority, ReignCourtSupplyJournal journal, string campaignId, string timelineId,
+            Func<bool> requestOwner)
+        {
+            if (journal == null || requestOwner == null || !requestOwner() || request == null || request.GoldAmount <= 0
+                || string.IsNullOrWhiteSpace(campaignId) || string.IsNullOrWhiteSpace(timelineId)
+                || string.IsNullOrWhiteSpace(request.CommandId))
+                return Failed("The paid supply command is outside the current owned Court.");
+
+            ReignSupplyTransferResult saved = FindSavedPaidTransfer(request, journal, campaignId, timelineId);
+            if (saved != null) return saved;
+            string binding = PaidSupplyBinding(request, campaignId, timelineId);
+
+            Hero player = Hero.MainHero;
+            if (player == null || !string.Equals(request.GoldPayerKind, "hero", StringComparison.Ordinal)
+                || !string.Equals(request.GoldPayerStringId, player.StringId, StringComparison.Ordinal))
+                return Failed("The player can only spend their own hero wallet on a paid supply transfer.");
+            // Native hero debit clamps through a float. Avoid paying an amount that it cannot represent exactly.
+            if ((double)(float)request.GoldAmount != request.GoldAmount)
+                return Failed("The exact paid supply amount cannot be transferred by the native wallet.");
+
+            string error = ValidateTransfer(request, authority, out Settlement source, out Settlement target, out ItemObject item,
+                out Hero payer, out _, out Hero recipient, out Settlement recipientSettlement, checkStock: false);
+            if (!string.IsNullOrEmpty(error)) return Failed(error);
+            if (!ReferenceEquals(payer, player)) return Failed("The paid supply payer no longer resolves to the player's hero wallet.");
+            var playerClan = Clan.PlayerClan;
+            if (playerClan == null || !ReferenceEquals(source.OwnerClan, playerClan))
+                return Failed("Paid supply can only move stock from a fortification owned by the player's clan.");
+
+            var stock = new EquipmentElement(item);
+            ItemRoster sourceRoster = source.ItemRoster;
+            ItemRoster targetRoster = target.ItemRoster;
+            if (sourceRoster == null || targetRoster == null || ReferenceEquals(sourceRoster, targetRoster))
+                return Failed("The original supply rosters are unavailable or share the same storage.");
+            var buyerKingdom = playerClan.Kingdom;
+            var recipientWallet = recipientSettlement?.SettlementComponent;
+
+            bool OwnsHoldings()
+            {
+                return requestOwner() && ReferenceEquals(Hero.MainHero, payer) && !payer.IsDead
+                    && ReferenceEquals(FindSettlement(request.SourceSettlementStringId), source)
+                    && ReferenceEquals(FindSettlement(request.TargetSettlementStringId), target)
+                    && ReferenceEquals(source.ItemRoster, sourceRoster) && ReferenceEquals(target.ItemRoster, targetRoster)
+                    && ReferenceEquals(Clan.PlayerClan, playerClan) && ReferenceEquals(source.OwnerClan, playerClan)
+                    && buyerKingdom != null && playerClan.Kingdom == buyerKingdom
+                    && ResolveParticipant(request.GoldRecipientKind, request.GoldRecipientStringId,
+                        out Hero currentRecipient, out Settlement currentSettlement)
+                    && ReferenceEquals(recipient, currentRecipient) && ReferenceEquals(recipientSettlement, currentSettlement)
+                    && ReferenceEquals(recipientWallet, currentSettlement?.SettlementComponent);
+            }
+
+            CourtPaidSupplyBalances ReadHoldings() => new CourtPaidSupplyBalances(ExactStackCount(sourceRoster, stock),
+                ExactStackCount(targetRoster, stock), payer.Gold, recipient?.Gold ?? recipientWallet.Gold);
+            var result = journal.Apply(request.CommandId, binding, request.ItemAmount, request.GoldAmount, OwnsHoldings,
+                ReadHoldings, () => sourceRoster.AddToCounts(stock, -request.ItemAmount),
+                () => targetRoster.AddToCounts(stock, request.ItemAmount),
+                () =>
+                {
+                    if (recipient != null) GiveGoldAction.ApplyBetweenCharacters(payer, recipient, request.GoldAmount, true);
+                    else GiveGoldAction.ApplyForCharacterToSettlement(payer, recipientSettlement, request.GoldAmount, true);
+                });
+            return PaidResult(request, result, replayed: false);
+        }
+
+        internal static ReignSupplyTransferResult FindSavedPaidTransfer(ReignSupplyTransferRequest request,
+            ReignCourtSupplyJournal journal, string campaignId, string timelineId)
+        {
+            if (journal == null || string.IsNullOrWhiteSpace(campaignId) || string.IsNullOrWhiteSpace(timelineId)
+                || string.IsNullOrWhiteSpace(request.CommandId))
+                return Failed("The paid supply command has no current saved ownership.");
+            try
+            {
+                var saved = journal.Find(request.CommandId, PaidSupplyBinding(request, campaignId, timelineId));
+                return saved == null ? null : PaidResult(request, saved, replayed: true);
+            }
+            catch (InvalidOperationException error) { return Failed(error.Message); }
+        }
+
+        private static string PaidSupplyBinding(ReignSupplyTransferRequest request, string campaignId, string timelineId)
+        {
+            return new JArray(campaignId, timelineId, request.SourceSettlementStringId ?? "", request.TargetSettlementStringId ?? "",
+                request.ItemStringId ?? "", request.ItemAmount, request.GoldAmount, request.GoldPayerKind ?? "", request.GoldPayerStringId ?? "",
+                request.GoldRecipientKind ?? "", request.GoldRecipientStringId ?? "", request.VassalConsentGranted).ToString(Formatting.None);
+        }
+
+        private static int ExactStackCount(ItemRoster roster, EquipmentElement stock)
+        {
+            int index = roster.FindIndexOfElement(stock);
+            return index < 0 ? 0 : roster.GetElementNumber(index);
+        }
+
+        private static ReignSupplyTransferResult PaidResult(ReignSupplyTransferRequest request, CourtPaidSupplyReceipt receipt, bool replayed)
+        {
+            if (receipt == null) return Failed("The exact paid supply transfer cannot be funded or owned.");
+            if (!receipt.ProvesCompletion(request.ItemAmount, request.GoldAmount))
+                return Failed("The saved paid supply attempt is held for review. Its native effects were not replayed.");
+            return new ReignSupplyTransferResult
+            {
+                Success = true,
+                ReceiptId = "supply_receipt_" + request.CommandId,
+                SourceBefore = receipt.Before.Source,
+                SourceAfter = receipt.AfterPayment.Source,
+                TargetBefore = receipt.Before.Target,
+                TargetAfter = receipt.AfterPayment.Target,
+                GoldTransferred = request.GoldAmount,
+                PaidReceipt = receipt,
+                Replayed = replayed
+            };
+        }
+
         private static string ValidateTransfer(ReignSupplyTransferRequest request, ReignCourtAuthority authority,
             out Settlement source, out Settlement target, out ItemObject item, out Hero payerHero,
-            out Settlement payerSettlement, out Hero recipientHero, out Settlement recipientSettlement)
+            out Settlement payerSettlement, out Hero recipientHero, out Settlement recipientSettlement, bool checkStock = true)
         {
             source = FindSettlement(request?.SourceSettlementStringId);
             target = FindSettlement(request?.TargetSettlementStringId);
@@ -251,7 +363,7 @@ namespace ReignBeta.Court.Campaign
             if (source == null || !source.IsFortification) return "The source must be a current town or castle.";
             if (target == null || !target.IsFortification || target == source) return "The target must be a different current town or castle.";
             if (item == null || request.ItemAmount <= 0) return "A real item and positive amount are required.";
-            if (source.ItemRoster.GetItemNumber(item) < request.ItemAmount) return "The source no longer has the full requested stock.";
+            if (checkStock && source.ItemRoster.GetItemNumber(item) < request.ItemAmount) return "The source no longer has the full requested stock.";
             if (request.GoldAmount < 0) return "Gold cannot be negative.";
 
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
@@ -268,14 +380,6 @@ namespace ReignBeta.Court.Campaign
             if ((payerHero != null && payerHero == recipientHero) || (payerSettlement != null && payerSettlement == recipientSettlement)) return "Gold participants cannot be identical.";
             int availableGold = payerHero?.Gold ?? payerSettlement?.SettlementComponent?.Gold ?? 0;
             return availableGold < request.GoldAmount ? "The payer cannot afford the complete atomic payment." : string.Empty;
-        }
-
-        private static void ApplyGold(Hero payerHero, Settlement payerSettlement, Hero recipientHero, Settlement recipientSettlement, int amount)
-        {
-            if (payerHero != null && recipientHero != null) GiveGoldAction.ApplyBetweenCharacters(payerHero, recipientHero, amount, true);
-            else if (payerHero != null) GiveGoldAction.ApplyForCharacterToSettlement(payerHero, recipientSettlement, amount, true);
-            else if (recipientHero != null) GiveGoldAction.ApplyForSettlementToCharacter(payerSettlement, recipientHero, amount, true);
-            else GiveGoldAction.ApplyForPartyToParty(payerSettlement.Party, recipientSettlement.Party, amount, true);
         }
 
         private static bool ResolveParticipant(string kind, string id, out Hero hero, out Settlement settlement)

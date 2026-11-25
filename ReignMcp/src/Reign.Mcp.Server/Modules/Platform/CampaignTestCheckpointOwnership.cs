@@ -126,6 +126,53 @@ internal static class CampaignTestCheckpointOwnership
         return after;
     }
 
+    // This binds a read-only witness across the diagnostic and structured commands.
+    // It is not authority for an action or evidence that a restart occurred.
+    internal static JsonElement ReadPausedActionDiagnosticOwner(CampaignTestState state, CampaignCheckpointReceipt checkpoint,
+        ControllerCall snapshot)
+    {
+        if (!state.Armed || state.PendingCheckpoint is not null || Find(state, state.CurrentSaveName) != checkpoint
+            || state.CurrentSaveName != state.SavePrefix + "_Current" || SameName(state.CurrentSaveName, state.BaselineSaveName)
+            || !snapshot.Ok || snapshot.Data is not { ValueKind: JsonValueKind.Object } run || !IsTrue(run, "found")
+            || Text(run, "campaignId") != state.CampaignId || Text(run, "mode") != "passive_world"
+            || Text(run, "status") != "completed"
+            || !run.TryGetProperty("commands", out var commands) || commands.ValueKind != JsonValueKind.Array
+            || commands.GetArrayLength() != 1 || commands[0].ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException("The exact Current diagnostic did not complete.");
+
+        JsonElement command = commands[0];
+        string runId = Text(run, "runId"), instance = Text(run, "gameInstanceId");
+        if (runId.Length == 0 || instance.Length == 0 || Text(command, "runId") != runId
+            || Text(command, "commandId").Length == 0 || Text(command, "campaignId") != state.CampaignId
+            || Text(command, "gameInstanceId") != instance || Text(command, "operation") != "world_snapshot"
+            || Text(command, "status") != "completed" || Text(command, "snapshotMode") != "post_arm_current_diagnostic"
+            || !command.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Object
+            || Text(result, "snapshotMode") != "post_arm_current_diagnostic"
+            || Text(result, "campaignId") != state.CampaignId || Text(result, "timelineId") != state.TimelineId
+            || Text(result, "activeSaveName") != state.CurrentSaveName || Text(result, "checkpointSavePointId") != checkpoint.SavePointId
+            || Text(result, "checkpointGameInstanceId") != instance || Text(result, "timeMode") != "Stop"
+            || !IsTrue(result, "saveSyncReady") || !result.TryGetProperty("saveSyncAlignmentPending", out var aligning)
+            || aligning.ValueKind != JsonValueKind.False
+            || !result.TryGetProperty("verifiedCurrentLoadObservation", out var current) || current.ValueKind != JsonValueKind.Object
+            || Text(current, "schema") != "reign-native-verified-current-observation-v1"
+            || Text(current, "campaignId") != state.CampaignId || Text(current, "timelineId") != state.TimelineId
+            || Text(current, "saveName") != state.CurrentSaveName || Text(current, "savePointId") != checkpoint.SavePointId
+            || Text(current, "gameInstanceId") != instance || Text(current, "loadResult") is not ("no_op" or "rolled_back")
+            || !Uri.TryCreate(Text(current, "origin"), UriKind.Absolute, out var origin) || !origin.IsLoopback
+            || origin.Scheme != Uri.UriSchemeHttp || origin.GetLeftPart(UriPartial.Authority) != Text(current, "origin")
+            || !current.TryGetProperty("nativeProcessId", out var process) || process.ValueKind != JsonValueKind.Number
+            || !process.TryGetInt32(out int processId) || processId < 1
+            || !Guid.TryParseExact(Text(current, "clientProcessInstanceId"), "N", out _)
+            || !current.TryGetProperty("coordinatorGeneration", out var generation) || generation.ValueKind != JsonValueKind.Number
+            || !generation.TryGetInt32(out int coordinatorGeneration) || coordinatorGeneration < 1
+            || !IsDigest(current, "loadSessionSha256") || !IsDigest(current, "restoreGenerationSha256"))
+            throw new InvalidOperationException("The exact Current diagnostic lacks its idle, verified native load owner.");
+
+        return current.Clone();
+
+        static bool IsDigest(JsonElement owner, string key) => Text(owner, key) is { Length: 64 } text && text.All(char.IsAsciiHexDigit);
+    }
+
     // Diagnostic observation only. Campaign mutations must never accept it as authorization.
     internal static object? ReadPostArmCurrentObservation(CampaignTestState state, CampaignCheckpointReceipt checkpoint,
         ControllerCall restart, ControllerCall snapshot, string beforeInstance, string afterInstance)

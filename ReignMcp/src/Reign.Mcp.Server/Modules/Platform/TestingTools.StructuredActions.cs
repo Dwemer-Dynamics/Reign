@@ -10,10 +10,11 @@ public static class StructuredActionTools
 {
     private const string Confirmation = "test structured actions on disposable save";
     private const string RelationshipPullFixture = "fixture.relationship_native_pull";
+    private const string ArrestMurderEvidenceWitness = "fixture.arrest_murder_evidence_witness";
 
     [McpServerTool(Name = "reign_test_structured_actions", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
+    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witness requires the exact retained Current checkpoint and observes previously disclosed murder evidence for one accused and a wrong-charge negative without preparing an arrest. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestStructuredActions(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -26,9 +27,11 @@ public static class StructuredActionTools
         campaignTestRunId = Required(campaignTestRunId, nameof(campaignTestRunId));
         batchId = Required(batchId, nameof(batchId));
         var cases = ParseCases(casesJson);
-        bool relationshipPull = cases.Count == 1 && IsRelationshipPullFixture(cases[0]);
-        var (auth, checkpoint) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
-            campaignTestRunId, campaignId, relationshipPull, cancellationToken).ConfigureAwait(false);
+        bool arrestWitness = cases.Count == 1 && IsArrestMurderEvidenceWitness(cases[0]);
+        bool bindCheckpoint = arrestWitness || (cases.Count == 1 && IsRelationshipPullFixture(cases[0]));
+        var (auth, checkpoint, loadOwner) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
+            campaignTestRunId, campaignId, bindCheckpoint, cancellationToken, postArmCurrentDiagnostic: arrestWitness)
+            .ConfigureAwait(false);
         bool recoveryFixture = cases.Any(RequiresRecoveryCheckpoint);
         if (recoveryFixture)
             campaignTests.RequireRetainedRecoveryCheckpoint(auth);
@@ -40,11 +43,13 @@ public static class StructuredActionTools
             ["timelineId"] = auth.TimelineId, ["source"] = "reign_mcp_structured_actions",
             ["recoveryCheckpointVerified"] = recoveryFixture
         };
-        if (relationshipPull)
+        if (bindCheckpoint)
         {
             enrollment["checkpointSavePointId"] = checkpoint.SavePointId;
             enrollment["checkpointSha256"] = checkpoint.Sha256.ToUpperInvariant();
         }
+        if (loadOwner is { } nativeOwner)
+            enrollment["checkpointLoadOwner"] = nativeOwner;
         ApiEnvelope started = await api.PostAsync("/tests/live/run/start", new
         {
             schemaVersion = 2, campaignId, runId = liveRunId, mode = "structured_actions",
@@ -81,6 +86,8 @@ public static class StructuredActionTools
             if (!new[] { "catalog", "entities", "preview", "run", "status", "fixture" }.Contains(phase)) throw new ArgumentException("Unknown structured test phase.");
             if (IsRelationshipPullFixture(item) && (phase != "fixture" || Text("kind") != "fixture"))
                 throw new ArgumentException("The relationship pull control requires the fixed fixture phase and kind.");
+            if (IsArrestMurderEvidenceWitness(item) && (phase != "fixture" || Text("kind") != "fixture"))
+                throw new ArgumentException("The arrest evidence witness requires the fixed fixture phase and kind.");
             if (phase is "preview" or "run" or "status" or "fixture")
             {
                 string operation = Required(Text("operationId"), "operationId");
@@ -99,6 +106,8 @@ public static class StructuredActionTools
                     else if (Text("actionId") == "fixture.spymaster_disruption_observe") ValidateSpymasterDisruptionObservationArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.managed_birth_observe") ValidateManagedBirthObservationArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.follow_accepted_guide_step") ValidateAcceptedGuideStepArguments(fixtureArgs);
+                    else if (IsArrestMurderEvidenceWitness(item))
+                        ValidateArrestMurderEvidenceWitness(item, fixtureArgs, document.RootElement.GetArrayLength());
                     else if (IsRelationshipPullFixture(item)) ValidateRelationshipPullFixture(item, fixtureArgs, operation, document.RootElement.GetArrayLength());
                     else if (Text("actionId") is "fixture.government_capital_visit" or "fixture.government_action_composer")
                         ValidateGovernmentFixtureArguments(Text("actionId"), fixtureArgs);
@@ -149,7 +158,8 @@ public static class StructuredActionTools
         && testCase.TryGetProperty("actionId", out var id) && id.ValueKind == JsonValueKind.String
         && id.GetString() is "fixture.siege_setup" or "fixture.player_settlement_encounter" or "fixture.ruler_setup"
             or "fixture.government_capital_visit" or "fixture.government_action_composer" or "fixture.follow_accepted_guide_step"
-            or "fixture.arranged_wedding" or "fixture.spymaster_disruption_observe" or "fixture.managed_birth_observe" or RelationshipPullFixture;
+            or "fixture.arranged_wedding" or "fixture.spymaster_disruption_observe" or "fixture.managed_birth_observe"
+            or RelationshipPullFixture or ArrestMurderEvidenceWitness;
 
     private static void ValidateSpymasterDisruptionObservationArguments(JsonElement args)
     {
@@ -184,6 +194,22 @@ public static class StructuredActionTools
         }
         if (!seen.Contains("motherId"))
             throw new ArgumentException("Managed birth observation requires an exact motherId.");
+    }
+
+    private static bool IsArrestMurderEvidenceWitness(JsonElement testCase) =>
+        testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
+        && action.GetString() == ArrestMurderEvidenceWitness;
+
+    private static void ValidateArrestMurderEvidenceWitness(JsonElement testCase, JsonElement args, int batchSize)
+    {
+        if (batchSize != 1 || testCase.EnumerateObject().Count() != 6
+            || args.ValueKind != JsonValueKind.Object || args.EnumerateObject().Count() != 2
+            || !ReadId("accusedHeroId") || !ReadId("matterId"))
+            throw new ArgumentException("Supply one arrest witness with exact accusedHeroId and public murder matterId.");
+
+        bool ReadId(string name) => args.TryGetProperty(name, out var token) && token.ValueKind == JsonValueKind.String
+            && token.GetString() is { Length: >= 1 and <= 128 } id
+            && id.All(ch => char.IsAsciiLetterOrDigit(ch) || ch is '_' or '-');
     }
 
     private static bool IsRelationshipPullFixture(JsonElement testCase) =>

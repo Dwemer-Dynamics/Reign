@@ -233,15 +233,15 @@ public sealed class CampaignTestService
         => (await RequireArmedOwnedPausedActionCheckpointAsync(runId, expectedCampaignId, false, cancellationToken)
             .ConfigureAwait(false)).Authorization;
 
-    internal async Task<(CampaignTestAuthorization Authorization, CampaignCheckpointReceipt Checkpoint)>
+    internal async Task<(CampaignTestAuthorization Authorization, CampaignCheckpointReceipt Checkpoint, JsonElement? LoadOwner)>
         RequireArmedOwnedPausedActionCheckpointAsync(string runId, string expectedCampaignId, bool bindCheckpoint,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken, bool postArmCurrentDiagnostic = false)
     {
         CampaignTestState state = RequireArmed(runId);
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
         if (!string.Equals(state.CampaignId, expectedCampaignId, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
-        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken, postArmCurrentDiagnostic).ConfigureAwait(false);
         ValidatePausedActionSnapshot(state, snapshot);
         CampaignCheckpointReceipt checkpoint = await VerifyReloadableCurrentAsync(state, cancellationToken)
             .ConfigureAwait(false);
@@ -249,7 +249,10 @@ public sealed class CampaignTestService
         ValidatePausedActionSnapshot(state, snapshot);
         if (bindCheckpoint && Find(state, state.CurrentSaveName) != checkpoint)
             throw new InvalidOperationException("The enrolled Current checkpoint changed during verification.");
-        return (CampaignTestAuthorization.From(state), checkpoint);
+        JsonElement? loadOwner = postArmCurrentDiagnostic
+            ? ReadPausedActionDiagnosticOwner(state, checkpoint, snapshot)
+            : null;
+        return (CampaignTestAuthorization.From(state), checkpoint, loadOwner);
     }
 
     internal static void ValidatePausedActionSnapshot(CampaignTestState state, ControllerCall snapshot)

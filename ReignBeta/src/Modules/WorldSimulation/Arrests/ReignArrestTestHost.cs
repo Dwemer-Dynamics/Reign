@@ -29,6 +29,88 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "escape", "duel", "battle", "sovereignty", "evaluation", "cleanup" },
             StringComparer.OrdinalIgnoreCase);
 
+        private static LiveCommandResult ObserveArrestMurderEvidence(JObject command, JObject test, JObject enrollment)
+        {
+            JObject arguments = test["arguments"] as JObject;
+            if (test.Count != 6 || arguments?.Count != 2
+                || !TryReadArrestWitnessId(arguments["accusedHeroId"], out string accusedId)
+                || !TryReadArrestWitnessId(arguments["matterId"], out string matterId))
+                return LiveCommandResult.Failed("The witness requires one exact accused hero and already disclosed murder matter.");
+
+            var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            string campaignId = enrollment.Value<string>("campaignId");
+            string timelineId = enrollment.Value<string>("timelineId");
+            string save = enrollment.Value<string>("disposableSaveName");
+            string baseline = enrollment.Value<string>("protectedBaselineSaveName");
+            string point = enrollment.Value<string>("checkpointSavePointId");
+            string hash = enrollment.Value<string>("checkpointSha256");
+            ReignArrestCampaignBehavior behavior = ReignServices.Arrest;
+            var gameScope = ReignMainThread.CurrentGameScope;
+            if (campaign == null || behavior == null || gameScope == null
+                || enrollment.Value<bool?>("recoveryCheckpointVerified") != true
+                || string.Equals(save, baseline, StringComparison.OrdinalIgnoreCase)
+                || ReignServices.SaveSync?.CurrentSavePointId != point)
+                return LiveCommandResult.Failed("The witness requires the exact paused, verified Current checkpoint and loaded point.");
+
+            var expectedOwner = enrollment["checkpointLoadOwner"] as JObject;
+            var loadOwner = ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timelineId, save, point);
+            if (expectedOwner == null || loadOwner == null || !JToken.DeepEquals(loadOwner, expectedOwner)
+                || hash?.Length != 64 || !NativeSaveHasPoint(save, campaignId, point) || NativeCheckpointHash(save) != hash)
+                return LiveCommandResult.Failed("The witness requires the same idle native load owner and Current checkpoint as its diagnostic.");
+
+            Hero accused = Hero.FindFirst(hero => string.Equals(hero.StringId, accusedId, StringComparison.Ordinal));
+            if (accused == null || accused == Hero.MainHero || !accused.IsAlive)
+                return LiveCommandResult.Failed("The exact living non-player accused is unavailable.");
+
+            int caseCount = behavior.Cases.Count;
+            bool wasPrisoner = accused.IsPrisoner;
+            PartyBase custody = accused.PartyBelongedToAsPrisoner;
+            // Use only the native evidence predicate. Neither candidate is registered as an arrest.
+            var charge = new ReignArrestCase { AccusedHeroStringId = accusedId, ChargeCategory = "murder" };
+            bool established = ReignArrestCampaignBehavior.TryGetLocalEvidence(charge, accused, out string evidence)
+                && evidence == "noble_murder:" + matterId + ":complete_chain";
+            charge.ChargeCategory = "treason";
+            bool rejectedWrongCharge = !ReignArrestCampaignBehavior.TryGetLocalEvidence(charge, accused, out string wrongEvidence)
+                && string.IsNullOrEmpty(wrongEvidence);
+            bool unchanged = behavior.Cases.Count == caseCount && accused.IsPrisoner == wasPrisoner
+                && ReferenceEquals(custody, accused.PartyBelongedToAsPrisoner);
+            if (!ReferenceEquals(gameScope, ReignMainThread.CurrentGameScope) || ReignServices.SaveSync?.CurrentSavePointId != point
+                || !JToken.DeepEquals(loadOwner, ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timelineId, save, point)))
+                return LiveCommandResult.Failed("The Current load owner or save finalization changed during observation.");
+            if (!established || !rejectedWrongCharge || !unchanged)
+                return LiveCommandResult.Failed("The exact disclosed evidence or unchanged-custody control did not pass.");
+
+            return LiveCommandResult.Completed("Observed exact public murder evidence and the wrong-charge negative.", new JObject
+            {
+                ["schema"] = "reign-arrest-public-evidence-witness-v1",
+                ["caseId"] = test.Value<string>("caseId"),
+                ["operationId"] = test.Value<string>("operationId"),
+                ["campaignTestRunId"] = enrollment.Value<string>("campaignTestRunId"),
+                ["campaignId"] = campaignId,
+                ["timelineId"] = timelineId,
+                ["gameInstanceId"] = _gameInstanceId,
+                ["saveName"] = save,
+                ["savePointId"] = point,
+                ["checkpointSha256"] = hash,
+                ["checkpointLoadOwner"] = loadOwner,
+                ["accusedHeroId"] = accusedId,
+                ["matterId"] = matterId,
+                ["before"] = new JObject { ["caseCount"] = caseCount, ["isPrisoner"] = wasPrisoner, ["hasCustodian"] = custody != null },
+                ["after"] = new JObject { ["caseCount"] = behavior.Cases.Count, ["isPrisoner"] = accused.IsPrisoner,
+                    ["hasCustodian"] = accused.PartyBelongedToAsPrisoner != null, ["custodyOwnerUnchanged"] = true },
+                ["positive"] = new JObject { ["chargeCategory"] = "murder", ["causeEstablished"] = true, ["evidenceId"] = evidence },
+                ["negative"] = new JObject { ["chargeCategory"] = "treason", ["causeEstablished"] = false, ["evidenceId"] = string.Empty }
+            });
+        }
+
+        private static bool TryReadArrestWitnessId(JToken token, out string id)
+        {
+            id = token?.Type == JTokenType.String ? token.Value<string>() : null;
+            return id != null && id.Length >= 1 && id.Length <= 128
+                && id.All(ch => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+                    || (ch >= '0' && ch <= '9') || ch == '_' || ch == '-');
+        }
+
         private static async Task<LiveCommandResult> ExecuteArrestTestAsync(JObject command)
         {
             Stopwatch timer = Stopwatch.StartNew();

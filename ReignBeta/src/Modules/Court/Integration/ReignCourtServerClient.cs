@@ -472,6 +472,8 @@ namespace ReignBeta.Court.Integration
                 ["goldRecipientStringId"] = request?.GoldRecipientStringId ?? string.Empty,
                 ["vassalConsentGranted"] = request?.VassalConsentGranted ?? false
             };
+            bool paid = request?.GoldAmount > 0;
+            if (paid) transfer["paidSupplyRecoveryVersion"] = 1;
             string commandId = request?.CommandId ?? string.Empty;
             JObject payload = BasePayload(commandId, sessionRevision);
             payload["sharedActivityGeneration"] = sharedActivityGeneration;
@@ -486,18 +488,31 @@ namespace ReignBeta.Court.Integration
             expectedAction["type"] = "transfer_item";
             expectedAction["commandId"] = commandId;
             JObject receipt = response.Raw;
-            if (receipt == null || !JToken.DeepEquals(receipt["result"], "court_supply_transfer_validated")
-                || !JToken.DeepEquals(receipt["campaignId"], payload["campaignId"])
+            if (!paid && (receipt == null || !JToken.DeepEquals(receipt["result"], "court_supply_transfer_validated")))
+                return new ReignCourtServerResponse { Error = "The supply validation did not match the exact requested transfer." };
+            if (receipt == null || !JToken.DeepEquals(receipt["campaignId"], payload["campaignId"])
                 || !JToken.DeepEquals(receipt["timelineId"], payload["timelineId"])
                 || !JToken.DeepEquals(receipt["sessionId"], payload["sessionId"])
                 || !JToken.DeepEquals(receipt["sessionRevision"], payload["expectedRevision"])
                 || !JToken.DeepEquals(receipt["sharedActivityGeneration"], payload["sharedActivityGeneration"])
                 || !JToken.DeepEquals(receipt["commandId"], payload["commandId"])
-                || !JToken.DeepEquals(receipt["termsHash"], payload["termsHash"])
-                || response.NativeActions.Count != 1 || !JToken.DeepEquals(response.NativeActions[0], expectedAction))
-            {
+                || !JToken.DeepEquals(receipt["termsHash"], payload["termsHash"]))
                 return new ReignCourtServerResponse { Error = "The supply validation did not match the exact requested transfer." };
+
+            if (paid)
+            {
+                if (!JToken.DeepEquals(receipt["result"], "court_paid_supply_terms_checked")
+                    || !JToken.DeepEquals(receipt["nativeAuthorizationRequired"], true)
+                    || !JToken.DeepEquals(receipt["checkedTransfer"], transfer)
+                    || receipt["receipt"] != null
+                    || !(receipt["nativeActions"] is JArray checkedActions) || checkedActions.Count != 0)
+                    return new ReignCourtServerResponse { Error = "Paid supply requires an exact terms check without server-issued native effects." };
+
+                // Only the current owned game thread can authorize this locally reconstructed effect.
+                response.NativeActions = new JArray(expectedAction);
             }
+            else if (response.NativeActions.Count != 1 || !JToken.DeepEquals(response.NativeActions[0], expectedAction))
+                return new ReignCourtServerResponse { Error = "The supply validation did not match the exact requested transfer." };
 
             return response;
         }

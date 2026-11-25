@@ -5,6 +5,95 @@ namespace Reign.Mcp.Tests;
 
 public sealed class StructuredActionToolsTests
 {
+    [Fact]
+    public void ArrestMurderEvidenceWitnessBindsExactSingleCheckpointObservation()
+    {
+        const string arguments = """{"accusedHeroId":"lord_1","matterId":"noble-murder_1"}""";
+        string input = ArrestMurderEvidenceCase(arguments);
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(input));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Equal(arguments, parsed.GetProperty("arguments").GetRawText());
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(
+            input[..^1] + """,{"caseId":"other","phase":"catalog"}]"""));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(
+            input.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
+    }
+
+    [Theory]
+    [InlineData("""{"accusedHeroId":"lord_1"}""")]
+    [InlineData("""{"accusedHeroId":" lord_1","matterId":"noble-murder_1"}""")]
+    [InlineData("""{"accusedHeroId":"lord_1","matterId":1}""")]
+    [InlineData("""{"accusedHeroId":"lord_1","accusedHeroId":"lord_2"}""")]
+    [InlineData("""{"accusedHeroId":"lord_1","matterId":"noble-murder_1","evidenceId":"invented"}""")]
+    public void ArrestMurderEvidenceWitnessRejectsUnscopedOrAuthoredEvidence(string arguments) =>
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(ArrestMurderEvidenceCase(arguments)));
+
+    [Theory]
+    [InlineData("valid")]
+    [InlineData("ordinary_snapshot")]
+    [InlineData("unmarked_result")]
+    [InlineData("missing_idle_owner")]
+    [InlineData("stale_instance")]
+    [InlineData("wrong_point")]
+    [InlineData("invalid_generation")]
+    [InlineData("invalid_session")]
+    [InlineData("invalid_restore")]
+    public void ArrestWitnessDiagnosticBindsExactIdleNativeLoad(string changed)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var checkpoint = state.CheckpointReceipts[0];
+        const string instance = "game-current";
+        const string mode = "post_arm_current_diagnostic";
+        var observation = new
+        {
+            schema = "reign-native-verified-current-observation-v1",
+            campaignId = state.CampaignId, timelineId = state.TimelineId, saveName = state.CurrentSaveName,
+            gameInstanceId = changed == "stale_instance" ? "old-instance" : instance,
+            savePointId = changed == "wrong_point" ? Guid.NewGuid().ToString("N") : checkpoint.SavePointId,
+            nativeProcessId = 1200, clientProcessInstanceId = Guid.NewGuid().ToString("N"),
+            origin = "http://127.0.0.1:8089", loadResult = "no_op",
+            coordinatorGeneration = changed == "invalid_generation" ? 0 : 17,
+            loadSessionSha256 = changed == "invalid_session" ? "" : new string('A', 64),
+            restoreGenerationSha256 = changed == "invalid_restore" ? "" : new string('B', 64)
+        };
+        var snapshot = FixtureCall(new
+        {
+            ok = true, found = true, runId = "run", gameInstanceId = instance, campaignId = state.CampaignId,
+            status = "completed", mode = "passive_world",
+            commands = new[]
+            {
+                new
+                {
+                    runId = "run", commandId = "command", gameInstanceId = instance, campaignId = state.CampaignId,
+                    status = "completed", operation = "world_snapshot", snapshotMode = changed == "ordinary_snapshot" ? "" : mode,
+                    result = new
+                    {
+                        snapshotMode = changed == "unmarked_result" ? "" : mode,
+                        campaignId = state.CampaignId, timelineId = state.TimelineId, activeSaveName = state.CurrentSaveName,
+                        timeMode = "Stop", checkpointGameInstanceId = instance, checkpointSavePointId = checkpoint.SavePointId,
+                        saveSyncReady = true, saveSyncAlignmentPending = false,
+                        verifiedCurrentLoadObservation = changed == "missing_idle_owner" ? null : observation
+                    }
+                }
+            }
+        });
+        if (changed != "valid")
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+                CampaignTestCheckpointOwnership.ReadPausedActionDiagnosticOwner(state, checkpoint, snapshot));
+            return;
+        }
+
+        var owner = CampaignTestCheckpointOwnership.ReadPausedActionDiagnosticOwner(state, checkpoint, snapshot);
+        Assert.True(JsonElement.DeepEquals(owner, JsonSerializer.SerializeToElement(observation)));
+    }
+
+    private static string ArrestMurderEvidenceCase(string arguments) =>
+        """
+        [{"caseId":"evidence","phase":"fixture","kind":"fixture","actionId":"fixture.arrest_murder_evidence_witness",
+        "operationId":"case-1","arguments":ARGUMENTS}]
+        """.Replace("ARGUMENTS", arguments);
+
     [Theory]
     [InlineData("food")]
     [InlineData("construction")]

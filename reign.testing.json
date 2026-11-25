@@ -1772,6 +1772,25 @@
       "owned_supply_interrupted_spelling_rejects_before_writes",
       "CourtSupplyHeldReplyIsRetiredByObservedAuthorityLossEvenAfterRecovery"
     ],
+    "paidRecovery": {
+      "authority": "The current owned server response checks integer recovery version one and exact terms without a native action, paid command, audit or receipt. Caller wallet names cannot authenticate the payer. Only the owned game thread can prove Hero.MainHero is the payer and Clan.PlayerClan owns the source. Legacy and generic routes cannot authorize paid stock. No paid UI is added.",
+      "savedReceipt": "Bind the command to exact campaign, timeline, both settlements, item, quantities, consent and wallet identities. Record the original balances and each observed stage. A verified receipt requires both stock legs, the exact wallet debit and credit, a returned payment callback and retained authority. Leave interrupted or ambiguous effects held and do not compensate or replay them. A pruned generic command row cannot authorize a repeated paid leg.",
+      "mcpCases": [
+        "ExactPaidSupplySurvivesReloadWithoutAnotherNativeLeg",
+        "AmbiguousPaidSupplyRetainsObservedEffectsWithoutCompensationOrReplay",
+        "UnfundedOrOverflowingSupplyInvokesNoNativeLeg",
+        "UnownedPaidSupplyStockCreatesNoAttemptAndMovesNothing",
+        "SaveInsideNativePaymentCannotUpgradeVisibleBalancesToACallbackReturn"
+      ],
+      "courtCases": [
+        "owned_paid_supply_checks_terms_without_native_authorization_or_writes",
+        "owned_paid_supply_caller_aliases_remain_terms_only",
+        "owned_paid_supply_rejects_invalid_version_or_other_wallet_without_writes",
+        "paid_supply_legacy_and_generic_admission_cannot_emit_native_action",
+        "legacy_text_zero_supply_keeps_the_unpaid_contract"
+      ],
+      "nativeAcceptance": "Use a separately guarded paid invocation in an enrolled disposable Court. Verify exact native stack and wallet observations, settled and held saves, and fresh-process no-repeat. The existing unpaid button and provider-free checks do not establish native paid acceptance."
+    },
     "nativeAcceptance": "Use an enrolled disposable Court and the existing Send 25 Grain command. Verify current-scope success and both native roster deltas. Hold readiness and retire the loaded owner or Save Sync point before dispatch. Separately hold a valid reply while capital status or royal authority changes within the same Court sitting, including redesignation back to the original town. Hold another valid reply through one ordinary authority failure during grace and recovery of the original ruler within that sitting. Require both rosters and the native command ledger to remain unchanged, then require a fresh valid request to apply. Paid partial effects and restart recovery require separate measured proof."
   },
   "courtAudienceArtwork": {
@@ -3207,7 +3226,7 @@
     "noTarget": "The three immediate consequence adapters each prove production refusal with no new event, marker advance, or side effect when the exact requested kingdom is absent from the ordered eligible set.",
     "persistence": "Exactly three native reload representatives are required: famine, bountiful_harvest, and orderly_succession. save_prepare records only a save-backed feature fingerprint and game-instance marker; guarded campaign-test Current checkpoint/restart owns the save boundary, and save_verify requires a different game instance with an identical fingerprint.",
     "expiry": "One famine representative proves the exact 30-day timed-event expiry boundary through guarded external campaign advancement and unchanged native economy output when that expired event is omitted.",
-    "timedNativeEconomy": "Timed observation checks the exact configured event getter separately from registered native food, hearth, security, prosperity, construction or loyalty output. Compare the current output, the output with only the forced event omitted, and a restored read on the same campaign thread. Active proof requires a directional difference on at least one holding. Unchanged holdings and hearth-floor interactions are reported individually. Missing models, empty samples, wrong direction and unstable readings fail. No save changes or campaign time advancement are part of the comparison.",
+    "timedNativeEconomy": "Timed observation checks the exact configured event getter separately from registered native food, hearth, security, prosperity, construction or loyalty output. Sample the actual registered outer adapter for direct Reign models and reviewed War Sails wrappers with the immediate exact Reign base. Retain modelRoute including outer type, MVID and route. Unsupported models cannot be sampled. Compare the current output, the output with only the forced event omitted, and a restored read on the same campaign thread. Active proof requires a directional difference on at least one holding. Unchanged holdings and hearth-floor interactions are reported individually. Missing models, empty samples, wrong direction and unstable readings fail. No save changes or campaign time advancement are part of the comparison.",
     "organic": "One production daily event is observed through the native daily production path. organic_prepare fails closed before creating a ledger or arming an override unless campaign initialization, autonomous-world preparation, native-save quiescence, and Save Sync alignment are complete. It may then predict the next natural 100/10000 day or, only when explicitly requested, arm one non-serialized run-bound next-day trigger on the exact disposable Current. The override never changes the production constant or stored stable roll, is consumed before selection/effects, and organic_verify proves exactly one non-forced record plus restoration. Cleanup also clears an unconsumed same-run override.",
     "safety": "Every mutating profile requires an exact armed campaign-test run and its derived Current save. The client independently compares expectedSaveName with Bannerlord's active native save. Fixed save names and internal time advancement are prohibited.",
     "releaseGate": "All 21 forced cases, three no-target adapters, exact formulas/durations/immediate consequences, observed native timed economy effects, idempotency and one-shot forcing, three native reloads, one 30-day expiry, one organic event, announcement/UI plus World History/audit evidence, bounded stability, final validation/deployment, and exact cleanup must pass."
@@ -4479,6 +4498,14 @@
     ],
     "isolation": "Exact paused armed owned Current, retained recovery checkpoint, native-instance, campaign and timeline alignment, and no native save. Stage calls only the normal player offer evaluator for one exact eligible pair. It grants no consent and cannot accept a proposal, transfer consideration, advance, marry or save.",
     "evidence": "Retain separate stage and observe receipts, actual courier and in-game decisions, native spouse, clan, consideration, relation and duty proof, and a checkpoint reload. Stage is fixture provenance, never player acceptance."
+  },
+  "arrestMurderEvidenceWitness": {
+    "schema": "reign-arrest-public-evidence-witness-v1",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#arrest-public-murder-evidence-witness",
+    "entry": "reign_test_structured_actions",
+    "fixture": "fixture.arrest_murder_evidence_witness",
+    "isolation": "One exact accusedHeroId and existing public murder matterId on the armed, paused, independently restorable Current. Requires exact checkpoint hash and active point, a diagnostic snapshot that leaves harness ownership intact, and the same idle verified load owner before and after. Reads the production local charge predicate without opening a case, committing custody, writing history, calling a provider, advancing, or saving.",
+    "evidence": "Exact disclosed complete-chain ID for murder, same accused with treason rejected, and stable arrest count and native custody before and after. Separate evidence remains required for remote lookup, arrest preparation, execution and other charges."
   },
   "managedBirthObservation": {
     "schema": "reign-managed-birth-native-observation-v1",
