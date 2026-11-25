@@ -58,10 +58,14 @@ namespace ReignBeta.Court.Campaign
         private List<CastleRoomSessionRecord> _castleRoomSessions = new List<CastleRoomSessionRecord>();
         private List<CastleBathHistoryRecord> _castleBathHistory = new List<CastleBathHistoryRecord>();
         private List<string> _appliedNativeCommandIds = new List<string>();
+        private ReignCourtSupplyJournal _paidSupplyJournal = new ReignCourtSupplyJournal();
+        private List<string> _paidSupplyJournalChunks;
         private List<string> _courtWeddingReceipts = new List<string>();
         private bool _courtWeddingReportInFlight;
         internal CourtSession _session;
         private long _serverRevision;
+        // The royal docket can be reused across sittings.
+        private object _courtSittingOwner = new object();
         private bool _serverSessionOpened;
         private float _lastServerTickDay = -1000f;
         internal bool _serverRequestInFlight;
@@ -190,6 +194,7 @@ namespace ReignBeta.Court.Campaign
                 _spymasterStateJson = string.Empty;
                 _spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(
                     EnsureSpymasterState(), Formatting.None));
+                _paidSupplyJournalChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_paidSupplyJournal, Formatting.None));
                 PrepareRulerDocketForSave();
             }
             dataStore.SyncData("_reignCourt_session", ref _session);
@@ -210,6 +215,14 @@ namespace ReignBeta.Court.Campaign
             dataStore.SyncData("_reignCourt_castleRoomSessions", ref _castleRoomSessions);
             dataStore.SyncData("_reignCourt_castleBathHistory", ref _castleBathHistory);
             dataStore.SyncData("_reignCourt_appliedNativeCommandIds", ref _appliedNativeCommandIds);
+            if (dataStore.IsLoading) _paidSupplyJournalChunks = null;
+            dataStore.SyncData("_reignCourt_paidSupplyJournalV1", ref _paidSupplyJournalChunks);
+            if (dataStore.IsLoading)
+            {
+                _paidSupplyJournal = ReignSavePayloadCodec.DecodeAuthoritativeState(_paidSupplyJournalChunks, null,
+                    JsonConvert.DeserializeObject<ReignCourtSupplyJournal>, () => new ReignCourtSupplyJournal());
+                _paidSupplyJournal.EnsureReadable();
+            }
             dataStore.SyncData("_reignCourt_weddingReceiptsV1", ref _courtWeddingReceipts);
             if (dataStore.IsLoading && _courtWeddingReceipts == null) _courtWeddingReceipts = new List<string>();
             dataStore.SyncData("_reignCourt_serverRevision", ref _serverRevision);
@@ -355,6 +368,7 @@ namespace ReignBeta.Court.Campaign
             int day = CurrentDay();
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
             string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
+            _courtSittingOwner = new object();
             bool reuseRoyalDocket = authority == ReignCourtAuthority.Royal && _session != null && _session.Authority == ReignCourtAuthority.Royal
                 && string.Equals(_session.CampaignId, campaignId, StringComparison.Ordinal) && string.Equals(_session.TimelineId, timelineId, StringComparison.Ordinal);
             if (reuseRoyalDocket)
@@ -397,6 +411,7 @@ namespace ReignBeta.Court.Campaign
         public void CloseSession(string reason)
         {
             if (_session == null) return;
+            _courtSittingOwner = new object();
             if (_serverSessionOpened) _ = CloseServerSessionAsync(reason);
             _session.State = ReignCourtSessionState.Closed;
             _session.ClosedDay = CurrentDayFloat();
@@ -805,8 +820,8 @@ namespace ReignBeta.Court.Campaign
                 _consecutiveAuthorityFailures = 0;
                 _lastAuthorityFailureReason = reason ?? string.Empty;
             }
-            _consecutiveAuthorityFailures = ReignCourtAuthorityStability.RecordFailure(
-                _consecutiveAuthorityFailures);
+            _consecutiveAuthorityFailures = ReignCourtAuthorityStability.RecordObservedFailure(
+                _consecutiveAuthorityFailures, ref _courtSittingOwner);
             return ReignCourtAuthorityStability.ShouldInterrupt(_consecutiveAuthorityFailures);
         }
 

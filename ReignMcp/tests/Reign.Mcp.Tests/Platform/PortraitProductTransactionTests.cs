@@ -603,6 +603,7 @@ public sealed class PortraitProductTransactionTests
             "portrait-derivative-restart", id);
         Directory.CreateDirectory(root);
         Directory.CreateDirectory(evidence);
+        bool recoveryFailed = false;
         try
         {
             var receipts = new List<object>();
@@ -651,14 +652,14 @@ public sealed class PortraitProductTransactionTests
                 Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
                 await RunDerivativeChild(workspace, client, root, hero, "inspect-held", 0);
 
-                await RunDerivativeChild(workspace, client, root, hero, "recover", 0);
+                await RecoverWithFailureEvidence("initial");
                 string?[] settled = paths.Select(HashIfPresent).ToArray();
                 Assert.Equal(committed ? attempted : before, settled);
                 Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
                 AssertNoRecoveryFiles(hero);
                 if (committed) await RunDerivativeChild(workspace, client, root, hero, "inspect", 0);
 
-                await RunDerivativeChild(workspace, client, root, hero, "recover", 0);
+                await RecoverWithFailureEvidence("repeat");
                 Assert.Equal(settled, paths.Select(HashIfPresent).ToArray());
                 Assert.Equal(retainedHashes, retained.Select(HashIfPresent).ToArray());
                 AssertNoRecoveryFiles(hero);
@@ -686,6 +687,18 @@ public sealed class PortraitProductTransactionTests
                     AssertNoRecoveryFiles(hero);
                 }
                 receipts.Add(new { phase, outputs, before, attempted, settled, retainedHashes });
+
+                async Task RecoverWithFailureEvidence(string attempt)
+                {
+                    try { await RunDerivativeChild(workspace, client, root, hero, "recover", 0); }
+                    catch
+                    {
+                        recoveryFailed = true;
+                        try { WriteDerivativeRecoveryFailure(root, hero, evidence, phase, attempt, outputs); }
+                        catch { /* Preserve the original recovery failure if diagnostics cannot be written. */ }
+                        throw;
+                    }
+                }
             }
             File.WriteAllText(Path.Combine(evidence, "restart-evidence.json"), JsonSerializer.Serialize(new
             {
@@ -695,12 +708,95 @@ public sealed class PortraitProductTransactionTests
         }
         finally
         {
-            string generated = Path.GetFullPath(Path.Combine(workspace, ".codex-build"));
-            if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(root)), generated, StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(Path.GetFileName(root), id, StringComparison.Ordinal)
-                || (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0)
-                throw new InvalidOperationException("Portrait fixture cleanup escaped its owned directory.");
-            Directory.Delete(root, recursive: true);
+            try
+            {
+                string generated = Path.GetFullPath(Path.Combine(workspace, ".codex-build"));
+                if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(root)), generated, StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(Path.GetFileName(root), id, StringComparison.Ordinal)
+                    || (File.GetAttributes(root) & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidOperationException("Portrait fixture cleanup escaped its owned directory.");
+                Directory.Delete(root, recursive: true);
+            }
+            catch when (recoveryFailed) { /* Keep the original recovery error if the fixture cannot be removed. */ }
+        }
+    }
+
+    private static void WriteDerivativeRecoveryFailure(string root, string hero, string evidence,
+        string phase, string attempt, string[] outputs)
+    {
+        const int entryLimit = 64, hashByteLimit = 8 * 1024 * 1024;
+        const FileAttributes directoryBits = FileAttributes.Directory | FileAttributes.ReparsePoint;
+        foreach (string directory in new[] { Path.GetDirectoryName(root)!, root, Path.GetDirectoryName(hero)!, hero, evidence })
+            if ((File.GetAttributes(directory) & directoryBits) != FileAttributes.Directory)
+                throw new IOException("Derivative failure evidence requires ordinary fixture directories.");
+
+        string[] markers = { PortraitProductTransaction.RecoveryMarkerName, PortraitProductTransaction.CommittedRecoveryMarkerName };
+        string[] expected = outputs.Concat(markers).ToArray();
+        string[] observed = Directory.EnumerateFileSystemEntries(hero).Take(entryLimit + 1)
+            .Select(path => Path.GetFileName(path)).ToArray();
+        bool truncated = observed.Length > entryLimit;
+        var files = new List<object>();
+        foreach (string name in observed.Take(entryLimit).OrderBy(name => name, StringComparer.Ordinal))
+        {
+            string? kind = ArtifactKind(name);
+            if (kind == null) continue;
+            string relativePath = $"{phase}/hero/{name}";
+            try
+            {
+                string file = Path.Combine(hero, name);
+                FileAttributes attributes = File.GetAttributes(file);
+                if ((attributes & directoryBits) != 0)
+                {
+                    files.Add(new { relativePath, kind, attributes = attributes.ToString(), status = "not_regular" });
+                    continue;
+                }
+                using var stream = File.OpenRead(file);
+                long bytes = stream.Length;
+                if (bytes > hashByteLimit)
+                    files.Add(new { relativePath, kind, bytes, status = "size_limit" });
+                else
+                    files.Add(new { relativePath, kind, bytes, sha256 = Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant() });
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                files.Add(new { relativePath, kind, status = "unreadable", error = error.GetType().Name, hresult = error.HResult });
+            }
+        }
+        if (!truncated)
+            foreach (string name in expected.Where(name => !observed.Contains(name, StringComparer.Ordinal)))
+                files.Add(new { relativePath = $"{phase}/hero/{name}", kind = ArtifactKind(name), status = "missing" });
+
+        using var output = new FileStream(Path.Combine(evidence, "restart-failure.json"), FileMode.CreateNew);
+        JsonSerializer.Serialize(output, new { phase, attempt, inventoryTruncated = truncated, files },
+            new JsonSerializerOptions { WriteIndented = true });
+
+        string? ArtifactKind(string name)
+        {
+            if (markers.Contains(name, StringComparer.OrdinalIgnoreCase)) return "marker";
+            string markerPrefix = markers[0] + ".";
+            const string prepareSuffix = ".prepare";
+            if (name.Length == markerPrefix.Length + 32 + prepareSuffix.Length
+                && name.StartsWith(markerPrefix, StringComparison.OrdinalIgnoreCase)
+                && name.EndsWith(prepareSuffix, StringComparison.OrdinalIgnoreCase)
+                && Guid.TryParseExact(name.Substring(markerPrefix.Length, 32), "N", out _)) return "staged_marker";
+            foreach (string target in outputs)
+            {
+                if (name.Equals(target, StringComparison.OrdinalIgnoreCase)) return "current";
+                string prefix = target + ".";
+                if (!name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+                string[] suffix = name[prefix.Length..].Split('.');
+                if (suffix.Length != 2 || suffix[1].Length != 32 || !Guid.TryParseExact(suffix[1], "N", out _)) continue;
+                return suffix[0].ToLowerInvariant() switch
+                {
+                    "pre" => "preimage",
+                    "bak" => "backup",
+                    "tmp" => "staged",
+                    "undo" => "restore_image",
+                    "post" => "displaced_image",
+                    _ => null,
+                };
+            }
+            return null;
         }
     }
 

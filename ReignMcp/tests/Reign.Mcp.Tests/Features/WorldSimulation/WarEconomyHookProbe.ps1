@@ -943,6 +943,46 @@ try {
            $reviewed.route -ne 'reviewed_naval_base' -or $reviewed.baseModel -ne $reignType.FullName){
             throw 'Native War Sails base-model coverage did not distinguish exact delegation from unsupported routes.'
         }
+        $controls=$testing.GetType('ReignBeta.KingdomEvents.Campaign.ReignKingdomEventTestControls',$true)
+        $observeRegistered=$controls.GetMethod('WithRegisteredEconomyModel',$static).MakeGenericMethod([type[]]@([object]))
+        $prosperityWrapper='NavalDLCSettlementProsperityModel'
+        $prosperityOuterType=$naval.GetType(('NavalDLC.GameComponents.'+$prosperityWrapper),$true)
+        $prosperityType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignSettlementProsperityModel',$true)
+        $prosperityOuter=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($prosperityOuterType)
+        $prosperityInner=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($prosperityType)
+        $seen=[Collections.Generic.List[object]]::new()
+        $sample=[Func[object,Newtonsoft.Json.Linq.JObject]]{
+            param($model)
+            $seen.Add($model)
+            return ,([Newtonsoft.Json.Linq.JObject]::Parse('{"passed":true}'))
+        }
+        $nativeProsperity=$campaign.GetType('TaleWorlds.CampaignSystem.GameComponents.DefaultSettlementProsperityModel',$true)
+        $wrongInner=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($nativeProsperity)
+        $initializeProsperity=$prosperityOuterType.GetMethod('Initialize',$instance)
+        $initializeProsperity.Invoke($prosperityOuter,[object[]]@($wrongInner)) | Out-Null
+        $wrongBase=$observeRegistered.Invoke($null,[object[]]@($prosperityOuter,$prosperityType,$prosperityWrapper,$sample)).ToString() | ConvertFrom-Json
+        $unknown=$observeRegistered.Invoke($null,[object[]]@($prosperityOuter,$prosperityType,'UnrecognizedWrapper',$sample)).ToString() | ConvertFrom-Json
+        $defaultModel=$observeRegistered.Invoke($null,[object[]]@($wrongInner,$prosperityType,$prosperityWrapper,$sample)).ToString() | ConvertFrom-Json
+        if($wrongBase.passed -or $unknown.passed -or $defaultModel.passed -or $seen.Count -ne 0){
+            throw 'Kingdom event economy observation admitted an unsupported model route.'
+        }
+        $prosperityOuter=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($prosperityOuterType)
+        $initializeProsperity.Invoke($prosperityOuter,[object[]]@($prosperityInner)) | Out-Null
+        $unknownHealthyBase=$observeRegistered.Invoke($null,[object[]]@($prosperityOuter,$prosperityType,'UnrecognizedWrapper',$sample)).ToString() | ConvertFrom-Json
+        if($unknownHealthyBase.passed -or $seen.Count -ne 0){
+            throw 'Kingdom event economy observation accepted a wrapper outside its reviewed route.'
+        }
+        $accepted=$observeRegistered.Invoke($null,[object[]]@($prosperityOuter,$prosperityType,$prosperityWrapper,$sample)).ToString() | ConvertFrom-Json
+        if(-not $accepted.passed -or $seen.Count -ne 1 -or -not [object]::ReferenceEquals($seen[0],$prosperityOuter) -or
+           $accepted.modelRoute.route -ne 'reviewed_naval_base' -or $accepted.modelRoute.actual -ne $prosperityOuterType.FullName -or
+           $accepted.modelRoute.outerAssemblyMvid -ne $prosperityOuterType.Assembly.ManifestModule.ModuleVersionId.ToString()){
+            throw 'Kingdom event economy observation did not sample the exact active War Sails outer model.'
+        }
+        $direct=$observeRegistered.Invoke($null,[object[]]@($prosperityInner,$prosperityType,$prosperityWrapper,$sample)).ToString() | ConvertFrom-Json
+        if(-not $direct.passed -or $direct.modelRoute.route -ne 'direct' -or
+           $seen.Count -ne 2 -or -not [object]::ReferenceEquals($seen[1],$prosperityInner)){
+            throw 'Kingdom event economy observation lost the plain Reign route.'
+        }
         $navalRoute='verified_binding'
     }
     $persistenceFields=0

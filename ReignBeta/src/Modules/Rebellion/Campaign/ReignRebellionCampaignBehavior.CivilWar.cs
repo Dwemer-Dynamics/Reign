@@ -223,20 +223,25 @@ namespace ReignBeta.Rebellion.Campaign
                 result = "An earlier negotiated recognition owns this civil war and must be reconciled.";
                 return false;
             }
-            if (Same(movement.LeaderHeroStringId, surrenderingLeader?.StringId))
+            bool rebelLeaderSurrendered = Same(movement.LeaderHeroStringId, surrenderingLeader?.StringId);
+            bool challengedRulerSurrendered = !rebelLeaderSurrendered
+                && Same(movement.OriginalRulerHeroStringId, surrenderingLeader?.StringId);
+            if (!rebelLeaderSurrendered && !challengedRulerSurrendered)
             {
-                ResolveCivilWar(movement, false, "rebel_leader_surrendered");
-                result = "The rebel leader surrendered; the loyalists won the rebellion.";
-                return true;
+                result = "Only the named rebel leader or challenged ruler can surrender the rebellion.";
+                return false;
             }
-            if (Same(movement.OriginalRulerHeroStringId, surrenderingLeader?.StringId))
+
+            string cause = challengedRulerSurrendered ? "challenged_ruler_surrendered" : "rebel_leader_surrendered";
+            if (!ResolveCivilWar(movement, challengedRulerSurrendered, cause))
             {
-                ResolveCivilWar(movement, true, "challenged_ruler_surrendered");
-                result = "The challenged ruler surrendered; the rebels won the throne.";
-                return true;
+                result = OrdinaryReintegrationUnverified;
+                return false;
             }
-            result = "Only the named rebel leader or challenged ruler can surrender the rebellion.";
-            return false;
+
+            result = challengedRulerSurrendered ? "The challenged ruler surrendered; the rebels won the throne."
+                : "The rebel leader surrendered; the loyalists won the rebellion.";
+            return true;
         }
 
         public bool SetPlayerClanSide(string movementId, bool joinRebels, out string result)
@@ -329,19 +334,19 @@ namespace ReignBeta.Rebellion.Campaign
                 }
 
                 rebels = CreateRebelKingdom(movement, parent, challengedRuler, leaderClan, founder);
-                if (rebels == null || rebels.IsEliminated || rebels.RulingClan != leaderClan
-                    || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                 {
                     HoldOutbreak(movement, "rebel_realm_unverified");
                     return;
                 }
 
                 var rebelMembers = MembersOf(movement).Where(x => Same(x.Side, "rebel")).ToList();
+                var verifiedClans = new List<Clan>();
                 foreach (ReignRebellionMembershipRecord member in rebelMembers)
                 {
                     step = "clan_transfer:" + member.ClanStringId;
                     Clan clan = FindClan(member.ClanStringId);
-                    if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                    if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                     {
                         HoldOutbreak(movement, "outbreak_authority_changed");
                         return;
@@ -352,7 +357,15 @@ namespace ReignBeta.Rebellion.Campaign
                         return;
                     }
                     if (clan.Kingdom == parent) MoveClanToKingdom(clan, rebels);
-                    if (clan.Kingdom != rebels)
+                    // Native clan changes can notify listeners synchronously. Recheck the
+                    // exact authority and every verified clan before moving another clan.
+                    if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                    {
+                        HoldOutbreak(movement, "outbreak_authority_changed");
+                        return;
+                    }
+                    verifiedClans.Add(clan);
+                    if (!HasOutbreakAllegiance(verifiedClans, rebels))
                     {
                         HoldOutbreak(movement, step);
                         return;
@@ -362,15 +375,14 @@ namespace ReignBeta.Rebellion.Campaign
                 }
 
                 step = "war_declaration";
-                if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_authority_changed");
                     return;
                 }
                 movement.OriginalRebelStrongholdIdsCsv = string.Join(",", Settlement.All
                     .Where(x => x?.IsFortification == true && x.MapFaction == rebels).Select(x => x.StringId));
-                if (rebels.RulingClan != leaderClan
-                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                if (!HasOutbreakAllegiance(verifiedClans, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_allegiance_unverified");
                     return;
@@ -390,7 +402,7 @@ namespace ReignBeta.Rebellion.Campaign
                 }
                 if (parent.Leader != challengedRuler || rebels.RulingClan != leaderClan
                     || leaderClan.Leader != founder || leaderClan.Kingdom != rebels
-                    || rebelMembers.Any(member => FindClan(member.ClanStringId)?.Kingdom != rebels))
+                    || !HasOutbreakAllegiance(verifiedClans, rebels))
                 {
                     HoldOutbreak(movement, "outbreak_allegiance_unverified");
                     return;
@@ -550,6 +562,15 @@ namespace ReignBeta.Rebellion.Campaign
                 && !founder.IsPrisoner && leaderClan.Leader == founder;
         }
 
+        private static bool HasEstablishedOutbreakAuthority(Kingdom parent, Hero challengedRuler,
+            Clan leaderClan, Hero founder, Kingdom rebels)
+            => rebels != null && !rebels.IsEliminated && rebels.RulingClan == leaderClan
+                && HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels);
+
+        private static bool HasOutbreakAllegiance(IEnumerable<Clan> clans, Kingdom rebels)
+            => clans.All(clan => !clan.IsEliminated && clan.Kingdom == rebels
+                && FindClan(clan.StringId) == clan);
+
         private Kingdom CreateRebelKingdom(ReignRebellionMovementRecord movement, Kingdom parent,
             Hero challengedRuler, Clan leaderClan, Hero founder)
         {
@@ -567,11 +588,14 @@ namespace ReignBeta.Rebellion.Campaign
                 parent.Color2, parent.Color, leaderClan.HomeSettlement ?? parent.InitialHomeSettlement,
                 parent.EncyclopediaText, parent.FormalName, parent.EncyclopediaRulerTitle);
             if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, parent)) return null;
+            // Native creation installs the founder before notifying clan-change listeners.
             ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);
-            if (rebels.IsEliminated || !HasOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
-            rebels.RulingClan = leaderClan;
+            if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
             foreach (PolicyObject policy in parent.ActivePolicies.ToList())
+            {
+                if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;
                 if (!rebels.HasPolicy(policy)) rebels.AddPolicy(policy);
+            }
             return rebels;
         }
 
@@ -651,9 +675,12 @@ namespace ReignBeta.Rebellion.Campaign
             var oldRuler = ReignRulerCampaignBehavior.HeroById(movement.OriginalRulerHeroStringId);
             if (!judgment.RebelVictory)
             {
+                if (OrdinaryResolutionInProgress(movement)) throw new InvalidOperationException(OrdinaryReintegrationUnverified);
                 foreach (var member in MembersOf(movement).Where(m => m.ClanStringId == ReignRulerCampaignBehavior.HeroById(judgment.PrisonerId)?.Clan?.StringId))
                 { member.FateApplied = true; member.FateOutcome = judgment.Verdict.ToString(); }
-                ResolveCivilWar(movement, false, "ruler_judgment"); return;
+                if (!ResolveCivilWar(movement, false, "ruler_judgment"))
+                    throw new InvalidOperationException(OrdinaryReintegrationUnverified);
+                return;
             }
             movement.ExecutionPhase = "resolving_ruler_judgment";
             if (judgment.Verdict == RulerVerdict.Reunification)
@@ -823,10 +850,14 @@ namespace ReignBeta.Rebellion.Campaign
                 (winner?.InformalName?.ToString() ?? "A side") + " won a battle, but the rebellion remains leadership-bound.", false);
         }
 
-        private void ResolveCivilWar(ReignRebellionMovementRecord movement, bool rebelVictory, string cause)
+        private const string OrdinaryReintegrationUnverified = "The civil-war reintegration is held until its native outcome can be verified.";
+
+        private static bool OrdinaryResolutionInProgress(ReignRebellionMovementRecord movement)
+            => movement.ExecutionPhase?.StartsWith("resolving", StringComparison.OrdinalIgnoreCase) == true;
+
+        private bool ResolveCivilWar(ReignRebellionMovementRecord movement, bool rebelVictory, string cause)
         {
-            if (movement == null || movement.ResolutionApplied
-                || movement.ExecutionPhase.StartsWith("resolving", StringComparison.OrdinalIgnoreCase)) return;
+            if (movement == null || movement.ResolutionApplied || OrdinaryResolutionInProgress(movement)) return false;
             Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
             Kingdom rebels = FindKingdom(movement.RebelKingdomStringId);
             movement.ExecutionPhase = "resolving_reunification";
@@ -835,9 +866,8 @@ namespace ReignBeta.Rebellion.Campaign
             List<ReignRebellionMembershipRecord> losingMembers = MembersOf(movement)
                 .Where(x => Same(x.Side, rebelVictory ? "loyalist" : "rebel"))
                 .ToList();
+            if (!RestoreCommittedClans(movement, parent, rebels)) return false;
             foreach (ReignRebellionMembershipRecord member in losingMembers) member.IsDefeated = true;
-
-            RestoreCommittedClans(movement, parent, rebels);
             Clan claimant = FindClan(movement.LeaderClanStringId);
             if (rebelVictory && parent != null && claimant != null && claimant.Kingdom == parent && !claimant.IsEliminated)
                 ChangeRulingClanAction.Apply(parent, claimant);
@@ -863,7 +893,7 @@ namespace ReignBeta.Rebellion.Campaign
                     EmitHistory(movement, "civil_war_judgments", "pending", victor.StringId,
                         "The victorious player must decide each defeated clan leader's fate.", false);
                     TryShowNextPlayerJudgment();
-                    return;
+                    return true;
                 }
             }
             else
@@ -872,9 +902,10 @@ namespace ReignBeta.Rebellion.Campaign
                     ApplyNpcMercyJudgment(movement, victor, member);
             }
             FinalizeResolution(movement);
+            return true;
         }
 
-        private void RestoreCommittedClans(ReignRebellionMovementRecord movement, Kingdom parent, Kingdom rebels)
+        private bool RestoreCommittedClans(ReignRebellionMovementRecord movement, Kingdom parent, Kingdom rebels)
         {
             JObject origins = ParseObject(movement.OriginalClanKingdomsJson);
             foreach (ReignRebellionMembershipRecord member in MembersOf(movement).ToList())
@@ -887,11 +918,24 @@ namespace ReignBeta.Rebellion.Campaign
                 Kingdom destination = FindKingdom(originId);
                 if (destination == null || destination.IsEliminated || Same(originId, movement.RebelKingdomStringId))
                     destination = parent;
-                if (destination != null && clan.Kingdom != destination)
+                bool leaveRebels = destination == null && rebels != null && clan.Kingdom == rebels;
+                if (destination != null)
                     MoveClanToKingdom(clan, destination);
-                else if (destination == null && clan.Kingdom == rebels)
+                else if (leaveRebels)
                     ChangeKingdomAction.ApplyByLeaveKingdom(clan, true);
+                else
+                    continue;
+
+                if (clan.Kingdom != destination)
+                {
+                    movement.ResolutionCause = "clan_reintegration_unverified:" + member.ClanStringId;
+                    movement.UpdatedDay = CurrentDay();
+                    ReignLog.Warn("Rebellion " + movement.MovementId + " reintegration held at " + movement.ResolutionCause + ".");
+                    return false;
+                }
             }
+
+            return true;
         }
 
         private void ApplyNpcMercyJudgment(ReignRebellionMovementRecord movement, Hero victor, ReignRebellionMembershipRecord member)

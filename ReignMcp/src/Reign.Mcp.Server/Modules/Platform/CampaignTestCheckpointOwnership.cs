@@ -126,6 +126,142 @@ internal static class CampaignTestCheckpointOwnership
         return after;
     }
 
+    // This binds a read-only witness across the diagnostic and structured commands.
+    // It is not authority for an action or evidence that a restart occurred.
+    internal static JsonElement ReadPausedActionDiagnosticOwner(CampaignTestState state, CampaignCheckpointReceipt checkpoint,
+        ControllerCall snapshot)
+    {
+        if (!state.Armed || state.PendingCheckpoint is not null || Find(state, state.CurrentSaveName) != checkpoint
+            || state.CurrentSaveName != state.SavePrefix + "_Current" || SameName(state.CurrentSaveName, state.BaselineSaveName)
+            || !snapshot.Ok || snapshot.Data is not { ValueKind: JsonValueKind.Object } run || !IsTrue(run, "found")
+            || Text(run, "campaignId") != state.CampaignId || Text(run, "mode") != "passive_world"
+            || Text(run, "status") != "completed"
+            || !run.TryGetProperty("commands", out var commands) || commands.ValueKind != JsonValueKind.Array
+            || commands.GetArrayLength() != 1 || commands[0].ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException("The exact Current diagnostic did not complete.");
+
+        JsonElement command = commands[0];
+        string runId = Text(run, "runId"), instance = Text(run, "gameInstanceId");
+        if (runId.Length == 0 || instance.Length == 0 || Text(command, "runId") != runId
+            || Text(command, "commandId").Length == 0 || Text(command, "campaignId") != state.CampaignId
+            || Text(command, "gameInstanceId") != instance || Text(command, "operation") != "world_snapshot"
+            || Text(command, "status") != "completed" || Text(command, "snapshotMode") != "post_arm_current_diagnostic"
+            || !command.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Object
+            || Text(result, "snapshotMode") != "post_arm_current_diagnostic"
+            || Text(result, "campaignId") != state.CampaignId || Text(result, "timelineId") != state.TimelineId
+            || Text(result, "activeSaveName") != state.CurrentSaveName || Text(result, "checkpointSavePointId") != checkpoint.SavePointId
+            || Text(result, "checkpointGameInstanceId") != instance || Text(result, "timeMode") != "Stop"
+            || !IsTrue(result, "saveSyncReady") || !result.TryGetProperty("saveSyncAlignmentPending", out var aligning)
+            || aligning.ValueKind != JsonValueKind.False
+            || !result.TryGetProperty("verifiedCurrentLoadObservation", out var current) || current.ValueKind != JsonValueKind.Object
+            || Text(current, "schema") != "reign-native-verified-current-observation-v1"
+            || Text(current, "campaignId") != state.CampaignId || Text(current, "timelineId") != state.TimelineId
+            || Text(current, "saveName") != state.CurrentSaveName || Text(current, "savePointId") != checkpoint.SavePointId
+            || Text(current, "gameInstanceId") != instance || Text(current, "loadResult") is not ("no_op" or "rolled_back")
+            || !Uri.TryCreate(Text(current, "origin"), UriKind.Absolute, out var origin) || !origin.IsLoopback
+            || origin.Scheme != Uri.UriSchemeHttp || origin.GetLeftPart(UriPartial.Authority) != Text(current, "origin")
+            || !current.TryGetProperty("nativeProcessId", out var process) || process.ValueKind != JsonValueKind.Number
+            || !process.TryGetInt32(out int processId) || processId < 1
+            || !Guid.TryParseExact(Text(current, "clientProcessInstanceId"), "N", out _)
+            || !current.TryGetProperty("coordinatorGeneration", out var generation) || generation.ValueKind != JsonValueKind.Number
+            || !generation.TryGetInt32(out int coordinatorGeneration) || coordinatorGeneration < 1
+            || !IsDigest(current, "loadSessionSha256") || !IsDigest(current, "restoreGenerationSha256"))
+            throw new InvalidOperationException("The exact Current diagnostic lacks its idle, verified native load owner.");
+
+        return current.Clone();
+
+        static bool IsDigest(JsonElement owner, string key) => Text(owner, key) is { Length: 64 } text && text.All(char.IsAsciiHexDigit);
+    }
+
+    // Diagnostic observation only. Campaign mutations must never accept it as authorization.
+    internal static object? ReadPostArmCurrentObservation(CampaignTestState state, CampaignCheckpointReceipt checkpoint,
+        ControllerCall restart, ControllerCall snapshot, string beforeInstance, string afterInstance)
+    {
+        if (!state.Armed || state.PendingCheckpoint is not null || Find(state, state.CurrentSaveName) != checkpoint
+            || state.CurrentSaveName != state.SavePrefix + "_Current" || SameName(state.CurrentSaveName, state.BaselineSaveName)
+            || beforeInstance.Length == 0 || afterInstance.Length == 0 || beforeInstance == afterInstance
+            || beforeInstance != checkpoint.Attempt.GameInstanceId || !snapshot.Ok
+            || snapshot.Data is not { ValueKind: JsonValueKind.Object } run || !IsTrue(run, "found")
+            || Text(run, "campaignId") != state.CampaignId || Text(run, "gameInstanceId") != afterInstance
+            || Text(run, "mode") != "passive_world" || Text(run, "status") != "completed"
+            || !run.TryGetProperty("commands", out var commands) || commands.ValueKind != JsonValueKind.Array
+            || commands.GetArrayLength() != 1 || commands[0].ValueKind != JsonValueKind.Object)
+            return null;
+
+        JsonElement command = commands[0];
+        string runId = Text(run, "runId"), commandId = Text(command, "commandId");
+        if (runId.Length == 0 || commandId.Length == 0 || Text(command, "runId") != runId
+            || Text(command, "campaignId") != state.CampaignId || Text(command, "gameInstanceId") != afterInstance
+            || Text(command, "operation") != "world_snapshot" || Text(command, "status") != "completed"
+            || Text(command, "snapshotMode") != "post_arm_current_diagnostic"
+            || !command.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Object
+            || Text(result, "campaignId") != state.CampaignId || Text(result, "timelineId") != state.TimelineId
+            || Text(result, "activeSaveName") != state.CurrentSaveName || Text(result, "checkpointSavePointId") != checkpoint.SavePointId
+            || Text(result, "checkpointGameInstanceId") != afterInstance || Text(result, "timeMode") != "Stop"
+            || Text(result, "snapshotMode") != "post_arm_current_diagnostic"
+            || !IsTrue(result, "saveSyncReady") || !result.TryGetProperty("saveSyncAlignmentPending", out var aligning)
+            || aligning.ValueKind != JsonValueKind.False
+            || !result.TryGetProperty("verifiedCurrentLoadObservation", out var current) || current.ValueKind != JsonValueKind.Object)
+            return null;
+
+        string origin = Text(current, "origin"), loadResult = Text(current, "loadResult");
+        string loadSessionDigest = Text(current, "loadSessionSha256"), restoreDigest = Text(current, "restoreGenerationSha256");
+        string processInstance = Text(current, "clientProcessInstanceId");
+        if (!current.TryGetProperty("nativeProcessId", out var process) || process.ValueKind != JsonValueKind.Number
+            || !process.TryGetInt32(out int nativeProcessId) || nativeProcessId < 1
+            || !Guid.TryParseExact(processInstance, "N", out _)
+            || !MatchesReadyRestartProcess(state, restart, afterInstance, nativeProcessId, processInstance)
+            || Text(current, "schema") != "reign-native-verified-current-observation-v1"
+            || Text(current, "campaignId") != state.CampaignId || Text(current, "timelineId") != state.TimelineId
+            || Text(current, "saveName") != state.CurrentSaveName || Text(current, "savePointId") != checkpoint.SavePointId
+            || Text(current, "gameInstanceId") != afterInstance || loadResult is not ("no_op" or "rolled_back")
+            || !Uri.TryCreate(origin, UriKind.Absolute, out var uri) || !uri.IsLoopback || uri.Scheme != Uri.UriSchemeHttp
+            || origin != uri.GetLeftPart(UriPartial.Authority)
+            || loadSessionDigest.Length != 64 || !loadSessionDigest.All(char.IsAsciiHexDigit)
+            || restoreDigest.Length != 64 || !restoreDigest.All(char.IsAsciiHexDigit)
+            || !current.TryGetProperty("coordinatorGeneration", out var generation) || generation.ValueKind != JsonValueKind.Number
+            || !generation.TryGetInt32(out int coordinatorGeneration) || coordinatorGeneration < 1)
+            return null;
+
+        return new
+        {
+            schema = "reign-campaign-post-arm-current-observation-v1", diagnosticOnly = true,
+            enrollmentRunId = state.RunId, campaignId = state.CampaignId, timelineId = state.TimelineId,
+            protectedBaselineSaveName = state.BaselineSaveName, saveName = state.CurrentSaveName,
+            checkpointAttemptId = checkpoint.Attempt.Id, checkpointSha256 = checkpoint.Sha256,
+            savePointId = checkpoint.SavePointId, checkpointGameInstanceId = beforeInstance, reloadedGameInstanceId = afterInstance,
+            liveRunId = runId, liveCommandId = commandId, nativeProcessId,
+            origin, loadResult, coordinatorGeneration, loadSessionSha256 = loadSessionDigest, restoreGenerationSha256 = restoreDigest
+        };
+    }
+
+    private static bool MatchesReadyRestartProcess(CampaignTestState state, ControllerCall restart, string gameInstanceId,
+        int nativeProcessId, string processInstance)
+    {
+        if (!restart.Ok || restart.Data is not { ValueKind: JsonValueKind.Object } response
+            || Text(response, "status") != "restarted" || !IsTrue(response, "running")
+            || Text(response, "saveName") != state.CurrentSaveName
+            || !response.TryGetProperty("processIds", out var processes) || processes.ValueKind != JsonValueKind.Array
+            || processes.GetArrayLength() is < 1 or > 16
+            || !response.TryGetProperty("runtime", out var runtime) || runtime.ValueKind != JsonValueKind.Object
+            || !IsTrue(runtime, "ok") || !IsTrue(runtime, "gameOnline")
+            || !runtime.TryGetProperty("runtime", out var heartbeat) || heartbeat.ValueKind != JsonValueKind.Object
+            || Text(heartbeat, "campaignId") != state.CampaignId || Text(heartbeat, "gameInstanceId") != gameInstanceId
+            || Text(heartbeat, "activeSaveName") != state.CurrentSaveName
+            || !heartbeat.TryGetProperty("saveSync", out var sync) || sync.ValueKind != JsonValueKind.Object
+            || !IsTrue(sync, "ready") || !sync.TryGetProperty("alignmentPending", out var pending)
+            || pending.ValueKind != JsonValueKind.False || Text(sync, "timelineId") != state.TimelineId
+            || !heartbeat.TryGetProperty("executionIdentity", out var identity) || identity.ValueKind != JsonValueKind.Object
+            || Text(identity, "clientProcessInstanceId") != processInstance)
+            return false;
+
+        var seen = new HashSet<int>();
+        foreach (var candidate in processes.EnumerateArray())
+            if (candidate.ValueKind != JsonValueKind.Number || !candidate.TryGetInt32(out int pid) || pid < 1 || !seen.Add(pid))
+                return false;
+        return seen.Contains(nativeProcessId);
+    }
+
     internal static string? NativeHash(string name, string? saveDirectory = null)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length > 64

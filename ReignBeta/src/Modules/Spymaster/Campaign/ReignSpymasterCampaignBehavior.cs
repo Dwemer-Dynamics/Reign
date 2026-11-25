@@ -724,6 +724,55 @@ namespace ReignBeta.Court.Campaign
         public float GetSpymasterSecurityDelta(Town town) => GetSettlementEffect(town, "security");
         public float GetSpymasterLoyaltyDelta(Town town) => GetSettlementEffect(town, "loyalty");
 
+#if !REIGN_EXCLUDE_VERIFICATION
+        internal JObject ObserveForeignAgentDisruption(Town town, string agentId, string assignmentId,
+            string actionId, string effectType)
+        {
+            var state = _spymasterState;
+            if (state?.ForeignAgents == null || state.ForeignAgentActions == null
+                || state.AppliedForeignAgentActionIds == null || state.Effects == null)
+                throw new InvalidOperationException("The native Spymaster state is unavailable for observation.");
+            string settlementId = town.Settlement.StringId;
+            float day = CurrentDayFloat();
+            bool SameAction(string value) => string.Equals(value, actionId, StringComparison.OrdinalIgnoreCase);
+            var actions = state.ForeignAgentActions.Where(row => row != null && SameAction(row.ActionId)).ToArray();
+            var effects = state.Effects.Where(row => row != null && SameAction(row.ForeignAgentActionId)).ToArray();
+            var agents = state.ForeignAgents.Where(row => row != null && row.AgentHeroStringId == agentId).ToArray();
+            var agent = agents.Length == 1 ? agents[0] : null;
+            return new JObject
+            {
+                ["schema"] = "reign-foreign-agent-disruption-observation-v1",
+                ["worldDay"] = day, ["actionId"] = actionId, ["agentHeroId"] = agentId,
+                ["expectedAssignmentId"] = assignmentId, ["settlementId"] = settlementId, ["effectType"] = effectType,
+                ["agentCount"] = agents.Length, ["currentAssignmentId"] = agent?.AssignmentId ?? "",
+                ["assignmentMatches"] = agent != null && agent.AssignmentId == assignmentId
+                    && agent.SettlementStringId == settlementId,
+                ["assignmentTimelineId"] = agent?.AssignmentTimelineId ?? "",
+                ["agentExposed"] = agent?.Exposed, ["agentActivated"] = agent?.Activated, ["nextActionDay"] = agent?.NextActionDay,
+                ["actionCount"] = actions.Length, ["matchingActionCount"] = actions.Count(row => row.ActionId == actionId
+                    && row.AgentHeroStringId == agentId && row.SettlementStringId == settlementId && row.EffectType == effectType),
+                ["action"] = actions.Length == 1 ? new JObject
+                {
+                    ["issuedDay"] = actions[0].WorldDay, ["durationDays"] = actions[0].DurationDays, ["magnitude"] = actions[0].Magnitude
+                } : null,
+                ["effectCount"] = effects.Length, ["matchingEffectCount"] = effects.Count(row => row.ForeignAgentActionId == actionId
+                    && row.AgentHeroStringId == agentId && row.SettlementStringId == settlementId && row.EffectType == effectType),
+                ["effect"] = effects.Length == 1 ? new JObject
+                {
+                    ["effectId"] = effects[0].EffectId, ["startDay"] = effects[0].StartDay,
+                    ["endDay"] = effects[0].EndDay, ["magnitude"] = effects[0].Magnitude
+                } : null,
+                ["appliedMarkerCount"] = state.AppliedForeignAgentActionIds.Count(SameAction),
+                ["exactAppliedMarkerCount"] = state.AppliedForeignAgentActionIds.Count(id => id == actionId),
+                ["activeOtherEffectCount"] = state.Effects.Count(row => row != null && !SameAction(row.ForeignAgentActionId)
+                    && row.EndDay > day && string.Equals(row.SettlementStringId, settlementId, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(row.EffectType, effectType, StringComparison.OrdinalIgnoreCase)),
+                ["currentNativeModifier"] = GetSettlementEffect(town, effectType),
+                ["actualFoodStocks"] = town.FoodStocks, ["actualSecurity"] = town.Security, ["actualLoyalty"] = town.Loyalty
+            };
+        }
+#endif
+
         private float GetSettlementEffect(Town town, string type)
         {
             var settlement = town?.Settlement;

@@ -40,22 +40,54 @@ namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {
-        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null)
+        private const string CourtOwnedActionUnavailable = "This court action belongs to a different loaded court or Save Sync point.";
+
+        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null,
+            Func<bool> requestOwner = null, Action onSuccess = null, bool ownedPaidSupply = false)
         {
             return await ReignMainThread.InvokeAsync(() =>
             {
                 JArray receipts = new JArray();
                 try
                 {
+                    if (requestOwner != null && !requestOwner()) throw new InvalidOperationException(CourtOwnedActionUnavailable);
                     var commands = (actions ?? new JArray()).OfType<JObject>().ToList();
                     if (commands.Count > 1 && commands.Any(a => a.Value<string>("type") == "marriage_response"
                         || ReignMarriageService.HasMarriageIntent(ReignCourtDialogueClient.ParseCourtWorldAction(a["action"] as JObject ?? a["worldAction"] as JObject))))
                         throw new InvalidOperationException("A marriage decision must bind its consideration inside one signed wedding package.");
+                    bool IsPaidSupply(JObject command) => string.Equals(command.Value<string>("type"), "transfer_item",
+                        StringComparison.OrdinalIgnoreCase) && command.Value<int?>("goldAmount") > 0;
+                    if (commands.Any(IsPaidSupply) && (!ownedPaidSupply || requestOwner == null || commands.Count != 1))
+                        throw new InvalidOperationException("Paid supply requires one exact owned and recoverable transfer.");
+                    if (commands.Any(command => string.Equals(command.Value<string>("type"), "transfer_item", StringComparison.OrdinalIgnoreCase)
+                        && !IsPaidSupply(command) && _paidSupplyJournal.HasCommand(command.Value<string>("commandId") ?? "")))
+                        throw new InvalidOperationException("This command ID is owned by a saved paid supply attempt.");
                     foreach (JObject action in commands)
                     {
                         string type = action.Value<string>("type") ?? string.Empty;
                         string nativeCommandId = action.Value<string>("commandId") ?? string.Empty;
                         JObject receipt = new JObject { ["type"] = type };
+                        if (IsPaidSupply(action))
+                        {
+                            if (!requestOwner() || string.IsNullOrWhiteSpace(nativeCommandId)
+                                || _appliedNativeCommandIds.Contains(nativeCommandId)
+                                || !JToken.DeepEquals(action["paidSupplyRecoveryVersion"], 1))
+                                throw new InvalidOperationException("Paid supply requires one exact owned and recoverable transfer.");
+                            ReignSupplyTransferResult payment = ReignCourtSupplyService.ApplyOwnedPaidTransfer(
+                                ReadSupplyTransfer(action, nativeCommandId), _session.Authority, _paidSupplyJournal,
+                                ReignCampaignIdentity.CurrentCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main",
+                                requestOwner);
+                            if (!payment.Success) throw new InvalidOperationException(payment.Error);
+
+                            receipt["ok"] = true;
+                            receipt["commandId"] = nativeCommandId;
+                            receipt["receiptId"] = payment.ReceiptId;
+                            receipt["paidSupply"] = JObject.FromObject(payment.PaidReceipt);
+                            receipt["idempotentReplay"] = payment.Replayed;
+                            receipts.Add(receipt);
+                            if (!payment.Replayed) onSuccess?.Invoke();
+                            return new NativeCourtExecution { Success = true, Receipt = new JObject { ["ok"] = true, ["actions"] = receipts } };
+                        }
                         if (!string.IsNullOrWhiteSpace(nativeCommandId) && _appliedNativeCommandIds.Contains(nativeCommandId))
                         {
                             receipt["ok"] = true;
@@ -123,20 +155,9 @@ namespace ReignBeta.Court.Campaign
                             }
                             case "transfer_item":
                             {
-                                ReignSupplyTransferResult transfer = ReignCourtSupplyService.ApplyTransfer(new ReignSupplyTransferRequest
-                                {
-                                    CommandId = action.Value<string>("commandId") ?? "court_transfer_" + Guid.NewGuid().ToString("N"),
-                                    SourceSettlementStringId = action.Value<string>("sourceSettlementStringId") ?? string.Empty,
-                                    TargetSettlementStringId = action.Value<string>("targetSettlementStringId") ?? string.Empty,
-                                    ItemStringId = action.Value<string>("itemStringId") ?? string.Empty,
-                                    ItemAmount = action.Value<int?>("amount") ?? 0,
-                                    GoldAmount = action.Value<int?>("goldAmount") ?? 0,
-                                    VassalConsentGranted = action.Value<bool?>("vassalConsentGranted") == true,
-                                    GoldPayerKind = action.Value<string>("goldPayerKind") ?? string.Empty,
-                                    GoldPayerStringId = action.Value<string>("goldPayerStringId") ?? string.Empty,
-                                    GoldRecipientKind = action.Value<string>("goldRecipientKind") ?? string.Empty,
-                                    GoldRecipientStringId = action.Value<string>("goldRecipientStringId") ?? string.Empty
-                                }, _session.Authority);
+                                ReignSupplyTransferResult transfer = ReignCourtSupplyService.ApplyTransfer(
+                                    ReadSupplyTransfer(action, action.Value<string>("commandId") ?? "court_transfer_" + Guid.NewGuid().ToString("N")),
+                                    _session.Authority);
                                 if (!transfer.Success) throw new InvalidOperationException(transfer.Error);
                                 receipt["receiptId"] = transfer.ReceiptId;
                                 break;
@@ -229,6 +250,7 @@ namespace ReignBeta.Court.Campaign
                         receipt["ok"] = true;
                         receipts.Add(receipt);
                     }
+                    onSuccess?.Invoke();
                     return new NativeCourtExecution { Success = true, Receipt = new JObject { ["ok"] = true, ["actions"] = receipts } };
                 }
                 catch (Exception ex)
@@ -320,6 +342,24 @@ namespace ReignBeta.Court.Campaign
         internal static Hero FindHero(string id)
         {
             return string.IsNullOrWhiteSpace(id) ? null : Hero.AllAliveHeroes.FirstOrDefault(x => string.Equals(x.StringId, id, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static ReignSupplyTransferRequest ReadSupplyTransfer(JObject action, string commandId)
+        {
+            return new ReignSupplyTransferRequest
+            {
+                CommandId = commandId,
+                SourceSettlementStringId = action.Value<string>("sourceSettlementStringId") ?? string.Empty,
+                TargetSettlementStringId = action.Value<string>("targetSettlementStringId") ?? string.Empty,
+                ItemStringId = action.Value<string>("itemStringId") ?? string.Empty,
+                ItemAmount = action.Value<int?>("amount") ?? 0,
+                GoldAmount = action.Value<int?>("goldAmount") ?? 0,
+                VassalConsentGranted = action.Value<bool?>("vassalConsentGranted") == true,
+                GoldPayerKind = action.Value<string>("goldPayerKind") ?? string.Empty,
+                GoldPayerStringId = action.Value<string>("goldPayerStringId") ?? string.Empty,
+                GoldRecipientKind = action.Value<string>("goldRecipientKind") ?? string.Empty,
+                GoldRecipientStringId = action.Value<string>("goldRecipientStringId") ?? string.Empty
+            };
         }
 
         private sealed class NativeCourtExecution

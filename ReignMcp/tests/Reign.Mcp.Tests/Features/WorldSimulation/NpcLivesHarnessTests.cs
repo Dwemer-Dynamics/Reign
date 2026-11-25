@@ -6,6 +6,56 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class NpcLivesHarnessTests
 {
     [Fact]
+    public void MeetingReleaseSnapshotReturnsBeforeChangingNativeRunOwnership()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/Characters/Campaign/ReignNpcLivesTestHost.cs"));
+        int start = source.IndexOf("private static async Task<LiveCommandResult> NpcLivesTestAsync", StringComparison.Ordinal);
+        Assert.True(start >= 0);
+        int observe = source.IndexOf("if (c.Value<string>(\"phase\") == \"meeting_release_snapshot\")", start, StringComparison.Ordinal);
+        int own = source.IndexOf("_activeRunId =", start, StringComparison.Ordinal);
+        int refresh = source.IndexOf("await owner.RefreshLifeSnapshotAsync()", start, StringComparison.Ordinal);
+        Assert.True(observe > start && own > observe && refresh > own);
+        Assert.DoesNotContain("_activeMode", source[start..own]);
+        Assert.Contains("return LiveCommandResult.Completed", source[observe..own]);
+        Assert.Contains("ObserveNpcLivesMeetingRelease(c, enrollment)", source[observe..own]);
+        Assert.Contains("_activeMode = \"npc_lives\"", source[own..refresh]);
+        Assert.Contains("if (directObservation != null) return directObservation", source[own..refresh]);
+
+        int method = source.IndexOf("private static JObject ObserveNpcLivesMeetingRelease", refresh, StringComparison.Ordinal);
+        Assert.True(method > refresh);
+        int end = source.IndexOf("#endif", method, StringComparison.Ordinal);
+        Assert.True(end > method);
+        Assert.DoesNotContain("_activeRunId", source[method..end]);
+        Assert.DoesNotContain("_activeMode", source[method..end]);
+    }
+
+    [Fact]
+    public void MeetingReleaseSnapshotPreservesExactMeetingAndRevision()
+    {
+        const string json = "[{\"caseId\":\"d46\",\"phase\":\"meeting_release_snapshot\",\"meetingId\":\"meeting:actual_2\",\"revision\":\"17\"}]";
+        var parsed = Assert.Single(NpcLivesTestTools.ParseCases(json));
+        Assert.Equal("meeting:actual_2", parsed.GetProperty("meetingId").GetString());
+        Assert.Equal("17", parsed.GetProperty("revision").GetString());
+    }
+
+    [Theory]
+    [InlineData("\"meetingId\":\"meeting_1\"")]
+    [InlineData("\"revision\":\"1\"")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":1")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":\"01\"")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":\"0\"")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":\"2147483648\"")]
+    [InlineData("\"meetingId\":\" meeting_1\",\"revision\":\"1\"")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":\"1\",\"revision\":\"2\"")]
+    [InlineData("\"meetingId\":\"meeting_1\",\"revision\":\"1\",\"control\":\"hold\"")]
+    public void MeetingReleaseSnapshotRejectsAmbiguousOrMutatingSelectors(string selectors)
+    {
+        string json = "[{\"caseId\":\"d46\",\"phase\":\"meeting_release_snapshot\"," + selectors + "}]";
+        Assert.Throws<ArgumentException>(() => NpcLivesTestTools.ParseCases(json));
+    }
+
+    [Fact]
     public void NewMeetingValidationHonorsTheSwitchWithoutCancellingSignedCommitments()
     {
         string root = TestOptions.FindWorkspace();

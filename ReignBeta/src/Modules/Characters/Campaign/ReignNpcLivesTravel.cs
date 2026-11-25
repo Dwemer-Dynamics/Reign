@@ -321,8 +321,9 @@ namespace ReignBeta.Characters.Campaign
         }
         // The owned save command can temporarily pause this scheduler. The
         // next eligible native travel tick still owns any release already due.
-        private int CountDueMeetingReleases()
+        private int CountDueMeetingReleases(out NpcSummonedMeeting singleDueMeeting)
         {
+            singleDueMeeting = null;
             double now = CampaignTime.Now.ToDays;
             if (!TravelSafe() || !LifeTravelTickDue(now)) return 0;
 
@@ -335,7 +336,11 @@ namespace ReignBeta.Characters.Campaign
                 Hero target = ReignActionService.HeroById(meeting.TargetId);
                 bool canAdvance = CanAdvanceMeeting(journey, issuer, target, out string interruption, out _);
                 if (NpcLivesCheckpointPolicy.MeetingReleaseCanDrain(interruption.Length > 0, canAdvance,
-                    canAdvance && MeetingCampInBattle(meeting, target))) due++;
+                    canAdvance && MeetingCampInBattle(meeting, target)))
+                {
+                    due++;
+                    singleDueMeeting = due == 1 ? meeting : null;
+                }
             }
             return due;
         }
@@ -662,14 +667,31 @@ namespace ReignBeta.Characters.Campaign
             EnterSettlementAction.ApplyForCharacterOnly(hero, home);
         }
 
+        private static bool WeddingAttendanceNeedsRelease(string ownerId, Hero hero, Settlement town)
+            => ReignServices.Relationship?.OwnsWeddingAttendance(ownerId) != true
+                || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town);
+
+        private int CountDueWeddingAttendanceReleases()
+        {
+            if (!TravelSafe() || !LifeTravelTickDue(CampaignTime.Now.ToDays)) return 0;
+
+            int due = 0;
+            foreach (var row in _weddingAttendance)
+            {
+                var hero = ReignActionService.HeroById(row.Key);
+                var town = Settlement.Find(row.Value.TownId);
+                if (WeddingAttendanceNeedsRelease(row.Value.OwnerId, hero, town)) due++;
+            }
+            return due;
+        }
+
         private void RefreshWeddingAttendance()
         {
             foreach (var row in _weddingAttendance.ToList())
             {
                 var hero = ReignActionService.HeroById(row.Key);
                 var town = Settlement.Find(row.Value.TownId);
-                if (ReignServices.Relationship?.OwnsWeddingAttendance(row.Value.OwnerId) != true
-                    || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town))
+                if (WeddingAttendanceNeedsRelease(row.Value.OwnerId, hero, town))
                 {
                     ReleaseWeddingGuest(row.Key, row.Value);
                     continue;

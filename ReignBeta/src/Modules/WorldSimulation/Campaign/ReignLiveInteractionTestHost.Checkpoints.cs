@@ -19,6 +19,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
+using ReignBeta.Characters.Campaign;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
 using ReignBeta.Dialogue.Runtime;
@@ -169,6 +170,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
             long expectedSequence = (nativeBefore.Value<long?>("sequence") ?? 0L) + 1L;
             string npcLivesBlocker = string.Empty;
+            JObject meetingReleaseWitness = null;
             bool queued = await ReignMainThread.InvokeAsync(() =>
             {
                 // A periodic scheduling hold never grants permission to save over real work.
@@ -185,10 +187,11 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return false;
                 if (ownership != null)
                 {
+                    NpcSummonedMeeting blockingMeeting = null;
                     try
                     {
                         npcLivesBlocker = ReignServices.NpcLives?.PassiveCheckpointBlocker(
-                            ownership.Value<string>("campaignId"), ownership.Value<string>("timelineId"))
+                            ownership.Value<string>("campaignId"), ownership.Value<string>("timelineId"), out blockingMeeting)
                             ?? NpcLivesCheckpointPolicy.TelemetryUnavailable;
                     }
                     catch (Exception ex)
@@ -196,7 +199,24 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ReignLog.Warn("NPC Lives checkpoint work could not be observed: " + ex.Message);
                         npcLivesBlocker = NpcLivesCheckpointPolicy.TelemetryUnavailable;
                     }
-                    if (npcLivesBlocker.Length > 0) return false;
+                    if (npcLivesBlocker.Length > 0)
+                    {
+#if !REIGN_EXCLUDE_VERIFICATION
+                        if (blockingMeeting != null && npcLivesBlocker == ReignNpcLivesBehavior.MeetingReleaseCheckpointBlocker)
+                        {
+                            try
+                            {
+                                meetingReleaseWitness = CaptureCheckpointMeetingRefusal(command, ownership, saveName,
+                                    npcLivesBlocker, blockingMeeting);
+                            }
+                            catch (Exception ex)
+                            {
+                                ReignLog.Warn("NPC Lives meeting refusal witness unavailable: " + ex.GetType().Name);
+                            }
+                        }
+#endif
+                        return false;
+                    }
                     expectedSequence = ReignSaveSyncCampaignBehavior.NativeSaveObservation().Value<long>("sequence") + 1L;
                 }
                 // Save Sync registers before Bannerlord's completion callback
@@ -218,8 +238,12 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (!queued)
             {
                 if (npcLivesBlocker.Length > 0)
+                {
+                    var evidence = new JObject { ["npcLivesCheckpointBlocker"] = npcLivesBlocker };
+                    if (meetingReleaseWitness != null) evidence["npcLivesMeetingReleaseWitness"] = meetingReleaseWitness;
                     return LiveCommandResult.Failed("NPC Lives was not idle at checkpoint submission. No native save was queued.",
-                        CheckpointNotQueuedEvidence(ownership, new JObject { ["npcLivesCheckpointBlocker"] = npcLivesBlocker }));
+                        CheckpointNotQueuedEvidence(ownership, evidence));
+                }
                 if (ownership != null)
                     return CheckpointNotQueued(ownership, "Native saving, in-flight work, or a changed checkpoint identity prevented SaveAs.");
                 return LiveCommandResult.Failed(
@@ -393,6 +417,36 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
             catch (FileNotFoundException) { return null; }
         }
+
+#if !REIGN_EXCLUDE_VERIFICATION
+        private static JObject CaptureCheckpointMeetingRefusal(JObject command, JObject ownership, string saveName,
+            string blocker, NpcSummonedMeeting meeting)
+        {
+            string active = ActiveSaveName();
+            string point = ReignServices.SaveSync?.CurrentSavePointId ?? "";
+            if (!_armed || !active.EndsWith("_Current", StringComparison.Ordinal) || saveName != active
+                || ownership.Value<string>("sourceSaveName") != active
+                || !Guid.TryParseExact(point, "N", out _) || ownership.Value<string>("sourcePointId") != point
+                || ownership.Value<string>("gameInstanceId") != _gameInstanceId
+                || command.Value<string>("gameInstanceId") != _gameInstanceId)
+                return null;
+
+            JObject native = ReignSaveSyncCampaignBehavior.NativeSaveObservation();
+            return new JObject
+            {
+                ["schema"] = "reign-npc-lives-meeting-release-refusal-v1",
+                ["campaignTestRunId"] = ownership.Value<string>("runId"),
+                ["checkpointAttemptId"] = ownership.Value<string>("id"), ["commandId"] = command.Value<string>("commandId"),
+                ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
+                ["gameInstanceId"] = _gameInstanceId, ["activeSaveName"] = active, ["savePointId"] = point,
+                ["worldDay"] = CampaignTime.Now.ToDays, ["nativeSaveSequence"] = native.Value<long>("sequence"),
+                ["nativeCompletedSequence"] = native.Value<long>("completedSequence"),
+                ["npcLivesSchema"] = NpcLivesCheckpointPolicy.MeetingObservationSchema, ["dueNativeMeetingRelease"] = 1,
+                ["blocker"] = blocker, ["meeting"] = ReignNpcLivesBehavior.DescribeCheckpointMeeting(meeting)
+            };
+        }
+#endif
 
         private static JObject CheckpointNotQueuedEvidence(JObject ownership, JObject evidence)
         {

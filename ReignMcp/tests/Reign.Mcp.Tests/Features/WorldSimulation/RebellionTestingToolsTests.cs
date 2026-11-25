@@ -6,6 +6,50 @@ namespace Reign.Mcp.Tests;
 public sealed class RebellionTestingToolsTests
 {
     [Fact]
+    public void OrdinarySurrenderAndRulerReceiptRequireNativeClanReintegration()
+    {
+        string root = TestOptions.FindWorkspace();
+        string path = Path.Combine(root,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.CivilWar.cs");
+        string source = File.ReadAllText(path);
+        string surrender = source[source.IndexOf("public bool TrySurrender(", StringComparison.Ordinal)
+            ..source.IndexOf("public bool SetPlayerClanSide(", StringComparison.Ordinal)];
+        int check = surrender.IndexOf("if (!ResolveCivilWar(", StringComparison.Ordinal);
+        int winner = surrender.IndexOf("won the throne", StringComparison.Ordinal);
+        Assert.True(check >= 0 && winner > check);
+        Assert.Contains("result = OrdinaryReintegrationUnverified;", surrender[check..winner]);
+        Assert.Contains("return false;", surrender[check..winner]);
+
+        string resolver = source[source.IndexOf("private bool ResolveCivilWar(", StringComparison.Ordinal)
+            ..source.IndexOf("private void ApplyNpcMercyJudgment(", StringComparison.Ordinal)];
+        int phase = resolver.IndexOf("movement.ExecutionPhase = \"resolving_reunification\"", StringComparison.Ordinal);
+        int restore = resolver.IndexOf("if (!RestoreCommittedClans(movement, parent, rebels)) return false;", StringComparison.Ordinal);
+        int judgment = resolver.IndexOf("movement.Stage = \"judgment\"", StringComparison.Ordinal);
+        Assert.True(phase >= 0 && restore > phase && judgment > restore);
+        Assert.Contains("OrdinaryResolutionInProgress(movement)) return false;", resolver[..phase]);
+        Assert.Contains("if (clan.Kingdom != destination)", resolver);
+        Assert.Contains("clan_reintegration_unverified:", resolver);
+
+        string ruler = source[source.IndexOf("internal void CompleteRulerJudgment(", StringComparison.Ordinal)
+            ..source.IndexOf("private void OnHeroPrisonerTaken(", StringComparison.Ordinal)];
+        Assert.Contains("if (OrdinaryResolutionInProgress(movement)) throw", ruler);
+        Assert.Contains("if (!ResolveCivilWar(movement, false, \"ruler_judgment\"))", ruler);
+    }
+
+    [Fact]
+    public void ForeignClanNativeFixtureChecksHeldAndCompletedSurrenderReplays()
+    {
+        string root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.PreparationHarness.cs"));
+        Assert.Contains("movement.ExecutionPhase = \"resolving_reunification\";", source);
+        Assert.Contains("heldSurrenderRejected = !TrySurrender(challengedRuler, movement.MovementId, out _)", source);
+        Assert.Contains("movement.ExecutionPhase = originalPhase;", source);
+        Assert.Contains("bool completedSurrenderReplayRejected = resolved", source);
+        Assert.Contains("check(\"reunification_exactly_once\", heldSurrenderRejected && completedSurrenderReplayRejected", source);
+    }
+
+    [Fact]
     public void Manifest_exposes_durable_cli_and_complete_preparation_profiles()
     {
         var manifest = TestingTools.GetRebellionTestManifest(TestOptions.Create());
@@ -109,6 +153,46 @@ public sealed class RebellionTestingToolsTests
             StringComparison.Ordinal);
         Assert.DoesNotContain("operation = \"save_checkpoint\"", source[..source.IndexOf(
             "reign_start_rebellion_test", StringComparison.Ordinal)], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Native_outbreak_revalidates_authority_and_allegiance_at_callback_boundaries()
+    {
+        string source = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta"), "ReignRebellionCampaignBehavior.CivilWar.cs", "/src/Modules/Rebellion/Campaign/"));
+        int move = source.IndexOf("if (clan.Kingdom == parent) MoveClanToKingdom(clan, rebels);",
+            StringComparison.Ordinal);
+        Assert.True(move >= 0);
+        int stamp = source.IndexOf("member.LastSwitchDay = CurrentDay();", move, StringComparison.Ordinal);
+        Assert.True(stamp > move);
+        string postTransfer = source[move..stamp];
+        Assert.Contains("if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))",
+            postTransfer, StringComparison.Ordinal);
+        Assert.Contains("HoldOutbreak(movement, \"outbreak_authority_changed\");", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("verifiedClans.Add(clan);", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("if (!HasOutbreakAllegiance(verifiedClans, rebels))", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("HoldOutbreak(movement, step);", postTransfer, StringComparison.Ordinal);
+        Assert.Contains("rebels.RulingClan == leaderClan", source, StringComparison.Ordinal);
+        Assert.Contains("FindClan(clan.StringId) == clan", source, StringComparison.Ordinal);
+
+        int creationStart = source.IndexOf("private Kingdom CreateRebelKingdom(", StringComparison.Ordinal);
+        Assert.True(creationStart >= 0);
+        int creationEnd = source.IndexOf("private void ReconcileCivilWar(", creationStart, StringComparison.Ordinal);
+        Assert.True(creationEnd > creationStart);
+        string creation = source[creationStart..creationEnd];
+        Assert.DoesNotContain(".RulingClan =", creation, StringComparison.Ordinal);
+
+        const string invokeNative = "ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);";
+        const string verifyFounder = "if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels)) return null;";
+        int founderInstall = creation.IndexOf(invokeNative, StringComparison.Ordinal);
+        Assert.True(founderInstall >= 0);
+        int inheritPolicies = creation.IndexOf("foreach (PolicyObject policy", founderInstall, StringComparison.Ordinal);
+        Assert.True(inheritPolicies > founderInstall);
+        Assert.Equal(verifyFounder, creation[(founderInstall + invokeNative.Length)..inheritPolicies].Trim());
+        int policyWrite = creation.IndexOf("rebels.AddPolicy(policy);", inheritPolicies, StringComparison.Ordinal);
+        Assert.True(policyWrite > inheritPolicies);
+        Assert.Contains(verifyFounder, creation[inheritPolicies..policyWrite], StringComparison.Ordinal);
+        Assert.Contains("return rebels;", creation[policyWrite..], StringComparison.Ordinal);
     }
 
     [Fact]

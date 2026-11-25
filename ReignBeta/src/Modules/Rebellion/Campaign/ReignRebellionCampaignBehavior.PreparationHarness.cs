@@ -621,8 +621,27 @@ namespace ReignBeta.Rebellion.Campaign
                 && TryRecruitLord(Hero.MainHero, foreignClan.Leader, out recruitmentResult);
             bool joinedRebels = recruited && foreignClan.Kingdom != origin
                 && Same(foreignClan.Kingdom?.StringId, movement.RebelKingdomStringId);
-            bool resolved = joinedRebels
+            bool heldSurrenderRejected = false;
+            if (joinedRebels)
+            {
+                // Reproduce the phase retained by a save made during ordinary resolution.
+                string originalPhase = movement.ExecutionPhase;
+                try
+                {
+                    movement.ExecutionPhase = "resolving_reunification";
+                    heldSurrenderRejected = !TrySurrender(challengedRuler, movement.MovementId, out _)
+                        && !movement.ResolutionApplied && Same(movement.Stage, "civil_war")
+                        && Same(foreignClan.Kingdom?.StringId, movement.RebelKingdomStringId);
+                }
+                finally
+                {
+                    movement.ExecutionPhase = originalPhase;
+                }
+            }
+            bool resolved = heldSurrenderRejected
                 && TrySurrender(challengedRuler, movement.MovementId, out resolutionResult);
+            bool completedSurrenderReplayRejected = resolved
+                && !TrySurrender(challengedRuler, movement.MovementId, out _);
             ReignRebellionMembershipRecord membership = movement == null ? null
                 : MembersOf(movement).FirstOrDefault(x => Same(x.ClanStringId, foreignClan.StringId));
             check("foreign_clan_joined", joinedRebels && membership != null
@@ -633,10 +652,11 @@ namespace ReignBeta.Rebellion.Campaign
             check("living_family_reintegrated", resolved
                 && livingFamily.All(x => x.Clan == foreignClan && x.MapFaction == origin),
                 "Every living member of the clan follows the reintegrated clan back to its origin realm.");
-            check("reunification_exactly_once", membership != null && membership.IsCommitted
+            check("reunification_exactly_once", heldSurrenderRejected && completedSurrenderReplayRejected
+                && membership != null && membership.IsCommitted
                 && Same(membership.OriginalKingdomStringId, origin.StringId)
                 && foreignClan.Kingdom == origin,
-                "The persisted membership retains one origin and a repeated resolution cannot move it elsewhere.");
+                "A held ordinary resolution cannot report a surrender, and a completed retry cannot move the clan again.");
             return new JObject
             {
                 ["assertions"] = new JArray(assertions), ["foreignClanId"] = foreignClan.StringId,
@@ -645,6 +665,8 @@ namespace ReignBeta.Rebellion.Campaign
                 ["declarationResult"] = declarationResult,
                 ["recruitmentResult"] = recruitmentResult,
                 ["resolutionResult"] = resolutionResult,
+                ["heldSurrenderRejected"] = heldSurrenderRejected,
+                ["completedSurrenderReplayRejected"] = completedSurrenderReplayRejected,
                 ["movementId"] = movement?.MovementId ?? string.Empty
             };
         }

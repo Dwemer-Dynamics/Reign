@@ -6,6 +6,8 @@
   <ItemGroup>
     <Compile Include="..\..\..\ReignServer\src\Modules\Platform\NativeProviderTestGuard.cs" Link="Shared\NativeProviderTestGuard.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Campaign\ReignRelationshipNativePullWire.cs"
+             Link="Shared\ReignRelationshipNativePullWire.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignActionPollRows.cs"
              Link="Shared\ReignActionPollRows.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Rebellion\Campaign\ReignWeeklyRebellion.cs"

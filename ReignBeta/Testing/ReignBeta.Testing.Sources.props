@@ -48,6 +48,8 @@
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionPassiveWorldHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionPersonalGossipHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionStructuredActionHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignRelationshipNativePullFixture.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignRelationshipNativePullWire.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionTestHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionTestHost.Checkpoints.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionTestHost.Conversation.cs" />

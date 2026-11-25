@@ -380,12 +380,63 @@ namespace ReignBeta.Court.Campaign
 
         public async Task<string> TransferSupplyAsync(ReignSupplyTransferRequest request)
         {
+            if (!ReignMainThread.IsMainThread) return CourtOwnedActionUnavailable;
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
-            ReignCourtServerResponse response=await ReignCourtServerClient.ValidateSupplyTransferAsync(request).ConfigureAwait(false);
-            if(!response.Ok)return response.Error;
-            NativeCourtExecution execution=await ExecuteNativeActionsAsync(response.NativeActions).ConfigureAwait(false);
-            if(!execution.Success)return execution.Error;
-            await ReignMainThread.InvokeAsync(()=>{_session.Revision++;StateChanged?.Invoke();}).ConfigureAwait(false);
+
+            CourtSession session = _session;
+            if (session == null) return CourtOwnedActionUnavailable;
+            var fence = ReignServerClient.RequestFence.Capture();
+            var saveSync = ReignServices.SaveSync;
+            string savePoint = saveSync?.CurrentSavePointId;
+            string sessionId = session.SessionId;
+            ReignCourtAuthority authority = session.Authority;
+            bool paidSupply = request?.GoldAmount > 0;
+            Hero paymentAuthor = paidSupply ? Hero.MainHero : null;
+            object sitting = _courtSittingOwner;
+            Kingdom kingdom = Clan.PlayerClan?.Kingdom;
+            string hostId = session.HostSettlementStringId;
+            Settlement host = string.IsNullOrEmpty(hostId) ? null : Settlement.Find(hostId);
+            KingdomCapitalDesignation ReadDesignation() => _capitalDesignations.FirstOrDefault(record =>
+                record != null && string.Equals(record.KingdomStringId, kingdom?.StringId, StringComparison.OrdinalIgnoreCase));
+            KingdomCapitalDesignation designation = ReadDesignation();
+            long capitalRevision = designation?.Revision ?? -1L;
+
+            bool OwnsTransfer() => ReferenceEquals(this, ReignServices.Court) && _serverSessionOpened && HasRoyalCommandAccess
+                && (!paidSupply || (paymentAuthor != null && ReferenceEquals(paymentAuthor, Hero.MainHero)))
+                && ReferenceEquals(sitting, _courtSittingOwner)
+                && ReferenceEquals(session, _session) && session.SessionId == sessionId && session.Authority == authority
+                && ReferenceEquals(kingdom, Clan.PlayerClan?.Kingdom) && host?.IsTown == true && host.OwnerClan?.Kingdom == kingdom
+                && session.HostSettlementStringId == hostId
+                && designation?.EverDesignated == true && ReferenceEquals(designation, ReadDesignation())
+                && designation.Revision == capitalRevision && designation.SettlementStringId == hostId
+                && !ReignCampaignInitializationGate.IsPending && fence.IsCurrentActionPoll()
+                && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress && !ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                && ReferenceEquals(saveSync, ReignServices.SaveSync)
+                && string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal);
+
+            if (!OwnsTransfer()) return CourtOwnedActionUnavailable;
+            if (paidSupply && (!string.Equals(request.GoldPayerKind, "hero", StringComparison.Ordinal)
+                || !string.Equals(request.GoldPayerStringId, paymentAuthor.StringId, StringComparison.Ordinal)))
+                return "A paid supply transfer can spend only the player's own wallet.";
+            if (paidSupply)
+            {
+                ReignSupplyTransferResult saved = ReignCourtSupplyService.FindSavedPaidTransfer(request, _paidSupplyJournal,
+                    ReignCampaignIdentity.CurrentCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main");
+                if (saved != null) return saved.Success ? string.Empty : saved.Error;
+                if (_appliedNativeCommandIds.Contains(request.CommandId))
+                    return "A previously used native command does not have an exact paid supply receipt.";
+            }
+            ReignCourtServerResponse response = await ReignCourtServerClient.ValidateSupplyTransferAsync(
+                request, _serverRevision, fence.SharedActivityGeneration, OwnsTransfer).ConfigureAwait(false);
+            if (!response.Ok) return response.Error;
+
+            NativeCourtExecution execution = await ExecuteNativeActionsAsync(response.NativeActions,
+                requestOwner: OwnsTransfer, onSuccess: () => session.Revision++, ownedPaidSupply: paidSupply).ConfigureAwait(false);
+            if (!execution.Success) return execution.Error;
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (OwnsTransfer()) StateChanged?.Invoke();
+            }).ConfigureAwait(false);
             return string.Empty;
         }
 

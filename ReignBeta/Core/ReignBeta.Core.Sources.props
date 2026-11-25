@@ -9,6 +9,7 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignDuelModePolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignResidentCompanionRegistration.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Domain\NpcMeetingMovementEvidence.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignCourtSupplyJournal.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignCourtLayout.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignKeepAccessPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignScenePreparationCoordinator.cs" />

@@ -449,6 +449,8 @@ namespace ReignBeta.Relationships.Campaign
                 }
 
                 bool applied = false, alreadyAligned = false, obsolete = false;
+                bool nativeSetterInvoked = false;
+                int? nativeBefore = null, nativeAfter = null;
                 int observedRelation = 0;
                 string error = string.Empty;
                 try
@@ -462,14 +464,18 @@ namespace ReignBeta.Relationships.Campaign
                     else
                     {
                         observedRelation = actor.GetRelation(other);
+                        nativeBefore = observedRelation;
+                        nativeAfter = observedRelation;
                         if (observedRelation == target.TargetRelation)
                         {
                             alreadyAligned = true;
                         }
                         else
                         {
-                            SetRelationWithoutGameplayRewards(actor, other, target.TargetRelation);
+                            nativeAfter = null;
+                            SetRelationWithoutGameplayRewards(actor, other, target.TargetRelation, out nativeSetterInvoked);
                             observedRelation = actor.GetRelation(other);
+                            nativeAfter = observedRelation;
                             if (observedRelation != target.TargetRelation)
                                 throw new InvalidOperationException("Bannerlord did not retain the projected native relation.");
                             applied = true;
@@ -480,6 +486,10 @@ namespace ReignBeta.Relationships.Campaign
                 {
                     error = ex.Message;
                 }
+
+                string disposition = applied ? "applied" : alreadyAligned ? "already_aligned" : obsolete ? "obsolete" : "failed";
+                ReignTestHarness.Current.ObserveNativeRelationshipTarget(this, target, nativeSetterInvoked,
+                    nativeBefore, nativeAfter, disposition);
 
                 lock (_nativeSyncLock)
                 {
@@ -512,7 +522,7 @@ namespace ReignBeta.Relationships.Campaign
                     {
                         ["pairKey"] = target.PairKey,
                         ["revision"] = target.Revision,
-                        ["status"] = applied ? "applied" : alreadyAligned ? "already_aligned" : obsolete ? "obsolete" : "failed",
+                        ["status"] = disposition,
                         ["observedRelation"] = applied || alreadyAligned ? target.TargetRelation : observedRelation,
                         ["error"] = error ?? string.Empty
                     });
@@ -1025,11 +1035,16 @@ namespace ReignBeta.Relationships.Campaign
             return true;
         }
 
-        private static void SetRelationWithoutGameplayRewards(Hero first, Hero second, int target)
+        private static void SetRelationWithoutGameplayRewards(Hero first, Hero second, int target) =>
+            SetRelationWithoutGameplayRewards(first, second, target, out _);
+
+        private static void SetRelationWithoutGameplayRewards(Hero first, Hero second, int target, out bool nativeSetterInvoked)
         {
+            nativeSetterInvoked = false;
             if (first == null || second == null || first == second || TaleWorlds.CampaignSystem.Campaign.Current == null) return;
             TaleWorlds.CampaignSystem.Campaign.Current.Models.DiplomacyModel.GetHeroesForEffectiveRelation(first, second, out Hero effectiveFirst, out Hero effectiveSecond);
             if (effectiveFirst == null || effectiveSecond == null || effectiveFirst == effectiveSecond) return;
+            nativeSetterInvoked = true;
             effectiveFirst.SetPersonalRelation(effectiveSecond, Math.Max(-100, Math.Min(100, target)));
         }
 

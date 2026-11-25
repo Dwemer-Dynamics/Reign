@@ -54,14 +54,33 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 var c = command["testCase"] as JObject ?? throw new InvalidOperationException("Missing structured test case.");
                 if (c.ToString(Formatting.None).Length > 65536) throw new InvalidOperationException("Structured case exceeds the input bound.");
+                if (IsNativeRelationshipPullFixture(command))
+                    return NativeRelationshipPullFixture(c, enrollment);
                 string phase = c.Value<string>("phase") ?? "", kind = c.Value<string>("kind") ?? "";
                 string id = c.Value<string>("operationId") ?? "";
                 if (new[] { "run", "preview", "status", "fixture" }.Contains(phase)
                     && (id.Length < 1 || id.Length > 80 || id.Any(ch => !char.IsLetterOrDigit(ch) && ch != '_' && ch != '-')))
                     throw new InvalidOperationException("Supply a stable operation ID.");
+                if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.arrest_murder_evidence_witness")
+                    return ObserveArrestMurderEvidence(command, c, enrollment);
+                if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.spymaster_disruption_observe")
+                    return LiveCommandResult.Completed("Measured the exact disruption markers and native settlement modifier.",
+                        ObserveStructuredSpymasterDisruption(c, enrollment));
                 foreach (string field in new[] { "heroIds", "itemIds" })
                     if (c[field] != null && (!(c[field] is JArray list) || list.Count > 16 || list.Any(x => x.Type != JTokenType.String)))
                         throw new InvalidOperationException("Snapshot IDs must be bounded exact string lists.");
+                if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.managed_birth_observe")
+                {
+                    // The generic snapshot normalizes unrelated Court state, including disruption markers.
+                    JObject observation = ObserveStructuredManagedBirth(c, enrollment);
+                    return LiveCommandResult.Completed("Measured the existing managed conception and native parentage.",
+                        new JObject
+                        {
+                            ["schema"] = "reign-structured-action-evidence-v1", ["caseId"] = c.Value<string>("caseId"),
+                            ["phase"] = phase, ["operationId"] = id, ["origin"] = "operator", ["enrollment"] = enrollment.DeepClone(),
+                            ["semanticVerification"] = "pending", ["result"] = observation
+                        });
+                }
                 var evidence = new JObject { ["schema"] = "reign-structured-action-evidence-v1", ["caseId"] = c.Value<string>("caseId"),
                     ["phase"] = phase, ["operationId"] = id, ["origin"] = "operator", ["enrollment"] = enrollment.DeepClone(),
                     ["semanticVerification"] = "pending", ["before"] = BuildStructuredActionNativeSnapshot(c) };
@@ -172,6 +191,81 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("Structured action case failed: " + detail.Substring(0, Math.Min(detail.Length, 4096)));
             }
         });
+
+        private static JObject ObserveStructuredSpymasterDisruption(JObject c, JObject enrollment)
+        {
+#if REIGN_EXCLUDE_COURT || REIGN_EXCLUDE_VERIFICATION
+            throw new InvalidOperationException("The Court verifier is unavailable.");
+#else
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string point = ReignServices.SaveSync?.CurrentSavePointId ?? "";
+            int generation = ReignSaveSyncCoordinator.CampaignGeneration;
+            string activityGeneration = ReignServices.WorldHistory?.SharedActivityGeneration ?? "";
+            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true
+                || !ReignSaveSyncCoordinator.IsReadyForCampaign(campaign)
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || point.Length == 0)
+                throw new InvalidOperationException("Disruption observation requires a retained checkpoint and an aligned idle owned Current.");
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing disruption observation arguments.");
+            string[] fields = { "agentHeroId", "assignmentId", "actionId", "settlementId", "effectType" };
+            if (args.Count != fields.Length || args.Properties().Any(p => !fields.Contains(p.Name)
+                || p.Value.Type != JTokenType.String || ((string)p.Value).Length == 0
+                || ((string)p.Value).Length > (p.Name == "actionId" ? 256 : 128)
+                || ((string)p.Value).Any(ch => ch > 127 || (!char.IsLetterOrDigit(ch) && ch != '_' && ch != '-' && ch != '.'))))
+                throw new InvalidOperationException("Disruption observation requires its five exact bounded selectors.");
+            string effectType = args.Value<string>("effectType");
+            if (effectType is not ("food" or "construction" or "security" or "loyalty"))
+                throw new InvalidOperationException("Use the production effect type.");
+            string settlementId = args.Value<string>("settlementId");
+            var settlement = Settlement.Find(settlementId);
+            if (settlement?.Town == null || settlement.StringId != settlementId)
+                throw new InvalidOperationException("The exact native settlement holding is unavailable.");
+            var court = ReignServices.Court ?? throw new InvalidOperationException("Court behavior unavailable.");
+            JObject result = court.ObserveForeignAgentDisruption(settlement.Town, args.Value<string>("agentHeroId"),
+                args.Value<string>("assignmentId"), args.Value<string>("actionId"), effectType);
+            if (ReignSaveSyncCoordinator.CampaignGeneration != generation
+                || ReignServices.SaveSync?.CurrentSavePointId != point || ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                || activityGeneration != (ReignServices.WorldHistory?.SharedActivityGeneration ?? ""))
+                throw new InvalidOperationException("The native Current changed during disruption observation.");
+            result["caseId"] = c.Value<string>("caseId");
+            result["gameInstanceId"] = _gameInstanceId;
+            result["savePointId"] = point;
+            result["activeSaveName"] = ActiveSaveName();
+            result["campaignId"] = campaign;
+            result["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
+            result["sharedActivityGeneration"] = activityGeneration;
+            return result;
+#endif
+        }
+
+        private static JObject ObserveStructuredManagedBirth(JObject c, JObject enrollment)
+        {
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string point = ReignServices.SaveSync?.CurrentSavePointId ?? "";
+            int generation = ReignSaveSyncCoordinator.CampaignGeneration;
+            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true
+                || !ReignSaveSyncCoordinator.IsReadyForCampaign(campaign)
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || point.Length == 0)
+                throw new InvalidOperationException("Managed birth observation requires a retained checkpoint and an aligned idle owned Current.");
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing managed birth observation identifiers.");
+            if (args["motherId"] == null || args.Properties().Any(p => (p.Name != "motherId" && p.Name != "conceptionId")
+                || p.Value.Type != JTokenType.String || ((string)p.Value).Length is < 1 or > 128
+                || ((string)p.Value).Any(ch => ch > 127 || (!char.IsLetterOrDigit(ch) && ch != '_' && ch != '-'))))
+                throw new InvalidOperationException("Use an exact motherId and optional exact conceptionId.");
+            var family = ReignServices.Family ?? throw new InvalidOperationException("Family behavior unavailable.");
+            JObject result = family.ObserveManagedBirth(args.Value<string>("motherId"), args.Value<string>("conceptionId"));
+            if (ReignSaveSyncCoordinator.CampaignGeneration != generation
+                || ReignServices.SaveSync?.CurrentSavePointId != point || ReignSaveSyncCoordinator.IsSaveFinalizationPending)
+                throw new InvalidOperationException("The native Current changed during managed birth observation.");
+            result["gameInstanceId"] = _gameInstanceId;
+            result["savePointId"] = point;
+            result["activeSaveName"] = ActiveSaveName();
+            result["campaignId"] = campaign;
+            result["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
+            result["worldDay"] = CampaignTime.Now.ToDays;
+            return result;
+        }
 
         private static JObject ApplyStructuredAcceptedGuideStepFixture(JObject c, string id)
         {

@@ -4,6 +4,95 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 
 public sealed class StructuredActionHostTests
 {
+    [Fact]
+    public void ManagedBirthObservationReturnsScopedResultWithoutTheGenericSnapshot()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+            "WorldSimulation", "Campaign", "ReignLiveInteractionStructuredActionHost.cs"));
+        int gate = source.IndexOf("if (!_armed || enrollment == null", StringComparison.Ordinal);
+        int dispatch = source.IndexOf("if (phase == \"fixture\" && kind == \"fixture\" && c.Value<string>(\"actionId\") == \"fixture.managed_birth_observe\")",
+            StringComparison.Ordinal);
+        int snapshot = source.IndexOf("var evidence = new JObject", StringComparison.Ordinal);
+        Assert.True(gate >= 0 && gate < dispatch && dispatch < snapshot);
+        Assert.Contains("TimeControlMode != CampaignTimeControlMode.Stop", source[gate..dispatch]);
+        Assert.Contains("expected != ActiveSaveName()", source[gate..dispatch]);
+        string branch = source[dispatch..snapshot];
+        Assert.Contains("JObject observation = ObserveStructuredManagedBirth(c, enrollment)", branch);
+        Assert.Contains("return LiveCommandResult.Completed", branch);
+        Assert.Contains("reign-structured-action-evidence-v1", branch);
+        Assert.Contains("[\"result\"] = observation", branch);
+        Assert.DoesNotContain("BuildStructuredActionNativeSnapshot", branch);
+        Assert.DoesNotContain("\"fixture.managed_birth_observe\"", source[snapshot..]);
+
+        int start = source.IndexOf("private static JObject ObserveStructuredManagedBirth", StringComparison.Ordinal);
+        Assert.True(start > snapshot);
+        int end = source.IndexOf("\n        private static ", start + 1, StringComparison.Ordinal);
+        Assert.True(end > start);
+        string observer = source[start..end];
+        Assert.Contains("recoveryCheckpointVerified", observer);
+        Assert.Contains("IsReadyForCampaign(campaign)", observer);
+        Assert.Contains("IsAlignmentPending", observer);
+        Assert.Contains("IsNativeSaveInProgress", observer);
+        Assert.Contains("IsSaveFinalizationPending", observer);
+        Assert.Contains("ReignServices.SaveSync?.CurrentSavePointId != point", observer);
+        Assert.Contains("result[\"gameInstanceId\"] = _gameInstanceId", observer);
+        Assert.Contains("result[\"savePointId\"] = point", observer);
+    }
+
+    [Fact]
+    public void NativeRelationshipResponseHoldLeavesTheActualOwnerCheckAndMergeInControl()
+    {
+        string root = TestOptions.FindWorkspace();
+        string modules = Path.Combine(root, "ReignBeta", "src", "Modules");
+        string product = File.ReadAllText(Path.Combine(modules, "Relationships", "Integration", "ReignRelationshipRealtimeClient.cs"));
+        string fixture = File.ReadAllText(Path.Combine(modules, "WorldSimulation", "Campaign", "ReignRelationshipNativePullFixture.cs"));
+        string host = File.ReadAllText(Path.Combine(modules, "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
+        int parsed = product.IndexOf("List<ReignNativeRelationSyncTarget> targets", StringComparison.Ordinal);
+        int hold = product.IndexOf("HoldNativeRelationshipResponse(scope.Behavior, Owns, targets, rawTargets)", StringComparison.Ordinal);
+        int ownership = product.IndexOf("Ensure(Owns, \"applying native relationship targets\")", StringComparison.Ordinal);
+        int abandoned = product.IndexOf("fixtureOutcome?.Invoke(\"owner_abandoned\")", StringComparison.Ordinal);
+        int merge = product.IndexOf("scope.Behavior.MergeNativeSyncTargets(scope.Timeline, targets)", StringComparison.Ordinal);
+        int applied = product.IndexOf("fixtureOutcome?.Invoke(\"applied\")", StringComparison.Ordinal);
+        Assert.True(parsed >= 0 && hold > parsed && ownership > hold && abandoned > ownership && merge > abandoned && applied > merge);
+        Assert.Contains("requestOwner == null && targets.Count > 0", product, StringComparison.Ordinal);
+        Assert.Contains("if (hold != null)", product, StringComparison.Ordinal);
+        Assert.Contains("NativeCheckpointHash(save) != hash", fixture, StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(originalCampaign, owner) || ReferenceEquals(originalRelationship, relationship)", fixture, StringComparison.Ordinal);
+        Assert.Contains("current.Load.LoadSessionId == load.LoadSessionId", fixture, StringComparison.Ordinal);
+        Assert.Contains("!current.Resume.TrySetResult(true)", fixture, StringComparison.Ordinal);
+        Assert.Contains("Task.WhenAny(hold.Resume.Task, hold.Expiry)", fixture, StringComparison.Ordinal);
+        Assert.Contains("OwnsAcceptedNativeRelationshipCommand", host, StringComparison.Ordinal);
+        Assert.DoesNotContain("PostJsonAsync", fixture, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void NativeRelationshipWitnessUsesRawClaimedRevisionAndObservesOnlyTheRealNativeSetter()
+    {
+        string modules = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules");
+        string fixture = File.ReadAllText(Path.Combine(modules,
+            "WorldSimulation", "Campaign", "ReignRelationshipNativePullFixture.cs"));
+        string behavior = File.ReadAllText(Path.Combine(modules,
+            "Relationships", "Campaign", "ReignRelationshipCampaignBehavior.cs"));
+        Assert.Contains("rows.Length != 1 || !TryReadNativeRelationshipRevision(rows[0][\"revision\"]", fixture);
+        Assert.Contains("hold.BindHeldTarget(target);", fixture);
+        Assert.Contains("target.Revision != hold.Revision", fixture);
+        foreach (string guard in new[] { "load.CampaignId != hold.CampaignId",
+            "load.SavePointId != hold.Load.SavePointId", "load.Origin != hold.Load.Origin",
+            "ActiveSaveName() != hold.Save", "load.LoadSessionId == hold.Load.LoadSessionId",
+            "load.CoordinatorGeneration == hold.Load.CoordinatorGeneration", "!hold.TryBindSuccessor(scope, load)" })
+            Assert.Contains(guard, fixture);
+        Assert.Contains("ReferenceEquals(_successorScope, ReleaseScope)", fixture);
+        Assert.DoesNotContain("DrainNativeSyncReceipts", fixture);
+        Assert.DoesNotContain("SetPersonalRelation", fixture);
+        Assert.DoesNotContain("MergeNativeSyncTargets", fixture);
+        int setter = behavior.IndexOf("out nativeSetterInvoked);", StringComparison.Ordinal);
+        int after = behavior.IndexOf("nativeAfter = observedRelation;", setter, StringComparison.Ordinal);
+        int observe = behavior.IndexOf("ObserveNativeRelationshipTarget(this", after, StringComparison.Ordinal);
+        int receipt = behavior.IndexOf("_nativeSyncReceipts.Enqueue", observe, StringComparison.Ordinal);
+        Assert.True(setter > 0 && after > setter && observe > after && receipt > observe);
+        Assert.Matches(@"nativeSetterInvoked = true;\s+effectiveFirst\.SetPersonalRelation\(", behavior);
+    }
+
     [Fact] public void RebellionObservationKeepsExactParticipantLinksBoundsAndTheReadOnlyBoundary()
     {
         var source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",

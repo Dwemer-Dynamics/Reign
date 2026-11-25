@@ -57,7 +57,8 @@ public sealed class ArrestDailyReviewOwnershipTests
         }
         Assert.True(process.ExitCode == 0, (await output) + (await error) + " Evidence: " + evidence);
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
-        Assert.Equal(new[] { "alignment-start", "alignment-reply", "load-reply", "generation-reply" },
+        Assert.Equal(new[] { "alignment-start", "alignment-reply", "load-reply", "generation-reply",
+            "point-reply", "save-sync-reply" },
             report.RootElement.EnumerateArray().Select(item => item.GetString()).ToArray());
     }
 
@@ -101,7 +102,11 @@ public sealed class ArrestDailyReviewOwnershipTests
         public static class ReignCampaignInitializationGate { public static bool IsPending => false; public static JObject Snapshot() => new JObject { ["generationId"] = "initialized" }; }
         public static class ReignSaveSyncCoordinator { public static bool IsAlignmentPending; public static int CampaignGeneration; }
         public sealed class HistoryState { public string TimelineId = "main", SharedActivityGeneration = "original"; }
-        public static class ReignServices { public static readonly HistoryState WorldHistory = new HistoryState(); }
+        public sealed class SaveSyncState { public string CurrentSavePointId = "original"; }
+        public static class ReignServices {
+            public static readonly HistoryState WorldHistory = new HistoryState();
+            public static SaveSyncState SaveSync = new SaveSyncState();
+        }
         public static class ReignLog { public static void Warn(string message) { throw new InvalidOperationException(message); } }
         public sealed class ReignRequestOwnerAbandonedException : Exception { }
 
@@ -140,7 +145,7 @@ public sealed class ArrestDailyReviewOwnershipTests
             private Hero FindHero(string id) => id == accused.StringId ? accused : null;
             private static bool MatchesEvidenceSubject(ReignArrestCase item, Hero hero) => item.AccusedHeroStringId == hero?.StringId;
             private static bool NeedsCapturedRepair(ReignArrestCase item) => false;
-            private static CapturedRepairWork CaptureDailyCapturedRepair(ReignServerClient.RequestFence fence, ReignArrestCase item, Hero hero) => throw new InvalidOperationException();
+            private static CapturedRepairWork CaptureDailyCapturedRepair(ReignServerClient.RequestFence fence, Func<bool> ownsPoint, ReignArrestCase item, Hero hero) => throw new InvalidOperationException();
             private static Task<bool> ReviewCapturedRepairAsync(CapturedRepairWork repair) => throw new InvalidOperationException();
             private static bool TryGetLocalEvidence(ReignArrestCase item, Hero hero, out string evidence) { evidence = string.Empty; return false; }
             private static void LogEvidenceReviewFailure(string id, Exception error) => throw new InvalidOperationException(id, error);
@@ -194,7 +199,7 @@ public sealed class ArrestDailyReviewOwnershipTests
                 Check(blocked._lastEvidenceReviewDay < Day, "alignment cannot consume the empty-case review day");
                 passed.Add("alignment-start");
 
-                foreach (string change in new[] { "alignment", "load", "generation" })
+                foreach (string change in new[] { "alignment", "load", "generation", "point", "save-sync" })
                 {
                     ReignSaveSyncCoordinator.IsAlignmentPending = false;
                     var owner = new ArrestReviewProbe();
@@ -204,7 +209,15 @@ public sealed class ArrestDailyReviewOwnershipTests
                     Check(!oldReview.IsCompleted && owner.maintenance == 0, "the remote reply must still be pending");
                     if (change == "alignment") ReignSaveSyncCoordinator.IsAlignmentPending = true;
                     else if (change == "load") ReignSaveSyncCoordinator.CampaignGeneration++;
-                    else ReignServices.WorldHistory.SharedActivityGeneration = "replacement";
+                    else if (change == "generation") ReignServices.WorldHistory.SharedActivityGeneration = "replacement";
+                    else if (change == "point")
+                    {
+                        var active = owner._dailyEvidenceReview;
+                        ReignServices.SaveSync.CurrentSavePointId = "replacement";
+                        owner.OnDailyTick();
+                        Check(ReferenceEquals(active, owner._dailyEvidenceReview), "point rollover cannot start a second daily review");
+                    }
+                    else ReignServices.SaveSync = new SaveSyncState { CurrentSavePointId = ReignServices.SaveSync.CurrentSavePointId };
                     ReignServerClient.Reply.SetResult(EspionageReply(oldRequest));
                     await oldReview.WaitAsync(TimeSpan.FromSeconds(5));
                     Check(owner._dailyEvidenceReview == null && owner._lastEvidenceReviewDay < Day

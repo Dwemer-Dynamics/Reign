@@ -131,6 +131,19 @@ public sealed class KingdomEventScenarioContractTests
         Assert.Contains("kingdom_event_production_modifier", inGameTests, StringComparison.Ordinal);
         Assert.Contains("kingdom_event_native_economy_model", inGameTests, StringComparison.Ordinal);
         Assert.Contains("Campaign.Current?.Models", inGameTests, StringComparison.Ordinal);
+        foreach (var (slot, type, wrapper, sampler, method) in new[]
+        {
+            ("SettlementProsperityModel", "ReignSettlementProsperityModel", "NavalDLCSettlementProsperityModel", "hearth", "CalculateHearthChange"),
+            ("SettlementProsperityModel", "ReignSettlementProsperityModel", "NavalDLCSettlementProsperityModel", "prosperity", "CalculateProsperityChange"),
+            ("SettlementSecurityModel", "ReignSettlementSecurityModel", "NavalDLCSettlementSecurityModel", "security", "CalculateSecurityChange"),
+            ("BuildingConstructionModel", "ReignBuildingConstructionModel", "NavalDLCBuildingConstructionModel", "construction", "CalculateDailyConstructionPower")
+        })
+        {
+            Assert.Contains("WithRegisteredEconomyModel(models." + slot + ", typeof(" + type + ")", inGameTests, StringComparison.Ordinal);
+            Assert.Contains("\"" + wrapper + "\", " + sampler + " => NativeEconomyEvidence", inGameTests, StringComparison.Ordinal);
+            Assert.Contains("x => " + sampler + "." + method + "(x, false).ResultNumber", inGameTests, StringComparison.Ordinal);
+        }
+        Assert.Contains("evidence[\"modelRoute\"] = route;", inGameTests, StringComparison.Ordinal);
         foreach (string method in new[] { "CalculateTownFoodStocksChange", "CalculateHearthChange",
             "CalculateSecurityChange", "CalculateProsperityChange", "CalculateDailyConstructionPower", "CalculateLoyaltyChange" })
             Assert.Contains(method, inGameTests, StringComparison.Ordinal);

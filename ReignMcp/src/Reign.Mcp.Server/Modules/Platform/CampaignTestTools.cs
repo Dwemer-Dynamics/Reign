@@ -230,17 +230,29 @@ public sealed class CampaignTestService
     // continues to use RequireArmedOwnedSaveAsync and its safe-settlement gate.
     public async Task<CampaignTestAuthorization> RequireArmedOwnedPausedActionSaveAsync(string runId,
         string expectedCampaignId, CancellationToken cancellationToken)
+        => (await RequireArmedOwnedPausedActionCheckpointAsync(runId, expectedCampaignId, false, cancellationToken)
+            .ConfigureAwait(false)).Authorization;
+
+    internal async Task<(CampaignTestAuthorization Authorization, CampaignCheckpointReceipt Checkpoint, JsonElement? LoadOwner)>
+        RequireArmedOwnedPausedActionCheckpointAsync(string runId, string expectedCampaignId, bool bindCheckpoint,
+            CancellationToken cancellationToken, bool postArmCurrentDiagnostic = false)
     {
         CampaignTestState state = RequireArmed(runId);
         expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
         if (!string.Equals(state.CampaignId, expectedCampaignId, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
-        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken, postArmCurrentDiagnostic).ConfigureAwait(false);
         ValidatePausedActionSnapshot(state, snapshot);
-        await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
+        CampaignCheckpointReceipt checkpoint = await VerifyReloadableCurrentAsync(state, cancellationToken)
+            .ConfigureAwait(false);
         state = RequireArmed(runId);
         ValidatePausedActionSnapshot(state, snapshot);
-        return CampaignTestAuthorization.From(state);
+        if (bindCheckpoint && Find(state, state.CurrentSaveName) != checkpoint)
+            throw new InvalidOperationException("The enrolled Current checkpoint changed during verification.");
+        JsonElement? loadOwner = postArmCurrentDiagnostic
+            ? ReadPausedActionDiagnosticOwner(state, checkpoint, snapshot)
+            : null;
+        return (CampaignTestAuthorization.From(state), checkpoint, loadOwner);
     }
 
     internal static void ValidatePausedActionSnapshot(CampaignTestState state, ControllerCall snapshot)
@@ -726,7 +738,8 @@ public sealed class CampaignTestService
             waitSeconds + 600, cancellationToken)
             .ConfigureAwait(false);
         if (!result.Ok) return OperationEnvelope(state, "restart", result);
-        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken, postArmCurrentDiagnostic: true)
+            .ConfigureAwait(false);
         VerifyReloadedCurrent(state, snapshot, active);
         string receipt = "campaign_test_restart_" + Guid.NewGuid().ToString("N");
         var evidence = new Dictionary<string, object?>
@@ -742,6 +755,9 @@ public sealed class CampaignTestService
             ["controller"] = result.Summary(),
             ["reloadedSnapshot"] = snapshot.Summary()
         };
+        var currentObservation = ReadPostArmCurrentObservation(state, current, result, snapshot,
+            active.FindString("checkpointGameInstanceId"), snapshot.FindString("checkpointGameInstanceId"));
+        if (currentObservation is not null) evidence["postArmCurrentObservation"] = currentObservation;
         lock (StateGate)
         {
             state = ReadState(runId);
@@ -971,10 +987,11 @@ public sealed class CampaignTestService
         }, StateJson);
 
     private Task<ControllerCall> SnapshotAsync(CampaignTestState state,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, bool postArmCurrentDiagnostic = false)
     {
-        return RunControllerAsync(new[] { "world-test", "snapshot", "--campaign", state.CampaignId,
-            "--timeline", state.TimelineId }, 180, cancellationToken);
+        string[] args = ["world-test", "snapshot", "--campaign", state.CampaignId, "--timeline", state.TimelineId];
+        if (postArmCurrentDiagnostic) args = [.. args, "--post-arm-current-diagnostic"];
+        return RunControllerAsync(args, 180, cancellationToken);
     }
 
     internal static void ValidateSnapshot(CampaignTestState state, ControllerCall snapshot,

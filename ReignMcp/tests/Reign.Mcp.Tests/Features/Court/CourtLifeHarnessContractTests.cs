@@ -1,10 +1,164 @@
 using System.Text.Json;
+using Reign.Core.Contracts.Court;
 using Reign.Mcp.Server;
 
 namespace Reign.Mcp.Tests.Features.Court;
 
 public sealed class CourtLifeHarnessContractTests
 {
+    [Fact]
+    public void CourtSupplyOwnerGatePrecedesNativeReplayOrTransfer()
+    {
+        string root = TestOptions.FindWorkspace();
+        string court = Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign");
+        string directives = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.Directives.cs"));
+        string transfer = directives[directives.IndexOf("public async Task<string> TransferSupplyAsync(", StringComparison.Ordinal)
+            ..directives.IndexOf("public async Task<string> SubmitNativeActionAsync(", StringComparison.Ordinal)];
+        int capture = transfer.IndexOf("ReignServerClient.RequestFence.Capture()", StringComparison.Ordinal);
+        int validate = transfer.IndexOf("await ReignCourtServerClient.ValidateSupplyTransferAsync(", StringComparison.Ordinal);
+        Assert.True(capture >= 0 && validate > capture);
+        Assert.Contains("ReignMainThread.IsMainThread", transfer);
+        Assert.Contains("ReferenceEquals(this, ReignServices.Court)", transfer);
+        Assert.Contains("ReferenceEquals(session, _session) && session.SessionId == sessionId && session.Authority == authority", transfer);
+        Assert.Contains("!ReignCampaignInitializationGate.IsPending && fence.IsCurrentActionPoll()", transfer);
+        Assert.Contains("ReferenceEquals(sitting, _courtSittingOwner)", transfer);
+        Assert.Contains("!ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress && !ReignSaveSyncCoordinator.IsSaveFinalizationPending", transfer);
+        Assert.Contains("ReferenceEquals(saveSync, ReignServices.SaveSync)", transfer);
+        Assert.Contains("string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal)", transfer);
+        Assert.Contains("if (!OwnsTransfer()) return CourtOwnedActionUnavailable;", transfer[..validate]);
+        Assert.Contains("requestOwner: OwnsTransfer", transfer[validate..]);
+        Assert.Contains("request, _serverRevision, fence.SharedActivityGeneration, OwnsTransfer", transfer[validate..]);
+
+        string lifecycle = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.cs"));
+        int open = lifecycle.IndexOf("public bool TryOpenSession(", StringComparison.Ordinal);
+        int reopen = lifecycle.IndexOf("bool reuseRoyalDocket", open, StringComparison.Ordinal);
+        int close = lifecycle.IndexOf("public void CloseSession(", StringComparison.Ordinal);
+        int closeServer = lifecycle.IndexOf("CloseServerSessionAsync(reason)", close, StringComparison.Ordinal);
+        Assert.Contains("_courtSittingOwner = new object()", lifecycle[open..reopen]);
+        Assert.Contains("_courtSittingOwner = new object()", lifecycle[close..closeServer]);
+        int observe = lifecycle.IndexOf("private bool ObserveAuthorityFailure(", StringComparison.Ordinal);
+        int retire = lifecycle.IndexOf("ReignCourtAuthorityStability.RecordObservedFailure(", observe, StringComparison.Ordinal);
+        int grace = lifecycle.IndexOf("return ReignCourtAuthorityStability.ShouldInterrupt(", retire, StringComparison.Ordinal);
+        int reset = lifecycle.IndexOf("private void ResetAuthorityFailures()", grace, StringComparison.Ordinal);
+        int interrupt = lifecycle.IndexOf("private void InterruptAndClose(", reset, StringComparison.Ordinal);
+        Assert.True(observe >= 0 && retire > observe && grace > retire && reset > grace && interrupt > reset);
+        Assert.Contains("ref _courtSittingOwner", lifecycle[retire..grace]);
+        Assert.DoesNotContain("_courtSittingOwner", lifecycle[reset..interrupt]);
+
+        string executor = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.NativeActions.cs"));
+        int nativeThread = executor.IndexOf("return await ReignMainThread.InvokeAsync(() =>", StringComparison.Ordinal);
+        int owner = executor.IndexOf("if (requestOwner != null && !requestOwner())", StringComparison.Ordinal);
+        int replay = executor.IndexOf("_appliedNativeCommandIds.Contains(nativeCommandId)", StringComparison.Ordinal);
+        int apply = executor.IndexOf("ReignCourtSupplyService.ApplyTransfer(", StringComparison.Ordinal);
+        Assert.True(nativeThread >= 0 && owner > nativeThread && replay > owner && apply > replay);
+    }
+
+    [Fact]
+    public async Task CourtSupplyHeldReplyIsRetiredByObservedAuthorityLossEvenAfterRecovery()
+    {
+        object currentOwner = new();
+        int consecutiveFailures = 0;
+        bool hasRoyalAccess = true;
+        var reply = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        async Task<bool> AdmitReplyAsync(object capturedOwner)
+            => await reply.Task && hasRoyalAccess && ReferenceEquals(capturedOwner, currentOwner);
+
+        object originalOwner = currentOwner;
+        Task<bool> held = AdmitReplyAsync(originalOwner);
+        Assert.False(held.IsCompleted);
+
+        hasRoyalAccess = false;
+        consecutiveFailures = ReignCourtAuthorityStability.RecordObservedFailure(consecutiveFailures, ref currentOwner);
+        Assert.Equal(1, consecutiveFailures);
+        Assert.False(ReignCourtAuthorityStability.ShouldInterrupt(consecutiveFailures));
+        Assert.NotSame(originalOwner, currentOwner);
+
+        // Ordinary recovery clears the failure count and leaves the new owner in place.
+        hasRoyalAccess = true;
+        Task<bool> fresh = AdmitReplyAsync(currentOwner);
+        reply.SetResult(true);
+
+        Assert.False(await held);
+        Assert.True(await fresh);
+    }
+
+    [Fact]
+    public void CourtSupplyRequiresLiveRoyalAccessAndTheOriginalCapitalDesignation()
+    {
+        string court = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta/src/Modules/Court/Campaign");
+        string directives = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.Directives.cs"));
+        int capture = directives.IndexOf("KingdomCapitalDesignation designation = ReadDesignation()", StringComparison.Ordinal);
+        int owner = directives.IndexOf("bool OwnsTransfer()", capture, StringComparison.Ordinal);
+        int validate = directives.IndexOf("await ReignCourtServerClient.ValidateSupplyTransferAsync(", owner, StringComparison.Ordinal);
+        Assert.True(capture >= 0 && owner > capture && validate > owner);
+        string gate = directives[owner..validate];
+        Assert.Contains("HasRoyalCommandAccess", gate);
+        Assert.Contains("ReferenceEquals(kingdom, Clan.PlayerClan?.Kingdom)", gate);
+        Assert.Contains("host.OwnerClan?.Kingdom == kingdom", gate);
+        Assert.Contains("session.HostSettlementStringId == hostId", gate);
+        Assert.Contains("ReferenceEquals(designation, ReadDesignation())", gate);
+        Assert.Contains("designation.Revision == capitalRevision && designation.SettlementStringId == hostId", gate);
+        Assert.DoesNotContain("CurrentCapitalDesignation()", directives[capture..validate]);
+
+        string capital = File.ReadAllText(Path.Combine(court, "ReignCourtCapitalAmbassadors.cs"));
+        int apply = capital.IndexOf("internal static void ApplyCapitalDesignation(", StringComparison.Ordinal);
+        int clear = capital.IndexOf("internal static void ClearCapitalDesignation(", apply, StringComparison.Ordinal);
+        int next = capital.IndexOf("internal static ReignCourtScope ResolveCourtScope(", clear, StringComparison.Ordinal);
+        Assert.True(apply >= 0 && clear > apply && next > clear);
+        Assert.Contains("record.Revision++", capital[apply..clear]);
+        Assert.Contains("record.Revision++", capital[clear..next]);
+    }
+
+    [Fact]
+    public void CourtSupplyValidationRequiresOneExactEchoedTransfer()
+    {
+        string root = TestOptions.FindWorkspace();
+        string integration = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Integration/ReignCourtServerClient.cs"));
+        string validation = integration[integration.IndexOf("ValidateSupplyTransferAsync(", StringComparison.Ordinal)
+            ..integration.IndexOf("ValidateNativeActionAsync(", StringComparison.Ordinal)];
+        Assert.Contains("expectedAction[\"type\"] = \"transfer_item\"", validation);
+        Assert.Contains("expectedAction[\"commandId\"] = commandId", validation);
+        Assert.Contains("receipt == null || !JToken.DeepEquals(receipt[\"result\"], \"court_supply_transfer_validated\")", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"campaignId\"], payload[\"campaignId\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"timelineId\"], payload[\"timelineId\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"sessionId\"], payload[\"sessionId\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"sessionRevision\"], payload[\"expectedRevision\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"sharedActivityGeneration\"], payload[\"sharedActivityGeneration\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"commandId\"], payload[\"commandId\"])", validation);
+        Assert.Contains("!JToken.DeepEquals(receipt[\"termsHash\"], payload[\"termsHash\"])", validation);
+        Assert.Contains("response.NativeActions.Count != 1 || !JToken.DeepEquals(response.NativeActions[0], expectedAction)", validation);
+
+        using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        var checks = catalog.RootElement.GetProperty("courtSupplyTransfer").GetProperty("contractChecks").EnumerateArray();
+        Assert.Contains(checks, check => check.GetString() == nameof(CourtSupplyOwnerGatePrecedesNativeReplayOrTransfer));
+        Assert.Contains(checks, check => check.GetString() == nameof(CourtSupplyValidationRequiresOneExactEchoedTransfer));
+        Assert.Contains(checks, check => check.GetString() == nameof(CourtSupplyRequiresLiveRoyalAccessAndTheOriginalCapitalDesignation));
+        Assert.Contains(checks, check => check.GetString() == nameof(CourtSupplyHeldReplyIsRetiredByObservedAuthorityLossEvenAfterRecovery));
+    }
+
+    [Fact]
+    public void CourtSupplyOwnerPassesThroughReadinessAndEachDirectDispatch()
+    {
+        string root = TestOptions.FindWorkspace();
+        string integration = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Integration/ReignCourtServerClient.cs"));
+        Assert.Contains("PostAsync(\"/court/supply/validate-owned\", payload, requestOwner)", integration);
+        int ready = integration.IndexOf("await ReignSaveSyncCoordinator.WaitForReadyAsync(route)", StringComparison.Ordinal);
+        int owner = integration.IndexOf("await ReignRequestOwnership.EnsureAsync(requestOwner, \"Court readiness\")", StringComparison.Ordinal);
+        int transport = integration.IndexOf("await ReignHttpTransport.PostDirectJsonAsync(", StringComparison.Ordinal);
+        Assert.True(ready >= 0 && owner > ready && transport > owner);
+        Assert.Contains("requestOwner: requestOwner", integration[transport..]);
+
+        string http = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Platform/Integration/ReignHttpTransport.cs"));
+        int direct = http.IndexOf("internal static async Task<DirectJsonResponse> PostDirectJsonAsync(", StringComparison.Ordinal);
+        int attempt = http.IndexOf("WithCandidatesAsync(HttpMethod.Post", direct, StringComparison.Ordinal);
+        int dispatch = http.IndexOf("await EnsureRequestOwnerAsync(requestOwner, \"direct transport dispatch\")", attempt, StringComparison.Ordinal);
+        int send = http.IndexOf("await attempt.SendAsync(client, request)", dispatch, StringComparison.Ordinal);
+        Assert.True(direct >= 0 && attempt > direct && dispatch > attempt && send > dispatch);
+    }
+
     [Fact]
     public void DecisionEvidenceHandlesNonInternationalJsonNullAndChecksResolvedEffects()
     {

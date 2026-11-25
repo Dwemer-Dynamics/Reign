@@ -619,43 +619,52 @@ namespace ReignBeta.KingdomEvents.Campaign
             switch (definition.Id)
             {
                 case "famine": case "bountiful_harvest":
-                    if (models.SettlementFoodModel is ReignSettlementFoodModel food)
-                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                    return WithRegisteredEconomyModel(models.SettlementFoodModel, typeof(ReignSettlementFoodModel), null,
+                        food => NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
                             x => food.CalculateTownFoodStocksChange(x, false, false).ResultNumber,
-                            nameof(food.CalculateTownFoodStocksChange));
-                    break;
+                            nameof(food.CalculateTownFoodStocksChange)));
                 case "pestilence": case "population_boom":
-                    if (models.SettlementProsperityModel is ReignSettlementProsperityModel hearth)
-                        return NativeEconomyEvidence(owner, record, expected, villages, x => x.StringId,
-                            x => hearth.CalculateHearthChange(x, false).ResultNumber,
-                            nameof(hearth.CalculateHearthChange), x => x.Hearth);
-                    break;
+                    return WithRegisteredEconomyModel(models.SettlementProsperityModel, typeof(ReignSettlementProsperityModel),
+                        "NavalDLCSettlementProsperityModel", hearth => NativeEconomyEvidence(owner, record, expected, villages,
+                            x => x.StringId, x => hearth.CalculateHearthChange(x, false).ResultNumber,
+                            nameof(hearth.CalculateHearthChange), x => x.Hearth));
                 case "crime_wave": case "law_and_order":
-                    if (models.SettlementSecurityModel is ReignSettlementSecurityModel security)
-                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
-                            x => security.CalculateSecurityChange(x, false).ResultNumber,
-                            nameof(security.CalculateSecurityChange));
-                    break;
+                    return WithRegisteredEconomyModel(models.SettlementSecurityModel, typeof(ReignSettlementSecurityModel),
+                        "NavalDLCSettlementSecurityModel", security => NativeEconomyEvidence(owner, record, expected, towns,
+                            x => x.StringId, x => security.CalculateSecurityChange(x, false).ResultNumber,
+                            nameof(security.CalculateSecurityChange)));
                 case "trade_collapse": case "trade_boom":
-                    if (models.SettlementProsperityModel is ReignSettlementProsperityModel prosperity)
-                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
-                            x => prosperity.CalculateProsperityChange(x, false).ResultNumber,
-                            nameof(prosperity.CalculateProsperityChange));
-                    break;
+                    return WithRegisteredEconomyModel(models.SettlementProsperityModel, typeof(ReignSettlementProsperityModel),
+                        "NavalDLCSettlementProsperityModel", prosperity => NativeEconomyEvidence(owner, record, expected, towns,
+                            x => x.StringId, x => prosperity.CalculateProsperityChange(x, false).ResultNumber,
+                            nameof(prosperity.CalculateProsperityChange)));
                 case "construction_stagnation": case "golden_age":
-                    if (models.BuildingConstructionModel is ReignBuildingConstructionModel construction)
-                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
-                            x => construction.CalculateDailyConstructionPower(x, false).ResultNumber,
-                            nameof(construction.CalculateDailyConstructionPower));
-                    break;
+                    return WithRegisteredEconomyModel(models.BuildingConstructionModel, typeof(ReignBuildingConstructionModel),
+                        "NavalDLCBuildingConstructionModel", construction => NativeEconomyEvidence(owner, record, expected, towns,
+                            x => x.StringId, x => construction.CalculateDailyConstructionPower(x, false).ResultNumber,
+                            nameof(construction.CalculateDailyConstructionPower)));
                 case "political_unrest": case "national_unity":
-                    if (models.SettlementLoyaltyModel is ReignSettlementLoyaltyModel loyalty)
-                        return NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
+                    return WithRegisteredEconomyModel(models.SettlementLoyaltyModel, typeof(ReignSettlementLoyaltyModel), null,
+                        loyalty => NativeEconomyEvidence(owner, record, expected, towns, x => x.StringId,
                             x => loyalty.CalculateLoyaltyChange(x, false).ResultNumber,
-                            nameof(loyalty.CalculateLoyaltyChange));
-                    break;
+                            nameof(loyalty.CalculateLoyaltyChange)));
             }
             return new JObject { ["passed"] = false, ["reason"] = "registered_economy_adapter_unavailable" };
+        }
+
+        private static JObject WithRegisteredEconomyModel<TModel>(TModel registered, Type exactReignType,
+            string reviewedNavalWrapper, Func<TModel, JObject> sample)
+        {
+            JObject route = ReignEconomyPatches.ModelRoute(registered, exactReignType, reviewedNavalWrapper);
+            if (route.Value<bool>("healthy") != true)
+                return new JObject { ["passed"] = false, ["reason"] = "registered_economy_adapter_unavailable",
+                    ["modelRoute"] = route };
+
+            // Call through the model the campaign actually registered. The underlying Reign
+            // instance establishes route eligibility and must never replace the outer sample target.
+            JObject evidence = sample(registered);
+            evidence["modelRoute"] = route;
+            return evidence;
         }
 
         private static JObject NativeEconomyEvidence<T>(ReignKingdomEventsCampaignBehavior owner,

@@ -9,10 +9,12 @@ namespace Reign.Mcp.Server;
 public static class StructuredActionTools
 {
     private const string Confirmation = "test structured actions on disposable save";
+    private const string RelationshipPullFixture = "fixture.relationship_native_pull";
+    private const string ArrestMurderEvidenceWitness = "fixture.arrest_murder_evidence_witness";
 
     [McpServerTool(Name = "reign_test_structured_actions", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding or accepted-guide-player-step fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
+    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witness requires the exact retained Current checkpoint and observes previously disclosed murder evidence for one accused and a wrong-charge negative without preparing an arrest. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestStructuredActions(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -25,16 +27,29 @@ public static class StructuredActionTools
         campaignTestRunId = Required(campaignTestRunId, nameof(campaignTestRunId));
         batchId = Required(batchId, nameof(batchId));
         var cases = ParseCases(casesJson);
-        CampaignTestAuthorization auth = await campaignTests.RequireArmedOwnedPausedActionSaveAsync(
-            campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        bool arrestWitness = cases.Count == 1 && IsArrestMurderEvidenceWitness(cases[0]);
+        bool bindCheckpoint = arrestWitness || (cases.Count == 1 && IsRelationshipPullFixture(cases[0]));
+        var (auth, checkpoint, loadOwner) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
+            campaignTestRunId, campaignId, bindCheckpoint, cancellationToken, postArmCurrentDiagnostic: arrestWitness)
+            .ConfigureAwait(false);
         bool recoveryFixture = cases.Any(RequiresRecoveryCheckpoint);
         if (recoveryFixture)
             campaignTests.RequireRetainedRecoveryCheckpoint(auth);
         string liveRunId = "structured-" + batchId + "-" + Guid.NewGuid().ToString("N")[..8];
-        var enrollment = new { campaignId, campaignTestRunId,
-            disposableSaveName = auth.CurrentSaveName, protectedBaselineSaveName = auth.BaselineSaveName,
-            timelineId = auth.TimelineId, source = "reign_mcp_structured_actions",
-            recoveryCheckpointVerified = recoveryFixture };
+        var enrollment = new Dictionary<string, object>
+        {
+            ["campaignId"] = campaignId, ["campaignTestRunId"] = campaignTestRunId,
+            ["disposableSaveName"] = auth.CurrentSaveName, ["protectedBaselineSaveName"] = auth.BaselineSaveName,
+            ["timelineId"] = auth.TimelineId, ["source"] = "reign_mcp_structured_actions",
+            ["recoveryCheckpointVerified"] = recoveryFixture
+        };
+        if (bindCheckpoint)
+        {
+            enrollment["checkpointSavePointId"] = checkpoint.SavePointId;
+            enrollment["checkpointSha256"] = checkpoint.Sha256.ToUpperInvariant();
+        }
+        if (loadOwner is { } nativeOwner)
+            enrollment["checkpointLoadOwner"] = nativeOwner;
         ApiEnvelope started = await api.PostAsync("/tests/live/run/start", new
         {
             schemaVersion = 2, campaignId, runId = liveRunId, mode = "structured_actions",
@@ -69,6 +84,10 @@ public static class StructuredActionTools
             if (!seen.Add(id)) throw new ArgumentException("Case IDs must be distinct.");
             string phase = Text("phase");
             if (!new[] { "catalog", "entities", "preview", "run", "status", "fixture" }.Contains(phase)) throw new ArgumentException("Unknown structured test phase.");
+            if (IsRelationshipPullFixture(item) && (phase != "fixture" || Text("kind") != "fixture"))
+                throw new ArgumentException("The relationship pull control requires the fixed fixture phase and kind.");
+            if (IsArrestMurderEvidenceWitness(item) && (phase != "fixture" || Text("kind") != "fixture"))
+                throw new ArgumentException("The arrest evidence witness requires the fixed fixture phase and kind.");
             if (phase is "preview" or "run" or "status" or "fixture")
             {
                 string operation = Required(Text("operationId"), "operationId");
@@ -84,7 +103,12 @@ public static class StructuredActionTools
                     else if (Text("actionId") == "fixture.player_settlement_encounter") ValidatePlayerEncounterFixtureArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.ruler_setup") ValidateRulerFixtureArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.arranged_wedding") ValidateWeddingFixtureArguments(fixtureArgs);
+                    else if (Text("actionId") == "fixture.spymaster_disruption_observe") ValidateSpymasterDisruptionObservationArguments(fixtureArgs);
+                    else if (Text("actionId") == "fixture.managed_birth_observe") ValidateManagedBirthObservationArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.follow_accepted_guide_step") ValidateAcceptedGuideStepArguments(fixtureArgs);
+                    else if (IsArrestMurderEvidenceWitness(item))
+                        ValidateArrestMurderEvidenceWitness(item, fixtureArgs, document.RootElement.GetArrayLength());
+                    else if (IsRelationshipPullFixture(item)) ValidateRelationshipPullFixture(item, fixtureArgs, operation, document.RootElement.GetArrayLength());
                     else if (Text("actionId") is "fixture.government_capital_visit" or "fixture.government_action_composer")
                         ValidateGovernmentFixtureArguments(Text("actionId"), fixtureArgs);
                     else throw new ArgumentException("Choose a registered fixed structured fixture.");
@@ -134,7 +158,90 @@ public static class StructuredActionTools
         && testCase.TryGetProperty("actionId", out var id) && id.ValueKind == JsonValueKind.String
         && id.GetString() is "fixture.siege_setup" or "fixture.player_settlement_encounter" or "fixture.ruler_setup"
             or "fixture.government_capital_visit" or "fixture.government_action_composer" or "fixture.follow_accepted_guide_step"
-            or "fixture.arranged_wedding";
+            or "fixture.arranged_wedding" or "fixture.spymaster_disruption_observe" or "fixture.managed_birth_observe"
+            or RelationshipPullFixture or ArrestMurderEvidenceWitness;
+
+    private static void ValidateSpymasterDisruptionObservationArguments(JsonElement args)
+    {
+        string[] fields = ["agentHeroId", "assignmentId", "actionId", "settlementId", "effectType"];
+        if (args.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("Disruption observation requires its exact selectors.");
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var field in args.EnumerateObject())
+        {
+            string id = field.Value.ValueKind == JsonValueKind.String ? field.Value.GetString() ?? "" : "";
+            if (!fields.Contains(field.Name) || !seen.Add(field.Name) || id.Length == 0
+                || id.Length > (field.Name == "actionId" ? 256 : 128)
+                || id.Any(ch => !char.IsAsciiLetterOrDigit(ch) && ch is not ('_' or '-' or '.')))
+                throw new ArgumentException("Disruption observation requires five exact bounded selectors.");
+        }
+        if (seen.Count != fields.Length || args.GetProperty("effectType").GetString() is not ("food" or "construction" or "security" or "loyalty"))
+            throw new ArgumentException("Use the exact agent, assignment, action, settlement, and production effect type.");
+    }
+
+    private static void ValidateManagedBirthObservationArguments(JsonElement args)
+    {
+        if (args.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("Managed birth observation requires exact identifiers.");
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var field in args.EnumerateObject())
+        {
+            string id = field.Value.ValueKind == JsonValueKind.String ? field.Value.GetString() ?? "" : "";
+            if (field.Name is not ("motherId" or "conceptionId") || !seen.Add(field.Name)
+                || id.Length is < 1 or > 128
+                || id.Any(ch => !char.IsAsciiLetterOrDigit(ch) && ch is not ('_' or '-')))
+                throw new ArgumentException("Use an exact motherId and optional exact conceptionId.");
+        }
+        if (!seen.Contains("motherId"))
+            throw new ArgumentException("Managed birth observation requires an exact motherId.");
+    }
+
+    private static bool IsArrestMurderEvidenceWitness(JsonElement testCase) =>
+        testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
+        && action.GetString() == ArrestMurderEvidenceWitness;
+
+    private static void ValidateArrestMurderEvidenceWitness(JsonElement testCase, JsonElement args, int batchSize)
+    {
+        if (batchSize != 1 || testCase.EnumerateObject().Count() != 6
+            || args.ValueKind != JsonValueKind.Object || args.EnumerateObject().Count() != 2
+            || !ReadId("accusedHeroId") || !ReadId("matterId"))
+            throw new ArgumentException("Supply one arrest witness with exact accusedHeroId and public murder matterId.");
+
+        bool ReadId(string name) => args.TryGetProperty(name, out var token) && token.ValueKind == JsonValueKind.String
+            && token.GetString() is { Length: >= 1 and <= 128 } id
+            && id.All(ch => char.IsAsciiLetterOrDigit(ch) || ch is '_' or '-');
+    }
+
+    private static bool IsRelationshipPullFixture(JsonElement testCase) =>
+        testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
+        && action.GetString() == RelationshipPullFixture;
+
+    private static void ValidateRelationshipPullFixture(JsonElement testCase, JsonElement args, string operation, int batchSize)
+    {
+        if (batchSize != 1 || testCase.EnumerateObject().Count() != 6 || operation.Length > 80
+            || !operation.All(ch => char.IsAsciiLetterOrDigit(ch) || ch is '_' or '-')
+            || args.ValueKind != JsonValueKind.Object)
+            throw new ArgumentException("A relationship pull fixture requires one exact case and a bounded ASCII operation ID.");
+        var fields = args.EnumerateObject().ToArray();
+        if (fields.Select(field => field.Name).Distinct(StringComparer.Ordinal).Count() != fields.Length
+            || !args.TryGetProperty("control", out var control) || control.ValueKind != JsonValueKind.String)
+            throw new ArgumentException("Supply an exact relationship pull fixture control.");
+        if (control.GetString() is "observe" or "release" && fields.Length == 1)
+            return;
+        if (args.TryGetProperty("pairKey", out var key) && key.ValueKind == JsonValueKind.String
+            && key.GetString() is { Length: >= 3 and <= 257 } pair && pair == pair.Trim()
+            && !pair.Any(char.IsControl) && pair.Count(ch => ch == '|') == 1
+            && pair[0] != '|' && pair[^1] != '|')
+        {
+            if (control.GetString() == "arm_pair" && fields.Length == 2)
+                return;
+            if (control.GetString() == "arm" && fields.Length == 3
+                && args.TryGetProperty("revision", out var revision) && revision.ValueKind == JsonValueKind.Number
+                && revision.TryGetInt32(out int value) && value > 0)
+                return;
+        }
+        throw new ArgumentException("Relationship pull arm requires an exact pair key and positive revision. Arm pair takes only an exact pair. Observe and release take only control.");
+    }
 
     private static void ValidateWeddingFixtureArguments(JsonElement args)
     {
