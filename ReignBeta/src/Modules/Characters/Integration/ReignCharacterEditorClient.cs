@@ -12,17 +12,21 @@ namespace ReignBeta.Characters.Integration
 {
     internal static class ReignCharacterEditorClient
     {
-        public static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync()
+        internal static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync(
+            string campaignId, string timelineId, string restoreGeneration, Func<bool> ownsPoll)
         {
             List<ReignCharacterEditorCommand> result = new List<ReignCharacterEditorCommand>();
             try
             {
-                JObject response = await PostJsonAsync("/character-editor/native/poll", new JObject { ["campaignId"] = GetCampaignId() }).ConfigureAwait(false);
+                JObject response = await PostOwnedJsonAsync("/character-editor/native/poll",
+                    new JObject { ["campaignId"] = campaignId, ["timelineId"] = timelineId,
+                        ["sharedActivityGeneration"] = restoreGeneration }, ownsPoll).ConfigureAwait(false);
                 foreach (JObject row in (response["commands"] as JArray ?? new JArray()).OfType<JObject>())
                 {
                     result.Add(new ReignCharacterEditorCommand
                     {
                         CommandId = row.Value<string>("command_id") ?? string.Empty,
+                        ClaimId = row.Value<string>("claimId") ?? string.Empty,
                         HeroId = row.Value<string>("hero_id") ?? string.Empty,
                         Dangerous = row.Value<int?>("dangerous") == 1,
                         Confirmation = row.Value<string>("confirmation") ?? string.Empty,
@@ -30,20 +34,31 @@ namespace ReignBeta.Characters.Integration
                     });
                 }
             }
+            catch (ReignRequestOwnerAbandonedException) { throw; }
             catch (Exception ex) { ReignLog.Warn("Character editor command poll failed: " + ex.Message); }
             return result;
         }
 
-        public static async Task ReportCharacterEditorCommandAsync(string commandId, string status, IList<string> applied, IList<string> errors)
+        internal static async Task ReportCharacterEditorCommandAsync(string campaignId, string timelineId,
+            string restoreGeneration, ReignCharacterEditorCommand command, string status,
+            IList<string> applied, IList<string> errors, Func<bool> ownsPoll)
         {
             try
             {
-                await PostJsonAsync("/character-editor/native/report", new JObject
+                var report = new JObject
                 {
-                    ["campaignId"] = GetCampaignId(), ["commandId"] = commandId ?? string.Empty, ["status"] = status ?? "failed",
+                    ["campaignId"] = campaignId, ["commandId"] = command.CommandId, ["status"] = status ?? "failed",
                     ["applied"] = new JArray(applied ?? new List<string>()), ["errors"] = new JArray(errors ?? new List<string>())
-                }).ConfigureAwait(false);
+                };
+                if (!string.IsNullOrEmpty(command.ClaimId))
+                {
+                    report["timelineId"] = timelineId;
+                    report["sharedActivityGeneration"] = restoreGeneration;
+                    report["claimId"] = command.ClaimId;
+                }
+                await PostOwnedJsonAsync("/character-editor/native/report", report, ownsPoll).ConfigureAwait(false);
             }
+            catch (ReignRequestOwnerAbandonedException) { throw; }
             catch (Exception ex) { ReignLog.Warn("Character editor command report failed: " + ex.Message); }
         }
 
@@ -101,6 +116,7 @@ namespace ReignBeta.Characters.Integration
     public sealed class ReignCharacterEditorCommand
     {
         public string CommandId { get; set; } = string.Empty;
+        internal string ClaimId { get; set; } = string.Empty;
         public string HeroId { get; set; } = string.Empty;
         public bool Dangerous { get; set; }
         public string Confirmation { get; set; } = string.Empty;

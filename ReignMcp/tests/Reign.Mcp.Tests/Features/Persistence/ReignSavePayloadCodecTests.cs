@@ -197,7 +197,11 @@ public sealed class ReignSavePayloadCodecTests
         Assert.Contains("ReferenceEquals(Instance, this)", source);
         Assert.Contains("if (!IsCurrentCampaign || _polling || Hero.MainHero == null) return;", source);
         Assert.Contains("if (!IsCurrentCampaign || _identitySyncing || Hero.MainHero == null) return;", source);
-        Assert.Contains("IsCurrentCampaign ? Apply(command) : null", source);
+        Assert.Contains("var fence = ReignServerClient.RequestFence.Capture();", source);
+        Assert.Contains("IsCurrentCampaign && fence.IsCurrentActionPoll()", source);
+        Assert.Contains("PollAsync(campaignId, timelineId, fence.SharedActivityGeneration, OwnsPoll)", source);
+        Assert.Contains("ownsPoll() ? Apply(command) : null", source);
+        Assert.Contains("result.Applied, result.Errors, ownsPoll)", source);
     }
 
     [Fact]
