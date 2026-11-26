@@ -50,6 +50,55 @@ public sealed class RebellionTestingToolsTests
     }
 
     [Fact]
+    public void OutbreakReloadRequiresNativeResultForEachDistinctStage()
+    {
+        static JsonElement Report(string profile, object result, string status = "completed") =>
+            JsonSerializer.SerializeToElement(new
+            {
+                status = "completed",
+                commands = new[] { new { operation = "rebellion_test", profile, caseId = "RB-NATIVE-004", status, result } }
+            });
+        var prepared = new { passed = true, nativeBoundary = new { movementId = "real-movement", rebelRealmId = "observed-realm" } };
+        var restarted = new
+        {
+            passed = true, nativeBoundary = new { movementId = "real-movement", rebelRealmId = "observed-realm" },
+            separateNativeProcess = true, retainedHold = true, sameRealmFounderAndAllegiance = true,
+            replayPublishedNothing = true
+        };
+        Assert.Equal("real-movement", TestingTools.ReadRebellionOutbreakReportMovement(Report("outbreak_reload_prepare", prepared), "prepare"));
+        Assert.Equal("real-movement", TestingTools.ReadRebellionOutbreakReportMovement(Report("outbreak_reload_verify", restarted), "verify"));
+        Assert.Empty(TestingTools.ReadRebellionOutbreakReportMovement(Report("outbreak_reload_prepare", prepared), "verify"));
+        Assert.Empty(TestingTools.ReadRebellionOutbreakReportMovement(Report("outbreak_reload_verify", prepared), "verify"));
+        Assert.Empty(TestingTools.ReadRebellionOutbreakReportMovement(Report("outbreak_reload_verify", restarted, "failed"), "verify"));
+        Assert.Empty(TestingTools.ReadRebellionOutbreakReportMovement(JsonSerializer.SerializeToElement(new { result = restarted }), "verify"));
+    }
+
+    [Fact]
+    public void OutbreakReloadFixtureStopsOnlyAfterObservedNativeFounder()
+    {
+        string workspace = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(workspace,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.CivilWar.cs"));
+        int create = source.IndexOf("rebels = CreateRebelKingdom(", StringComparison.Ordinal);
+        Assert.True(create >= 0);
+        int verify = source.IndexOf("if (!HasEstablishedOutbreakAuthority(", create, StringComparison.Ordinal);
+        int callback = source.IndexOf("verifiedFounderFixture(movement, rebels);", create, StringComparison.Ordinal);
+        int hold = source.IndexOf("HoldOutbreak(movement, \"fixture_verified_founder_interruption\");", create, StringComparison.Ordinal);
+        int transfer = source.IndexOf("var rebelMembers", create, StringComparison.Ordinal);
+        Assert.True(verify > create && callback > verify && hold > callback && transfer > hold);
+        string host = File.ReadAllText(Path.Combine(workspace,
+            "ReignBeta/src/Modules/Rebellion/Testing/ReignRebellionPreparationTestHost.cs"));
+        Assert.Contains("ReignSaveSyncCoordinator.CurrentVerifiedLoad", host, StringComparison.Ordinal);
+        Assert.Contains("NativeCheckpointHash(save) != hash", host, StringComparison.Ordinal);
+        Assert.Contains("if (!verifying)", host, StringComparison.Ordinal);
+        Assert.Contains("Outbreak preparation is held pending independent operator authority.", host, StringComparison.Ordinal);
+        string fixture = File.ReadAllText(Path.Combine(workspace,
+            "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.PreparationHarness.cs"));
+        Assert.Contains("retained.Value<string>(\"fromProcess\") == process", fixture, StringComparison.Ordinal);
+        Assert.Contains("retained.Value<string>(\"fromPoint\") == point", fixture, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Manifest_exposes_durable_cli_and_complete_preparation_profiles()
     {
         var manifest = TestingTools.GetRebellionTestManifest(TestOptions.Create());
@@ -113,6 +162,12 @@ public sealed class RebellionTestingToolsTests
         Assert.Contains("dispatch as reply evidence", naturalLanguage, StringComparison.Ordinal);
         Assert.Contains(document.GetProperty("nativeCases").EnumerateArray(), item =>
             item.GetProperty("id").GetString() == "RB-NATIVE-002");
+        var outbreakReload = Assert.Single(document.GetProperty("nativeCases").EnumerateArray(),
+            item => item.GetProperty("id").GetString() == "RB-NATIVE-004");
+        Assert.Equal(new[] { "prepare", "verify" }, outbreakReload.GetProperty("stages")
+            .EnumerateArray().Select(stage => stage.GetString()).ToArray());
+        Assert.False(outbreakReload.GetProperty("required").GetBoolean());
+        Assert.Equal("independent_operator_authority_required", outbreakReload.GetProperty("prepareAdmission").GetString());
         Assert.DoesNotContain(document.GetProperty("nativeCases").EnumerateArray(), item =>
             item.GetProperty("profile").GetString() == "organic_ui");
     }

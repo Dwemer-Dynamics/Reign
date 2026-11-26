@@ -70,7 +70,7 @@
             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="972" SuggestedHeight="38" HorizontalAlignment="Left" MarginLeft="350" MarginTop="414" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@LocationText" />
             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="972" SuggestedHeight="18" HorizontalAlignment="Left" MarginLeft="350" MarginTop="451" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
 
-            <Widget Id="ChatViewControl" DataSource="{View}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" MarginLeft="624" MarginTop="344">
+            <Widget Id="ChatViewControl" DataSource="{View}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" MarginLeft="624" MarginTop="330">
               <Children>
                 <ButtonWidget Id="ChatViewButton" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteView" IsEnabled="@CanView" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
                   <Children>

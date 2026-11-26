@@ -6,6 +6,16 @@ const normal = getSampleDataForPrefab('ReignIndividualChatScreen.xml');
 const failed = getSampleDataForPrefab('ReignIndividualChatScreen.xml', 'generation-failed');
 const available = getSampleDataForPrefab('ReignIndividualChatScreen.xml', 'recovery-available');
 const review = getSampleDataForPrefab('ReignIndividualChatScreen.xml', 'recovery-review');
+const approach = getSampleDataForPrefab('ReignIndividualChatScreen.xml', 'approach-ready');
+const typing = getSampleDataForPrefab('ReignIndividualChatScreen.xml', 'approach-typing');
+assert.equal(approach.SendButtonText, 'Approach');
+assert.equal(approach.InputText, '');
+assert.equal(approach.InputEnabled, true);
+assert.deepEqual(approach.ChatLines, []);
+assert.equal(typing.SendButtonText, 'Send');
+assert.equal(typing.InputText, 'I came to ask about the road.');
+assert.equal(typing.InputEnabled, true);
+assert.deepEqual(typing.ChatLines, []);
 assert.equal(normal.SendButtonText, 'Send');
 assert.equal(failed.SendButtonText, 'Retry');
 assert.equal(failed.IsBusy, false);
@@ -25,9 +35,10 @@ assert.equal(review.SendButtonText, 'Send');
 assert.equal(review.InputText, 'Good morning.');
 assert.equal(review.ChatLines.filter(x => x.Role === 'player').length, 0);
 assert.match(review.BusyText, /Review.*new message/);
-for (const id of ['individual-chat-recovery-available', 'individual-chat-recovery-review']) {
+for (const id of ['individual-chat-approach-ready', 'individual-chat-approach-typing',
+  'individual-chat-recovery-available', 'individual-chat-recovery-review']) {
   const state = catalog.interfaces.find(x => x.id === 'individual-chat').previewStates.find(x => x.id === id);
   assert.equal(state.previewOnly, true);
   assert.equal(state.nativeInjection, false);
 }
-console.log(JSON.stringify({schema:'reign-conversation-retry-preview-contract-v1',ok:true,checks:22,providerCalls:0}));
+console.log(JSON.stringify({schema:'reign-conversation-retry-preview-contract-v1',ok:true,checks:34,providerCalls:0}));

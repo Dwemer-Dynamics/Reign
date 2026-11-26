@@ -459,7 +459,13 @@ public sealed class PortraitProductTransactionTests
             }
             finally { blocked?.Dispose(); }
 
-            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            string restore = Assert.Single(Directory.GetFiles(root, "custom.png.undo.*"));
+            Assert.Equal("old master", File.ReadAllText(restore));
+            // A reader that shares deletion permits the journaled rename.
+            using (File.Open(restore, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            {
+                Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+            }
             Assert.Equal("old master", File.ReadAllText(custom.Path));
             Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
             AssertNoRecoveryFiles(root);
@@ -547,7 +553,7 @@ public sealed class PortraitProductTransactionTests
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
-    public void WslStyleRestoreResumesAfterEachRenameBoundary(int faultAfter)
+    public void LocalPreparedRollbackResumesAfterEachRenameBoundary(int faultAfter)
     {
         InFixture(Path.GetTempPath(), root =>
         {
@@ -575,18 +581,28 @@ public sealed class PortraitProductTransactionTests
             if (faultAfter == 1)
             {
                 Assert.False(File.Exists(custom.Path));
+                // A reappearing target does not authorize replacing an occupied
+                // displaced path, even when both files have the attempted bytes.
+                File.Copy(displaced, custom.Path);
+                Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+                Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
+                Assert.Equal("new master", File.ReadAllText(custom.Path));
+                Assert.Equal("new master", File.ReadAllText(displaced));
+                File.Delete(custom.Path);
+
                 // Absence after moving the after-image is meaningful only
                 // when the known displaced image (or original forward backup) remains.
                 File.Delete(custom.BackupPath);
                 File.WriteAllText(displaced, "unowned image");
-                Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames, File.Move));
+                Assert.False(PortraitProductTransaction.TryRecover(root, RecoverableNames));
+                Assert.True(PortraitProductTransaction.HasRecoveryJournal(root));
                 Assert.False(File.Exists(custom.Path));
                 Assert.Equal("unowned image", File.ReadAllText(displaced));
                 File.WriteAllText(displaced, "new master");
             }
             else Assert.Equal("old master", File.ReadAllText(custom.Path));
 
-            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames, File.Move));
+            Assert.True(PortraitProductTransaction.TryRecover(root, RecoverableNames));
             Assert.Equal("old master", File.ReadAllText(custom.Path));
             Assert.Equal("old receipt", File.ReadAllText(receipt.Path));
             AssertNoRecoveryFiles(root);
@@ -666,14 +682,22 @@ public sealed class PortraitProductTransactionTests
 
                 if (!committed)
                 {
-                    byte[] oldReceipt = File.ReadAllBytes(outfit);
-                    await RunDerivativeChild(workspace, client, root, hero, "changed-receipt", 88);
-                    Assert.Equal(before, paths.Select(HashIfPresent).ToArray());
-                    Assert.Equal(retainedHashes[0], HashIfPresent(source));
-                    Assert.Equal(oldReceipt.Concat(System.Text.Encoding.UTF8.GetBytes(Environment.NewLine)).ToArray(),
-                        File.ReadAllBytes(outfit));
-                    Assert.Equal(retainedHashes.Skip(2).ToArray(), retained.Skip(2).Select(HashIfPresent).ToArray());
-                    AssertNoRecoveryFiles(hero);
+                    try
+                    {
+                        byte[] oldReceipt = File.ReadAllBytes(outfit);
+                        await RunDerivativeChild(workspace, client, root, hero, "changed-receipt", 88);
+                        Assert.Equal(before, paths.Select(HashIfPresent).ToArray());
+                        Assert.Equal(retainedHashes[0], HashIfPresent(source));
+                        Assert.Equal(oldReceipt.Concat(System.Text.Encoding.UTF8.GetBytes(Environment.NewLine)).ToArray(),
+                            File.ReadAllBytes(outfit));
+                        Assert.Equal(retainedHashes.Skip(2).ToArray(), retained.Skip(2).Select(HashIfPresent).ToArray());
+                        AssertNoRecoveryFiles(hero);
+                    }
+                    catch
+                    {
+                        RecordRecoveryFailure("changed-receipt");
+                        throw;
+                    }
 
                     // Restore the known missing fixture file to prove that an
                     // otherwise valid old base manifest cannot hide the outfit.
@@ -693,11 +717,16 @@ public sealed class PortraitProductTransactionTests
                     try { await RunDerivativeChild(workspace, client, root, hero, "recover", 0); }
                     catch
                     {
-                        recoveryFailed = true;
-                        try { WriteDerivativeRecoveryFailure(root, hero, evidence, phase, attempt, outputs); }
-                        catch { /* Preserve the original recovery failure if diagnostics cannot be written. */ }
+                        RecordRecoveryFailure(attempt);
                         throw;
                     }
+                }
+
+                void RecordRecoveryFailure(string attempt)
+                {
+                    recoveryFailed = true;
+                    try { WriteDerivativeRecoveryFailure(root, hero, evidence, phase, attempt, outputs, before, attempted); }
+                    catch { /* Preserve the original recovery failure if diagnostics cannot be written. */ }
                 }
             }
             File.WriteAllText(Path.Combine(evidence, "restart-evidence.json"), JsonSerializer.Serialize(new
@@ -722,7 +751,7 @@ public sealed class PortraitProductTransactionTests
     }
 
     private static void WriteDerivativeRecoveryFailure(string root, string hero, string evidence,
-        string phase, string attempt, string[] outputs)
+        string phase, string attempt, string[] outputs, string?[] before, string?[] attempted)
     {
         const int entryLimit = 64, hashByteLimit = 8 * 1024 * 1024;
         const FileAttributes directoryBits = FileAttributes.Directory | FileAttributes.ReparsePoint;
@@ -767,7 +796,8 @@ public sealed class PortraitProductTransactionTests
                 files.Add(new { relativePath = $"{phase}/hero/{name}", kind = ArtifactKind(name), status = "missing" });
 
         using var output = new FileStream(Path.Combine(evidence, "restart-failure.json"), FileMode.CreateNew);
-        JsonSerializer.Serialize(output, new { phase, attempt, inventoryTruncated = truncated, files },
+        var outputHashes = outputs.Select((name, index) => new { name, before = before[index], attempted = attempted[index] });
+        JsonSerializer.Serialize(output, new { phase, attempt, inventoryTruncated = truncated, outputHashes, files },
             new JsonSerializerOptions { WriteIndented = true });
 
         string? ArtifactKind(string name)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
@@ -35,6 +36,10 @@ namespace ReignBeta.Rebellion.Campaign
         /// can originate only from the saved weekly relationship roll.
         /// </summary>
         public bool TryStartDirectedMovement(Kingdom kingdom, Clan leaderClan, IEnumerable<Clan> supporters, out string result)
+            => TryStartDirectedMovement(kingdom, leaderClan, supporters, out result, null);
+
+        private bool TryStartDirectedMovement(Kingdom kingdom, Clan leaderClan, IEnumerable<Clan> supporters,
+            out string result, Action<ReignRebellionMovementRecord, Kingdom> verifiedFounderFixture)
         {
             result = string.Empty;
             result = DeclarationPreflightFailure(kingdom, leaderClan, kingdom?.Leader);
@@ -53,7 +58,11 @@ namespace ReignBeta.Rebellion.Campaign
                     clan.Leader?.GetRelation(leaderClan.Leader) ?? 0, clan.Leader?.GetRelation(kingdom.Leader) ?? 0);
             ReignRebellionPlotRecord priorTransition = _preparationInNativeTransition;
             _preparationInNativeTransition = preparedPlot;
-            try { StartCivilWar(movement); }
+            try
+            {
+                if (verifiedFounderFixture == null) StartCivilWar(movement);
+                else StartCivilWarCore(movement, verifiedFounderFixture);
+            }
             finally { _preparationInNativeTransition = priorTransition; }
             if (!IsCivilWar(movement))
             {
@@ -285,7 +294,12 @@ namespace ReignBeta.Rebellion.Campaign
             return movement;
         }
 
-        private void StartCivilWar(ReignRebellionMovementRecord movement)
+        // The cohort fixture reflects and patches this exact stable entry point.
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void StartCivilWar(ReignRebellionMovementRecord movement) => StartCivilWarCore(movement, null);
+
+        private void StartCivilWarCore(ReignRebellionMovementRecord movement,
+            Action<ReignRebellionMovementRecord, Kingdom> verifiedFounderFixture)
         {
             if (movement == null || movement.ResolutionApplied || !Same(movement.Stage, "declared")
                 || !Same(movement.ExecutionPhase, "idle") || !string.IsNullOrWhiteSpace(movement.RebelKingdomStringId)) return;
@@ -337,6 +351,14 @@ namespace ReignBeta.Rebellion.Campaign
                 if (!HasEstablishedOutbreakAuthority(parent, challengedRuler, leaderClan, founder, rebels))
                 {
                     HoldOutbreak(movement, "rebel_realm_unverified");
+                    return;
+                }
+
+                // Only the guarded disposable campaign fixture supplies a callback.
+                if (verifiedFounderFixture != null)
+                {
+                    verifiedFounderFixture(movement, rebels);
+                    HoldOutbreak(movement, "fixture_verified_founder_interruption");
                     return;
                 }
 

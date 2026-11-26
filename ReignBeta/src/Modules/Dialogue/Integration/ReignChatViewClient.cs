@@ -45,19 +45,24 @@ namespace ReignBeta.Dialogue.Integration
 
         internal static async Task RefreshArchiveAsync()
         {
-            JObject scope = await ReignMainThread.InvokeAsync(() => Scope()).ConfigureAwait(false);
+            var archive = await ReignMainThread.InvokeAsync(() => (Scope: Scope(), Game: ReignMainThread.CurrentGameScope,
+                Server: ReignServerEndpoint.ConfiguredBaseUrl())).ConfigureAwait(false);
+            JObject scope = archive.Scope;
+            string key = ScopeKey(scope);
+            bool OwnsArchive() => ReferenceEquals(ReignMainThread.CurrentGameScope, archive.Game)
+                && ReignServerEndpoint.ConfiguredBaseUrl() == archive.Server && ScopeKey(Scope()) == key;
             var files = new List<string>();
             foreach (JObject entry in await ReadEntriesAsync(scope, "archive").ConfigureAwait(false))
             {
                 if (entry.Value<string>("status") != "ready") continue;
                 JObject itemScope = (JObject)scope.DeepClone(); itemScope["sessionId"] = entry.Value<string>("sessionId") ?? "";
-                JObject ready = await DownloadAsync(itemScope, entry).ConfigureAwait(false);
+                JObject ready = await DownloadAsync(itemScope, entry, OwnsArchive).ConfigureAwait(false);
                 files.Add(ready.Value<string>("localPath"));
             }
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (ScopeKey(Scope()) != ScopeKey(scope)) return;
-                lock (Archives) Archives[ScopeKey(scope)] = files.ToArray();
+                if (!OwnsArchive()) return;
+                lock (Archives) Archives[key] = files.ToArray();
             }).ConfigureAwait(false);
         }
 
@@ -79,7 +84,58 @@ namespace ReignBeta.Dialogue.Integration
             return entries;
         }
 
-        internal static async Task<JObject> DownloadAsync(JObject scope, JObject entry)
+        internal static async Task<JObject> ReadStateAsync(JObject scope, string id, bool includeImage, Func<bool> owns)
+        {
+            if (string.IsNullOrEmpty(id) || id.Length != 64 || id.Any(c => !Uri.IsHexDigit(c)))
+                throw new InvalidDataException("The scene identity is invalid.");
+
+            JObject query = (JObject)scope.DeepClone();
+            query["jobId"] = id;
+            query["includeImage"] = includeImage;
+            Task<bool> IsCurrent() => ReignMainThread.InvokeAsync(owns);
+            string unavailable = includeImage
+                ? "The View image was ready, but Reign could not download it. Reopen the conversation or image archive to retrieve it."
+                : "Reign could not check this View image. It may still be processing. Reopen the conversation to check it.";
+
+            // This route can recover an already-rendered job's publication. It never asks a provider to render again.
+            for (int attempt = 1; ; attempt++)
+            {
+                if (!await IsCurrent().ConfigureAwait(false))
+                    throw new OperationCanceledException("The View job belongs to a different conversation.");
+                JObject result;
+                try
+                {
+                    result = await PostJsonAsync("/chat-view/state", query, IsCurrent).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (IsRetryableStateFailure(ex))
+                {
+                    if (attempt == 3) throw new InvalidOperationException(unavailable, ex);
+                    // The shared endpoint circuit waits five seconds after one failure, then ten.
+                    await Task.Delay(TimeSpan.FromSeconds(6 * attempt)).ConfigureAwait(false);
+                    continue;
+                }
+                catch (ReignHttpTransport.UnknownMutationOutcomeException ex)
+                {
+                    throw new InvalidOperationException(unavailable, ex);
+                }
+                if (!await IsCurrent().ConfigureAwait(false))
+                    throw new OperationCanceledException("The View job belongs to a different conversation.");
+                Check(result);
+                if (result.Value<string>("jobId") != id || result.Value<string>("sessionId") != scope.Value<string>("sessionId"))
+                    throw new InvalidDataException("Reign returned a different View job.");
+                return result;
+            }
+        }
+
+        private static bool IsRetryableStateFailure(Exception error)
+        {
+            // The shared POST transport wraps connection loss, malformed replies and ambiguous HTTP refusals alike.
+            // Retry only connection/read failures here. Process a structured View refusal once.
+            if (error is ReignHttpTransport.UnknownMutationOutcomeException) error = error.InnerException;
+            return error is IOException || ReignServerEndpoint.IsTransportFailure(error);
+        }
+
+        internal static async Task<JObject> DownloadAsync(JObject scope, JObject entry, Func<bool> owns)
         {
             string id = entry.Value<string>("jobId") ?? "", expectedHash = entry.Value<string>("imageSha256") ?? "";
             if (id.Length != 64 || id.Any(c => !Uri.IsHexDigit(c)) || expectedHash.Length != 64)
@@ -89,9 +145,14 @@ namespace ReignBeta.Dialogue.Integration
             byte[] bytes = File.Exists(path) ? File.ReadAllBytes(path) : null;
             if (bytes == null || Hash(bytes) != expectedHash)
             {
-                JObject query = (JObject)scope.DeepClone(); query["jobId"] = id; query["includeImage"] = true;
-                JObject result = await ReignChatViewClient.PostChatViewAsync("state", query).ConfigureAwait(false);
-                Check(result);
+                JObject result = await ReadStateAsync(scope, id, true, owns).ConfigureAwait(false);
+                if (result.Value<string>("status") != "ready")
+                {
+                    string error = result.Value<string>("error");
+                    throw new InvalidOperationException(string.IsNullOrWhiteSpace(error) ? "The View image is no longer ready." : error);
+                }
+                if (result.Value<string>("imageSha256") != expectedHash)
+                    throw new InvalidDataException("The View image changed before it could be downloaded.");
                 string encoded = result.Value<string>("imageBase64") ?? "";
                 if (encoded.Length > 90 * 1024 * 1024) throw new InvalidDataException("The image is too large.");
                 bytes = Convert.FromBase64String(encoded);
@@ -119,6 +180,7 @@ namespace ReignBeta.Dialogue.Integration
             var ready = (JObject)entry.DeepClone(); ready["localPath"] = path;
             await ReignMainThread.InvokeAsync(() =>
             {
+                if (!owns()) throw new OperationCanceledException("The View image belongs to a different conversation.");
                 ready["imageId"] = ReignEventArtTextureFactory.BuildMemorySceneImageId(inline);
                 ready["fullImageId"] = ReignEventArtTextureFactory.BuildMemorySceneImageId(path);
             }).ConfigureAwait(false);

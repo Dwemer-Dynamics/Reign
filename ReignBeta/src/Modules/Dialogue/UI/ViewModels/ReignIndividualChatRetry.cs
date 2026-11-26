@@ -27,9 +27,16 @@ namespace ReignBeta.Dialogue.UI
             _hero?.StringId ?? "", _conversationContext.Value<string>("sessionId") ?? "", ConversationGeneration);
 
         [DataSourceProperty]
-        public string SendButtonText => !IsBusy && !IsOutfitVisible && _failedTurn.HasPending
-            && string.IsNullOrWhiteSpace(InputText) ? "Retry"
-            : !IsBusy && !IsOutfitVisible && _recoverableInputs.Count > 0 && string.IsNullOrWhiteSpace(InputText) ? "Recover" : "Send";
+        public string SendButtonText
+        {
+            get
+            {
+                if (!InputEnabled || !string.IsNullOrWhiteSpace(InputText)) return "Send";
+                if (_failedTurn.HasPending) return "Retry";
+                if (_recoverableInputs.Count > 0) return "Recover";
+                return CanOfferApproach ? "Approach" : "Send";
+            }
+        }
 
         private bool TryRecoverSavedInput()
         {

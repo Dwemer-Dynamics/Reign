@@ -337,9 +337,9 @@ namespace AIPortraits
                 var (id, entries) = ReadRecoveryMarker(marker, names);
                 if (RecoveryDigest(marker) != markerDigest || !HasExactRecoverySpellings(directory, id, entries)
                     || !CheckRecoveryFiles(directory, id, committed, entries)) return false;
-                if (recoveryRename == null && UsesWslRename(directory)) recoveryRename = File.Move;
                 if (!committed)
                 {
+                    recoveryRename ??= File.Move;
                     // Preflight every destination and backup before changing any
                     // file. Recover in reverse write order and recheck each path.
                     foreach (var entry in entries.AsEnumerable().Reverse())
@@ -410,7 +410,7 @@ namespace AIPortraits
         }
 
         private static bool RestoreRecoveryFile(string directory, string id, RecoveryFile entry,
-            Action<string, string>? recoveryRename)
+            Action<string, string> recoveryRename)
         {
             string target = entry.Destination(directory);
             string displacedPath = entry.DisplacedImage(directory, id);
@@ -428,26 +428,18 @@ namespace AIPortraits
             if (staged == null) CopyRecoveryImage(entry.BeforeImage(directory, id), restore, entry.Before);
             if (RecoveryDigest(target) != current || RecoveryDigest(restore) != entry.Before) return false;
 
-            if (recoveryRename == null)
+            if (current != null)
             {
-                if (current == null) File.Move(restore, target);
-                else File.Replace(restore, target, null);
+                // Move the exact after-image aside first on every filesystem.
+                // Its known bytes make an interrupted rename resumable.
+                if (displaced != null || RecoveryDigest(displacedPath) != null) return false;
+                recoveryRename(target, displacedPath);
+                if (RecoveryDigest(displacedPath) != entry.After || RecoveryDigest(target) != null) return false;
             }
-            else
-            {
-                if (current != null)
-                {
-                    // Move the exact after-image aside first. The resulting
-                    // absence remains attributable through that immutable file.
-                    if (displaced != null || RecoveryDigest(displacedPath) != null) return false;
-                    recoveryRename(target, displacedPath);
-                    if (RecoveryDigest(displacedPath) != entry.After || RecoveryDigest(target) != null) return false;
-                }
-                else if (!CanRevertRecoveryFile(entry, null, RecoveryDigest(entry.Backup(directory)),
-                    RecoveryDigest(displacedPath))) return false;
-                if (RecoveryDigest(restore) != entry.Before) return false;
-                recoveryRename(restore, target);
-            }
+            else if (!CanRevertRecoveryFile(entry, null, RecoveryDigest(entry.Backup(directory)),
+                RecoveryDigest(displacedPath))) return false;
+            if (RecoveryDigest(restore) != entry.Before) return false;
+            recoveryRename(restore, target);
             return RecoveryDigest(target) == entry.Before;
         }
 
