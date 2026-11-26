@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -277,15 +278,26 @@ namespace ReignBeta.WorldSimulation.Campaign
                     JObject checkpointReceipt = null;
                     if (ownership != null)
                     {
-                        string point = await ReignMainThread.InvokeAsync(() =>
+                        var (point, nativePoint) = await ReignMainThread.InvokeAsync(() =>
                         {
                             string actual = ReignServices.SaveSync?.CurrentSavePointId;
-                            return completedSequence == expectedSequence
-                                && CheckpointScopeMatches(ownership)
-                                && CheckpointNamesEqual(ActiveSaveName(), saveName)
-                                && !string.IsNullOrWhiteSpace(actual)
-                                && NativeSaveHasPoint(saveName, ownership.Value<string>("campaignId"), actual)
-                                ? actual : null;
+                            if (completedSequence != expectedSequence
+                                || !CheckpointScopeMatches(ownership)
+                                || !CheckpointNamesEqual(ActiveSaveName(), saveName)
+                                || string.IsNullOrWhiteSpace(actual)
+                                || !NativeSaveHasPoint(saveName, ownership.Value<string>("campaignId"), actual))
+                                return (Point: (string)null, Observation: (JObject)null);
+
+                            JObject observation = null;
+                            try
+                            {
+                                observation = ObserveRegisteredNativePoint(ownership, saveName, actual, expectedSequence);
+                            }
+                            catch (Exception ex)
+                            {
+                                ReignLog.Warn("Optional registered checkpoint metadata was unavailable: " + ex.GetType().Name);
+                            }
+                            return (Point: actual, Observation: observation);
                         }).ConfigureAwait(false);
                         string hash = point == null ? null : NativeCheckpointHash(saveName);
                         if (hash == null)
@@ -300,6 +312,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                         };
                         if (hasPartyAgencyStage)
                             checkpointReceipt["partyAgencyStage"] = partyAgencyStage.DeepClone();
+
+                        if (nativePoint != null) checkpointReceipt["nativeRegisteredPoint"] = nativePoint;
                     }
                     _lastAutomationSaveName = saveName;
                     _lastAutomationSaveCompletedUtc = DateTime.UtcNow;
@@ -397,6 +411,53 @@ namespace ReignBeta.WorldSimulation.Campaign
             var metadata = MBSaveLoad.GetSaveFileWithName(saveName)?.MetaData;
             return metadata != null && CheckpointNamesEqual(metadata["ReignCampaignId"], campaignId)
                 && metadata["ReignSavePointId"] == point;
+        }
+
+        private static JObject ObserveRegisteredNativePoint(JObject ownership, string saveName,
+            string point, long expectedSequence)
+        {
+            var native = ReignSaveSyncCampaignBehavior.NativeSaveObservation();
+            string campaign = ownership.Value<string>("campaignId");
+            string timeline = ownership.Value<string>("timelineId");
+            if (!CheckpointScopeMatches(ownership)
+                || ReignCampaignIdentity.CurrentCampaignId() != campaign
+                || (ReignServices.WorldHistory?.TimelineId ?? "main") != timeline
+                || ReignServices.SaveSync?.CurrentSavePointId != point
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
+                || !CheckpointNamesEqual(ActiveSaveName(), saveName)
+                || expectedSequence <= 0
+                || native.Value<long>("sequence") != expectedSequence
+                || native.Value<long>("completedSequence") != expectedSequence
+                || native.Value<bool?>("succeeded") != true
+                || !CheckpointNamesEqual(native.Value<string>("saveName"), saveName))
+                return null;
+
+            var metadata = MBSaveLoad.GetSaveFileWithName(saveName)?.MetaData;
+            if (metadata == null || metadata["ReignCampaignId"] != campaign
+                || metadata["ReignSavePointTimelineId"] != timeline
+                || metadata["ReignSavePointId"] != point
+                || metadata["ReignSavePointKind"] != "native_save"
+                || metadata["ReignSavePointRegistered"] != "true")
+                return null;
+
+            string sequence = metadata["ReignSavePointHistorySequence"];
+            string head = metadata["ReignSavePointHistoryHead"];
+            if (!long.TryParse(sequence, NumberStyles.None, CultureInfo.InvariantCulture, out long historySequence)
+                || sequence != historySequence.ToString(CultureInfo.InvariantCulture)
+                || head == null || head != head.Trim() || head.Any(char.IsControl)
+                || (historySequence == 0) != (head.Length == 0))
+                return null;
+
+            return new JObject
+            {
+                ["schema"] = "reign-campaign-test-native-registered-point-v1",
+                ["campaignId"] = campaign,
+                ["timelineId"] = timeline,
+                ["savePointId"] = point,
+                ["nativeSaveSequence"] = expectedSequence,
+                ["worldHistorySequence"] = historySequence,
+                ["nativeHistoryHeadEventId"] = head
+            };
         }
 
         private static string NativeCheckpointHash(string name)
