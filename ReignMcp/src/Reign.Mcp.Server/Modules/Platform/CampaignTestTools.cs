@@ -1031,7 +1031,7 @@ public sealed class CampaignTestService
             throw new InvalidOperationException("The native source save is missing.");
 
         var receipt = Find(state, destination);
-        var (point, count) = await ReadCheckpointSlotAsync(state.CampaignId, destination, cancellationToken)
+        var (point, count, _) = await ReadCheckpointSlotAsync(state.CampaignId, destination, cancellationToken)
             .ConfigureAwait(false);
         bool retained = point.HasValue && receipt is not null && MatchesPoint(point.Value, receipt);
         if (point.HasValue && !retained)
@@ -1094,7 +1094,11 @@ public sealed class CampaignTestService
             {
                 receipt = ReadCompletion(attempt, result);
                 VerifyBytes(receipt, NativeHash(attempt.SaveName));
-                await RequireRegisteredPointAsync(state, receipt, cancellationToken).ConfigureAwait(false);
+                var (point, ledgerCampaign) = await RequireRegisteredPointAsync(state, receipt, cancellationToken)
+                    .ConfigureAwait(false);
+                var observed = ObserveRegisteredPoint(receipt, result, point, ledgerCampaign);
+                if (observed is not null)
+                    receipt = receipt with { RegisteredPointEvidence = observed };
             }
             catch (InvalidOperationException error)
             {
@@ -1143,28 +1147,30 @@ public sealed class CampaignTestService
     private async Task<bool> StillMatchesPriorCheckpointAsync(CampaignTestState state,
         CampaignCheckpointReceipt prior, CancellationToken cancellationToken)
     {
-        var (point, _) = await ReadCheckpointSlotAsync(state.CampaignId, prior.Attempt.SaveName, cancellationToken)
+        var (point, _, _) = await ReadCheckpointSlotAsync(state.CampaignId, prior.Attempt.SaveName, cancellationToken)
             .ConfigureAwait(false);
         return point.HasValue && MatchesPoint(point.Value, prior)
             && string.Equals(NativeHash(prior.Attempt.SaveName), prior.Sha256, StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task RequireRegisteredPointAsync(CampaignTestState state,
+    private async Task<(JsonElement Point, string CampaignId)> RequireRegisteredPointAsync(CampaignTestState state,
         CampaignCheckpointReceipt receipt, CancellationToken cancellationToken)
     {
-        var (point, _) = await ReadCheckpointSlotAsync(state.CampaignId, receipt.Attempt.SaveName, cancellationToken)
+        var (point, _, campaign) = await ReadCheckpointSlotAsync(state.CampaignId, receipt.Attempt.SaveName, cancellationToken)
             .ConfigureAwait(false);
         if (!point.HasValue || !MatchesPoint(point.Value, receipt))
             throw new InvalidOperationException("Save Sync did not confirm the exact available finalized checkpoint point.");
+        return (point.Value, campaign);
     }
 
-    private async Task<(JsonElement? Point, int Count)> ReadCheckpointSlotAsync(
+    private async Task<(JsonElement? Point, int Count, string CampaignId)> ReadCheckpointSlotAsync(
         string campaignId, string destination, CancellationToken cancellationToken)
     {
         ApiEnvelope envelope = await _api.GetAsync("/api/save-sync/status",
             new Dictionary<string, string?> { ["campaignId"] = campaignId, ["checkpointSlot"] = destination },
             cancellationToken).ConfigureAwait(false);
-        return ParseCheckpointSlot(envelope, campaignId, destination);
+        var (point, count) = ParseCheckpointSlot(envelope, campaignId, destination);
+        return (point, count, Text(envelope.Data.GetValueOrDefault(), "campaignId"));
     }
 
     internal static (JsonElement? Point, int Count) ParseCheckpointSlot(

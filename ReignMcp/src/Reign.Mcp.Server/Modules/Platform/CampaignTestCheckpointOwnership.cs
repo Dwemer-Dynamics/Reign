@@ -21,7 +21,14 @@ public sealed record PartyAgencyCheckpointAgreement(string AgreementId, int Agre
     string HeroId, string OriginalClanId, string OriginalKingdomId, string SourcePartyId, string Phase);
 
 public sealed record CampaignCheckpointReceipt(CampaignCheckpointAttempt Attempt, string SavePointId,
-    string Sha256, string CompletedUtc);
+    string Sha256, string CompletedUtc)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CampaignRegisteredPointEvidence? RegisteredPointEvidence { get; init; }
+}
+
+public sealed record CampaignRegisteredPointEvidence(string Schema, string CampaignId, string TimelineId,
+    string SavePointId, long NativeSaveSequence, long WorldHistorySequence, string NativeHistoryHeadEventId);
 
 internal static class CampaignTestCheckpointOwnership
 {
@@ -109,6 +116,50 @@ internal static class CampaignTestCheckpointOwnership
             throw new InvalidOperationException("The checkpoint receipt did not identify newly committed native bytes and a new Save Sync point.");
 
         return new CampaignCheckpointReceipt(attempt, pointId, sha256, DateTime.UtcNow.ToString("O"));
+    }
+
+    // This optional observation runs after the existing checkpoint ownership, byte and ledger checks.
+    internal static CampaignRegisteredPointEvidence? ObserveRegisteredPoint(
+        CampaignCheckpointReceipt receipt, ControllerCall call, JsonElement registeredPoint, string ledgerCampaign)
+    {
+        var attempt = receipt.Attempt;
+        if (!call.Ok || call.Data is not { ValueKind: JsonValueKind.Object } result
+            || !TryObject(result, "save", out var save) || !TryObject(save, "nativeSave", out var native)
+            || !TryObject(save, "checkpointOwnership", out var ownership)
+            || !TryObject(ownership, "nativeRegisteredPoint", out var observed)
+            || Text(observed, "schema") != "reign-campaign-test-native-registered-point-v1"
+            || Text(observed, "campaignId") != attempt.CampaignId || ledgerCampaign != attempt.CampaignId
+            || Text(observed, "timelineId") != attempt.TimelineId || Text(registeredPoint, "timelineId") != attempt.TimelineId
+            || Text(observed, "savePointId") != receipt.SavePointId || Text(registeredPoint, "savePointId") != receipt.SavePointId
+            || !TryInt64(observed, "nativeSaveSequence", out long sequence) || sequence <= 0
+            || !TryInt64(native, "sequence", out long started) || started != sequence
+            || !TryInt64(native, "completedSequence", out long completed) || completed != sequence
+            || !TryInt64(observed, "worldHistorySequence", out long history) || history < 0
+            || !TryInt64(registeredPoint, "worldHistorySequence", out long ledgerHistory) || ledgerHistory != history
+            || !observed.TryGetProperty("nativeHistoryHeadEventId", out var headValue)
+            || headValue.ValueKind != JsonValueKind.String)
+            return null;
+
+        string head = headValue.GetString()!;
+        if (head != head.Trim() || head.Any(char.IsControl) || (history == 0) != (head.Length == 0))
+            return null;
+
+        return new CampaignRegisteredPointEvidence("reign-campaign-test-registered-point-evidence-v1",
+            attempt.CampaignId, attempt.TimelineId, receipt.SavePointId, sequence, history, head);
+    }
+
+    private static bool TryObject(JsonElement item, string key, out JsonElement child)
+    {
+        child = default;
+        return item.ValueKind == JsonValueKind.Object && item.TryGetProperty(key, out child)
+            && child.ValueKind == JsonValueKind.Object;
+    }
+
+    private static bool TryInt64(JsonElement item, string key, out long number)
+    {
+        number = default;
+        return item.ValueKind == JsonValueKind.Object && item.TryGetProperty(key, out var value)
+            && value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out number);
     }
 
     internal static string ReadRestartedGameInstance(CampaignCheckpointReceipt checkpoint, JsonElement evidence)
