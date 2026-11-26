@@ -165,6 +165,47 @@ public static class CampaignTestTools
         return service.ReportAsync(runId, cancellationToken);
     }
 
+    [McpServerTool(Name = "reign_observe_held_notable_startup", ReadOnly = false,
+        Destructive = false, Idempotent = false, UseStructuredContent = true)]
+    [Description("Starts one read-only native trait observation for a held startup reservation on the exact owned and rolled-back Current. It creates only test evidence and cannot settle the reservation.")]
+    public static async Task<ApiEnvelope> ObserveHeldNotableStartup(
+        CampaignTestService service, ReignApiClient api, ReignMcpOptions options,
+        string campaignId, string runId, string heroId,
+        [Description("Exact text required: observe Reign held notable on disposable save")]
+        string confirmation = "", CancellationToken cancellationToken = default)
+    {
+        if (!options.AllowVerificationControl)
+            throw new InvalidOperationException("Verification control is disabled.");
+        InputGuard.RequireConfirmation(confirmation, "observe Reign held notable on disposable save");
+        heroId = InputGuard.OptionalIdentifier(heroId, nameof(heroId));
+        if (heroId.Length == 0)
+            throw new ArgumentException("An exact notable identifier is required.", nameof(heroId));
+        var (enrollment, checkpoint, gameInstance, clientProcess) =
+            await service.RequireNotableStartupObservationCheckpointAsync(runId, campaignId, cancellationToken).ConfigureAwait(false);
+        const string mode = "notable_startup_observation";
+        return await api.PostAsync("/tests/live/run/start", new
+        {
+            campaignId = enrollment.CampaignId, gameInstanceId = gameInstance,
+            mode, presentation = "headless", effects = "observed", autoCompleteWhenIdle = true,
+            enrollment = new
+            {
+                source = "reign_mcp_notable_startup_observation",
+                campaignId = enrollment.CampaignId,
+                campaignTestRunId = enrollment.CampaignTestRunId,
+                timelineId = enrollment.TimelineId,
+                disposableSaveName = enrollment.CurrentSaveName,
+                protectedBaselineSaveName = enrollment.BaselineSaveName,
+                savePointId = checkpoint.SavePointId,
+                checkpointSha256 = checkpoint.Sha256.ToLowerInvariant(),
+                heroId,
+                gameInstanceId = gameInstance,
+                clientProcessInstanceId = clientProcess,
+                origin = options.ServerBaseUri.GetLeftPart(UriPartial.Authority)
+            },
+            steps = new[] { new { operation = mode } }
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
     [McpServerTool(Name = "reign_cleanup_campaign_test", ReadOnly = false,
         Destructive = true, Idempotent = true, UseStructuredContent = true)]
     [Description("Deletes only exact checkpoints owned by an enrolled run. It refuses the baseline, unrelated saves, and the currently loaded save.")]
@@ -253,6 +294,37 @@ public sealed class CampaignTestService
             ? ReadPausedActionDiagnosticOwner(state, checkpoint, snapshot)
             : null;
         return (CampaignTestAuthorization.From(state), checkpoint, loadOwner);
+    }
+
+    internal async Task<(CampaignTestAuthorization Enrollment, CampaignCheckpointReceipt Checkpoint, string GameInstance, string ClientProcess)>
+        RequireNotableStartupObservationCheckpointAsync(string runId, string campaignId, CancellationToken cancellationToken)
+    {
+        CampaignTestState state = RequireArmed(runId);
+        if (state.CampaignId != RequiredId(campaignId, nameof(campaignId)))
+            throw new InvalidOperationException("The observation campaign differs from the armed enrollment.");
+        await RequireUnifiedHealthAsync(cancellationToken).ConfigureAwait(false);
+        CampaignCheckpointReceipt checkpoint = await VerifyReloadableCurrentAsync(state, cancellationToken).ConfigureAwait(false);
+        ApiEnvelope observed = await _api.GetAsync("/tests/live/runtime",
+            new Dictionary<string, string?> { ["campaignId"] = state.CampaignId }, cancellationToken).ConfigureAwait(false);
+        if (!observed.Ok || observed.Data is not { ValueKind: JsonValueKind.Object } envelope || !IsTrue(envelope, "gameOnline")
+            || !envelope.TryGetProperty("runtime", out JsonElement runtime) || runtime.ValueKind != JsonValueKind.Object
+            || Text(runtime, "campaignId") != state.CampaignId || Text(runtime, "activeSaveName") != state.CurrentSaveName
+            || !runtime.TryGetProperty("saveSync", out JsonElement sync) || sync.ValueKind != JsonValueKind.Object
+            || Text(sync, "timelineId") != state.TimelineId || !IsTrue(sync, "ready")
+            || !sync.TryGetProperty("alignmentPending", out JsonElement pending) || pending.ValueKind != JsonValueKind.False
+            || !runtime.TryGetProperty("executionIdentity", out JsonElement execution) || execution.ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException("The native heartbeat does not identify the aligned, run-owned Current.");
+
+        string instance = Text(runtime, "gameInstanceId");
+        string client = Text(execution, "clientProcessInstanceId");
+        CampaignTestState retained = RequireArmed(runId);
+        if (instance.Length == 0 || !Guid.TryParseExact(client, "N", out _)
+            || CampaignTestAuthorization.From(state) != CampaignTestAuthorization.From(retained)
+            || Find(retained, retained.CurrentSaveName) != checkpoint)
+            throw new InvalidOperationException("The exact native observation owner changed during checkpoint verification.");
+        // Rollback identity comes from the server's registered receipt. The issued command
+        // then cross-checks that identity against the native coordinator on the game thread.
+        return (CampaignTestAuthorization.From(retained), checkpoint, instance, client);
     }
 
     internal static void ValidatePausedActionSnapshot(CampaignTestState state, ControllerCall snapshot)
