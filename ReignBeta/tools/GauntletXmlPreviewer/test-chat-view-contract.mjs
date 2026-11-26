@@ -34,6 +34,14 @@ assert.match(individualVm, /_isPregnancyWarningVisible = value;\s+OnPropertyChan
 assert.match(outfitVm, /private void RefreshOutfit\([\s\S]*?OnPropertyChanged\(property\);\s+RefreshInputAvailability\(\);/);
 assert.match(individualVm, /private void RefreshInputAvailability\(\)\s*\{\s*_view\?\.RefreshAvailability\(\);/);
 
+const viewVm = readModule(vmRoot + 'ReignChatViewVM.cs');
+const viewClient = readModule('src/Modules/Dialogue/Integration/ReignChatViewClient.cs');
+assert.equal((viewVm.match(/PostChatViewAsync\("start", scope\)/g) ?? []).length, 1);
+assert.match(viewVm, /ReadStateAsync\(scope, id, false, OwnsJob\)/);
+assert.match(viewVm, /DownloadAsync\(scope, response, OwnsJob\)/);
+assert.match(viewClient, /ReadStateAsync\(scope, id, true, owns\)/);
+assert.match(viewClient, /PostJsonAsync\("\/chat-view\/state", query, IsCurrent\)/);
+
 let checks = 0;
 for (const screen of ['Individual', 'Party', 'Castle']) {
   const file = `Reign${screen}ChatScreen.xml`;

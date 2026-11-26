@@ -24,12 +24,16 @@ namespace ReignBeta.Dialogue.UI
         private readonly string _campaign;
         private readonly string _timeline;
         private readonly string _player;
+        private readonly ReignMainThread.GameScope _gameScope;
+        private readonly string _server;
 
         internal ReignChatViewVM(Func<JObject> scope, Func<bool> available, MBBindingList<ReignChatLineVM> lines, Action scroll)
         {
             _scope = scope; _available = available; _lines = lines; _scroll = scroll;
             JObject initial = scope(); _campaign = initial.Value<string>("campaignId");
             _timeline = initial.Value<string>("timelineId"); _player = initial.Value<string>("playerId");
+            _gameScope = ReignMainThread.CurrentGameScope;
+            _server = ReignServerEndpoint.ConfiguredBaseUrl();
             ReignRuntimeSpriteSheets.EnsureCategoryLoaded("ui_reignbeta_individual");
             ReignRuntimeSpriteSheets.EnsureCategoryLoaded("ui_reignbeta_tavern_house");
             ReignRuntimeSpriteSheets.EnsureCategoryLoaded("ui_reignbeta_shared");
@@ -50,8 +54,9 @@ namespace ReignBeta.Dialogue.UI
         public async void ExecuteView()
         {
             if (!CanView) return;
-            _busy = true; Refresh();
             JObject scope = _scope();
+            if (!Owns(scope)) return;
+            _busy = true; Refresh();
             scope["requestId"] = Guid.NewGuid().ToString("N");
             scope["throughExchangeId"] = _lines.LastOrDefault(line => line.IsNpcLine && !string.IsNullOrEmpty(line.ExchangeId))?.ExchangeId ?? "";
             ReignChatLineVM pending = new ReignChatLineVM("View", "Preparing a view of this scene…", "view");
@@ -109,6 +114,7 @@ namespace ReignBeta.Dialogue.UI
             string id = response.Value<string>("jobId");
             if (line.HasSceneImage) return;
             lock (_following) { if (!_following.Add(id)) return; }
+            bool OwnsJob() => Owns(scope);
             try
             {
                 for (int attempt = 0; attempt < 400; attempt++)
@@ -117,10 +123,10 @@ namespace ReignBeta.Dialogue.UI
                     string status = response.Value<string>("status");
                     if (status == "ready")
                     {
-                        JObject ready = await ReignChatViewClient.DownloadAsync(scope, response).ConfigureAwait(false);
+                        JObject ready = await ReignChatViewClient.DownloadAsync(scope, response, OwnsJob).ConfigureAwait(false);
                         await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (!Owns(scope)) return;
+                            if (!OwnsJob()) return;
                             line.InlineScenePath = System.IO.Path.ChangeExtension(ready.Value<string>("localPath"), null) + "_inline.png";
                             line.FullScenePath = ready.Value<string>("localPath") ?? "";
                             line.SetScene(ready.Value<string>("imageId"), ready.Value<string>("caption"), () =>
@@ -134,17 +140,15 @@ namespace ReignBeta.Dialogue.UI
                     }
                     if (status == "failed" || status == "uncertain")
                     {
-                        await ReignMainThread.InvokeAsync(() => { if (Owns(scope)) line.Text = response.Value<string>("error") ?? "View could not finish this image."; }).ConfigureAwait(false);
+                        await ReignMainThread.InvokeAsync(() => { if (OwnsJob()) line.Text = response.Value<string>("error") ?? "View could not finish this image."; }).ConfigureAwait(false);
                         return;
                     }
                     await Task.Delay(1500).ConfigureAwait(false);
-                    JObject query = (JObject)scope.DeepClone(); query["jobId"] = id; query["includeImage"] = false;
-                    response = await ReignChatViewClient.PostChatViewAsync("state", query).ConfigureAwait(false);
-                    ReignChatViewClient.Check(response);
+                    response = await ReignChatViewClient.ReadStateAsync(scope, id, false, OwnsJob).ConfigureAwait(false);
                 }
-                await ReignMainThread.InvokeAsync(() => { if (Owns(scope)) line.Text = "This image is still pending. Reopen the conversation to check it; no new generation is required."; }).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (OwnsJob()) line.Text = "This image is still pending. Reopen the conversation to check it; no new generation is required."; }).ConfigureAwait(false);
             }
-            catch (Exception ex) { await ReignMainThread.InvokeAsync(() => { if (Owns(scope)) line.Text = ex.Message; }).ConfigureAwait(false); }
+            catch (Exception ex) { await ReignMainThread.InvokeAsync(() => { if (OwnsJob()) line.Text = ex.Message; }).ConfigureAwait(false); }
             finally { lock (_following) _following.Remove(id); }
         }
 
@@ -163,8 +167,10 @@ namespace ReignBeta.Dialogue.UI
 
         private bool Owns(JObject captured)
         {
+            if (_closed || !ReferenceEquals(ReignMainThread.CurrentGameScope, _gameScope)
+                || ReignServerEndpoint.ConfiguredBaseUrl() != _server) return false;
             JObject current = _scope();
-            return !_closed && current.Value<string>("campaignId") == _campaign && current.Value<string>("timelineId") == _timeline
+            return current.Value<string>("campaignId") == _campaign && current.Value<string>("timelineId") == _timeline
                 && current.Value<string>("playerId") == _player && current.Value<string>("sessionId") == captured.Value<string>("sessionId");
         }
         private void InsertAtAnchor(ReignChatLineVM line)

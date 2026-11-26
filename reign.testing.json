@@ -3736,6 +3736,7 @@
       "used reference origin/folder/master filename/SHA-256 receipts and exact legacy-default migration with user-edited styles preserved",
       "qualified model maximum and exact 3:2",
       "request admission deduplication and provider-free publication recovery",
+      "bounded transport recovery of the same scoped job for status and ready-image download, without replaying start",
       "scoped archive plus legacy memories",
       "Save Sync rejects chat_view_pending until durable work drains"
     ],
