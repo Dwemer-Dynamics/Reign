@@ -1789,7 +1789,35 @@
         "paid_supply_legacy_and_generic_admission_cannot_emit_native_action",
         "legacy_text_zero_supply_keeps_the_unpaid_contract"
       ],
-      "nativeAcceptance": "Use a separately guarded paid invocation in an enrolled disposable Court. Verify exact native stack and wallet observations, settled and held saves, and fresh-process no-repeat. The existing unpaid button and provider-free checks do not establish native paid acceptance."
+      "nativeProfiles": ["court_life_paid_supply_preflight", "court_life_paid_supply_apply", "court_life_paid_supply_verify"],
+      "nativeEvidenceSchema": "reign-court-life-paid-supply-v1",
+      "nativeAcceptance": "Use reign_start_ruler_docket_test on a loaded, registered and recoverable disposable Current with stopped time and an aligned Royal Court. Each phase requires an exact 45-second server lease ACK and one local Windows-user admission. The preflight is observational. Apply uses an exact target from preflight, one native grain and one denar only. It needs a distinct durable dispatch ACK after terms validation. Cancel or pause may invalidate the request before dispatch admission. If admission won, the run retains its lease until the exact result or expiry; expiry after admission requires native receipt reconciliation. Verify requires a different native process and game instance, a registered post-transfer checkpoint, the original target and the exact verified receipt. All four holdings and the Court session revision must stay unchanged during replay. A completed Apply requires the identical validated journal retained with its original result. Paid infrastructure rejection is terminal. A completed row requires canonical fixture command and receipt IDs, exact admitted terms and the full removal, delivery and payment journal where applicable. The original game or process cannot be replaced during an admitted lease. Diagnostic fields cannot attest native origin. The unpaid button is a separate route. Native interruption and held-save proof remain separate.",
+      "sameArtifactLiveInteraction": {
+        "tier": "quick",
+        "suite": "live_interaction",
+        "cases": [
+          "live_interaction_paid_court_transport_exact_actor_and_lease",
+          "live_interaction_paid_court_dispatch_orders_cancel_and_completion",
+          "live_interaction_paid_court_route_discards_caller_authority",
+          "live_interaction_paid_court_route_terminal_http_401",
+          "live_interaction_paid_court_route_terminal_http_402",
+          "live_interaction_paid_court_route_completed_requires_local_receipt_shape",
+          "live_interaction_paid_court_route_status_reads_committed_expiry",
+          "live_interaction_paid_court_route_heartbeat_replacement_before_dispatch",
+          "live_interaction_paid_court_route_heartbeat_preserves_original_result",
+          "live_interaction_paid_court_route_heartbeat_replacement_after_expiry",
+          "live_interaction_paid_court_route_verify_only_original_admitted_journal",
+          "live_interaction_paid_court_route_verify_replays_completed_apply_receipt",
+          "live_interaction_paid_court_route_preflight_stays_observational"
+        ]
+      },
+      "nativeAdapterContractChecks": [
+        "PaidCourtSupplyAcceptanceUsesOwnedCurrentAndVerifiedOriginalCommand",
+        "PaidCourtSupplyRejectsMissingOrUnsupportedTargetsBeforeCampaignAccess",
+        "PaidCourtSupplyRequiresFreshExactTypedAcknowledgment",
+        "PaidCourtSupplyGrantBindsOneCommandAndExactNativeLoad",
+        "PaidCourtSupplyDispatchFollowsTermsAndGuardsFirstNativeMutation"
+      ]
     },
     "nativeAcceptance": "Use an enrolled disposable Court and the existing Send 25 Grain command. Verify current-scope success and both native roster deltas. Hold readiness and retire the loaded owner or Save Sync point before dispatch. Separately hold a valid reply while capital status or royal authority changes within the same Court sitting, including redesignation back to the original town. Hold another valid reply through one ordinary authority failure during grace and recovery of the original ruler within that sitting. Require both rosters and the native command ledger to remain unchanged, then require a fresh valid request to apply. Paid partial effects and restart recovery require separate measured proof."
   },
@@ -3091,6 +3119,9 @@
       "royal_proclamation",
       "court_life_preflight",
       "court_life_family_fixture",
+      "court_life_paid_supply_preflight",
+      "court_life_paid_supply_apply",
+      "court_life_paid_supply_verify",
       "court_life_prepare",
       "court_life_open",
       "court_life_converse",

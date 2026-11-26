@@ -92,6 +92,29 @@ namespace ReignBeta.Platform.Integration
             return PostJsonAsync("/tests/live/game/result", request);
         }
 
+        internal static Task<JObject> SendPaidCourtCommandStatusAsync(string origin, JObject issued,
+            string campaignId, string gameInstanceId, string processId, string status, Func<bool> owner,
+            string message = "", string error = "", JObject result = null, IEnumerable<string> correlationIds = null,
+            JObject nativeTerms = null)
+        {
+            bool terminal = status == "completed" || status == "failed";
+            var request = new JObject
+            {
+                ["campaignId"] = campaignId, ["gameInstanceId"] = gameInstanceId,
+                ["runId"] = issued["runId"], ["commandId"] = issued["commandId"], ["leaseId"] = issued["leaseId"],
+                ["phase"] = issued["phase"], ["clientProcessInstanceId"] = processId,
+                ["status"] = status, ["message"] = message
+            };
+            if (status == "running" && nativeTerms != null) request["nativeTerms"] = nativeTerms;
+            if (terminal)
+            {
+                request["error"] = error ?? string.Empty;
+                request["result"] = result ?? new JObject();
+                request["correlationIds"] = new JArray(correlationIds ?? Enumerable.Empty<string>());
+            }
+            return SendPinnedJsonAsync(origin, terminal ? "/tests/live/game/result" : "/tests/live/game/ack", request, owner);
+        }
+
         private static JObject BuildCommandScope(string gameInstanceId, string runId, string commandId,
             ReignLiveInteractionTestHost.PartyAgencyExecutionStamp assignment,
             ReignLiveInteractionTestHost.PartyAgencyExecutionStamp execution)

@@ -271,6 +271,10 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ReignMainThread.GameScope pollNativeScope = ReignMainThread.CurrentGameScope;
                 string pollCampaignId = ReignServerClient.GetCampaignId();
                 string pollGameInstanceId = _gameInstanceId;
+#if !REIGN_EXCLUDE_COURT
+                long pollStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                string pollOrigin = ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl());
+#endif
                 JObject response = await ReignLiveTestServerClient.PollLiveTestCommandAsync(pollGameInstanceId, pollCampaignId).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true || response.Value<bool?>("found") != true) return;
                 JObject command = response["command"] as JObject;
@@ -278,6 +282,16 @@ namespace ReignBeta.WorldSimulation.Campaign
                 _commandInFlight = true;
                 string runId = command.Value<string>("runId") ?? string.Empty;
                 string commandId = command.Value<string>("commandId") ?? string.Empty;
+#if !REIGN_EXCLUDE_COURT
+                if (ReignRelationshipNativePullWire.PaidCourtText(command, "operation") == "ruler_docket_test"
+                    && ReignRelationshipNativePullWire.IsPaidCourtPhase(ReignRelationshipNativePullWire.PaidCourtText(command, "phase")))
+                {
+                    await ExecutePaidCourtCommandAsync(command, pollNativeScope, pollCampaignId, pollGameInstanceId,
+                        pollOrigin, pollStarted)
+                        .ConfigureAwait(false);
+                    return;
+                }
+#endif
                 JObject run = response["run"] as JObject;
                 PartyAgencyExecutionStamp execution = null;
                 if (IsObservedPartyAgencyCommand(run, command))

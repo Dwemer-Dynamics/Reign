@@ -11,11 +11,284 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
 using ReignBeta.Court.UI;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using TaleWorlds.Core;
 
 namespace ReignBeta.Court.Campaign
 {
     internal static partial class ReignCourtTestControls
     {
+        private const string PaidSupplyAcceptanceSchema = "reign-court-life-paid-supply-v1";
+
+        internal sealed class PaidSupplyAcceptance
+        {
+            internal ReignSupplyTransferRequest Request;
+            internal CourtSession Session;
+            internal long SessionRevision;
+            internal Func<bool> OwnsNativeLeg;
+            internal Func<bool> OwnsExpectedResult;
+            internal Func<bool> MarkInvoked;
+            internal JObject Marker;
+            internal JObject Before;
+            internal JObject SavedReceipt;
+            internal bool Verify;
+        }
+
+        internal static JObject PreparePaidSupplyAcceptance(ReignCourtCampaignBehavior court, string runId, string phase,
+            JObject grant, string saveName, string instance, Func<bool> ownsLoad, out PaidSupplyAcceptance transfer)
+        {
+            transfer = null;
+            var session = court.Session;
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId;
+            string point = ReignServices.SaveSync?.CurrentSavePointId;
+            string owner = grant.Value<string>("campaignTestRunId");
+            string checkpoint = grant.Value<string>("checkpointAttemptId");
+            JObject loadOwner = (JObject)grant["owner"];
+            string processHash = ReignBeta.WorldSimulation.Campaign.ReignRelationshipNativePullWire.LoadIdentitySha256(
+                loadOwner.Value<string>("clientProcessInstanceId"));
+            int processId = loadOwner.Value<int>("nativeProcessId");
+            var source = court.CurrentCapital;
+            var payer = Hero.MainHero;
+            var grain = TaleWorlds.CampaignSystem.Campaign.Current?.ObjectManager?.GetObject<ItemObject>("grain");
+            var result = new JObject
+            {
+                ["schema"] = PaidSupplyAcceptanceSchema, ["runId"] = runId, ["phase"] = phase,
+                ["saveName"] = saveName, ["gameInstanceId"] = instance, ["campaignId"] = campaign,
+                ["timelineId"] = timeline, ["savePointId"] = point, ["campaignTestRunId"] = owner,
+                ["dispatchRunId"] = grant.Value<string>("runId"),
+                ["sessionId"] = session?.SessionId, ["sessionRevisionBefore"] = session?.Revision,
+                ["worldDay"] = CurrentCourtLifeDay(), ["ok"] = false,
+                ["nativeProcessId"] = processId, ["clientProcessInstanceSha256"] = processHash
+            };
+            if (!ownsLoad() || !PaidSupplyScopeCurrent(court, result) || string.IsNullOrEmpty(processHash)
+                || !court.HasRoyalCommandAccess || !court.ServerAvailable || !court.ServerSessionOpened
+                || session?.Authority != ReignCourtAuthority.Royal || session.State != ReignCourtSessionState.Sitting
+                || session.CampaignId != campaign || session.TimelineId != timeline
+                || source?.IsTown != true || source.IsUnderSiege || source.ItemRoster == null
+                || Clan.PlayerClan == null || source.OwnerClan != Clan.PlayerClan || source.StringId != session.HostSettlementStringId
+                || payer == null || payer.IsDead || grain == null)
+                return PaidSupplyFailure(result, "An aligned, paused disposable Royal Court with a player-owned capital and native grain is required.");
+
+            long initialRevision = session.Revision;
+            var stock = new EquipmentElement(grain);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            bool verify = phase == "court_life_paid_supply_verify";
+            if (verify && (marker?.Value<string>("schema") != PaidSupplyAcceptanceSchema || marker.Value<string>("state") != "verified"
+                || marker.Value<string>("campaignTestRunId") != owner || marker.Value<string>("campaignId") != campaign
+                || marker.Value<string>("timelineId") != timeline || marker.Value<string>("saveName") != saveName
+                || string.IsNullOrEmpty(marker.Value<string>("gameInstanceId")) || marker.Value<string>("gameInstanceId") == instance
+                || !Guid.TryParseExact(marker.Value<string>("checkpointAttemptId"), "N", out _)
+                || marker.Value<string>("checkpointAttemptId") == checkpoint
+                || !Guid.TryParseExact(marker.Value<string>("savePointId"), "N", out _) || marker.Value<string>("savePointId") == point
+                || !ReignBeta.WorldSimulation.Campaign.ReignRelationshipNativePullWire.IsPaidCourtIdentifier(marker.Value<string>("dispatchRunId"))
+                || marker.Value<string>("clientProcessInstanceSha256")?.Length != 64
+                || marker.Value<string>("clientProcessInstanceSha256") == processHash))
+                return PaidSupplyFailure(result, "Verification requires the post-transfer registered checkpoint in a different native process and game instance.");
+
+            string targetId = grant.Value<string>("targetSettlementId");
+            if (verify && targetId != marker["terms"]?.Value<string>("TargetSettlementStringId"))
+                return PaidSupplyFailure(result, "Verification must name the original saved target.");
+            var candidates = Settlement.All.Where(target => target != source && target.IsFortification && !target.IsUnderSiege
+                    && target.OwnerClan == Clan.PlayerClan && target.SettlementComponent != null
+                    && target.ItemRoster != null && !ReferenceEquals(target.ItemRoster, source.ItemRoster)
+                    && (verify || (PaidSupplyStackCount(target, stock) < int.MaxValue
+                        && target.SettlementComponent.Gold >= 0 && target.SettlementComponent.Gold < int.MaxValue)))
+                .OrderBy(target => target.StringId, StringComparer.Ordinal);
+            if (phase == "court_life_paid_supply_preflight")
+            {
+                result["sourceSettlementId"] = source.StringId;
+                result["itemId"] = grain.StringId;
+                result["itemAmount"] = 1;
+                result["goldAmount"] = 1;
+                result["payerHeroId"] = payer.StringId;
+                result["sourceStock"] = PaidSupplyStackCount(source, stock);
+                result["payerGold"] = payer.Gold;
+                result["sessionRevisionAfter"] = session.Revision;
+                result["eligibleTargets"] = new JArray(candidates.Take(32)
+                    .Select(target => new JObject { ["settlementId"] = target.StringId,
+                        ["stock"] = PaidSupplyStackCount(target, stock), ["gold"] = target.SettlementComponent.Gold }));
+                result["ok"] = true;
+                return result;
+            }
+
+            var selected = (verify ? candidates : candidates.Take(32)).FirstOrDefault(target => target.StringId == targetId);
+            if (selected == null)
+                return PaidSupplyFailure(result, "Use an exact eligible player-clan target from paid supply preflight.");
+
+            var clan = Clan.PlayerClan;
+            var sourceOwner = source.OwnerClan?.Leader;
+            var targetOwner = selected.OwnerClan?.Leader;
+            var sourceRoster = source.ItemRoster;
+            var targetRoster = selected.ItemRoster;
+            var targetWallet = selected.SettlementComponent;
+            double day = CurrentCourtLifeDay();
+            if (!verify && initialRevision == long.MaxValue)
+                return PaidSupplyFailure(result, "The exact Court revision cannot advance for the paid fixture.");
+            long expectedResultRevision = verify ? initialRevision : initialRevision + 1;
+            bool OwnsNativeState(long revision) => ownsLoad() && PaidSupplyScopeCurrent(court, result) && CurrentCourtLifeDay() == day
+                && ReferenceEquals(court.Session, session) && session.State == ReignCourtSessionState.Sitting
+                && session.Revision == revision && ReferenceEquals(court.CurrentCapital, source)
+                && clan != null && ReferenceEquals(Clan.PlayerClan, clan)
+                && ReferenceEquals(source.OwnerClan, clan) && ReferenceEquals(selected.OwnerClan, clan)
+                && ReferenceEquals(source.OwnerClan?.Leader, sourceOwner) && ReferenceEquals(selected.OwnerClan?.Leader, targetOwner)
+                && ReferenceEquals(Settlement.Find(source.StringId), source) && ReferenceEquals(Settlement.Find(selected.StringId), selected)
+                && !source.IsUnderSiege && !selected.IsUnderSiege
+                && ReferenceEquals(source.ItemRoster, sourceRoster) && ReferenceEquals(selected.ItemRoster, targetRoster)
+                && ReferenceEquals(selected.SettlementComponent, targetWallet)
+                && ReferenceEquals(Hero.MainHero, payer) && !payer.IsDead;
+            bool OwnsNativeLeg() => OwnsNativeState(initialRevision);
+            bool OwnsExpectedResult() => OwnsNativeState(expectedResultRevision);
+            if (!OwnsNativeLeg())
+                return PaidSupplyFailure(result, "The loaded Court no longer owns both exact native transfer legs.");
+
+            string ownedCommandId = "court_paid_supply_" + CourtLifeSnapshotFingerprint(
+                new JObject { ["campaign"] = campaign, ["timeline"] = timeline, ["owner"] = owner, ["fixture"] = runId });
+            string commandId = verify ? marker["terms"]?.Value<string>("CommandId") : ownedCommandId;
+            if (commandId != ownedCommandId)
+                return PaidSupplyFailure(result, "The saved command does not belong to this exact fixture.");
+            var request = new ReignSupplyTransferRequest
+            {
+                CommandId = commandId, SourceSettlementStringId = source.StringId, TargetSettlementStringId = selected.StringId,
+                ItemStringId = grain.StringId, ItemAmount = 1, GoldAmount = 1, GoldPayerKind = "hero",
+                GoldPayerStringId = payer.StringId, GoldRecipientKind = "settlement", GoldRecipientStringId = selected.StringId,
+                VassalConsentGranted = false
+            };
+            JObject holdings = PaidSupplyHoldings(request);
+            JObject terms = JObject.FromObject(request);
+            JObject saved = court.ReadPaidSupplyFixtureReceipt(request);
+            result["terms"] = terms;
+            result["before"] = holdings;
+            if (verify)
+            {
+                if (!JToken.DeepEquals(marker["terms"], terms) || saved?.Value<bool>("exactVerifiedReceipt") != true
+                    || !JToken.DeepEquals(marker["receipt"], saved) || !JToken.DeepEquals(marker["after"], holdings))
+                    return PaidSupplyFailure(result, "The exact saved receipt, original terms or restored native holdings do not match. Verification will not dispatch.");
+            }
+            else
+            {
+                if (marker != null || saved != null)
+                    return PaidSupplyFailure(result, "A confirmed, unused paid supply fixture and command are required. Inspect an existing attempt before rollback.");
+                if (holdings == null || holdings.Value<int>("Source") < 1 || holdings.Value<int>("Payer") < 1
+                    || holdings.Value<int>("Target") == int.MaxValue || holdings.Value<int>("Recipient") == int.MaxValue
+                    || holdings.Value<int>("Target") < 0 || holdings.Value<int>("Recipient") < 0)
+                    return PaidSupplyFailure(result, "The exact native grain and denar legs cannot be funded.");
+                marker = (JObject)result.DeepClone();
+                marker["state"] = "invoked";
+                marker["checkpointAttemptId"] = checkpoint;
+            }
+
+            bool MarkInvoked()
+            {
+                if (verify || !OwnsNativeLeg() || FindRulerDocketMarker(court, runId) != null
+                    || court.ReadPaidSupplyFixtureReceipt(request) != null)
+                    return false;
+                StoreRulerDocketMarker(court, marker);
+                return true;
+            }
+
+            transfer = new PaidSupplyAcceptance
+            {
+                Request = request, Session = session, SessionRevision = initialRevision, OwnsNativeLeg = OwnsNativeLeg,
+                OwnsExpectedResult = OwnsExpectedResult, MarkInvoked = MarkInvoked, Marker = marker,
+                Before = holdings, SavedReceipt = saved, Verify = verify
+            };
+            return result;
+        }
+
+        internal static void FinishPaidSupplyAcceptance(ReignCourtCampaignBehavior court, PaidSupplyAcceptance transfer,
+            JObject result, string error)
+        {
+            bool scope = transfer.OwnsExpectedResult()
+                && JToken.DeepEquals(FindRulerDocketMarker(court, result.Value<string>("runId")), transfer.Marker);
+            if (!scope)
+            {
+                PaidSupplyFailure(result, string.IsNullOrWhiteSpace(error)
+                    ? "The disposable scope changed while observing the fixture. Inspect the original attempt before retrying." : error);
+                return;
+            }
+
+            JObject holdings = PaidSupplyHoldings(transfer.Request);
+            JObject receipt = court.ReadPaidSupplyFixtureReceipt(transfer.Request);
+            result["after"] = holdings;
+            result["receipt"] = receipt;
+            result["sessionRevisionAfter"] = transfer.Session.Revision;
+            bool exact = receipt?.Value<bool>("exactVerifiedReceipt") == true;
+            bool proof = transfer.Verify
+                ? exact && JToken.DeepEquals(transfer.SavedReceipt, receipt) && JToken.DeepEquals(transfer.Before, holdings)
+                    && transfer.Session.Revision == transfer.SessionRevision
+                : exact && transfer.Before != null && holdings != null
+                    && holdings.Value<int>("Source") == transfer.Before.Value<int>("Source") - 1
+                    && holdings.Value<int>("Target") == transfer.Before.Value<int>("Target") + 1
+                    && holdings.Value<int>("Payer") == transfer.Before.Value<int>("Payer") - 1
+                    && holdings.Value<int>("Recipient") == transfer.Before.Value<int>("Recipient") + 1
+                    && JToken.DeepEquals(receipt["observations"]?["Before"], transfer.Before)
+                    && JToken.DeepEquals(receipt["observations"]?["AfterPayment"], holdings);
+            result["ok"] = proof && error == string.Empty;
+            result["exactReloadReplay"] = transfer.Verify && result.Value<bool>("ok");
+            if (transfer.Verify)
+            {
+                result["originalDispatchRunId"] = transfer.Marker["dispatchRunId"];
+                result["originalGameInstanceId"] = transfer.Marker["gameInstanceId"];
+                result["originalNativeProcessId"] = transfer.Marker["nativeProcessId"];
+                result["originalClientProcessInstanceSha256"] = transfer.Marker["clientProcessInstanceSha256"];
+                result["originalSavePointId"] = transfer.Marker["savePointId"];
+            }
+            if (!result.Value<bool>("ok"))
+                PaidSupplyFailure(result, string.IsNullOrWhiteSpace(error) ? "The exact native holdings and saved receipt did not prove the fixture." : error);
+            if (!transfer.Verify)
+            {
+                result["state"] = result.Value<bool>("ok") ? "verified" : "unverified";
+                var saved = (JObject)result.DeepClone();
+                saved["checkpointAttemptId"] = transfer.Marker["checkpointAttemptId"];
+                StoreRulerDocketMarker(court, saved);
+            }
+        }
+
+        private static bool PaidSupplyScopeCurrent(ReignCourtCampaignBehavior court, JObject scope)
+            => ReferenceEquals(ReignServices.Court, court) && !ReignCampaignInitializationGate.IsPending
+                && ReignSaveSyncCoordinator.IsReadyForCampaign(scope.Value<string>("campaignId"))
+                && !ReignSaveSyncCoordinator.IsAlignmentPending
+                && TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode == CampaignTimeControlMode.Stop
+                && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress && !ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                && !string.IsNullOrWhiteSpace(scope.Value<string>("savePointId"))
+                && !string.IsNullOrWhiteSpace(scope.Value<string>("timelineId"))
+                && !string.IsNullOrWhiteSpace(scope.Value<string>("gameInstanceId"))
+                && ReignCampaignIdentity.CurrentCampaignId() == scope.Value<string>("campaignId")
+                && ReignServices.WorldHistory?.TimelineId == scope.Value<string>("timelineId")
+                && string.Equals(ReignServerClient.ActiveNativeSaveName().Trim(), scope.Value<string>("saveName"), StringComparison.OrdinalIgnoreCase);
+
+        private static JObject PaidSupplyHoldings(ReignSupplyTransferRequest request)
+        {
+            var source = Settlement.Find(request.SourceSettlementStringId);
+            var target = Settlement.Find(request.TargetSettlementStringId);
+            var payer = Hero.MainHero;
+            var grain = TaleWorlds.CampaignSystem.Campaign.Current?.ObjectManager?.GetObject<ItemObject>(request.ItemStringId);
+            if (source?.ItemRoster == null || target?.ItemRoster == null || target.SettlementComponent == null
+                || payer?.StringId != request.GoldPayerStringId || grain == null) return null;
+            var stock = new EquipmentElement(grain);
+            return JObject.FromObject(new CourtPaidSupplyBalances(PaidSupplyStackCount(source, stock),
+                PaidSupplyStackCount(target, stock), payer.Gold, target.SettlementComponent.Gold));
+        }
+
+        private static int PaidSupplyStackCount(Settlement settlement, EquipmentElement stock)
+        {
+            var roster = settlement.ItemRoster;
+            int index = roster?.FindIndexOfElement(stock) ?? -1;
+            return index < 0 ? 0 : roster.GetElementNumber(index);
+        }
+
+        private static JObject PaidSupplyFailure(JObject result, string error)
+        {
+            result["error"] = error;
+            result["ok"] = false;
+            return result;
+        }
+
         private static JObject RunCourtLifeTestPhase(ReignCourtCampaignBehavior court, string runId, string phase, JObject options, string save, string instance)
         {
             if (!new[] { "court_life_check", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse",

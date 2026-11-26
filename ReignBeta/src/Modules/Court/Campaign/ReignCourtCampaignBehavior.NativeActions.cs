@@ -43,7 +43,8 @@ namespace ReignBeta.Court.Campaign
         private const string CourtOwnedActionUnavailable = "This court action belongs to a different loaded court or Save Sync point.";
 
         private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null,
-            Func<bool> requestOwner = null, Action onSuccess = null, bool ownedPaidSupply = false)
+            Func<bool> requestOwner = null, Action onSuccess = null, bool ownedPaidSupply = false,
+            Func<bool> beforePaidFixtureNative = null)
         {
             return await ReignMainThread.InvokeAsync(() =>
             {
@@ -73,6 +74,8 @@ namespace ReignBeta.Court.Campaign
                                 || _appliedNativeCommandIds.Contains(nativeCommandId)
                                 || !JToken.DeepEquals(action["paidSupplyRecoveryVersion"], 1))
                                 throw new InvalidOperationException("Paid supply requires one exact owned and recoverable transfer.");
+                            if (beforePaidFixtureNative != null && !beforePaidFixtureNative())
+                                throw new InvalidOperationException("The paid supply fixture lost ownership before native dispatch.");
                             ReignSupplyTransferResult payment = ReignCourtSupplyService.ApplyOwnedPaidTransfer(
                                 ReadSupplyTransfer(action, nativeCommandId), _session.Authority, _paidSupplyJournal,
                                 ReignCampaignIdentity.CurrentCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main",
