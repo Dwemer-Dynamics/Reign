@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.UI;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.MapNotificationTypes;
@@ -630,6 +631,66 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (current != null) snapshot["verifiedCurrentLoadObservation"] = current;
             }
             return LiveCommandResult.Completed("Captured the passive-world native checkpoint state.", snapshot);
+        }
+
+        private static LiveCommandResult ObserveNotableStartupTraits(JObject command)
+        {
+            var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            var scope = command["notableStartupScope"] as JObject;
+            if (campaign == null || scope == null || command.Value<string>("mode") != NotableStartupObservationMode
+                || command.Value<string>("effects") != "observed" || command.Value<string>("presentation") != "headless")
+                return LiveCommandResult.Failed("The exact notable startup observation was not issued.");
+
+            string campaignId = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            string save = ActiveSaveName();
+            string point = ReignServices.SaveSync?.CurrentSavePointId ?? string.Empty;
+            JObject current = ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timeline, save, point);
+            if (current?.Value<string>("loadResult") != "rolled_back"
+                || scope.Value<string>("source") != "reign_mcp_notable_startup_observation"
+                || scope.Value<string>("disposableSaveName") != save
+                || scope.Value<string>("protectedBaselineSaveName") == save)
+                return LiveCommandResult.Failed("The paused owned Current has no verified rollback.");
+            string[] fields = { "campaignId", "timelineId", "gameInstanceId", "clientProcessInstanceId", "savePointId",
+                "loadSessionSha256", "restoreGenerationSha256", "origin" };
+            foreach (string field in fields)
+            {
+                bool matches = field.EndsWith("Sha256", StringComparison.Ordinal)
+                    ? string.Equals(scope.Value<string>(field), current.Value<string>(field), StringComparison.OrdinalIgnoreCase)
+                    : JToken.DeepEquals(scope[field], current[field]);
+                if (!matches) return LiveCommandResult.Failed("The issued rollback scope changed.");
+            }
+
+            string heroId = scope.Value<string>("heroId");
+            Hero hero = string.IsNullOrEmpty(heroId) ? null : Hero.AllAliveHeroes.SingleOrDefault(
+                candidate => candidate != null && candidate.StringId == heroId && candidate.IsAlive && candidate.IsNotable);
+            if (hero == null) return LiveCommandResult.Failed("The exact living notable could not be resolved.");
+            var definitions = new Dictionary<string, TraitObject>
+            {
+                ["valor"] = DefaultTraits.Valor, ["generosity"] = DefaultTraits.Generosity,
+                ["honor"] = DefaultTraits.Honor, ["mercy"] = DefaultTraits.Mercy,
+                ["calculating"] = DefaultTraits.Calculating
+            };
+            if (definitions.Values.Any(trait => trait == null) || definitions.Values.Distinct().Count() != 5)
+                return LiveCommandResult.Failed("The native trait definitions are incomplete.");
+            var traits = new JObject();
+            foreach (var entry in definitions)
+            {
+                int level = hero.GetTraitLevel(entry.Value);
+                if (level < -2 || level > 2)
+                    return LiveCommandResult.Failed("The native trait vector is outside the supported range.");
+                traits[entry.Key] = level;
+            }
+            JObject after = ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timeline, save, point);
+            if (!JToken.DeepEquals(current, after))
+                return LiveCommandResult.Failed("The verified native rollback changed during observation.");
+            return LiveCommandResult.Completed("Observed the exact notable on the paused registered rollback.", new JObject
+            {
+                ["heroId"] = heroId, ["traits"] = traits, ["timeMode"] = "Stop", ["loadResult"] = "rolled_back",
+                ["gameInstanceId"] = current["gameInstanceId"], ["clientProcessInstanceId"] = current["clientProcessInstanceId"],
+                ["savePointId"] = current["savePointId"], ["coordinatorGeneration"] = current["coordinatorGeneration"],
+                ["origin"] = current["origin"], ["loadSessionSha256"] = scope["loadSessionSha256"], ["restoreGenerationSha256"] = scope["restoreGenerationSha256"]
+            });
         }
 
         private static JObject ObservePassiveWorldCurrentLoad(JObject command, TaleWorlds.CampaignSystem.Campaign campaign,

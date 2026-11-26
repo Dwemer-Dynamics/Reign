@@ -45,7 +45,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     public static partial class ReignLiveInteractionTestHost
     {
         private static readonly string[] CoreSupportedModes =
-            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency", "structured_actions", "npc_lives", "personal_gossip" };
+            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency", "structured_actions", "npc_lives", "personal_gossip", NotableStartupObservationMode };
         private static TaleWorlds.CampaignSystem.Campaign _observedCampaign;
         private static string _gameInstanceId = string.Empty;
         private static DateTime _nextHeartbeatUtc = DateTime.MinValue;
@@ -294,7 +294,11 @@ namespace ReignBeta.WorldSimulation.Campaign
 #endif
                 JObject run = response["run"] as JObject;
                 PartyAgencyExecutionStamp execution = null;
-                if (IsObservedPartyAgencyCommand(run, command))
+                bool notableObservation = command.Value<string>("operation") == NotableStartupObservationMode;
+                bool observed = IsObservedLiveTestCommand(run, command);
+                if (notableObservation && (!observed || run?.Value<string>("mode") != NotableStartupObservationMode))
+                    return;
+                if (observed)
                 {
                     execution = new PartyAgencyExecutionStamp(pollNativeScope, pollCampaignId,
                         pollGameInstanceId, PartyAgencyClientProcessInstanceId, runId, commandId,
@@ -324,7 +328,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (IsNativeRelationshipPullFixture(command) && !OwnsAcceptedNativeRelationshipCommand(
                     acknowledgment, command, pollNativeScope, pollCampaignId, pollGameInstanceId))
                     return;
-                if (execution != null && (!HasAcceptedPartyAgencyAcknowledgment(acknowledgment, execution)
+                if (execution != null && (!HasAcceptedLiveTestAcknowledgment(acknowledgment, execution, run.Value<string>("mode"))
                     || !IsCurrentPartyAgencyExecution(execution)))
                     return;
 
@@ -344,7 +348,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     else
                         result = await ReignMainThread.RunOwnedAsync(pollNativeScope,
                             () => IsCurrentPartyAgencyExecution(execution),
-                            () => ExecuteObservedPartyAgencyCommandAsync(command, execution, operation)).ConfigureAwait(false);
+                            () => notableObservation ? Task.FromResult(ObserveNotableStartupTraits(command))
+                                : ExecuteObservedPartyAgencyCommandAsync(command, execution, operation)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -395,15 +400,20 @@ namespace ReignBeta.WorldSimulation.Campaign
                 result.Message, result.Error, result.Data, result.CorrelationIds, assignment, execution);
         }
 
-        private static bool IsObservedPartyAgencyCommand(JObject run, JObject command)
+        private const string NotableStartupObservationMode = "notable_startup_observation";
+
+        private static bool IsObservedLiveTestCommand(JObject run, JObject command)
         {
             JToken schemaVersion = command["executionObservationVersion"];
-            return string.Equals(run?.Value<string>("mode"), "party_agency", StringComparison.OrdinalIgnoreCase)
+            string mode = run?.Value<string>("mode");
+            return (string.Equals(mode, "party_agency", StringComparison.OrdinalIgnoreCase)
+                    || (mode == NotableStartupObservationMode && command.Value<string>("operation") == NotableStartupObservationMode))
                 && schemaVersion?.Type == JTokenType.Integer
                 && schemaVersion.Value<long>() == 1;
         }
 
-        private static bool HasAcceptedPartyAgencyAcknowledgment(JObject response, PartyAgencyExecutionStamp execution)
+        private static bool HasAcceptedLiveTestAcknowledgment(JObject response, PartyAgencyExecutionStamp execution,
+            string expectedMode)
         {
             if (response?["ok"]?.Type != JTokenType.Boolean || !response.Value<bool>("ok"))
                 return false;
@@ -414,7 +424,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             JObject command = response["command"] as JObject;
             JObject run = response["run"] as JObject;
             return command != null && run != null
-                && string.Equals(run.Value<string>("mode"), "party_agency", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(run.Value<string>("mode"), expectedMode, StringComparison.OrdinalIgnoreCase)
                 && execution.MatchesIssuedScope(run.Value<string>("campaignId"),
                     run.Value<string>("gameInstanceId"), run.Value<string>("runId"))
                 && string.Equals(execution.RunId, command.Value<string>("runId"), StringComparison.OrdinalIgnoreCase)
