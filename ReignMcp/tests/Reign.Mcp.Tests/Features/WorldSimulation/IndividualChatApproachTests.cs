@@ -92,10 +92,11 @@ public sealed class IndividualChatApproachTests
             public Context _conversationContext = new Context();
             public List<string> _recoverableInputs = new List<string>();
             public FailedTurn _failedTurn = new FailedTurn();
-            public int History, Openings, Sends, Outfit, Recoveries;
+            public int Sessions, History, Openings, Sends, Outfit, Recoveries;
             public void ExecuteSubmitOutfit() { Outfit++; }
             public void RefreshInputAvailability() { }
-            public Task LoadHistoryAsync() { History++; return Task.CompletedTask; }
+            public Task<string> EnsureConversationSessionAsync() { Sessions++; return Task.FromResult("session"); }
+            public Task LoadHistoryAsync() { Check(Sessions == 1, "history loaded before session confirmation"); History++; return Task.CompletedTask; }
             public Task RequestLifeOpeningAsync() { Openings++; _firstMoveChosen = true; return Task.CompletedTask; }
             public FailedTurn BeginFailedConversationRetry() => _failedTurn;
             public bool TryRecoverSavedInput() {
@@ -151,6 +152,8 @@ public sealed class IndividualChatApproachTests
                 invitation._conversationContext["approachOpening"] = true;
                 Check(invitation.InitializePresentationAsync().GetAwaiter().GetResult() && invitation.History == 1
                     && invitation.Sends == 1 && invitation.SentText == "" && invitation.Openings == 0, "accepted invitation lost its opening");
+                Check(invitation.IsNpcInvitationOpening("") && !invitation.IsNpcInvitationOpening("a new player message"),
+                    "an accepted invitation swallowed a later typed message");
                 var busy = Open();
                 busy.IsBusy = true; busy.Send();
                 Check(busy.Sends == 0 && busy.Openings == 0 && busy.SendButtonText == "Send", "busy composer dispatched");

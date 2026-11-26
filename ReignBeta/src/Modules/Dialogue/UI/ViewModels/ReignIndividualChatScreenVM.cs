@@ -350,7 +350,7 @@ namespace ReignBeta.Dialogue.UI
                     actionDraft: _failedActionDraft, retrySceneTurnId: turn.SceneTurnId, retrySavedTurn: true, recoveredInput: _failedRecoveredInput);
                 return;
             }
-            if (string.IsNullOrWhiteSpace(text) && CanOfferApproach)
+            if (string.IsNullOrWhiteSpace(text) && _recoverableInputs.Count == 0 && CanOfferApproach)
             {
                 await RequestLifeOpeningAsync();
                 return;
@@ -433,8 +433,8 @@ namespace ReignBeta.Dialogue.UI
             if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
             text = text ?? string.Empty;
             // An accepted invitation has no fabricated player turn, including retries.
-            bool npcOpening = HasAcceptedNpcInvitation;
-            if (npcOpening) { text = string.Empty; actionDraft = null; clearInput = false; }
+            bool npcOpening = IsNpcInvitationOpening(text);
+            if (npcOpening) { text = string.Empty; actionDraft = null; clearInput = false; recoveredInput = null; }
             bool prepareLifeContext = false;
             string retryScope = "";
             object requestCampaign = null;
@@ -475,6 +475,7 @@ namespace ReignBeta.Dialogue.UI
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
                 }
                 prepareLifeContext = !npcOpening && CanStartLifeOpening;
+                if (!npcOpening && HasAcceptedNpcInvitation) _conversationContext["approachOpening"] = false;
                 _firstMoveChosen = true;
                 if (!npcOpening && !retrySavedTurn) AddChatLine(playerName, text);
                 if (clearInput)
@@ -555,9 +556,10 @@ namespace ReignBeta.Dialogue.UI
                     {
                         if (!ownerCurrent()) return false;
                         ClearFailedConversationTurn();
+                        if (npcOpening) _conversationContext["approachOpening"] = false;
                         return true;
                     }).ConfigureAwait(false);
-                    if (reload) await LoadHistoryAsync(ownerCurrent).ConfigureAwait(false);
+                    if (reload) await LoadHistoryAsync(ownerCurrent, releaseInput: false).ConfigureAwait(false);
                     return reply;
                 }
 
@@ -1117,7 +1119,7 @@ namespace ReignBeta.Dialogue.UI
                 _loadFence.IsCurrent).ConfigureAwait(false);
         }
 
-        private async Task LoadHistoryAsync(Func<bool> requestOwner = null)
+        private async Task LoadHistoryAsync(Func<bool> requestOwner = null, bool releaseInput = true)
         {
             ReignServerClient.RequestFence fence = null;
             Func<bool> historyCurrent = () => !_isFinalized && fence != null && fence.IsCurrent()
@@ -1190,14 +1192,17 @@ namespace ReignBeta.Dialogue.UI
             }
             finally
             {
-                await ReignMainThread.InvokeAsync(() =>
+                if (releaseInput)
                 {
-                    if (!_isFinalized)
+                    await ReignMainThread.InvokeAsync(() =>
                     {
-                        IsBusy = false;
-                        BusyText = string.Empty;
-                    }
-                }).ConfigureAwait(false);
+                        if (historyCurrent())
+                        {
+                            IsBusy = false;
+                            BusyText = string.Empty;
+                        }
+                    }).ConfigureAwait(false);
+                }
             }
         }
 
@@ -1205,6 +1210,7 @@ namespace ReignBeta.Dialogue.UI
         {
             try
             {
+                await EnsureConversationSessionAsync().ConfigureAwait(false);
                 await LoadHistoryAsync().ConfigureAwait(false);
                 // Accepted invitations already represent the player's decision to hear the NPC.
                 if (HasAcceptedNpcInvitation && !_isFinalized)
@@ -1227,6 +1233,7 @@ namespace ReignBeta.Dialogue.UI
         }
 
         private bool HasAcceptedNpcInvitation => _conversationContext.Value<bool?>("approachOpening") == true;
+        private bool IsNpcInvitationOpening(string text) => HasAcceptedNpcInvitation && string.IsNullOrWhiteSpace(text);
 
         private bool CanStartLifeOpening
         {
@@ -1262,6 +1269,8 @@ namespace ReignBeta.Dialogue.UI
         {
             Func<bool> current = () => !_isFinalized && !_conversationFinishRequested && _loadFence.IsCurrent();
             if (!current()) return;
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _conversationTurnCompletion = completion;
             IsBusy = true;
             BusyText = "Approaching...";
             string error = null;
@@ -1287,7 +1296,7 @@ namespace ReignBeta.Dialogue.UI
                     _firstMoveChosen = true;
                     return status != "disabled";
                 }).ConfigureAwait(false);
-                if (reload) await LoadHistoryAsync(current).ConfigureAwait(false);
+                if (reload) await LoadHistoryAsync(current, releaseInput: false).ConfigureAwait(false);
             }
             catch (ReignRequestOwnerAbandonedException) { }
             catch (Exception ex)
@@ -1297,6 +1306,7 @@ namespace ReignBeta.Dialogue.UI
             }
             finally
             {
+                completion.TrySetResult(true);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!current()) return;

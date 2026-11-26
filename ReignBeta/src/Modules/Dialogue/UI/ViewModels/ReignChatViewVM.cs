@@ -19,7 +19,7 @@ namespace ReignBeta.Dialogue.UI
         private readonly Action _scroll;
         private readonly HashSet<string> _following = new HashSet<string>();
         private readonly Dictionary<string, ReignChatLineVM> _images = new Dictionary<string, ReignChatLineVM>();
-        private bool _busy, _closed, _restoring;
+        private bool _busy, _closed, _restoring, _restoreRequested;
         private string _enlarged = "";
         private readonly string _campaign;
         private readonly string _timeline;
@@ -82,9 +82,15 @@ namespace ReignBeta.Dialogue.UI
 
         internal async Task RestoreAsync()
         {
-            if (_closed || _restoring) return;
-            _restoring = true;
+            if (_closed) return;
+            if (_restoring)
+            {
+                _restoreRequested = true;
+                return;
+            }
             JObject scope = _scope();
+            if (string.IsNullOrEmpty(scope.Value<string>("sessionId"))) return;
+            _restoring = true;
             try
             {
                 foreach (JObject entry in await ReignChatViewClient.ReadEntriesAsync(scope).ConfigureAwait(false))
@@ -106,7 +112,16 @@ namespace ReignBeta.Dialogue.UI
                 }
             }
             catch { /* An empty/new/offline session has no image entries to restore. View click reports actionable errors. */ }
-            finally { _restoring = false; }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    _restoring = false;
+                    if (!_restoreRequested) return;
+                    _restoreRequested = false;
+                    _ = RestoreAsync();
+                }).ConfigureAwait(false);
+            }
         }
 
         private async Task FollowAsync(JObject scope, JObject response, ReignChatLineVM line)
@@ -187,7 +202,7 @@ namespace ReignBeta.Dialogue.UI
         private ReignChatViewVM _view;
         [DataSourceProperty] public ReignChatViewVM View => _view ?? (_view = new ReignChatViewVM(
             () => ReignChatViewClient.Scope(_conversationSessionId),
-            () => !_isFinalized && !_calibrationMode && !IsBusy && !_presentationInitializing && !IsOutfitVisible && !IsPregnancyWarningVisible,
+            () => !_calibrationMode && InputEnabled && !string.IsNullOrEmpty(_conversationSessionId),
             ChatLines, () => ChatScrollVersion++));
     }
 
