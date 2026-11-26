@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
+using ReignBeta.WorldSimulation.Campaign;
 using Reign.Core.Contracts.Court;
 using Reign.Mcp.Server;
 
@@ -6,6 +8,252 @@ namespace Reign.Mcp.Tests.Features.Court;
 
 public sealed class CourtLifeHarnessContractTests
 {
+    [Fact]
+    public void PaidCourtSupplyAcceptanceUsesOwnedCurrentAndVerifiedOriginalCommand()
+    {
+        string[] profiles = ["court_life_paid_supply_preflight", "court_life_paid_supply_apply", "court_life_paid_supply_verify"];
+        var manifest = Assert.IsType<string[]>(TestingTools.GetRulerDocketTestManifest()["profiles"]);
+        Assert.All(profiles, profile => Assert.Contains(profile, manifest));
+
+        string root = TestOptions.FindWorkspace();
+        string court = Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign");
+        string host = File.ReadAllText(Path.Combine(court, "ReignLiveInteractionCourtLifeHost.cs"));
+        string poll = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        string issuer = File.ReadAllText(Path.Combine(root, "ReignMcp/src/Reign.Mcp.Server/Modules/Court/TestingTools.Court.cs"));
+        string paidIssuer = issuer[issuer.IndexOf("private static async Task<ApiEnvelope> StartPaidCourtSupplyAsync(", StringComparison.Ordinal)..];
+        int route = poll.IndexOf("await ExecutePaidCourtCommandAsync(", StringComparison.Ordinal);
+        int cache = poll.IndexOf("CompletedCommandResults.TryGetValue(commandId", StringComparison.Ordinal);
+        Assert.True(route >= 0 && route < cache);
+        Assert.Contains("bindCheckpoint: true", paidIssuer);
+        Assert.Contains("postArmCurrentDiagnostic: true", paidIssuer);
+        Assert.Contains("RequireRetainedRecoveryCheckpoint(authorization)", paidIssuer);
+        Assert.Contains("SetAccessRuleProtection(isProtected: true, preserveInheritance: false)", paidIssuer);
+        Assert.Contains("FileMode.CreateNew", paidIssuer);
+        int ack = host.IndexOf("MatchesPaidCourtAcknowledgment(", StringComparison.Ordinal);
+        int dispatch = host.IndexOf("ReignMainThread.RunOwnedAsync(", StringComparison.Ordinal);
+        int consume = host.IndexOf("ConsumePaidCourtSupplyGrant(command, owner)", StringComparison.Ordinal);
+        int prepare = host.IndexOf("PreparePaidSupplyAcceptance(", StringComparison.Ordinal);
+        int invoke = host.IndexOf("court.TransferSupplyAsync(transfer.Request, transfer.OwnsNativeLeg,", StringComparison.Ordinal);
+        Assert.True(ack >= 0 && ack < dispatch && dispatch < consume && consume < prepare && prepare < invoke);
+        Assert.Contains("DateTimeOffset.UtcNow < deadline", host, StringComparison.Ordinal);
+        Assert.Contains("GetTimestamp() - pollStarted <", host, StringComparison.Ordinal);
+        Assert.Contains("transfer.Verify ? Task.FromResult(false) : beginNativeDispatch(ownsTransfer, JObject.FromObject(transfer.Request))", host, StringComparison.Ordinal);
+        Assert.Contains("expectedPaidTimelineId = authorization.TimelineId", paidIssuer, StringComparison.Ordinal);
+        Assert.Contains("expectedPaidSavePointId = checkpoint.SavePointId", paidIssuer, StringComparison.Ordinal);
+        string transport = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Platform/Integration/ReignLiveTestClient.cs"));
+        Assert.Contains("SendPinnedJsonAsync(origin, terminal ?", transport, StringComparison.Ordinal);
+        Assert.Contains("File.Move(path, claimed)", host, StringComparison.Ordinal);
+        Assert.Contains("MatchesPaidCourtGrantBinding(grant, command, owner,", host, StringComparison.Ordinal);
+        Assert.Contains("NativeSaveHasPoint(name, owner.Value<string>(\"campaignId\"), point)", host, StringComparison.Ordinal);
+        Assert.Contains("NativeCheckpointHash(name), hash", host, StringComparison.Ordinal);
+        Assert.Contains("Paid Court acceptance requires a fresh acknowledged local admission.", host, StringComparison.Ordinal);
+
+        string native = File.ReadAllText(Path.Combine(court, "ReignCourtLifeInGameTests.cs"));
+        Assert.Contains("source.OwnerClan != Clan.PlayerClan", native, StringComparison.Ordinal);
+        Assert.Contains("GoldRecipientStringId = selected.StringId", native, StringComparison.Ordinal);
+        Assert.Contains("ItemAmount = 1, GoldAmount = 1", native, StringComparison.Ordinal);
+        Assert.Contains("marker.Value<string>(\"gameInstanceId\") == instance", native, StringComparison.Ordinal);
+        Assert.Contains("marker.Value<string>(\"savePointId\") == point", native, StringComparison.Ordinal);
+        Assert.Contains("marker.Value<string>(\"clientProcessInstanceSha256\") == processHash", native, StringComparison.Ordinal);
+        Assert.Contains("marker.Value<string>(\"checkpointAttemptId\") == checkpoint", native, StringComparison.Ordinal);
+        Assert.Contains("Verification must name the original saved target.", native, StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(source.OwnerClan, clan) && ReferenceEquals(selected.OwnerClan, clan)", native, StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(source.ItemRoster, sourceRoster) && ReferenceEquals(selected.ItemRoster, targetRoster)", native, StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(selected.SettlementComponent, targetWallet)", native, StringComparison.Ordinal);
+        Assert.Contains("!JToken.DeepEquals(marker[\"terms\"], terms)", native, StringComparison.Ordinal);
+        Assert.Contains("saved?.Value<bool>(\"exactVerifiedReceipt\") != true", native, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(transfer.Before, holdings)", native, StringComparison.Ordinal);
+        Assert.Contains("transfer.Session.Revision == transfer.SessionRevision", native, StringComparison.Ordinal);
+
+        using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        var acceptance = catalog.RootElement.GetProperty("courtSupplyTransfer").GetProperty("paidRecovery")
+            .GetProperty("nativeProfiles");
+        Assert.All(profiles, profile => Assert.Contains(acceptance.EnumerateArray(), row => row.GetString() == profile));
+    }
+
+    [Theory]
+    [InlineData("court_life_paid_supply_apply", "", -1, "paidSupplyTargetSettlementId is required")]
+    [InlineData("court_life_paid_supply_verify", "", -1, "paidSupplyTargetSettlementId is required")]
+    [InlineData("court_life_paid_supply_preflight", "paid_target", -1, "only for apply or verify")]
+    [InlineData("court_life_paid_supply_apply", "paid_target", 10, "does not admit other Court fixture mutations")]
+    public async Task PaidCourtSupplyRejectsMissingOrUnsupportedTargetsBeforeCampaignAccess(
+        string profile, string target, int fixtureGold, string expected)
+    {
+        var options = new ReignMcpOptions { WorkspaceRoot = TestOptions.FindWorkspace(), BuildRoot = Path.GetTempPath(),
+            ServerBaseUri = new Uri("http://127.0.0.1:5101"), AllowVerificationControl = true };
+        var error = await Assert.ThrowsAsync<ArgumentException>(() => TestingTools.StartRulerDocketTest(null!, options, null!,
+            "campaign", "owned-run", profile: profile, confirmation: "start Reign ruler docket test on disposable save",
+            courtLifeFixtureGold: fixtureGold, paidSupplyTargetSettlementId: target));
+        Assert.Contains(expected, error.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("proof", "")]
+    [InlineData("ack", "ok")]
+    [InlineData("ack", "idempotent")]
+    [InlineData("run", "mode")]
+    [InlineData("run", "status")]
+    [InlineData("run", "runId")]
+    [InlineData("run", "campaignId")]
+    [InlineData("run", "gameInstanceId")]
+    [InlineData("command", "status")]
+    [InlineData("command", "commandId")]
+    [InlineData("command", "leaseId")]
+    [InlineData("command", "operation")]
+    [InlineData("command", "phase")]
+    [InlineData("command", "fixtureRunId")]
+    [InlineData("command", "campaignTestRunId")]
+    [InlineData("command", "expectedSaveName")]
+    [InlineData("command", "paidSupplyTargetSettlementId")]
+    [InlineData("command", "paidCourtAuthorityVersion")]
+    [InlineData("command", "paidCourtNativeDispatch")]
+    [InlineData("command", "paidCourtAcceptedProcessId")]
+    [InlineData("command", "paidCourtLeasedProcessId")]
+    [InlineData("command", "leaseExpiresUtc")]
+    [InlineData("command", "expectedPaidTimelineId")]
+    [InlineData("command", "expectedPaidSavePointId")]
+    public void PaidCourtSupplyRequiresFreshExactTypedAcknowledgment(string section, string field)
+    {
+        const string process = "00000000000000000000000000000004";
+        var start = new DateTimeOffset(2026, 11, 25, 21, 0, 0, TimeSpan.Zero);
+        DateTimeOffset deadline = start.AddSeconds(45);
+        var issued = new JObject
+        {
+            ["runId"] = "court_paid_00000000000000000000000000000001",
+            ["commandId"] = "court_paid_00000000000000000000000000000002",
+            ["status"] = "leased", ["leaseId"] = "00000000000000000000000000000003", ["operation"] = "ruler_docket_test",
+            ["leaseStartedUtc"] = start.ToString("O"), ["leaseExpiresUtc"] = deadline.ToString("O"),
+            ["paidCourtLeasedProcessId"] = process,
+            ["phase"] = "court_life_paid_supply_apply", ["fixtureRunId"] = "fixture", ["campaignTestRunId"] = "enrollment",
+            ["expectedSaveName"] = "ReignTest_Court_Current", ["paidSupplyTargetSettlementId"] = "fortification",
+            ["campaignId"] = "campaign", ["gameInstanceId"] = "game",
+            ["expectedPaidTimelineId"] = "main", ["expectedPaidSavePointId"] = "10000000000000000000000000000001"
+        };
+        var accepted = (JObject)issued.DeepClone();
+        accepted["status"] = "accepted";
+        accepted["paidCourtAuthorityVersion"] = 1;
+        accepted["paidCourtAcceptedProcessId"] = process;
+        accepted["paidCourtNativeDispatch"] = false;
+        var run = new JObject
+        {
+            ["runId"] = issued["runId"], ["campaignId"] = "campaign", ["gameInstanceId"] = "game",
+            ["status"] = "running", ["mode"] = "spymaster"
+        };
+        var acknowledgment = new JObject { ["ok"] = true, ["command"] = accepted, ["run"] = run };
+        var terms = new JObject { ["CommandId"] = "the-bound-command", ["VassalConsentGranted"] = false };
+        bool Matches(JObject? ack, bool dispatch, DateTimeOffset when) =>
+            ReignRelationshipNativePullWire.MatchesPaidCourtAcknowledgment(ack, issued, "campaign", "game", process, dispatch, when,
+                dispatch ? terms : null);
+        if (section == "proof")
+        {
+            Assert.True(Matches(acknowledgment, false, start));
+            Assert.False(Matches(null, false, start));
+            Assert.False(Matches(acknowledgment, false, deadline));
+            Assert.False(Matches(acknowledgment, true, start));
+            accepted["status"] = "running";
+            accepted["paidCourtNativeDispatch"] = true;
+            Assert.False(Matches(acknowledgment, true, start));
+            accepted["paidCourtNativeDispatchTerms"] = new JObject { ["CommandId"] = "other", ["VassalConsentGranted"] = false };
+            Assert.False(Matches(acknowledgment, true, start));
+            accepted["paidCourtNativeDispatchTerms"] = terms.DeepClone();
+            Assert.True(Matches(acknowledgment, true, deadline.AddTicks(-1)));
+            Assert.False(Matches(acknowledgment, true, deadline));
+            accepted["status"] = "accepted";
+            accepted["paidCourtNativeDispatch"] = false;
+            issued["phase"] = accepted["phase"] = "court_life_paid_supply_preflight";
+            issued["paidSupplyTargetSettlementId"] = accepted["paidSupplyTargetSettlementId"] = string.Empty;
+            Assert.True(Matches(acknowledgment, false, start));
+            return;
+        }
+        JObject changed = section switch { "ack" => acknowledgment, "run" => run, _ => accepted };
+        changed[field] = field == "ok" ? "true" : field == "idempotent" ? "false" : "substituted";
+        Assert.False(Matches(acknowledgment, false, start));
+    }
+
+    [Theory]
+    [InlineData("valid")]
+    [InlineData("expired")]
+    [InlineData("future")]
+    [InlineData("coerced timestamp")]
+    [InlineData("extended expiry")]
+    [InlineData("fixture")]
+    [InlineData("target")]
+    [InlineData("phase")]
+    [InlineData("checkpoint")]
+    [InlineData("different native process")]
+    [InlineData("different loaded generation")]
+    [InlineData("different issued timeline")]
+    [InlineData("different issued point")]
+    public void PaidCourtSupplyGrantBindsOneCommandAndExactNativeLoad(string change)
+    {
+        const long now = 700;
+        var owner = new JObject { ["nativeProcessId"] = 54, ["clientProcessInstanceId"] = "live-process",
+            ["restoreGenerationSha256"] = "active-generation", ["timelineId"] = "main" };
+        var grant = new JObject
+        {
+            ["schema"] = "reign-court-paid-supply-admission-v1", ["issuedUtc"] = now, ["expiresUtc"] = now + 120,
+            ["runId"] = "run", ["commandId"] = "command", ["phase"] = "court_life_paid_supply_apply",
+            ["fixtureRunId"] = "fixture", ["targetSettlementId"] = "fortification", ["campaignTestRunId"] = "enrollment",
+            ["baselineSaveName"] = "Baseline", ["saveName"] = "ReignTest_Court_Current", ["savePrefix"] = "ReignTest_Court",
+            ["checkpointAttemptId"] = "00000000000000000000000000000001", ["checkpointSha256"] = "bytes",
+            ["checkpointSavePointId"] = "point", ["owner"] = owner.DeepClone()
+        };
+        var command = new JObject
+        {
+            ["runId"] = "run", ["commandId"] = "command", ["phase"] = "court_life_paid_supply_apply",
+            ["fixtureRunId"] = "fixture", ["paidSupplyTargetSettlementId"] = "fortification",
+            ["campaignTestRunId"] = "enrollment", ["expectedSaveName"] = "ReignTest_Court_Current",
+            ["expectedPaidTimelineId"] = "main", ["expectedPaidSavePointId"] = "point"
+        };
+        long observedAt = now;
+        switch (change)
+        {
+            case "expired": observedAt += 120; break;
+            case "future": observedAt--; break;
+            case "coerced timestamp": grant["issuedUtc"] = "700"; break;
+            case "extended expiry": grant["expiresUtc"] = now + 121; break;
+            case "fixture": command["fixtureRunId"] = "other"; break;
+            case "target": command["paidSupplyTargetSettlementId"] = "other"; break;
+            case "phase": command["phase"] = "court_life_paid_supply_verify"; break;
+            case "checkpoint": grant["checkpointAttemptId"] = "unregistered"; break;
+            case "different native process": owner["clientProcessInstanceId"] = "other-process"; break;
+            case "different loaded generation": owner["restoreGenerationSha256"] = "other-generation"; break;
+            case "different issued timeline": command["expectedPaidTimelineId"] = "other"; break;
+            case "different issued point": command["expectedPaidSavePointId"] = "other"; break;
+        }
+        Assert.Equal(change == "valid", ReignRelationshipNativePullWire.MatchesPaidCourtGrantBinding(grant, command, owner, observedAt));
+    }
+
+    [Fact]
+    public void PaidCourtSupplyDispatchFollowsTermsAndGuardsFirstNativeMutation()
+    {
+        string court = Path.Combine(TestOptions.FindWorkspace(), "ReignBeta/src/Modules/Court/Campaign");
+        string directives = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.Directives.cs"));
+        int terms = directives.IndexOf("await ReignCourtServerClient.ValidateSupplyTransferAsync(", StringComparison.Ordinal);
+        int begin = directives.IndexOf("await authorizeFixtureDispatch(OwnsTransfer)", StringComparison.Ordinal);
+        int dispatch = directives.IndexOf("beforePaidFixtureNative: markFixtureInvoked", StringComparison.Ordinal);
+        Assert.True(terms >= 0 && terms < begin && begin < dispatch);
+
+        string native = File.ReadAllText(Path.Combine(court, "ReignCourtCampaignBehavior.NativeActions.cs"));
+        int owner = native.IndexOf("if (!requestOwner() ||", StringComparison.Ordinal);
+        int marker = native.IndexOf("!beforePaidFixtureNative()", StringComparison.Ordinal);
+        int journal = native.IndexOf("ApplyOwnedPaidTransfer(", StringComparison.Ordinal);
+        Assert.True(owner >= 0 && owner < marker && marker < journal);
+
+        string fixture = File.ReadAllText(Path.Combine(court, "ReignCourtLifeInGameTests.cs"));
+        int mark = fixture.IndexOf("bool MarkInvoked()", StringComparison.Ordinal);
+        int store = fixture.IndexOf("StoreRulerDocketMarker(court, marker)", StringComparison.Ordinal);
+        Assert.True(mark >= 0 && mark < store);
+        Assert.Contains("if (verify || !OwnsNativeLeg()", fixture[mark..store], StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(court.Session, session) && session.State == ReignCourtSessionState.Sitting", fixture, StringComparison.Ordinal);
+        Assert.Contains("session.Revision == revision", fixture, StringComparison.Ordinal);
+        Assert.Contains("OwnsNativeState(initialRevision)", fixture, StringComparison.Ordinal);
+        Assert.Contains("OwnsNativeState(expectedResultRevision)", fixture, StringComparison.Ordinal);
+        Assert.Contains("bool scope = transfer.OwnsExpectedResult()", fixture, StringComparison.Ordinal);
+        Assert.Contains("expectedResultRevision = verify ? initialRevision : initialRevision + 1", fixture, StringComparison.Ordinal);
+        Assert.Contains("OwnsTransferFor(fixtureCompletionOwner ?? fixtureOwner)", directives, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void CourtSupplyOwnerGatePrecedesNativeReplayOrTransfer()
     {
@@ -26,6 +274,7 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("ReferenceEquals(saveSync, ReignServices.SaveSync)", transfer);
         Assert.Contains("string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal)", transfer);
         Assert.Contains("if (!OwnsTransfer()) return CourtOwnedActionUnavailable;", transfer[..validate]);
+        Assert.Contains("OwnsTransferFor(fixtureOwner)", transfer[..validate]);
         Assert.Contains("requestOwner: OwnsTransfer", transfer[validate..]);
         Assert.Contains("request, _serverRevision, fence.SharedActivityGeneration, OwnsTransfer", transfer[validate..]);
 
@@ -304,7 +553,7 @@ public sealed class CourtLifeHarnessContractTests
     }
 
     private static readonly string[] Profiles = { "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse",
-        "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify" };
+        "court_life_paid_supply_preflight", "court_life_paid_supply_apply", "court_life_paid_supply_verify", "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify" };
 
     [Fact]
     public void ManifestCatalogAndNativeHandlersAgreeOnCourtLifeProfiles()
@@ -322,8 +571,30 @@ public sealed class CourtLifeHarnessContractTests
         string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
         string host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignLiveInteractionCourtLifeHost.cs"));
         string guide = TestingDocumentation.Read(Path.Combine(root, "docs/agent/TESTING_TOOL_GUIDE.md"));
+        string[] paidProfiles = Profiles.Where(x => x.StartsWith("court_life_paid_supply_", StringComparison.Ordinal)).ToArray();
+        var paidCatalog = catalog.RootElement.GetProperty("courtSupplyTransfer").GetProperty("paidRecovery").GetProperty("nativeProfiles");
+        Assert.Equal(paidProfiles.Order(), paidCatalog.EnumerateArray().Select(x => x.GetString()!).Order());
+        Assert.Equal(paidProfiles.Order(), Profiles.Where(ReignRelationshipNativePullWire.IsPaidCourtPhase).Order());
+        Assert.False(ReignRelationshipNativePullWire.IsPaidCourtPhase("court_life_paid_supply_apply_extra"));
+
         foreach (string profile in Profiles)
-        { Assert.Contains(profile, native + host, StringComparison.Ordinal); Assert.Contains(profile, guide, StringComparison.Ordinal); }
+        {
+            if (!ReignRelationshipNativePullWire.IsPaidCourtPhase(profile))
+                Assert.Contains(profile, native + host, StringComparison.Ordinal);
+            Assert.Contains(profile, guide, StringComparison.Ordinal);
+        }
+
+        string poll = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        int operation = poll.IndexOf("if (ReignRelationshipNativePullWire.PaidCourtText(command, \"operation\") == \"ruler_docket_test\"", StringComparison.Ordinal);
+        int phase = poll.IndexOf("&& ReignRelationshipNativePullWire.IsPaidCourtPhase(ReignRelationshipNativePullWire.PaidCourtText(command, \"phase\"))", StringComparison.Ordinal);
+        int dispatch = poll.IndexOf("await ExecutePaidCourtCommandAsync(", StringComparison.Ordinal);
+        Assert.True(operation >= 0 && operation < phase && phase < dispatch);
+
+        int rejectPaid = host.IndexOf("if (ReignRelationshipNativePullWire.IsPaidCourtPhase(phase))", StringComparison.Ordinal);
+        int ordinaryGate = host.IndexOf("ReignCourtTestControls.RunRulerDocketTestProfile(", StringComparison.Ordinal);
+        Assert.True(rejectPaid >= 0 && rejectPaid < ordinaryGate);
+        Assert.Contains("return LiveCommandResult.Failed(\"Paid Court acceptance requires a fresh acknowledged local admission.\")",
+            host[rejectPaid..ordinaryGate], StringComparison.Ordinal);
     }
 
     [Fact]

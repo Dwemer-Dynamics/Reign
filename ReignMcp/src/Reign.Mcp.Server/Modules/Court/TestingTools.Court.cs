@@ -1,6 +1,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using ModelContextProtocol.Server;
 
 namespace Reign.Mcp.Server;
@@ -14,12 +17,13 @@ public static partial class TestingTools
         return new Dictionary<string, object>
         {
             ["schemaVersion"] = 13,
+            ["courtLifePaidSupply"] = "The three paid supply profiles use an already open and aligned disposable Royal Court. Preflight lists exact player-clan targets. Apply accepts one target and invokes the production owned transfer for one unmodified grain and one denar. Each phase requires an exact 45-second server lease and one current local admission. Apply obtains an additional dispatch ACK after terms validation. A completed row requires matching fixture evidence, canonical receipt binding and the exact journal transitions. The diagnostic transport alone does not authenticate native origin. Verify replays only the saved original command after a full game process restart into the registered post-transfer Current.",
             ["courtLifeExistingMatter"] = "court_life_preflight returns bounded pendingMatterInventory filtered by source/template. Optional courtLifeExistingMatterId on International or Patronage court_life_prepare binds that exact pending matter without generation, history refresh or native changes. Reject identity/scope mismatch, committed or in-flight effects, existing markers and fixture mutations. Preserve the conversation; continue without replay.",
             ["courtLifeEvidenceSchema"] = "reign-court-life-evidence-v1",
             ["courtLifeCaptiveFixture"] = "Optional courtLifeFixtureCaptiveHeroId from read-only captiveInventory with exclusionCounts and existingPlayerHeldCaptives; International court_life_prepare and RequiresCaptive template only. Exact armed Current and fixture confirmation; checkpoint before setup. Native capture preserves production eligibility, persists intent and before/after custody, and blocks blind partial retries. Restore the guarded pre-fixture checkpoint on partial failure. International native evidence includes exact captive, foreign ruler gold and kingdom-pair war status (reign-court-life-custody-v1).",
             ["courtLifeFamilyTransitionContract"] = "Family preparation persists the exact scoped visit/member baseline. Dismissed requires that exact server visit to become dismissed and its member counter to rise by one; neglected additionally requires a new patience-threshold crossing from zero to one. A successful neglected observation retains familyNeglectEvidence for the same visit. Reconciled requires that prior proof and a later zero/zero member state; an initially clear member cannot pass. Snapshots remain observational and create no transition proof. court_life_snapshot requires the exact visible fixture matter and disposable-save gate, but may capture a resolved or busy audience without AutomationCanDecide or completed provider replies. It proves neither a completed turn nor decision authority; converse and choose-confirm retain their full readiness gates.",
             ["preparedOnly"] = true,
-            ["profiles"] = new[] { "preflight", "petition_case", "petition_insufficient", "petition_invalid_identity", "no_expiry_prepare", "no_expiry_verify", "expedition_return_prepare", "expedition_return_verify", "chancellor_preflight", "chancellor_case", "chancellor_schedule_prepare", "chancellor_schedule_verify", "chancellor_eligibility_dismissal", "emergency_lifecycle", "legacy_migration", "natural_soak_prepare", "natural_soak_verify", "save_prepare", "save_verify", "noble_preflight", "noble_template_case", "noble_investigation_prepare", "noble_investigation_verify", "noble_reversal", "noble_execution", "noble_court_stay_prepare", "noble_court_stay_verify", "noble_save_prepare", "noble_save_verify", "royal_proclamation", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse", "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify", "cleanup_marker" },
+            ["profiles"] = new[] { "preflight", "petition_case", "petition_insufficient", "petition_invalid_identity", "no_expiry_prepare", "no_expiry_verify", "expedition_return_prepare", "expedition_return_verify", "chancellor_preflight", "chancellor_case", "chancellor_schedule_prepare", "chancellor_schedule_verify", "chancellor_eligibility_dismissal", "emergency_lifecycle", "legacy_migration", "natural_soak_prepare", "natural_soak_verify", "save_prepare", "save_verify", "noble_preflight", "noble_template_case", "noble_investigation_prepare", "noble_investigation_verify", "noble_reversal", "noble_execution", "noble_court_stay_prepare", "noble_court_stay_verify", "noble_save_prepare", "noble_save_verify", "royal_proclamation", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse", "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify", "court_life_paid_supply_preflight", "court_life_paid_supply_apply", "court_life_paid_supply_verify", "cleanup_marker" },
             ["petitionMatrix"] = new[] { "Food x Minor/Serious/Severe", "TownGold x Minor/Serious/Severe", "VillageGold x Minor/Serious/Severe", "Soldiers x Minor/Serious/Severe" },
             ["nobleTemplateMatrix"] = new[] { "20 Petty", "20 Serious", "18 Grave", "10 Exceptional", "68 total; exceptional-murder is destructive and must run from a restored Current", "every unique fixtureRunId deterministically chooses among the distinct participant sets produced across bounded production day/slot variants and reports the chosen variant count plus hero, clan, culture, gender, age, occupation, marital state, clan-leader state, and role for aggregate diversity auditing" },
             ["nobleDecisionBranches"] = new[] { "side-a", "side-b", "defer", "convict-correct", "convict-wrong", "acquit-all", "living reversal", "protected-custody execution", "overnight Court stay release" },
@@ -37,7 +41,7 @@ public static partial class TestingTools
     public static async Task<ApiEnvelope> StartRulerDocketTest(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId,
-        [AllowedValues("preflight", "petition_case", "petition_insufficient", "petition_invalid_identity", "no_expiry_prepare", "no_expiry_verify", "expedition_return_prepare", "expedition_return_verify", "chancellor_preflight", "chancellor_case", "chancellor_schedule_prepare", "chancellor_schedule_verify", "chancellor_eligibility_dismissal", "emergency_lifecycle", "legacy_migration", "natural_soak_prepare", "natural_soak_verify", "save_prepare", "save_verify", "noble_preflight", "noble_template_case", "noble_investigation_prepare", "noble_investigation_verify", "noble_reversal", "noble_execution", "noble_court_stay_prepare", "noble_court_stay_verify", "noble_save_prepare", "noble_save_verify", "royal_proclamation", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse", "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify", "cleanup_marker")] string profile = "preflight",
+        [AllowedValues("preflight", "petition_case", "petition_insufficient", "petition_invalid_identity", "no_expiry_prepare", "no_expiry_verify", "expedition_return_prepare", "expedition_return_verify", "chancellor_preflight", "chancellor_case", "chancellor_schedule_prepare", "chancellor_schedule_verify", "chancellor_eligibility_dismissal", "emergency_lifecycle", "legacy_migration", "natural_soak_prepare", "natural_soak_verify", "save_prepare", "save_verify", "noble_preflight", "noble_template_case", "noble_investigation_prepare", "noble_investigation_verify", "noble_reversal", "noble_execution", "noble_court_stay_prepare", "noble_court_stay_verify", "noble_save_prepare", "noble_save_verify", "royal_proclamation", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse", "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify", "court_life_paid_supply_preflight", "court_life_paid_supply_apply", "court_life_paid_supply_verify", "cleanup_marker")] string profile = "preflight",
         [AllowedValues("Food", "TownGold", "VillageGold", "Soldiers")] string kind = "Food",
         [AllowedValues("Minor", "Serious", "Severe")] string severity = "Minor",
         [AllowedValues("grant-direct", "fund-instead", "refuse")] string action = "grant-direct",
@@ -64,6 +68,7 @@ public static partial class TestingTools
         [Description("Family fixture only. Explicitly authorized disposable-baseline setup may age an adult ruler to 34; default preserves age. Never use without user authority to adjust the test ruler.")] bool courtLifeFixtureAgeRulerTo34 = false,
         [Description("Optional exact hero ID from court_life_preflight captiveInventory. Only International court_life_prepare with a captive template: take that eligible adult foreign noble prisoner on the armed disposable Current. Requires a pre-fixture checkpoint; partial failures require guarded checkpoint rollback before retry. Empty preserves custody.")] string courtLifeFixtureCaptiveHeroId = "",
         [Description("Optional exact pending matter ID from court_life_preflight pendingMatterInventory. International or Patronage court_life_prepare only: bind the existing encounter without generation or fixture mutations; preserve and continue its conversation.")] string courtLifeExistingMatterId = "",
+        [Description("The exact target settlement ID returned by court_life_paid_supply_preflight. Required for apply and verify. Verify asserts the target on the original saved command. The case always moves one grain and pays one denar from the player to the target settlement.")] string paidSupplyTargetSettlementId = "",
         CancellationToken cancellationToken = default)
     {
         if (!options.AllowVerificationControl) throw new InvalidOperationException("Verification control is disabled. Set REIGN_MCP_ALLOW_VERIFICATION_CONTROL=true in the trusted MCP configuration.");
@@ -87,6 +92,20 @@ public static partial class TestingTools
             if (profile != "court_life_prepare" || courtLifeSource != "International")
                 throw new ArgumentException("Captive setup requires International court_life_prepare.");
         }
+        if (profile is "court_life_paid_supply_preflight" or "court_life_paid_supply_apply" or "court_life_paid_supply_verify")
+        {
+            if (courtLifeFixtureGold >= 0 || courtLifeFixtureLoyalty >= 0 || courtLifeFixtureAgeRulerTo34
+                || !string.IsNullOrEmpty(courtLifeHeroId))
+                throw new ArgumentException("Paid supply does not admit other Court fixture mutations or participant selection.");
+        }
+        if (profile is "court_life_paid_supply_apply" or "court_life_paid_supply_verify")
+            paidSupplyTargetSettlementId = RequiredIdentifier(paidSupplyTargetSettlementId, nameof(paidSupplyTargetSettlementId));
+        else if (!string.IsNullOrEmpty(paidSupplyTargetSettlementId))
+            throw new ArgumentException("A paid supply target is accepted only for apply or verify.", nameof(paidSupplyTargetSettlementId));
+        if (profile is "court_life_paid_supply_preflight" or "court_life_paid_supply_apply" or "court_life_paid_supply_verify")
+            return await StartPaidCourtSupplyAsync(api, campaignTests, campaignTestRunId, campaignId, fixtureRunId,
+                profile, paidSupplyTargetSettlementId, cancellationToken).ConfigureAwait(false);
+
         CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
             campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
         Dictionary<string, object> Phase(string phase, bool mutating = false) => new()
@@ -290,6 +309,108 @@ public static partial class TestingTools
             label = "MCP ruler docket " + profile, presentation = "visible",
             effects = "full", autoCompleteWhenIdle = true, steps
         }, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<ApiEnvelope> StartPaidCourtSupplyAsync(ReignApiClient api, CampaignTestService campaignTests,
+        string campaignTestRunId, string campaignId, string fixtureRunId, string phase, string targetSettlementId,
+        CancellationToken cancellationToken)
+    {
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("Paid Court acceptance requires the native game user's local Windows bridge.");
+        var (authorization, checkpoint, loadOwner) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
+            campaignTestRunId, campaignId, bindCheckpoint: true, cancellationToken: cancellationToken,
+            postArmCurrentDiagnostic: true).ConfigureAwait(false);
+        campaignTests.RequireRetainedRecoveryCheckpoint(authorization);
+        if (loadOwner is not { } owner || checkpoint.Attempt.RunId != authorization.CampaignTestRunId
+            || checkpoint.Attempt.SaveName != authorization.CurrentSaveName
+            || checkpoint.Attempt.BaselineSaveName != authorization.BaselineSaveName
+            || checkpoint.Attempt.CampaignId != authorization.CampaignId
+            || checkpoint.Attempt.TimelineId != authorization.TimelineId)
+            throw new InvalidOperationException("Paid Court acceptance requires the verified native Current owner.");
+        string gameInstanceId = owner.GetProperty("gameInstanceId").GetString()!;
+        string runId = "court_paid_" + Guid.NewGuid().ToString("N");
+        string commandId = "court_paid_" + Guid.NewGuid().ToString("N");
+        DateTimeOffset issued = DateTimeOffset.UtcNow;
+        byte[] ticket = JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            schema = "reign-court-paid-supply-admission-v1", issuedUtc = issued.ToUnixTimeSeconds(),
+            expiresUtc = issued.AddMinutes(2).ToUnixTimeSeconds(), runId, commandId, phase, fixtureRunId,
+            targetSettlementId, campaignTestRunId, baselineSaveName = authorization.BaselineSaveName,
+            saveName = authorization.CurrentSaveName, savePrefix = authorization.SavePrefix,
+            checkpointAttemptId = checkpoint.Attempt.Id, checkpointSha256 = checkpoint.Sha256,
+            checkpointSavePointId = checkpoint.SavePointId, owner
+        });
+        string grant = WritePaidCourtSupplyGrant(runId, commandId, ticket);
+        ApiEnvelope result = await api.PostAsync("/tests/live/run/start", new
+        {
+            schemaVersion = 1, campaignId = authorization.CampaignId, gameInstanceId, runId, mode = "spymaster",
+            label = "MCP ruler docket " + phase, presentation = "visible", effects = "full",
+            autoCompleteWhenIdle = true, steps = new[] { new
+            {
+                operation = "ruler_docket_test", phase, commandId, fixtureRunId, campaignTestRunId,
+                expectedSaveName = authorization.CurrentSaveName, paidSupplyTargetSettlementId = targetSettlementId,
+                expectedPaidTimelineId = authorization.TimelineId, expectedPaidSavePointId = checkpoint.SavePointId,
+                timeoutSeconds = 120
+            }}
+        }, cancellationToken).ConfigureAwait(false);
+        if (result is { Ok: false, StatusCode: >= 400 and < 500 }) File.Delete(grant);
+        return result;
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    private static string WritePaidCourtSupplyGrant(string runId, string commandId, byte[] ticket)
+    {
+        if (ticket.Length == 0 || ticket.Length > 8192)
+            throw new InvalidOperationException("Paid Court admission exceeds its local size limit.");
+        using var identity = WindowsIdentity.GetCurrent();
+        SecurityIdentifier owner = identity.User ?? throw new InvalidOperationException("Missing Windows user identity.");
+        string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrEmpty(local) || (File.GetAttributes(local) & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidOperationException("Paid Court admission requires native local application data.");
+        string reign = Path.Combine(local, "Reign");
+        Directory.CreateDirectory(reign);
+        if ((File.GetAttributes(reign) & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidOperationException("Paid Court admission cannot follow a redirected Reign directory.");
+        var directory = new DirectoryInfo(Path.Combine(reign, "CourtPaidSupplyAdmission-v1"));
+        if (!directory.Exists)
+        {
+            var security = new DirectorySecurity();
+            security.SetOwner(owner);
+            security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+            security.AddAccessRule(new FileSystemAccessRule(owner, FileSystemRights.FullControl,
+                InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+            directory.Create(security);
+            directory.Refresh();
+        }
+        if ((directory.Attributes & FileAttributes.ReparsePoint) != 0)
+            throw new InvalidOperationException("Paid Court admission cannot follow a redirected grant directory.");
+        DirectorySecurity current = directory.GetAccessControl(AccessControlSections.Owner | AccessControlSections.Access);
+        if (!current.AreAccessRulesProtected || !owner.Equals(current.GetOwner(typeof(SecurityIdentifier)))
+            || current.GetAccessRules(true, true, typeof(SecurityIdentifier)).Cast<FileSystemAccessRule>()
+                .Any(rule => rule.AccessControlType == AccessControlType.Allow && !owner.Equals(rule.IdentityReference)))
+            throw new InvalidOperationException("Paid Court admission directory is not private to the native Windows user.");
+
+        string grant = Path.Combine(directory.FullName, runId + "_" + commandId + ".json");
+        string staging = grant + "." + Guid.NewGuid().ToString("N") + ".pending";
+        var fileSecurity = new FileSecurity();
+        fileSecurity.SetOwner(owner);
+        fileSecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+        fileSecurity.AddAccessRule(new FileSystemAccessRule(owner, FileSystemRights.FullControl, AccessControlType.Allow));
+        try
+        {
+            using (var stream = new FileInfo(staging).Create(FileMode.CreateNew, FileSystemRights.Write, FileShare.None,
+                4096, FileOptions.WriteThrough, fileSecurity))
+            {
+                stream.Write(ticket);
+                stream.Flush(flushToDisk: true);
+            }
+            File.Move(staging, grant);
+        }
+        finally
+        {
+            File.Delete(staging);
+        }
+        return grant;
     }
 
     [McpServerTool(Name = "reign_get_royal_council_test_manifest", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
