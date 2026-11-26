@@ -82,6 +82,7 @@ namespace ReignBeta.Dialogue.UI
         private PregnancyDecisionReceipt _lastPregnancyDecisionReceipt;
         private bool _isFinalized;
         private bool _presentationInitializing;
+        private bool _firstMoveChosen;
         private Task<bool> _presentationInitializationTask = Task.FromResult(true);
         internal Task<bool> PresentationInitialization => _presentationInitializationTask;
         private Task<ConversationSessionStart> _conversationSessionTask;
@@ -305,7 +306,6 @@ namespace ReignBeta.Dialogue.UI
                     RefreshInputAvailability();
                     if (!value && _view != null) _ = _view.RestoreAsync();
                     OnPropertyChangedWithValue(value);
-                    OnPropertyChanged(nameof(SendButtonText));
                 }
             }
         }
@@ -329,6 +329,7 @@ namespace ReignBeta.Dialogue.UI
         {
             _view?.RefreshAvailability();
             OnPropertyChanged(nameof(InputEnabled));
+            OnPropertyChanged(nameof(SendButtonText));
         }
 
         public async void ExecuteSend()
@@ -349,7 +350,12 @@ namespace ReignBeta.Dialogue.UI
                     actionDraft: _failedActionDraft, retrySceneTurnId: turn.SceneTurnId, retrySavedTurn: true, recoveredInput: _failedRecoveredInput);
                 return;
             }
-            if ((string.IsNullOrWhiteSpace(text) && _conversationContext.Value<bool?>("approachOpening") != true) || IsBusy || IsPregnancyWarningVisible)
+            if (string.IsNullOrWhiteSpace(text) && CanOfferApproach)
+            {
+                await RequestLifeOpeningAsync();
+                return;
+            }
+            if ((string.IsNullOrWhiteSpace(text) && !HasAcceptedNpcInvitation) || IsBusy || IsPregnancyWarningVisible)
             {
                 return;
             }
@@ -427,8 +433,9 @@ namespace ReignBeta.Dialogue.UI
             if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
             text = text ?? string.Empty;
             // An accepted invitation has no fabricated player turn, including retries.
-            if (_conversationContext.Value<bool?>("approachOpening") == true) { text = string.Empty; actionDraft = null; clearInput = false; }
-            bool npcOpening = _conversationContext.Value<bool?>("approachOpening") == true && string.IsNullOrWhiteSpace(text);
+            bool npcOpening = HasAcceptedNpcInvitation;
+            if (npcOpening) { text = string.Empty; actionDraft = null; clearInput = false; }
+            bool prepareLifeContext = false;
             string retryScope = "";
             object requestCampaign = null;
             ConversationRequestOwner owner = null;
@@ -467,6 +474,8 @@ namespace ReignBeta.Dialogue.UI
                         _conversationContext.Value<string>("sessionId") ?? ""); }
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
                 }
+                prepareLifeContext = !npcOpening && CanStartLifeOpening;
+                _firstMoveChosen = true;
                 if (!npcOpening && !retrySavedTurn) AddChatLine(playerName, text);
                 if (clearInput)
                 {
@@ -510,6 +519,7 @@ namespace ReignBeta.Dialogue.UI
                         return true;
                     }).ConfigureAwait(false))
                     throw new ReignRequestOwnerAbandonedException("The conversation closed before its session was bound.");
+                if (prepareLifeContext) await PrepareLifeOpeningAsync(sessionId, ownerCurrent).ConfigureAwait(false);
                 ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
@@ -1195,7 +1205,10 @@ namespace ReignBeta.Dialogue.UI
         {
             try
             {
-                await OpenNpcInitiatedConversationAsync().ConfigureAwait(false);
+                await LoadHistoryAsync().ConfigureAwait(false);
+                // Accepted invitations already represent the player's decision to hear the NPC.
+                if (HasAcceptedNpcInvitation && !_isFinalized)
+                    await SendTextAsync(string.Empty, false).ConfigureAwait(false);
                 return !_isFinalized;
             }
             catch (Exception ex)
@@ -1213,37 +1226,85 @@ namespace ReignBeta.Dialogue.UI
             }
         }
 
-        private async Task OpenNpcInitiatedConversationAsync()
+        private bool HasAcceptedNpcInvitation => _conversationContext.Value<bool?>("approachOpening") == true;
+
+        private bool CanStartLifeOpening
         {
-            await LoadHistoryAsync().ConfigureAwait(false);
-            // Only unfinished input in this exact session defers its opener. Older
-            // recovery-only drafts cannot indefinitely suppress fresh NPC approaches.
-            if (ReignRecoveredDraftReview.HasPendingInSession(_recoverableInputs, _conversationContext.Value<string>("sessionId"))
-                && _conversationContext.Value<bool?>("approachOpening") != true) return;
-            if (_conversationContext.Value<bool?>("approachOpening") == true && !_isFinalized)
+            get
             {
-                await SendTextAsync(string.Empty, false).ConfigureAwait(false);
-                return;
+                string mode = _conversationContext.Value<string>("conversationMode") ?? "";
+                return _initializePresentation && !_firstMoveChosen && !_calibrationMode && !_isOfficialAmbassadorMode
+                    && !HasAcceptedNpcInvitation && _conversationContext.Value<bool?>("rescueOpening") != true
+                    && (mode.Length == 0 || mode == "in_person" || mode == "npc_story")
+                    && string.IsNullOrEmpty(_conversationContext.Value<string>("continuationReason"))
+                    && !ReignRecoveredDraftReview.HasPendingInSession(_recoverableInputs, _conversationContext.Value<string>("sessionId"));
             }
-            string mode = _conversationContext.Value<string>("conversationMode") ?? "";
-            if (_isFinalized || _isOfficialAmbassadorMode || _conversationContext.Value<bool?>("rescueOpening") == true
-                || (!string.IsNullOrEmpty(mode) && mode != "in_person" && mode != "npc_story")
-                || !string.IsNullOrEmpty(_conversationContext.Value<string>("continuationReason"))) return;
-            await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) { IsBusy = true; BusyText = "Approaching..."; } }).ConfigureAwait(false);
+        }
+
+        private bool CanOfferApproach => InputEnabled && CanStartLifeOpening
+            && ReignNpcLivesClient.NpcLivesOptions.Allows("approach");
+
+        private async Task PrepareLifeOpeningAsync(string session, Func<bool> requestOwner)
+        {
+            try
+            {
+                await ReignMainThread.InvokeAsync(() => requestOwner()
+                    ? ReignServices.NpcLives?.PrepareLifeConversationAsync(_hero, session, _conversationContext) ?? Task.CompletedTask
+                    : Task.CompletedTask).Unwrap().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("NPC life conversation context unavailable: " + ex.Message);
+            }
+        }
+
+        private async Task RequestLifeOpeningAsync()
+        {
+            Func<bool> current = () => !_isFinalized && !_conversationFinishRequested && _loadFence.IsCurrent();
+            if (!current()) return;
+            IsBusy = true;
+            BusyText = "Approaching...";
+            string error = null;
             try
             {
                 string session = await EnsureConversationSessionAsync().ConfigureAwait(false);
-                if (session.Length == 0 || _isFinalized) return;
-                var lives = ReignServices.NpcLives;
-                if (lives != null)
-                    await ReignMainThread.InvokeAsync(() => lives.PrepareLifeConversationAsync(_hero, session, _conversationContext)).Unwrap().ConfigureAwait(false);
-                await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);
-                // Reload accepted history once. This also recovers an opener which
-                // finished after the previous screen closed, without speaking twice.
-                if (!_isFinalized) await LoadHistoryAsync().ConfigureAwait(false);
+                if (session.Length == 0)
+                    throw new InvalidOperationException("The conversation could not reconnect. Close and reopen chat to try again.");
+
+                await PrepareLifeOpeningAsync(session, current).ConfigureAwait(false);
+                var response = await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext,
+                    requestOwner: current).ConfigureAwait(false);
+                string status = response.Value<string>("status");
+                if (response.Value<bool?>("ok") != true || (status != "opened" && status != "resume" && status != "disabled"))
+                {
+                    error = FriendlyServerError(response.Value<string>("error"));
+                    return;
+                }
+
+                bool reload = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!current()) return false;
+                    _firstMoveChosen = true;
+                    return status != "disabled";
+                }).ConfigureAwait(false);
+                if (reload) await LoadHistoryAsync(current).ConfigureAwait(false);
             }
-            catch (Exception ex) { ReignLog.Warn("NPC Approach unavailable: " + ex.Message); }
-            finally { await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) { IsBusy = false; BusyText = ""; } }).ConfigureAwait(false); }
+            catch (ReignRequestOwnerAbandonedException) { }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("NPC Approach unavailable: " + ex.Message);
+                error = FriendlyServerError(ex.Message);
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!current()) return;
+                    IsBusy = false;
+                    BusyText = error ?? "";
+                    if (error != null) AddSystemLine(error + " Select Approach to try again, or write a message.");
+                }).ConfigureAwait(false);
+            }
         }
 
         private void AddSystemLine(string text)

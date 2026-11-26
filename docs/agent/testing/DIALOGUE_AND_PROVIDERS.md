@@ -386,6 +386,12 @@ GLM 5.3 routes cannot disable reasoning: use low for none/minimal/low, high for 
 
 Restore a single blank reply key only when surrounding dialogue metadata makes its role unambiguous, there is no explicit reply property, and only one candidate exists. Preserve supplied decisions and all substantive text. A missing action decision still needs its verified compact repair using the selected model; malformed supplied consent remains rejected. Empty answers still require the existing bounded regeneration. Offline fixtures establish routing/recovery contracts, not provider quality, latency or native acceptance; deployment stays separately authorized.
 
+## Individual Chat opening
+
+Opening ordinary Individual Chat loads history and leaves the first move to the player. An empty composer offers **Approach** when enabled. Clicking it requests the NPC opening. Typing switches the same button to **Send** and submits the player's message directly. Accepted NPC invitations continue to start with the NPC. Retry and Recover keep priority when their saved state applies.
+
+Run the production command probe in `IndividualChatApproachTests` and the provider-free `approach-ready` and `approach-typing` cases in the conversation retry preview contract. Native acceptance covers the explicit click and typed first message in separate conversations. Confirm that opening either screen does not generate dialogue by itself.
+
 ## Codex 429 recovery and Retry (2026-10-14)
 
 Production reuse contracts inject SDK-shaped partial `account/updated` notifications during each turn. The complete verified account identity must survive them; the next turn checks official account metadata before reuse. Cover same-account plan changes, actual account changes with unchanged authentication mode and account-read failure with zero inference. Include the normal independent political-conduct reclassification of an unchanged spoken reply. Retain finalization receipts to distinguish contract rewrites from usage/identity invalidation.
