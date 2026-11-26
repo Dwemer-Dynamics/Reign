@@ -49,6 +49,9 @@ namespace ReignBeta.WorldSimulation.Actions
                 else if (c.ActionId == "expose_concealed_pregnancy")
                     c.DisplayText = ReignServices.Family.PregnancyExposureSentence(
                         ReignActionService.Arg(c, "pregnancyId"), ReignActionService.Arg(c, "disclosure") == "name_father");
+                else if (c.ActionId == AgreementRules.RulerInfluenceActionId)
+                    c.DisplayText = "For " + Label(d.Parameters[0], c) + ", I urge you to choose "
+                        + Label(d.Parameters[1], c).ToLowerInvariant();
                 else if (c.ActionId == "start_ruling_clan_rebellion")
                     c.DisplayText = "I declare rebellion against your rule of " + Label(d.Parameters.First(p => p.Key == "actorKingdomId"), c)
                         + ", as leader of " + Label(d.Parameters.First(p => p.Key == "actorClanId"), c);

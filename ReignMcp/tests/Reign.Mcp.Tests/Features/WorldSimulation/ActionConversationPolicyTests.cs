@@ -4,6 +4,39 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 
 public sealed class ActionConversationPolicyTests
 {
+    [Fact]
+    public void CaptiveRulerAppealIsOneImmediatePlayerSentence()
+    {
+        var definition = ReignActionCatalog.Find(AgreementRules.RulerInfluenceActionId)!;
+        var agreement = new ActionAgreement { PlayerId = "player", NpcId = "ruler", ProposerId = "player",
+            Origin = ActionOrigin.Conversation, Channel = AgreementChannel.InPerson };
+        var clause = new ActionClause { ActionId = definition.Id, ActorId = "player", RecipientId = "ruler",
+            Arguments = new() { ["judgmentId"] = "judgment", ["verdict"] = "Freedom" } };
+        agreement.Clauses.Add(clause);
+        Assert.True(ReignActionConversationPolicy.Allows(definition, true));
+        Assert.False(ReignActionConversationPolicy.Allows(definition, false));
+        Assert.False(ReignActionConversationPolicy.Allows(definition, true, 1));
+        Assert.Empty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+        Assert.False(agreement.HasRequiredConsents);
+        agreement.PlayerAcceptedHash = agreement.TermsHash();
+        Assert.True(agreement.HasRequiredConsents);
+        agreement.Channel = AgreementChannel.Correspondence;
+        Assert.NotEmpty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+        agreement.Channel = AgreementChannel.InPerson;
+        clause.DueDay = 7;
+        Assert.NotEmpty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+        clause.DueDay = 0;
+        agreement.AdvancePayment = true;
+        Assert.NotEmpty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+        agreement.AdvancePayment = false;
+        agreement.Clauses.Add(new ActionClause { ActionId = definition.Id, ActorId = "player", RecipientId = "ruler",
+            Arguments = new() { ["judgmentId"] = "other", ["verdict"] = "Imprisonment" } });
+        Assert.NotEmpty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+        agreement.Clauses.RemoveAt(1);
+        agreement.ProposerId = "ruler";
+        Assert.NotEmpty(AgreementRules.Validate(agreement, ReignActionCatalog.Find, 0));
+    }
+
     private static ActionAgreement SignedPersonalOffer()
     {
         var offer = new ActionAgreement { Id = "personal-offer", Revision = 3, PlayerId = "player", NpcId = "companion",

@@ -32,6 +32,7 @@ public sealed class RulerNativeHookTests
         Assert.True(report.RootElement.GetProperty("campaignOptionsObserved").GetBoolean());
         Assert.True(report.RootElement.GetProperty("judgmentDrawChecks").GetInt32() >= 18);
         Assert.True(report.RootElement.GetProperty("imprisonmentCustodyChecks").GetInt32() >= 30);
+        Assert.Equal(9, report.RootElement.GetProperty("hostileCustodyChecks").GetInt32());
     }
     private sealed class ValidatedClientFactAttribute : FactAttribute
     {

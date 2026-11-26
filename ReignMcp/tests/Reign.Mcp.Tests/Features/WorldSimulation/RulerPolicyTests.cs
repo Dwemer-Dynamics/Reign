@@ -8,6 +8,52 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class RulerPolicyTests
 {
     [Theory]
+    [InlineData(-50, 1, false)]
+    [InlineData(0, 1, false)]
+    [InlineData(25, 1, false)]
+    [InlineData(26, 1, true)]
+    [InlineData(26, 2, false)]
+    [InlineData(75, 50, true)]
+    [InlineData(75, 51, false)]
+    [InlineData(100, 75, true)]
+    [InlineData(100, 76, false)]
+    [InlineData(100, 0, false)]
+    public void Influence_uses_the_relation_percentage_minus_twenty_five(int relation, int roll, bool success)
+        => Assert.Equal(success, ReignRulerPolicy.InfluenceSucceeds(relation, roll));
+
+    [Theory]
+    [InlineData(false, false, RulerVerdict.Submission)]
+    [InlineData(true, false, RulerVerdict.Freedom)]
+    [InlineData(true, true, RulerVerdict.Reunification)]
+    public void Influence_reopens_neither_the_attempt_nor_the_preference_after_succession(
+        bool civilWar, bool rebelVictory, RulerVerdict verdict)
+    {
+        var j = new RulerJudgment { Id = "first", VictorId = "ruler", CapturedDay = 100,
+            Stage = RulerJudgmentStage.AwaitingDecision, CivilWar = civilWar, RebelVictory = rebelVictory };
+        Assert.False(ReignRulerPolicy.InfluenceOpen(j, 99));
+        Assert.True(ReignRulerPolicy.InfluenceOpen(j, 106.999));
+        Assert.False(ReignRulerPolicy.InfluenceOpen(j, 107));
+        j.PendingVerdict = RulerVerdict.CleanExecution;
+        Assert.False(ReignRulerPolicy.InfluenceOpen(j, 105));
+        j.PendingVerdict = null;
+        j.Influence = new RulerJudgmentInfluence { OperationId = "appeal", RulerId = "ruler", Verdict = verdict };
+        Assert.Null(ReignRulerPolicy.InfluencedVerdict(j));
+        Assert.False(ReignRulerPolicy.InfluenceOpen(j, 105));
+        j.Influence.Succeeded = true;
+        var saved = JsonSerializer.Deserialize<RulerJudgment>(JsonSerializer.Serialize(j))!;
+        Assert.False(ReignRulerPolicy.InfluenceOpen(saved, 105));
+        Assert.Equal(verdict, ReignRulerPolicy.InfluencedVerdict(saved));
+        Assert.Null(saved.PendingVerdict);
+        ReignRulerPolicy.SetDecisionAuthority(saved, "successor");
+        ReignRulerPolicy.SetDecisionAuthority(saved, "ruler");
+        Assert.Null(ReignRulerPolicy.InfluencedVerdict(saved));
+        Assert.Equal("appeal", saved.Influence!.OperationId);
+        Assert.False(ReignRulerPolicy.InfluenceOpen(saved, 105));
+        Assert.True(ReignRulerPolicy.InfluenceOpen(new RulerJudgment {
+            Id = "recaptured", CapturedDay = 110, Stage = RulerJudgmentStage.AwaitingDecision }, 111));
+    }
+
+    [Theory]
     [InlineData(106.999, false)] [InlineData(107, true)] [InlineData(107.001, true)]
     public void Captivity_decision_waits_seven_full_days(double now, bool due)
     {

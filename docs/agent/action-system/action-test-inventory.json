@@ -6,6 +6,14 @@
   "acceptance": "Each row needs one exact valid-case native effect assertion, bounded inputs, before/after state, receipt, artifact identity and saved campaign identity. Negative/replay/consent/persistence coverage remains separate. A command returning is not an effect assertion.",
   "actions": [
     {
+      "actionId": "influence_ruler_judgment",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "One player appeal in the deciding sovereign's direct chat during a live seven-day captivity window. Verify one relation-based attempt, failed and successful receipts, ordinary and both civil-war verdict sets, no early verdict, save/reload, changed authority and lost custody."
+    },
+    {
       "actionId": "tavern.visit.pay",
       "surface": "agreement",
       "source": "ReignServer/shared/Reign.Core.Contracts/Actions/TavernHouseVisitAction.cs",
