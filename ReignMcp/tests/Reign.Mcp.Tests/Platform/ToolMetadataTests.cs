@@ -65,6 +65,7 @@ public sealed class ToolMetadataTests
             ,"reign_restart_campaign_test"
             ,"reign_restore_campaign_test_checkpoint"
             ,"reign_cleanup_campaign_test"
+            ,"reign_observe_held_notable_startup"
             ,"reign_start_action_batch"
             ,"reign_prepare_party_agency_test"
             ,"reign_carry_forward_party_agency_passes"
@@ -134,7 +135,7 @@ public sealed class ToolMetadataTests
         destructive.Add("reign_test_personal_gossip");
         writes.Add("reign_probe_conversation_clock");
         destructive.Add("reign_probe_conversation_clock");
-        Assert.Equal(134, tools.Length);
+        Assert.Equal(135, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);
