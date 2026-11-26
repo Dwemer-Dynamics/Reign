@@ -1555,7 +1555,7 @@
     "controls": {
       "individual": [
         624,
-        344,
+        330,
         422,
         62
       ],
@@ -1572,6 +1572,7 @@
         45.839
       ]
     },
+    "individualLocationOrnamentTop": 395,
     "inlineImage": "3:2, centered, contained within complete approved memory aperture. Castle uses a compact 192x108 owning card to fit its 190px transcript. No source image is resampled for the enlarged view.",
     "enlargedImage": "Centered 1280x720 complete memory aperture with undistorted 941.25x627.5 scene; click or Escape closes.",
     "caption": "ReignSerifDynamic, 16px, textPrimary; compact castle caption is bounded to 96 display characters while archive retains complete caption.",

@@ -38,8 +38,9 @@ namespace ReignBeta.Dialogue.UI
             _outfitState = state; _outfitStatus = status;
             foreach (string property in new[] { nameof(IsOutfitVisible), nameof(IsOutfitInputVisible), nameof(IsOutfitComparisonVisible),
                 nameof(IsOutfitReady), nameof(CanCancelOutfit), nameof(IsOutfitChanging), nameof(OutfitStatus), nameof(OutfitBeforePath),
-                nameof(OutfitAfterPath), nameof(OutfitBeforeWidth), nameof(OutfitBeforeHeight), nameof(OutfitAfterWidth), nameof(OutfitAfterHeight), nameof(InputEnabled) })
+                nameof(OutfitAfterPath), nameof(OutfitBeforeWidth), nameof(OutfitBeforeHeight), nameof(OutfitAfterWidth), nameof(OutfitAfterHeight) })
                 OnPropertyChanged(property);
+            RefreshInputAvailability();
         }
 
         public void ExecuteChangeClothes()

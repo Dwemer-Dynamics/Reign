@@ -493,6 +493,12 @@ const PREVIEW_PRESET_OVERRIDES = {
     IsBusy: true,
     BusyText: "Choose whether to proceed."
   },
+  "approach-ready": {
+    IsBusy: false, InputEnabled: true, InputText: "", SendButtonText: "Approach", BusyText: "", ChatLines: []
+  },
+  "approach-typing": {
+    IsBusy: false, InputEnabled: true, InputText: "I came to ask about the road.", SendButtonText: "Send", BusyText: "", ChatLines: []
+  },
   "generation-failed": {
     IsBusy: false, InputEnabled: true, InputText: "", SendButtonText: "Retry",
     BusyText: "Codex temporarily limited this request (429). Your message is saved. Select Retry.",

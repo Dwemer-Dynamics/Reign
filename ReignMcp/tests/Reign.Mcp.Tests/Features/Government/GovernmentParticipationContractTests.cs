@@ -731,7 +731,8 @@ public sealed class GovernmentParticipationContractTests
         string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace,
             "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         Assert.Contains("_presentationInitializationTask = InitializePresentationAsync();", view);
-        Assert.Contains("await OpenNpcInitiatedConversationAsync()", view);
+        Assert.Contains("await LoadHistoryAsync()", view);
+        Assert.Contains("if (HasAcceptedNpcInvitation && !_isFinalized)", view);
         Assert.Contains("(_presentationInitializing && !npcOpening)", view);
         Assert.Contains("WaitForIndividualPresentationAsync(_activeRunId, _individualVm, _individualVm.ConversationHero)", host);
         Assert.Contains("Task<bool> opening = viewModel.PresentationInitialization;", host);

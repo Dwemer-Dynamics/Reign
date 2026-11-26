@@ -279,10 +279,10 @@
       "id": "conditional-chat-view-control",
       "shape": "rectangle",
       "x": 624,
-      "y": 344,
+      "y": 330,
       "width": 422,
       "height": 62
     }
   ],
-  "chatViewControl": "2026-10-30 user-requested View; complete approved outfit action plate plus approved eye sprite, unchanged source hashes. Geometry and asset reuse checked separately by ChatViewTests; native acceptance pending."
+  "chatViewControl": "The View control reuses the approved outfit action plate and eye sprite. Its bounds clear the Location ornament. The provider-free chat View contract checks the prefab and this mask against the style contract. Native acceptance is pending."
 }

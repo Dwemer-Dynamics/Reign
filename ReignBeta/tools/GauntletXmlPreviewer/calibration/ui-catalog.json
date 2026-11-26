@@ -1069,6 +1069,24 @@
           "previewOnly": true
         },
         {
+          "id": "individual-chat-approach-ready",
+          "label": "Conversation opening: Approach",
+          "variant": "approach-ready",
+          "entry": "Conversation > Reign individual chat",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-approach-typing",
+          "label": "Conversation opening: player draft",
+          "variant": "approach-typing",
+          "entry": "Conversation > Reign individual chat",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
           "id": "individual-chat-generation-failed",
           "label": "Conversation failed: explicit retry",
           "variant": "generation-failed",
