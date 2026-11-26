@@ -379,6 +379,11 @@ namespace ReignBeta.Court.Campaign
         }
 
         public async Task<string> TransferSupplyAsync(ReignSupplyTransferRequest request)
+            => await TransferSupplyAsync(request, null).ConfigureAwait(false);
+
+        internal async Task<string> TransferSupplyAsync(ReignSupplyTransferRequest request, Func<bool> fixtureOwner,
+            Func<Func<bool>, Task<bool>> authorizeFixtureDispatch = null, Func<bool> markFixtureInvoked = null,
+            Func<bool> fixtureCompletionOwner = null)
         {
             if (!ReignMainThread.IsMainThread) return CourtOwnedActionUnavailable;
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
@@ -401,7 +406,8 @@ namespace ReignBeta.Court.Campaign
             KingdomCapitalDesignation designation = ReadDesignation();
             long capitalRevision = designation?.Revision ?? -1L;
 
-            bool OwnsTransfer() => ReferenceEquals(this, ReignServices.Court) && _serverSessionOpened && HasRoyalCommandAccess
+            bool OwnsTransfer() => OwnsTransferFor(fixtureOwner);
+            bool OwnsTransferFor(Func<bool> owner) => ReferenceEquals(this, ReignServices.Court) && _serverSessionOpened && HasRoyalCommandAccess
                 && (!paidSupply || (paymentAuthor != null && ReferenceEquals(paymentAuthor, Hero.MainHero)))
                 && ReferenceEquals(sitting, _courtSittingOwner)
                 && ReferenceEquals(session, _session) && session.SessionId == sessionId && session.Authority == authority
@@ -412,7 +418,8 @@ namespace ReignBeta.Court.Campaign
                 && !ReignCampaignInitializationGate.IsPending && fence.IsCurrentActionPoll()
                 && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress && !ReignSaveSyncCoordinator.IsSaveFinalizationPending
                 && ReferenceEquals(saveSync, ReignServices.SaveSync)
-                && string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal);
+                && string.Equals(savePoint, saveSync?.CurrentSavePointId, StringComparison.Ordinal)
+                && (owner == null || owner());
 
             if (!OwnsTransfer()) return CourtOwnedActionUnavailable;
             if (paidSupply && (!string.Equals(request.GoldPayerKind, "hero", StringComparison.Ordinal)
@@ -430,14 +437,35 @@ namespace ReignBeta.Court.Campaign
                 request, _serverRevision, fence.SharedActivityGeneration, OwnsTransfer).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
 
+            if (authorizeFixtureDispatch != null && !await authorizeFixtureDispatch(OwnsTransfer).ConfigureAwait(false))
+                return "The paid supply fixture no longer has an active native dispatch admission.";
+
             NativeCourtExecution execution = await ExecuteNativeActionsAsync(response.NativeActions,
-                requestOwner: OwnsTransfer, onSuccess: () => session.Revision++, ownedPaidSupply: paidSupply).ConfigureAwait(false);
+                requestOwner: OwnsTransfer, onSuccess: () => session.Revision++, ownedPaidSupply: paidSupply,
+                beforePaidFixtureNative: markFixtureInvoked).ConfigureAwait(false);
             if (!execution.Success) return execution.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (OwnsTransfer()) StateChanged?.Invoke();
+                if (OwnsTransferFor(fixtureCompletionOwner ?? fixtureOwner)) StateChanged?.Invoke();
             }).ConfigureAwait(false);
             return string.Empty;
+        }
+
+        internal JObject ReadPaidSupplyFixtureReceipt(ReignSupplyTransferRequest request)
+        {
+            if (!ReignMainThread.IsMainThread || string.IsNullOrEmpty(request?.CommandId)
+                || !_paidSupplyJournal.Receipts.TryGetValue(request.CommandId, out var receipt))
+                return null;
+
+            var saved = ReignCourtSupplyService.FindSavedPaidTransfer(request, _paidSupplyJournal,
+                ReignCampaignIdentity.CurrentCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main");
+            return new JObject
+            {
+                ["receiptId"] = saved?.ReceiptId,
+                ["exactVerifiedReceipt"] = saved?.Success == true && saved.Replayed,
+                ["phase"] = receipt.Phase.ToString(),
+                ["observations"] = JObject.FromObject(receipt)
+            };
         }
 
         public async Task<string> SubmitNativeActionAsync(JObject action)
