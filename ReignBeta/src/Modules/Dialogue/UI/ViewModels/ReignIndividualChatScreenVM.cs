@@ -302,10 +302,9 @@ namespace ReignBeta.Dialogue.UI
                 if (value != _isBusy)
                 {
                     _isBusy = value;
-                    _view?.RefreshAvailability();
+                    RefreshInputAvailability();
                     if (!value && _view != null) _ = _view.RestoreAsync();
                     OnPropertyChangedWithValue(value);
-                    OnPropertyChanged(nameof(InputEnabled));
                     OnPropertyChanged(nameof(SendButtonText));
                 }
             }
@@ -321,9 +320,15 @@ namespace ReignBeta.Dialogue.UI
                 {
                     _isPregnancyWarningVisible = value;
                     OnPropertyChangedWithValue(value);
-                    OnPropertyChanged(nameof(InputEnabled));
+                    RefreshInputAvailability();
                 }
             }
+        }
+
+        private void RefreshInputAvailability()
+        {
+            _view?.RefreshAvailability();
+            OnPropertyChanged(nameof(InputEnabled));
         }
 
         public async void ExecuteSend()
@@ -1203,7 +1208,7 @@ namespace ReignBeta.Dialogue.UI
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     _presentationInitializing = false;
-                    OnPropertyChanged(nameof(InputEnabled));
+                    RefreshInputAvailability();
                 }).ConfigureAwait(false);
             }
         }
