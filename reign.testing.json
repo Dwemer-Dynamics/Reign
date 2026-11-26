@@ -3337,6 +3337,7 @@
   },
   "heldNotableStartupObservation": {
     "tool": "reign_observe_held_notable_startup",
+    "fixture": "One fixture.notable_startup_reservation structured action with settlementId for the native player's current town. A provider-isolated, paused and armed disposable Current must be reloaded from its verified recovery point. The accepted live lease admits one native merchant spawn and one production startup reservation. Native setup applies the returned template and withholds startup confirmation before the guarded save and real registered rollback. Uncertain or partial setup requires restore before retrying.",
     "mode": "notable_startup_observation",
     "reportTool": "reign_get_live_test_report",
     "confirmation": "observe Reign held notable on disposable save",

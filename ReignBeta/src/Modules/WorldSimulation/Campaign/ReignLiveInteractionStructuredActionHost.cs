@@ -36,7 +36,10 @@ namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
-        private static Task<LiveCommandResult> StructuredActionTestAsync(JObject command) => ReignMainThread.InvokeAsync(() =>
+        private static Task<LiveCommandResult> StructuredActionTestAsync(JObject command) =>
+            (command["testCase"] as JObject)?.Value<string>("actionId") == "fixture.notable_startup_reservation"
+                ? StageNotableStartupReservationAsync(command)
+                : ReignMainThread.InvokeAsync(() =>
         {
             JObject enrollment = command["enrollment"] as JObject;
             string expected = enrollment?.Value<string>("disposableSaveName") ?? "";

@@ -534,7 +534,7 @@ namespace ReignBeta.Characters.Campaign
             foreach (JProperty item in values?.Properties() ?? Enumerable.Empty<JProperty>()) if (map.TryGetValue(item.Name, out SkillObject skill)) hero.SetSkillValue(skill, Math.Max(0, Math.Min(1023, item.Value.Value<int>())));
         }
 
-        private static void ApplyTraits(Hero hero, JObject values)
+        internal static void ApplyTraits(Hero hero, JObject values)
         {
             if (hero == null) throw new InvalidOperationException("Hero was not found.");
             if (!hero.IsAlive) return;

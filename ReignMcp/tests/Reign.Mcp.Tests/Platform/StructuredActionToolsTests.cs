@@ -6,6 +6,23 @@ namespace Reign.Mcp.Tests;
 public sealed class StructuredActionToolsTests
 {
     [Fact]
+    public void NotableStartupFixtureRequiresOneBoundedTownAndRecoveryCheckpoint()
+    {
+        const string fixture = """
+            {"caseId":"notable_seed","phase":"fixture","kind":"fixture","operationId":"stage_notable",
+             "actionId":"fixture.notable_startup_reservation","arguments":{"settlementId":"town_EW2"}}
+            """;
+        var parsed = Assert.Single(StructuredActionTools.ParseCases("[" + fixture + "]"));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+
+        string foreignCase = fixture.Replace("notable_seed", "foreign_seed", StringComparison.Ordinal);
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases("[" + fixture + "," + foreignCase + "]"));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases("[" + fixture.Replace("town_EW2", " town_EW2", StringComparison.Ordinal) + "]"));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases("[" + fixture.Replace("\"settlementId\"", "\"heroId\"", StringComparison.Ordinal) + "]"));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases("[" + fixture.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"", StringComparison.Ordinal) + "]"));
+    }
+
+    [Fact]
     public void ArrestMurderEvidenceWitnessBindsExactSingleCheckpointObservation()
     {
         const string arguments = """{"accusedHeroId":"lord_1","matterId":"noble-murder_1"}""";
