@@ -627,6 +627,116 @@ public sealed class StructuredActionToolsTests
     }
 
     [Theory]
+    [InlineData(0L, "")]
+    [InlineData(42L, "native-head")]
+    public void CampaignCheckpointRetainsExactRegisteredPointHistoryObservation(long history, string head)
+    {
+        var (receipt, controller, point, ledgerCampaign) = RegisteredPointFixture("valid", history, head);
+        var observation = CampaignTestCheckpointOwnership.ObserveRegisteredPoint(receipt, controller, point, ledgerCampaign);
+        Assert.Equal(new CampaignRegisteredPointEvidence("reign-campaign-test-registered-point-evidence-v1",
+            receipt.Attempt.CampaignId, receipt.Attempt.TimelineId, receipt.SavePointId, 14L, history, head), observation);
+        var retained = receipt with { RegisteredPointEvidence = observation };
+        string json = JsonSerializer.Serialize(retained, JsonSerializerOptions.Web);
+        Assert.Contains("\"registeredPointEvidence\"", json, StringComparison.Ordinal);
+        Assert.Equal(retained, JsonSerializer.Deserialize<CampaignCheckpointReceipt>(json, JsonSerializerOptions.Web));
+    }
+
+    [Theory]
+    [InlineData("absent")]
+    [InlineData("null")]
+    [InlineData("wrong_native_metadata_type")]
+    [InlineData("wrong_schema")]
+    [InlineData("wrong_campaign")]
+    [InlineData("wrong_timeline")]
+    [InlineData("wrong_point")]
+    [InlineData("old_native_sequence")]
+    [InlineData("newer_save_started")]
+    [InlineData("different_completed_sequence")]
+    [InlineData("string_native_sequence")]
+    [InlineData("string_history_sequence")]
+    [InlineData("negative_history_sequence")]
+    [InlineData("invalid_head_pair")]
+    [InlineData("missing_head")]
+    [InlineData("non_string_head")]
+    [InlineData("foreign_ledger_campaign")]
+    [InlineData("foreign_ledger_timeline")]
+    [InlineData("wrong_ledger_point")]
+    [InlineData("missing_ledger_sequence")]
+    [InlineData("different_ledger_sequence")]
+    public void CampaignCheckpointOmitsUnprovedRegisteredPointHistoryWithoutRejectingTheReceipt(string mutation)
+    {
+        var (receipt, controller, point, ledgerCampaign) = RegisteredPointFixture(mutation, 42L, "native-head");
+        Assert.Null(CampaignTestCheckpointOwnership.ObserveRegisteredPoint(receipt, controller, point, ledgerCampaign));
+        Assert.DoesNotContain("\"registeredPointEvidence\"",
+            JsonSerializer.Serialize(receipt, JsonSerializerOptions.Web), StringComparison.Ordinal);
+        Assert.Equal(receipt.SavePointId, CampaignTestCheckpointOwnership.ReadCompletion(receipt.Attempt, controller).SavePointId);
+    }
+
+    private static (CampaignCheckpointReceipt Receipt, ControllerCall Controller, JsonElement Point, string LedgerCampaign)
+        RegisteredPointFixture(string mutation, long history, string head)
+    {
+        var (state, _) = PausedActionSnapshot(safeSettlement: true);
+        var checkpoint = state.CheckpointReceipts[0];
+        var attempt = checkpoint.Attempt with { SourcePointId = Guid.NewGuid().ToString("N") };
+        var observed = new Dictionary<string, object?>
+        {
+            ["schema"] = mutation == "wrong_schema" ? "other" : "reign-campaign-test-native-registered-point-v1",
+            ["campaignId"] = mutation == "wrong_campaign" ? attempt.CampaignId + "-other" : attempt.CampaignId,
+            ["timelineId"] = mutation == "wrong_timeline" ? attempt.TimelineId + "-other" : attempt.TimelineId,
+            ["savePointId"] = mutation == "wrong_point" ? attempt.SourcePointId : checkpoint.SavePointId,
+            ["nativeSaveSequence"] = mutation switch { "old_native_sequence" => 13L, "string_native_sequence" => "14", _ => 14L },
+            ["worldHistorySequence"] = mutation switch
+            {
+                "string_history_sequence" => "42", "negative_history_sequence" => -1L, _ => history
+            },
+            ["nativeHistoryHeadEventId"] = mutation switch { "invalid_head_pair" => "", "non_string_head" => 1, _ => head }
+        };
+        if (mutation == "missing_head") observed.Remove("nativeHistoryHeadEventId");
+        var ownership = new Dictionary<string, object?>
+        {
+            ["id"] = attempt.Id, ["runId"] = attempt.RunId, ["gameInstanceId"] = attempt.GameInstanceId,
+            ["saveName"] = attempt.SaveName, ["savePointId"] = checkpoint.SavePointId, ["sha256"] = checkpoint.Sha256
+        };
+        if (mutation != "absent")
+            ownership["nativeRegisteredPoint"] = mutation switch
+            {
+                "null" => null, "wrong_native_metadata_type" => "unavailable", _ => observed
+            };
+
+        var controller = FixtureCall(new
+        {
+            ok = true,
+            postSaveRuntimeQuiesced = true,
+            save = new
+            {
+                ok = true, saveName = attempt.SaveName,
+                nativeSave = new
+                {
+                    succeeded = true, saveName = attempt.SaveName,
+                    sequence = mutation == "newer_save_started" ? 15L : 14L,
+                    completedSequence = mutation == "different_completed_sequence" ? 13L : 14L
+                },
+                saveFinalization = new { succeeded = true, completedSaveName = attempt.SaveName },
+                checkpointOwnership = ownership
+            }
+        });
+        var registered = new Dictionary<string, object?>
+        {
+            ["savePointId"] = mutation == "wrong_ledger_point" ? attempt.SourcePointId : checkpoint.SavePointId,
+            ["timelineId"] = mutation == "foreign_ledger_timeline" ? attempt.TimelineId + "-other" : attempt.TimelineId,
+            ["worldHistorySequence"] = mutation == "different_ledger_sequence" ? history + 1L : history,
+            ["nativeSaveName"] = attempt.SaveName,
+            ["status"] = "ready",
+            ["snapshotAvailable"] = true,
+            ["saveFinalizedUtc"] = "2026-11-25T20:00:00Z"
+        };
+        if (mutation == "missing_ledger_sequence") registered.Remove("worldHistorySequence");
+        return (CampaignTestCheckpointOwnership.ReadCompletion(attempt, controller), controller,
+            JsonSerializer.SerializeToElement(registered),
+            mutation == "foreign_ledger_campaign" ? attempt.CampaignId + "-other" : attempt.CampaignId);
+    }
+
+    [Theory]
     [InlineData("valid")]
     [InlineData("legacy")]
     [InlineData("foreign_checkpoint")]
