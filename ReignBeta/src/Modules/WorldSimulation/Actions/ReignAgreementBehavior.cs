@@ -104,7 +104,12 @@ namespace ReignBeta.WorldSimulation.Actions
             var a = ReignActionService.Copy(draft);
             if (a.Origin != ActionOrigin.Conversation || a.PlayerId != playerId || a.NpcId != npcId)
                 throw new InvalidOperationException("This action belongs to a different conversation participant.");
-            if (a.NpcAcceptedHash.Length == 0 && !_agreements.ContainsKey(a.Id))
+            bool rulerAppeal = a.Clauses?.Any(c => c?.ActionId == AgreementRules.RulerInfluenceActionId) == true;
+            if (rulerAppeal && channel != AgreementChannel.InPerson)
+                throw new InvalidOperationException("Appeal directly to the ruler in conversation.");
+            // An appeal replay supplies the original composer draft. Rebind its native context
+            // before comparing it to the exact committed hash below.
+            if (a.NpcAcceptedHash.Length == 0 && (rulerAppeal || !_agreements.ContainsKey(a.Id)))
             {
                 a.ConversationId = conversationId; a.ProposerId = playerId;
                 // Set by the native route, never by model output or a draft field.
@@ -253,7 +258,7 @@ namespace ReignBeta.WorldSimulation.Actions
                 throw new InvalidOperationException("The in-person terms were not prepared by the current native conversation.");
             var journal = new AgreementJournal { Agreement = ReignActionService.Copy(agreement) };
             _agreements.Add(agreement.Id, journal);
-            try { return ReignAgreementEngine.Commit(journal, this, ReignActionService.Now, operatorAuthorized); }
+            try { return DescribeInfluence(agreement, ReignAgreementEngine.Commit(journal, this, ReignActionService.Now, operatorAuthorized)); }
             catch { if (journal.CommittedHash.Length == 0) _agreements.Remove(agreement.Id); throw; }
         }
 
@@ -266,7 +271,8 @@ namespace ReignBeta.WorldSimulation.Actions
             foreach (var step in j.Steps.Where(s => s.Reserved && !s.Returned && !s.Completed))
             {
                 var clause = j.Agreement.Clauses.Single(c => c.Id == step.ClauseId);
-                if (clause.ActionId == TavernHouseVisitAction.Id || clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.") || clause.ActionId.StartsWith("npc_life.") || clause.ActionId == "expose_concealed_pregnancy") continue;
+                if (clause.ActionId == TavernHouseVisitAction.Id || clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.") || clause.ActionId.StartsWith("npc_life.") || clause.ActionId == "expose_concealed_pregnancy"
+                    || clause.ActionId == AgreementRules.RulerInfluenceActionId) continue;
                 var expected = CapturedRecord(j.Agreement, clause, step.Snapshot, step.Installment);
                 if (JToken.DeepEquals(AuthorityFields(expected), AuthorityFields(record))) return true;
             }
@@ -322,9 +328,22 @@ namespace ReignBeta.WorldSimulation.Actions
         public ActionReceipt Status(string id)
         {
             if (!_agreements.TryGetValue(id, out var j)) throw new InvalidOperationException("Unknown operation ID.");
-            return ReignAgreementEngine.Describe(j,
+            return DescribeInfluence(j.Agreement, ReignAgreementEngine.Describe(j,
                 j.Agreement.Failure.Length > 0 ? j.Agreement.Failure : j.Receipts.LastOrDefault()?.Message ?? j.Agreement.State.ToString(),
-                ReignActionService.Now);
+                ReignActionService.Now));
+        }
+
+        private static ActionReceipt DescribeInfluence(ActionAgreement agreement, ActionReceipt receipt)
+        {
+            if (receipt.State != AgreementState.Completed || agreement.Clauses.Count != 1) return receipt;
+            var clause = agreement.Clauses[0];
+            if (clause.ActionId != AgreementRules.RulerInfluenceActionId) return receipt;
+            var result = ReignServices.Ruler?.InfluenceReceipt(ReignActionService.Arg(clause, "judgmentId"), Key(agreement, clause, 0));
+            if (result == null) return receipt;
+            receipt.Message = result.Succeeded
+                ? "Your appeal persuaded the ruler. Your requested verdict will be used when judgment is due if it is still available."
+                : "Your appeal did not persuade the ruler. The judgment will follow its usual course.";
+            return receipt;
         }
         public ActionReceipt Cancel(string id) => _agreements.TryGetValue(id, out var j)
             ? ReignAgreementEngine.Cancel(j, this, ReignActionService.Now) : throw new InvalidOperationException("Unknown operation ID.");
@@ -465,6 +484,8 @@ namespace ReignBeta.WorldSimulation.Actions
             ? JObject.FromObject(c).ToString(Formatting.None)
             : c.ActionId == "expose_concealed_pregnancy"
             ? new JObject { ["pregnancyId"] = ReignActionService.Arg(c, "pregnancyId"), ["disclosure"] = ReignActionService.Arg(c, "disclosure") }.ToString(Formatting.None)
+            : c.ActionId == AgreementRules.RulerInfluenceActionId
+            ? new JObject { ["judgmentId"] = ReignActionService.Arg(c, "judgmentId"), ["verdict"] = ReignActionService.Arg(c, "verdict") }.ToString(Formatting.None)
             : c.ActionId.StartsWith("give.", StringComparison.Ordinal)
             ? ReignAssetTransfer.Capture(a, c).ToString(Formatting.None)
             : c.ActionId.StartsWith("government.", StringComparison.Ordinal) ? ReignServices.Government.CaptureGovernmentAgreement(c).ToString(Formatting.None)
@@ -489,6 +510,14 @@ namespace ReignBeta.WorldSimulation.Actions
             else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)) ReignServices.NpcLives.ApplyLifeAction(a, c, key);
             else if (c.ActionId == "expose_concealed_pregnancy") ReignServices.Family.ExposePregnancy(
                 ReignActionService.Arg(c, "pregnancyId"), c.RecipientId, ReignActionService.Arg(c, "disclosure") == "name_father");
+            else if (c.ActionId == AgreementRules.RulerInfluenceActionId)
+            {
+                if (a.Channel != AgreementChannel.InPerson || c.ActorId != Hero.MainHero?.StringId)
+                    throw new InvalidOperationException("An appeal must be sent by the player directly to the deciding ruler.");
+                var terms = JObject.Parse(snapshot);
+                var rulers = ReignServices.Ruler ?? throw new InvalidOperationException("Ruler judgments are unavailable.");
+                rulers.AttemptInfluence(terms.Value<string>("judgmentId"), c.RecipientId, terms.Value<string>("verdict"), key);
+            }
             else if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Deliver(c, JObject.Parse(snapshot));
             else if (c.ActionId.StartsWith("government.", StringComparison.Ordinal)) ReignServices.Government.ApplyAgreementClause(a.Id, c,
                 _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
@@ -515,6 +544,8 @@ namespace ReignBeta.WorldSimulation.Actions
             if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
                 return ReignServices.NpcLives.ObserveLifeAction(a, c, Key(a, c, installment));
             if (c.ActionId == "expose_concealed_pregnancy") return true;
+            if (c.ActionId == AgreementRules.RulerInfluenceActionId)
+                return ReignServices.Ruler?.InfluenceReceipt(ReignActionService.Arg(c, "judgmentId"), Key(a, c, installment)) != null;
             if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) return true;
             if (c.ActionId.StartsWith("government.", StringComparison.Ordinal))
                 return ReignServices.Government.ObserveAgreementClause(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));

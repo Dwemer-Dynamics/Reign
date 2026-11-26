@@ -19,6 +19,7 @@ using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.News;
 using ReignBeta.Platform.Runtime;
+using ReignBeta.Persistence.Campaign;
 
 namespace ReignBeta.WorldSimulation.Rulers
 {
@@ -62,8 +63,14 @@ namespace ReignBeta.WorldSimulation.Rulers
                         j.Clans = (r["clans"]?.ToObject<List<RulerClanSnapshot>>() ?? new List<RulerClanSnapshot>()).Select(c => {
                             c.Fiefs = ClanById(c.ClanId)?.Settlements.Where(s => s.IsTown || s.IsCastle).Select(s => s.StringId).ToList() ?? new List<string>(); return c; }).ToList();
                         j.Failure = "";
-                        if (j.Draw < 0 && TryConsumeJudgmentDraw(j, out double controlledDraw)) j.Draw = controlledDraw;
                         var intended = requested ?? j.PendingVerdict;
+                        if (!intended.HasValue && ReignRulerPolicy.InfluencedVerdict(j) is RulerVerdict influenced
+                            && JudgmentRealmsAtWar(j) && Eligible(j, influenced))
+                        {
+                            Sentence(j, influenced);
+                            return;
+                        }
+                        if (j.Draw < 0 && TryConsumeJudgmentDraw(j, out double controlledDraw)) j.Draw = controlledDraw;
                         if (intended.HasValue && Eligible(j, intended.Value)) { Sentence(j, intended.Value); return; }
                         // A queued choice can become unavailable during captivity.
                         // Release it so the normal eligible decision can proceed.
@@ -89,12 +96,70 @@ namespace ReignBeta.WorldSimulation.Rulers
                 finally { await ReignMainThread.InvokeAsync(() => { if (epoch == _epoch && Instance == this) _networkBusy = false; }).ConfigureAwait(false); }
             }
         }
-        internal bool Eligible(RulerJudgment j, RulerVerdict v)
+        internal IEnumerable<RulerJudgment> InfluenceJudgments(Hero ruler)
+        {
+            Hero player = Hero.MainHero;
+            if (!Enabled(RulerOptions.Judgments) || ApplyingNative || ReignCampaignInitializationGate.IsPending
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
+                || player?.IsAlive != true || player.IsPrisoner || !Sovereign(ruler) || ruler == player)
+                return Enumerable.Empty<RulerJudgment>();
+            return State.Judgments.Where(j => j.VictorId == ruler.StringId && ruler.Clan.Kingdom.StringId == j.VictorKingdomId
+                && j.PrisonerId != player.StringId && (!j.CivilWar || Enabled(RulerOptions.CivilWars))
+                && ReignRulerPolicy.InfluenceOpen(j, Day) && HeldForJudgment(j) && JudgmentRealmsAtWar(j));
+        }
+
+        private static bool JudgmentRealmsAtWar(RulerJudgment judgment)
+        {
+            Kingdom victor = Realm(judgment.VictorKingdomId), defeated = Realm(judgment.DefeatedKingdomId);
+            return victor != null && defeated != null && victor != defeated && !victor.IsEliminated
+                && !defeated.IsEliminated && victor.IsAtWarWith(defeated);
+        }
+
+        internal IEnumerable<RulerVerdict> InfluenceVerdicts(RulerJudgment judgment)
+            => Enum.GetValues(typeof(RulerVerdict)).Cast<RulerVerdict>().Where(v => EligibleVerdict(judgment, v, beforeContext: true));
+
+        internal RulerJudgment FindInfluenceJudgment(string judgmentId, string rulerId)
+            => InfluenceJudgments(HeroById(rulerId)).FirstOrDefault(j => j.Id == judgmentId);
+
+        internal bool CanRequestInfluence(RulerJudgment judgment, string value, out RulerVerdict verdict)
+            => Enum.TryParse(value, out verdict) && verdict.ToString() == value && judgment != null
+                && EligibleVerdict(judgment, verdict, beforeContext: true);
+
+        internal void AttemptInfluence(string judgmentId, string rulerId, string value, string operationId)
+        {
+            if (InfluenceReceipt(judgmentId, operationId) != null) return;
+            var judgment = FindInfluenceJudgment(judgmentId, rulerId);
+            if (!CanRequestInfluence(judgment, value, out var verdict))
+                throw new InvalidOperationException("This ruler's judgment or requested verdict is no longer available.");
+            Hero ruler = HeroById(rulerId);
+            int relation = ruler.GetRelation(Hero.MainHero);
+            int roll = MBRandom.RandomInt(1, 101);
+            judgment.Influence = new RulerJudgmentInfluence
+            {
+                OperationId = operationId,
+                RulerId = rulerId,
+                Verdict = verdict,
+                Chance = ReignRulerPolicy.InfluenceChance(relation),
+                Roll = roll,
+                Succeeded = ReignRulerPolicy.InfluenceSucceeds(relation, roll)
+            };
+        }
+
+        internal RulerJudgmentInfluence InfluenceReceipt(string judgmentId, string operationId)
+            => State.Judgments.FirstOrDefault(j => j.Id == judgmentId && j.Influence?.OperationId == operationId)?.Influence;
+
+        internal static string InfluenceVerdictLabel(RulerVerdict verdict) => Label(verdict);
+
+        internal bool Eligible(RulerJudgment j, RulerVerdict v) => EligibleVerdict(j, v, beforeContext: false);
+
+        private bool EligibleVerdict(RulerJudgment j, RulerVerdict v, bool beforeContext)
         {
             if (ReignRulerPolicy.Execution(v) && CampaignOptions.IsLifeDeathCycleDisabled) return false;
             if (j.DefeatedLord) return v == RulerVerdict.Freedom || v == RulerVerdict.Imprisonment || v == RulerVerdict.CleanExecution;
             if (j.CivilWar) return j.RebelVictory ? v == RulerVerdict.Independence || v == RulerVerdict.RebelExecution || v == RulerVerdict.Reunification : v == RulerVerdict.Freedom || v == RulerVerdict.Imprisonment || v == RulerVerdict.CleanExecution;
-            if (v == RulerVerdict.Exile) return CessionCandidates(j).Any() && Successor(j) != null;
+            if (v == RulerVerdict.Exile) return CessionCandidates(j).Any() && (beforeContext
+                ? Realm(j.DefeatedKingdomId)?.Clans.Any(c => !c.IsEliminated && !c.IsUnderMercenaryService && CanSucceed(j, c.Leader)) == true
+                : Successor(j) != null);
             return v == RulerVerdict.TortureExecution || v == RulerVerdict.CleanExecution || v == RulerVerdict.Exile || v == RulerVerdict.Submission;
         }
         private void PresentDecision(RulerJudgment j)
@@ -153,9 +218,11 @@ namespace ReignBeta.WorldSimulation.Rulers
                 chosen => { _presenting = false; if (chosen.Count == 1) { j.CededSettlementId = (string)chosen[0].Identifier; PrepareDecision(j, RulerVerdict.Exile); } },
                 _ => { _presenting = false; _tick = -25; }), true);
         }
-        private Hero Successor(RulerJudgment j) => j.Clans.Where(c => c.LeaderId != j.PrisonerId).OrderByDescending(c => c.AffinityToVictor)
+        private static bool CanSucceed(RulerJudgment j, Hero hero) => hero?.IsAlive == true && hero.StringId != j.PrisonerId
+            && !hero.IsChild && !hero.IsPrisoner && hero.Clan?.Kingdom?.StringId == j.DefeatedKingdomId;
+        private Hero Successor(RulerJudgment j) => j.Clans.OrderByDescending(c => c.AffinityToVictor)
             .ThenByDescending(c => ClanById(c.ClanId)?.Tier ?? 0).ThenBy(c => c.ClanId, StringComparer.Ordinal).Select(c => HeroById(c.LeaderId))
-            .FirstOrDefault(h => h?.IsAlive == true && !h.IsChild && !h.IsPrisoner && h.Clan?.Kingdom?.StringId == j.DefeatedKingdomId);
+            .FirstOrDefault(h => CanSucceed(j, h));
         internal void Sentence(RulerJudgment j, RulerVerdict verdict)
         {
             if (!ReignRulerPolicy.DecisionDue(j, Day) || !Eligible(j, verdict) || !HeldForJudgment(j)

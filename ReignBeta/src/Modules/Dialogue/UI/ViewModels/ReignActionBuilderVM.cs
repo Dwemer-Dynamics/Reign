@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Reign.Core.Contracts.Actions;
+using ReignBeta.Shared.Rulers;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -330,6 +331,7 @@ namespace ReignBeta.Dialogue.UI
             "government.endorse_petition", "government.sponsor_petition", "government.seek_petition_adoption", "government.present_petition",
             "government.transfer_mandate", "government.nominate_leader", "government.vote_leader", "pledge_rebellion_support" };
         private bool IsAvailable(ActionDefinition definition) => !TavernHouseVisitAction.Contains(_agreement)
+            && (!_correspondence || definition.Id != AgreementRules.RulerInfluenceActionId)
             && ReignActionService.CanBuild(definition, _agreement, _playerActs, _tavern);
         // Keep campaign aliases available to tooling without listing the same objective twice.
         private IEnumerable<ActionDefinition> SelectableActions(IEnumerable<ActionDefinition> definitions)
@@ -582,6 +584,13 @@ namespace ReignBeta.Dialogue.UI
             }
             if (AgreementRules.IsPlayerDeclaration(_agreement))
             {
+                if (_agreement.Clauses[0].ActionId == AgreementRules.RulerInfluenceActionId)
+                {
+                    var ruler = ReignActionService.HeroById(_agreement.NpcId);
+                    int chance = ruler == null ? 0 : ReignRulerPolicy.InfluenceChance(ruler.GetRelation(Hero.MainHero));
+                    Choice("One attempt when you send this appeal", () => { }, false, chance + "% chance of persuasion at your current relation.");
+                    return;
+                }
                 Choice("Declared when you send this message", () => { }, false, "The ruler cannot veto it. You can still go Back or Cancel.");
                 return;
             }

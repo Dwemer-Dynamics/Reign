@@ -20,6 +20,7 @@ using ReignBeta.Government.Campaign;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Arrests;
 using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Rulers;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
 
@@ -49,6 +50,19 @@ namespace ReignBeta.WorldSimulation.Actions
                 => rows.Add(new ReignActionOption { Id = id, Label = label, Available = available, Reason = reason, Quantity = quantity });
             switch (kind)
             {
+                case "rulerJudgment":
+                    var rulers = ReignServices.Ruler;
+                    if (clause != null && rulers != null)
+                        foreach (var judgment in rulers.InfluenceJudgments(ReignActionService.HeroById(clause.RecipientId)))
+                            Add(judgment.Id, ReignActionService.HeroById(judgment.PrisonerId)?.Name.ToString() ?? judgment.PrisonerId);
+                    break;
+                case "rulerVerdict":
+                    var adjudicator = ReignServices.Ruler;
+                    var pending = adjudicator?.FindInfluenceJudgment(ReignActionService.Arg(clause, "judgmentId"), clause?.RecipientId ?? "");
+                    if (pending != null)
+                        foreach (var verdict in adjudicator.InfluenceVerdicts(pending))
+                            Add(verdict.ToString(), ReignRulerCampaignBehavior.InfluenceVerdictLabel(verdict));
+                    break;
                 case "npcMeetingPlace":
                     rows.AddRange(ReignServices.NpcLives?.MeetingPlaceOptions(clause) ?? Array.Empty<ReignActionOption>());
                     break;

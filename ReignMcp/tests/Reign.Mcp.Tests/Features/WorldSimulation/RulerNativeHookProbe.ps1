@@ -19,6 +19,7 @@ $resolver=[ResolveEventHandler]{param($sender,$eventArgs)
 $ok=$false;$failure='';$hooks=0;$type=$null;$partyCountChecks=0;$prisonerFixtureChecks=0;$judgmentDrawChecks=0;$imprisonmentCustodyChecks=0
 $nativeMathAssertions=0;$nativeMathProviderCalls=-1;$nativeMathCampaignMutations=-1;$nativeMathProfileRejected=$false
 $campaignOptionsObserved=$false
+$hostileCustodyChecks=0
 try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
     # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
@@ -123,6 +124,35 @@ try {
         $prisonerFixtureChecks++
     }
     $behavior=[Activator]::CreateInstance($behaviorType)
+    foreach($method in @('ReconcileHostileRulerCustody','QueueRulerJudgment')){
+        $compiled=$behaviorType.GetMethod($method,$instanceFlags)
+        [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($compiled.MethodHandle)
+    }
+    $hasCustodyJudgment=$behaviorType.GetMethod('HasJudgmentForCustody',$instanceFlags)
+    $judgments=$behaviorType.GetField('State',$instanceFlags).GetValue($behavior).Judgments
+    $judgment=[Activator]::CreateInstance($judgmentType)
+    $judgment.PrisonerId='captured_ruler'
+    $judgment.WarId='current_war'
+    $judgment.CapturedDay=100
+    $judgment.ResolvedDay=107
+    $judgments.Add($judgment)
+    foreach($case in @(
+        @('AwaitingAuthority','captured_ruler','current_war',100,$true),
+        @('AwaitingDecision','captured_ruler','current_war',102,$true),
+        @('Applying','captured_ruler','other_war',102,$true),
+        @('Completed','captured_ruler','current_war',100,$true),
+        @('Completed','captured_ruler','current_war',103,$true),
+        @('Completed','captured_ruler','current_war',108,$false),
+        @('Completed','captured_ruler','other_war',100,$false),
+        @('Cancelled','captured_ruler','current_war',108,$false),
+        @('AwaitingDecision','unrelated_ruler','current_war',100,$false)
+    )){
+        $judgment.Stage=[Enum]::Parse($stageType,$case[0])
+        $actual=$hasCustodyJudgment.Invoke($behavior,[object[]]@($case[1],$case[2],[double]$case[3]))
+        if($actual -ne $case[4]){throw ('Wrong automatic judgment admission for '+($case -join ', '))}
+        $hostileCustodyChecks++
+    }
+    $judgments.Clear()
     # Exercise the actual release hook with native Hero and release-reason types.
     # No Campaign or native captivity action is created by these isolated checks.
     $releasePrefix=$type.GetMethod('ReleasePrefix',$flags)
@@ -224,6 +254,6 @@ try {
 finally {
     if($null -ne $type){$type.GetMethod('Unapply',[Reflection.BindingFlags]'Static,Public,NonPublic').Invoke($null,@()) | Out-Null}
     [AppDomain]::CurrentDomain.remove_AssemblyResolve($resolver)
-    [ordered]@{schema='reign-ruler-native-binding-v1';ok=$ok;hookCount=$hooks;partyCountChecks=$partyCountChecks;prisonerFixtureChecks=$prisonerFixtureChecks;judgmentDrawChecks=$judgmentDrawChecks;imprisonmentCustodyChecks=$imprisonmentCustodyChecks;nativeMathAssertions=$nativeMathAssertions;nativeMathProviderCalls=$nativeMathProviderCalls;nativeMathCampaignMutations=$nativeMathCampaignMutations;nativeMathProfileRejected=$nativeMathProfileRejected;campaignOptionsObserved=$campaignOptionsObserved;error=$failure;clientAssembly=$ClientAssembly;nativeGameStarted=$false;campaignMutated=$false} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $probeRoot 'report.json') -Encoding UTF8
+    [ordered]@{schema='reign-ruler-native-binding-v1';ok=$ok;hookCount=$hooks;partyCountChecks=$partyCountChecks;prisonerFixtureChecks=$prisonerFixtureChecks;judgmentDrawChecks=$judgmentDrawChecks;imprisonmentCustodyChecks=$imprisonmentCustodyChecks;hostileCustodyChecks=$hostileCustodyChecks;nativeMathAssertions=$nativeMathAssertions;nativeMathProviderCalls=$nativeMathProviderCalls;nativeMathCampaignMutations=$nativeMathCampaignMutations;nativeMathProfileRejected=$nativeMathProfileRejected;campaignOptionsObserved=$campaignOptionsObserved;error=$failure;clientAssembly=$ClientAssembly;nativeGameStarted=$false;campaignMutated=$false} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $probeRoot 'report.json') -Encoding UTF8
 }
 if(-not $ok){Write-Error $failure;exit 1}
