@@ -261,7 +261,7 @@ The action builder registers `ActionBuilderShell` as its `referenceSurfaceElemen
 
 The 25 native runtime targets are registered in `ui-catalog.json`, including the compact `action-builder` popup. The same catalog records 7 native Bannerlord prefab targets and 9 PrefabExtension applications. Use those exact target IDs for capture; this is coverage accounting, not evidence of native acceptance.
 
-The previewer's **Every-interface parity gate** keeps provider-preview coverage for all 169 browser states while installed-runtime and reviewed-native readiness cover all 33 native surfaces (26 runtime interface states and 7 native augmentations). It identifies exact deployment and native-evidence pending targets, exposes their reasons, and sends the same bounded state with selected-widget Codex context. Provider-free capture mode disables the live refresh to prevent the 352-case matrix from multiplying readiness audits.
+The previewer's **Every-interface parity gate** keeps provider-preview coverage for all 171 browser states while installed-runtime and reviewed-native readiness cover all 33 native surfaces (26 runtime interface states and 7 native augmentations). It identifies exact deployment and native-evidence pending targets, exposes their reasons, and sends the same bounded state with selected-widget Codex context. Provider-free capture mode disables the live refresh to prevent the 356-case matrix from multiplying readiness audits.
 
 # Concurrent scene preparation and native action font binding (2026-09-06)
 
