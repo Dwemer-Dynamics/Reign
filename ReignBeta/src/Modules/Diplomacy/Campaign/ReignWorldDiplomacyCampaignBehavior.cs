@@ -53,11 +53,14 @@ namespace ReignBeta.Diplomacy.Campaign
         private float _pendingPressureGenerationDay = -1000f;
         private float _pendingEvaluationDay = -1000f;
         private bool _outageShown;
+        private bool _providerQueueDeferred;
         private int _consecutiveEvaluationFailures;
         private string _lastError = string.Empty;
         private List<string> _processedPressureNoticeIds = new List<string>();
         private List<string> _processedPressureEffectIds = new List<string>();
         private List<string> _processedClanConflictNoticeIds = new List<string>();
+
+        private bool EvaluationRetryPending => _providerQueueDeferred || !string.IsNullOrWhiteSpace(_lastError);
 
         public bool EvaluationInFlight => _evaluationInFlight;
         public bool AnnouncementPollInFlight => _announcementPollInFlight;
@@ -84,6 +87,7 @@ namespace ReignBeta.Diplomacy.Campaign
             dataStore.SyncData("_reignDiplomacy_lastPressureGenerationAttemptDay",
                 ref _lastPressureGenerationAttemptDay);
             dataStore.SyncData("_reignDiplomacy_lastRetryDay", ref _lastRetryDay);
+            dataStore.SyncData("_reignDiplomacy_providerQueueDeferred", ref _providerQueueDeferred);
             dataStore.SyncData("_reignDiplomacy_lastSuccessfulEvaluationDay", ref _lastSuccessfulEvaluationDay);
             dataStore.SyncData("_reignDiplomacy_processedPressureNotices", ref _processedPressureNoticeIds);
             dataStore.SyncData("_reignDiplomacy_processedPressureEffects", ref _processedPressureEffectIds);
@@ -131,7 +135,7 @@ namespace ReignBeta.Diplomacy.Campaign
                 RememberPendingEvaluationDay(now);
                 return;
             }
-            if (now - _lastEvaluationDay < 0.9f)
+            if (EvaluationRetryPending || now - _lastEvaluationDay < 0.9f)
             {
                 return;
             }
@@ -160,13 +164,13 @@ namespace ReignBeta.Diplomacy.Campaign
             TrySchedulePoliticalPressureGeneration(now);
             if (_evaluationInFlight)
                 RememberPendingEvaluationDay(now);
-            if (!string.IsNullOrWhiteSpace(_lastError) && !_evaluationInFlight && now - _lastRetryDay >= 0.25f)
+            if (!_evaluationInFlight && EvaluationRetryPending && now - _lastRetryDay >= 0.25f)
             {
                 _lastRetryDay = now;
                 _evaluationInFlight = true;
                 _ = EvaluateAsync(true);
             }
-            else if (string.IsNullOrWhiteSpace(_lastError) && !_evaluationInFlight
+            else if (!_evaluationInFlight && !EvaluationRetryPending
                 && now - _lastEvaluationDay >= 0.9f)
             {
                 // A model request can span several campaign days at maximum map
@@ -266,10 +270,16 @@ namespace ReignBeta.Diplomacy.Campaign
                 ReignDiplomacyEvaluationResult result = await ReignDiplomacyServerClient.EvaluateWorldDiplomacyAsync(retry).ConfigureAwait(false);
                 if (!result.Ok)
                 {
+                    if (result.Status == "provider_queue_timeout")
+                    {
+                        _providerQueueDeferred = true;
+                        return;
+                    }
                     RecordEvaluationFailure(result.Error);
                     return;
                 }
 
+                _providerQueueDeferred = false;
                 _lastError = string.Empty;
                 _consecutiveEvaluationFailures = 0;
                 _outageShown = false;
@@ -302,8 +312,7 @@ namespace ReignBeta.Diplomacy.Campaign
                     pendingDay = _pendingEvaluationDay;
                     _pendingEvaluationDay = -1000f;
                 }
-                if (string.IsNullOrWhiteSpace(_lastError)
-                    && pendingDay - _lastEvaluationDay >= 0.9f)
+                if (!EvaluationRetryPending && pendingDay - _lastEvaluationDay >= 0.9f)
                 {
                     await ReignMainThread.InvokeAsync(() =>
                     {
@@ -328,6 +337,7 @@ namespace ReignBeta.Diplomacy.Campaign
 
         private void RecordEvaluationFailure(string error)
         {
+            _providerQueueDeferred = false;
             _lastError = string.IsNullOrWhiteSpace(error)
                 ? "The Reign diplomacy service did not return a usable response."
                 : error;
