@@ -23,6 +23,7 @@ using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using SandBox.Missions.MissionLogics.Arena;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.WorldSimulation.Domain;
 using ReignBeta.WorldSimulation.Integration;
 using ReignBeta.WorldSimulation.World;
@@ -215,12 +216,24 @@ namespace ReignBeta.WorldSimulation.Campaign
                 };
             }
 
+            var request = await ReignMainThread.InvokeAsync(() =>
+            {
+                var load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+                var government = ReignServices.Government;
+                string origin = OwnedJusticeHistoryOrigin;
+                bool canRequestFork = load != null && !string.IsNullOrWhiteSpace(load.Origin)
+                    && load.CampaignId == ReignServerClient.GetCampaignId()
+                    && (origin.Length == 0 || origin == load.Origin)
+                    && _sequence > 0 && !string.IsNullOrWhiteSpace(_headEventId)
+                    && government?.HasLoadedConstructionForTimeline(load.CampaignId, _timelineId) == true;
+                return (Timeline: _timelineId, Sequence: _sequence, Head: _headEventId,
+                    CompleteFrom: _historyCompleteFromDay, Origin: origin, Government: government,
+                    Load: canRequestFork ? load : null);
+            }).ConfigureAwait(false);
+
             JObject response = await ReignWorldHistoryClient.OpenWorldHistoryTimelineAsync(
-                _timelineId,
-                _sequence,
-                _headEventId,
-                _historyCompleteFromDay,
-                OwnedJusticeHistoryOrigin).ConfigureAwait(false);
+                request.Timeline, request.Sequence, request.Head, request.CompleteFrom, request.Origin,
+                generationId, request.Load).ConfigureAwait(false);
             if (!ReignCampaignInitializationGate.IsActiveGeneration(generationId))
                 throw new InvalidOperationException(
                     "The world-history response belongs to a stale campaign generation.");
@@ -228,14 +241,21 @@ namespace ReignBeta.WorldSimulation.Campaign
                 throw new InvalidOperationException(
                     response?.Value<string>("error") ?? "World-history timeline handshake was rejected.");
 
+            var verifiedFork = request.Load == null ? null : ReignWorldHistoryVerifiedFork.ReadOpenReply(
+                response, request.Load, request.Timeline, request.Sequence, request.Head);
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (!ReignCampaignInitializationGate.IsActiveGeneration(generationId))
+                if (!ReignCampaignInitializationGate.IsActiveGeneration(generationId)
+                    || !ReferenceEquals(ReignServices.WorldHistory, this)
+                    || (request.Load != null && (!ReferenceEquals(ReignSaveSyncCoordinator.CurrentVerifiedLoad, request.Load)
+                        || !ReferenceEquals(ReignServices.Government, request.Government)
+                        || _timelineId != request.Timeline || _sequence != request.Sequence || _headEventId != request.Head)))
                     throw new InvalidOperationException(
                         "The world-history response belongs to a stale campaign generation.");
                 string opened = response.Value<string>("timelineId");
                 if (string.IsNullOrWhiteSpace(opened))
                     throw new InvalidOperationException("World-history timeline response omitted its timeline id.");
+                request.Government?.AdoptLoadedConstructionFork(verifiedFork);
                 _timelineId = opened;
                 SharedActivityGeneration = response.Value<string>("sharedActivityGeneration") ?? string.Empty;
                 float serverCompleteFrom =
