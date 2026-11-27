@@ -6,6 +6,43 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class NpcLivesHarnessTests
 {
     [Fact]
+    public void CheckpointEvaluationIsOneExactArmOrObservation()
+    {
+        const string arm = """{"caseId":"arm","phase":"checkpoint_evaluation","operationId":"checkpoint-1","control":"arm"}""";
+        const string observe = """{"caseId":"observe","phase":"checkpoint_evaluation","operationId":"checkpoint-1","control":"observe"}""";
+        Assert.Equal("checkpoint-1", Assert.Single(NpcLivesTestTools.ParseCases("[" + arm + "]")).GetProperty("operationId").GetString());
+        Assert.Equal("observe", Assert.Single(NpcLivesTestTools.ParseCases("[" + observe + "]")).GetProperty("control").GetString());
+        Assert.Throws<ArgumentException>(() => NpcLivesTestTools.ParseCases("[" + arm + "," + observe + "]"));
+        Assert.Throws<ArgumentException>(() => NpcLivesTestTools.ParseCases("[" + arm.Replace("\"arm\"}", "\"release\"}", StringComparison.Ordinal) + "]"));
+        Assert.Throws<ArgumentException>(() => NpcLivesTestTools.ParseCases("[" + arm[..^1] + ",\"heroId\":\"other\"}]"));
+        Assert.Throws<ArgumentException>(() => NpcLivesTestTools.ParseCases("[" + arm.Replace("checkpoint-1", "checkpoint:1", StringComparison.Ordinal) + "]"));
+    }
+
+    [Theory]
+    [InlineData("exact", true)]
+    [InlineData("cleanProviderFreeRun", false)]
+    [InlineData("armed", false)]
+    [InlineData("runId", false)]
+    [InlineData("campaignId", false)]
+    [InlineData("timelineId", false)]
+    [InlineData("currentSaveName", false)]
+    [InlineData("baselineSaveName", false)]
+    public void CheckpointEvaluationRequiresItsOwnCleanProviderGuard(string changed, bool expected)
+    {
+        const string guard = """
+            {"nativeProviderTestGuard":{"schema":"reign-native-provider-free-guard-v1","armed":true,"cleanProviderFreeRun":true,
+            "owner":{"runId":"run","campaignId":"campaign","timelineId":"timeline","currentSaveName":"Current","baselineSaveName":"protected"}}}
+            """;
+        var provider = System.Text.Json.Nodes.JsonNode.Parse(guard)!;
+        var marker = provider["nativeProviderTestGuard"]!;
+        if (changed is "armed" or "cleanProviderFreeRun") marker[changed] = false;
+        else if (changed != "exact") marker["owner"]![changed] = "different";
+        using var document = System.Text.Json.JsonDocument.Parse(provider.ToJsonString());
+        Assert.Equal(expected, NpcLivesTestTools.MatchesCheckpointEvaluationGuard(document.RootElement,
+            "run", "campaign", "timeline", "Current", "protected"));
+    }
+
+    [Fact]
     public void MeetingReleaseSnapshotReturnsBeforeChangingNativeRunOwnership()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),

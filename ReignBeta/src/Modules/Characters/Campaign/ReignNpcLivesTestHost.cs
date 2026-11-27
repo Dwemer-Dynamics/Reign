@@ -79,6 +79,11 @@ namespace ReignBeta.WorldSimulation.Campaign
                             ObserveNpcLivesMeetingRelease(c, enrollment));
 #endif
                     }
+#if !REIGN_EXCLUDE_VERIFICATION
+                    if (c.Value<string>("phase") == "checkpoint_evaluation")
+                        return LiveCommandResult.Completed("Observed the bounded NPC Lives checkpoint evaluation control.",
+                            ControlNpcLivesCheckpointEvaluation(c, enrollment));
+#endif
                     _activeRunId = command.Value<string>("runId"); _activeMode = "npc_lives";
                     return null;
                 }).ConfigureAwait(false);
@@ -118,6 +123,101 @@ namespace ReignBeta.WorldSimulation.Campaign
         }
 
 #if !REIGN_EXCLUDE_VERIFICATION
+        private static NpcLivesCheckpointEvaluationProbe _checkpointEvaluation;
+
+        private static JObject ControlNpcLivesCheckpointEvaluation(JObject test, JObject enrollment)
+        {
+            string operation = test.Value<string>("operationId") ?? "";
+            string control = test.Value<string>("control") ?? "";
+            if (test.Count != 4 || test.Properties().Any(p => p.Value.Type != JTokenType.String
+                || (p.Name != "caseId" && p.Name != "phase" && p.Name != "operationId" && p.Name != "control"))
+                || operation.Length is < 1 or > 80 || operation.Any(c => !char.IsLetterOrDigit(c) && c != '_' && c != '-')
+                || (control != "arm" && control != "observe"))
+                throw new InvalidOperationException("Choose arm or observe and one exact checkpoint evaluation operation.");
+
+            var load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            var owner = ReignServices.NpcLives;
+            var scope = ReignMainThread.CurrentGameScope;
+            string campaign = enrollment.Value<string>("campaignId");
+            string save = enrollment.Value<string>("disposableSaveName");
+            string point = enrollment.Value<string>("checkpointSavePointId") ?? "";
+            string hash = enrollment.Value<string>("checkpointSha256") ?? "";
+            string run = enrollment.Value<string>("campaignTestRunId");
+            if (load == null || owner == null || scope == null || load.CampaignId != campaign
+                || !Guid.TryParseExact(point, "N", out _) || load.SavePointId != point
+                || ReignServices.SaveSync?.CurrentSavePointId != point || hash.Length != 64
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                || NativeCheckpointHash(save) != hash || !NativeSaveHasPoint(save, campaign, point))
+                throw new InvalidOperationException("Use the verified loaded Current checkpoint, point and bytes.");
+
+            var current = _checkpointEvaluation;
+            bool sameLoad = current != null && ReferenceEquals(current.Scope, scope) && ReferenceEquals(current.Load, load);
+            if (control == "arm" && !sameLoad)
+            {
+                _checkpointEvaluation = current =
+                    new NpcLivesCheckpointEvaluationProbe(operation, run, save, point, hash, scope, load, owner);
+                sameLoad = true;
+            }
+            if (!sameLoad || current.Operation != operation || current.Run != run || current.Save != save
+                || current.Point != point || current.Hash != hash || !ReferenceEquals(current.Owner, owner))
+                throw new InvalidOperationException("This operation does not own the current checkpoint evaluation.");
+            return current.Evidence();
+        }
+
+        private static JObject ExerciseNpcLivesCheckpointEvaluation(JObject ownership, string save)
+        {
+            var probe = _checkpointEvaluation;
+            if (probe == null || !_armed || probe.Expiry.IsCompleted || probe.Attempt.Length != 0
+                || !ReferenceEquals(probe.Owner, ReignServices.NpcLives)
+                || !ReferenceEquals(probe.Scope, ReignMainThread.CurrentGameScope)
+                || !ReferenceEquals(probe.Load, ReignSaveSyncCoordinator.CurrentVerifiedLoad)
+                || ownership.Value<string>("runId") != probe.Run || save != probe.Save
+                || ownership.Value<string>("sourceSaveName") != save
+                || ownership.Value<string>("sourcePointId") != probe.Point
+                || ownership.Value<string>("previousDestinationPointId") != probe.Point
+                || !string.Equals(ownership.Value<string>("previousDestinationSha256"), probe.Hash, StringComparison.OrdinalIgnoreCase)
+                || !Guid.TryParseExact(ownership.Value<string>("id"), "N", out _)
+                || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
+                return null;
+
+            probe.Attempt = ownership.Value<string>("id");
+            probe.RevisionBefore = probe.Owner.State.Revision;
+            probe.Started = probe.Owner.TryStartSoloCheckpointEvaluation();
+            return probe.Evidence();
+        }
+
+        private sealed class NpcLivesCheckpointEvaluationProbe
+        {
+            internal readonly string Operation, Run, Save, Point, Hash;
+            internal readonly ReignMainThread.GameScope Scope;
+            internal readonly ReignSaveSyncCoordinator.VerifiedLoad Load;
+            internal readonly ReignNpcLivesBehavior Owner;
+            internal readonly Task Expiry = Task.Delay(TimeSpan.FromMinutes(5));
+            internal string Attempt = "";
+            internal bool Started;
+            internal long RevisionBefore;
+
+            internal NpcLivesCheckpointEvaluationProbe(string operation, string run, string save, string point,
+                string hash, ReignMainThread.GameScope scope, ReignSaveSyncCoordinator.VerifiedLoad load, ReignNpcLivesBehavior owner)
+            {
+                Operation = operation; Run = run; Save = save; Point = point; Hash = hash;
+                Scope = scope; Load = load; Owner = owner;
+            }
+
+            internal JObject Evidence() => new JObject
+            {
+                ["schema"] = "reign-npc-lives-checkpoint-evaluation-v1",
+                ["operationId"] = Operation, ["campaignTestRunId"] = Run,
+                ["saveName"] = Save, ["savePointId"] = Point, ["saveSha256"] = Hash,
+                ["gameInstanceId"] = _gameInstanceId, ["checkpointAttemptId"] = Attempt,
+                ["status"] = Attempt.Length == 0 ? (Expiry.IsCompleted ? "expired" : "armed")
+                    : Started ? "evaluation_started" : "not_exercised",
+                ["revisionBefore"] = RevisionBefore, ["revisionNow"] = Owner.State.Revision,
+                ["nativeSaveSequence"] = ReignSaveSyncCampaignBehavior.NativeSaveObservation().Value<long>("sequence"),
+                ["npcLives"] = Owner.PassiveCheckpointSnapshot()
+            };
+        }
+
         private static JObject ObserveNpcLivesMeetingRelease(JObject c, JObject enrollment)
         {
             string meetingId = c.Value<string>("meetingId") ?? "";

@@ -172,6 +172,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             long expectedSequence = (nativeBefore.Value<long?>("sequence") ?? 0L) + 1L;
             string npcLivesBlocker = string.Empty;
             JObject meetingReleaseWitness = null;
+            JObject npcLivesEvaluationWitness = null;
             bool queued = await ReignMainThread.InvokeAsync(() =>
             {
                 // A periodic scheduling hold never grants permission to save over real work.
@@ -191,6 +192,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                     NpcSummonedMeeting blockingMeeting = null;
                     try
                     {
+#if !REIGN_EXCLUDE_VERIFICATION
+                        npcLivesEvaluationWitness = ExerciseNpcLivesCheckpointEvaluation(ownership, saveName);
+#endif
                         npcLivesBlocker = ReignServices.NpcLives?.PassiveCheckpointBlocker(
                             ownership.Value<string>("campaignId"), ownership.Value<string>("timelineId"), out blockingMeeting)
                             ?? NpcLivesCheckpointPolicy.TelemetryUnavailable;
@@ -242,6 +246,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 {
                     var evidence = new JObject { ["npcLivesCheckpointBlocker"] = npcLivesBlocker };
                     if (meetingReleaseWitness != null) evidence["npcLivesMeetingReleaseWitness"] = meetingReleaseWitness;
+                    if (npcLivesEvaluationWitness != null) evidence["npcLivesCheckpointEvaluationWitness"] = npcLivesEvaluationWitness;
                     return LiveCommandResult.Failed("NPC Lives was not idle at checkpoint submission. No native save was queued.",
                         CheckpointNotQueuedEvidence(ownership, evidence));
                 }
