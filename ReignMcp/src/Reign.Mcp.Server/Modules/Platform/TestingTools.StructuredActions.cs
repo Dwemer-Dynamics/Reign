@@ -11,12 +11,13 @@ public static class StructuredActionTools
     private const string Confirmation = "test structured actions on disposable save";
     private const string RelationshipPullFixture = "fixture.relationship_native_pull";
     private const string ArrestMurderEvidenceWitness = "fixture.arrest_murder_evidence_witness";
+    private const string ArrestScopedEvidenceWitness = "fixture.arrest_scoped_evidence_witness";
     private const string ArrestLateEvidenceFixture = "fixture.arrest_late_evidence";
     private const string NotableStartupReservationFixture = "fixture.notable_startup_reservation";
 
     [McpServerTool(Name = "reign_test_structured_actions", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Disruption delivery accepts one arm or observe case on that exact reloaded Current with a matching clean provider guard, and skips at most one newly issued typed response action for the observed active assignment. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witness requires the exact retained Current checkpoint and observes previously disclosed murder evidence for one accused and a wrong-charge negative without preparing an arrest. The late-evidence arrest fixture captures one exact run-owned accused and prepares, advances one transition, or observes the saved arrest on the same verified Current. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. The Notable startup fixture accepts one town ID and requires the reloaded recovery point and matching provider-free guard. It creates one merchant with an unconfirmed startup reservation. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
+    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Disruption delivery accepts one arm or observe case on that exact reloaded Current with a matching clean provider guard, and skips at most one newly issued typed response action for the observed active assignment. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witnesses require the exact reloaded Current checkpoint and observe existing murder, espionage, rebellion or sabotage evidence for one exact accused and a wrong-charge negative without preparing an arrest. The late-evidence arrest fixture captures one exact run-owned accused and prepares, advances one transition, or observes the saved arrest on the same verified Current. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. The Notable startup fixture accepts one town ID and requires the reloaded recovery point and matching provider-free guard. It creates one merchant with an unconfirmed startup reservation. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestStructuredActions(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -29,7 +30,7 @@ public static class StructuredActionTools
         campaignTestRunId = Required(campaignTestRunId, nameof(campaignTestRunId));
         batchId = Required(batchId, nameof(batchId));
         var cases = ParseCases(casesJson);
-        bool arrestWitness = cases.Count == 1 && IsArrestMurderEvidenceWitness(cases[0]);
+        bool arrestWitness = cases.Count == 1 && IsArrestEvidenceWitness(cases[0]);
         bool arrestLateEvidence = cases.Count == 1 && IsArrestLateEvidenceFixture(cases[0]);
         bool notableFixture = cases.Count == 1 && IsNotableStartupReservationFixture(cases[0]);
         bool spymasterDelivery = cases.Count == 1 && IsSpymasterDisruptionDelivery(cases[0]);
@@ -102,7 +103,7 @@ public static class StructuredActionTools
                 throw new ArgumentException("The relationship pull control requires the fixed fixture phase and kind.");
             if (IsSpymasterDisruptionDelivery(item) && (phase != "fixture" || Text("kind") != "fixture"))
                 throw new ArgumentException("Disruption delivery requires the fixed fixture phase and kind.");
-            if (IsArrestMurderEvidenceWitness(item) && (phase != "fixture" || Text("kind") != "fixture"))
+            if (IsArrestEvidenceWitness(item) && (phase != "fixture" || Text("kind") != "fixture"))
                 throw new ArgumentException("The arrest evidence witness requires the fixed fixture phase and kind.");
             if (IsArrestLateEvidenceFixture(item) && (phase != "fixture" || Text("kind") != "fixture"))
                 throw new ArgumentException("The late arrest evidence requires the fixed fixture phase and kind.");
@@ -128,8 +129,8 @@ public static class StructuredActionTools
                         ValidateSpymasterDisruptionDelivery(fixtureArgs, document.RootElement.GetArrayLength(), item.EnumerateObject().Count());
                     else if (Text("actionId") == "fixture.managed_birth_observe") ValidateManagedBirthObservationArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.follow_accepted_guide_step") ValidateAcceptedGuideStepArguments(fixtureArgs);
-                    else if (IsArrestMurderEvidenceWitness(item))
-                        ValidateArrestMurderEvidenceWitness(item, fixtureArgs, document.RootElement.GetArrayLength());
+                    else if (IsArrestEvidenceWitness(item))
+                        ValidateArrestEvidenceWitness(item, fixtureArgs, document.RootElement.GetArrayLength());
                     else if (IsArrestLateEvidenceFixture(item))
                         ValidateArrestLateEvidenceFixture(item, fixtureArgs, document.RootElement.GetArrayLength());
                     else if (IsRelationshipPullFixture(item)) ValidateRelationshipPullFixture(item, fixtureArgs, operation, document.RootElement.GetArrayLength());
@@ -186,7 +187,8 @@ public static class StructuredActionTools
             or "fixture.government_capital_visit" or "fixture.government_action_composer" or "fixture.follow_accepted_guide_step"
             or "fixture.arranged_wedding" or "fixture.spymaster_disruption_observe" or "fixture.spymaster_disruption_delivery"
             or "fixture.managed_birth_observe"
-            or RelationshipPullFixture or ArrestMurderEvidenceWitness or ArrestLateEvidenceFixture or NotableStartupReservationFixture;
+            or RelationshipPullFixture or ArrestMurderEvidenceWitness or ArrestScopedEvidenceWitness
+            or ArrestLateEvidenceFixture or NotableStartupReservationFixture;
 
     private static bool IsNotableStartupReservationFixture(JsonElement testCase) =>
         testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
@@ -258,9 +260,9 @@ public static class StructuredActionTools
             throw new ArgumentException("Managed birth observation requires an exact motherId.");
     }
 
-    private static bool IsArrestMurderEvidenceWitness(JsonElement testCase) =>
+    private static bool IsArrestEvidenceWitness(JsonElement testCase) =>
         testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
-        && action.GetString() == ArrestMurderEvidenceWitness;
+        && action.GetString() is ArrestMurderEvidenceWitness or ArrestScopedEvidenceWitness;
 
     private static bool IsArrestLateEvidenceFixture(JsonElement testCase) =>
         testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
@@ -278,12 +280,17 @@ public static class StructuredActionTools
             throw new ArgumentException("Supply one late-evidence fixture with an exact accused ID and a supported stage.");
     }
 
-    private static void ValidateArrestMurderEvidenceWitness(JsonElement testCase, JsonElement args, int batchSize)
+    private static void ValidateArrestEvidenceWitness(JsonElement testCase, JsonElement args, int batchSize)
     {
+        bool murder = testCase.GetProperty("actionId").GetString() == ArrestMurderEvidenceWitness;
         if (batchSize != 1 || testCase.EnumerateObject().Count() != 6
-            || args.ValueKind != JsonValueKind.Object || args.EnumerateObject().Count() != 2
-            || !ReadId("accusedHeroId") || !ReadId("matterId"))
-            throw new ArgumentException("Supply one arrest witness with exact accusedHeroId and public murder matterId.");
+            || args.ValueKind != JsonValueKind.Object || args.EnumerateObject().Count() != (murder ? 2 : 3)
+            || !ReadId("accusedHeroId") || !ReadId(murder ? "matterId" : "sourceId"))
+            throw new ArgumentException("Supply one arrest witness with exact accusedHeroId and evidence source ID.");
+        if (!murder && (!args.TryGetProperty("chargeCategory", out var category) || category.ValueKind != JsonValueKind.String
+            || category.GetString() is not ("espionage" or "rebellion" or "sabotage")
+            || category.GetString() == "espionage" && args.GetProperty("sourceId").GetString() != args.GetProperty("accusedHeroId").GetString()))
+            throw new ArgumentException("The scoped arrest witness requires espionage, rebellion or sabotage and its exact source ID.");
 
         bool ReadId(string name) => args.TryGetProperty(name, out var token) && token.ValueKind == JsonValueKind.String
             && token.GetString() is { Length: >= 1 and <= 128 } id

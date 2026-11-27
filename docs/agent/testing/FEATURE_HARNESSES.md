@@ -720,6 +720,12 @@ RB-NATIVE-004 remains optional and its prepare command is held. A separately ver
 
 Ordinary resolution keeps its saved resolving phase when an intended native clan destination cannot be verified. It does not publish a victory or native ruler-judgment receipt from that held state. The held-phase fixture exercises replay admission in one session. A real partial native save and reload and an interrupted outbreak still need separate controlled evidence.
 
+## Rebellion and sabotage arrest evidence
+
+Local rebellion evidence requires a verified public civil-war outbreak on the loaded campaign timeline. The accused must be the recorded founder, the war must still be active, and the original challenged ruler must still lead the affected realm and own the arrest. Local sabotage evidence requires exactly one applied disruption record and application marker, the exact currently exposed and confirmed agent assignment on the loaded campaign timeline, and detection and attribution for that action. The arrest belongs to the ruler of the realm that owned the target when the effect was applied. Affiliation, a sponsor's name, older unscoped records, and generic World History roles establish no cause. Neither evidence kind can establish treason or another charge. `LocalArrestEvidenceTests` exercise the saved-record predicates. Native outbreak and applied-disruption acceptance require separate observation on a guarded disposable save.
+
+After the source exists through ordinary game effects, save a drained Current with `reign_checkpoint_campaign_test` and load that exact registered point. Observe the paused, armed Current through one `fixture.arrest_scoped_evidence_witness` case of `reign_test_structured_actions` with stable case and operation IDs and `phase` and `kind` both set to `fixture`. Enter only `accusedHeroId`, `chargeCategory` and `sourceId` in arguments. For `espionage` the source ID is the exact exposed agent's hero ID. For `rebellion` it is the verified movement ID. For `sabotage` it is the actual applied disruption action ID. Retain the `reign-arrest-scoped-evidence-witness-v1` report with the source's separate creation receipt, exact evidence ID, treason negative, and unchanged custody and case count. The witness cannot create, reveal, or confirm unverified evidence.
+
 ## Arrest public murder evidence witness
 
 Use a paused, armed campaign-test Current with a drained, retained checkpoint.

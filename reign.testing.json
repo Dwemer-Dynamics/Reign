@@ -4565,6 +4565,14 @@
     "isolation": "One exact accusedHeroId and existing public murder matterId on the armed, paused, independently restorable Current. Requires exact checkpoint hash and active point, a diagnostic snapshot that leaves harness ownership intact, and the same idle verified load owner before and after. Reads the production local charge predicate without opening a case, committing custody, writing history, calling a provider, advancing, or saving.",
     "evidence": "Exact disclosed complete-chain ID for murder, same accused with treason rejected, and stable arrest count and native custody before and after. Separate evidence remains required for remote lookup, arrest preparation, execution and other charges."
   },
+  "arrestScopedEvidenceWitness": {
+    "schema": "reign-arrest-scoped-evidence-witness-v1",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#rebellion-and-sabotage-arrest-evidence",
+    "entry": "reign_test_structured_actions",
+    "fixture": "fixture.arrest_scoped_evidence_witness",
+    "isolation": "One exact accusedHeroId, chargeCategory and sourceId on the armed, paused, verified reloaded Current. Supports espionage, rebellion and sabotage. Requires the exact checkpoint hash and adopted point and the same idle verified load owner before and after. Reads only the production local charge predicate. It cannot grant evidence, open an arrest, call a provider, advance or save.",
+    "evidence": "Record the expected production evidence ID, wrong-charge treason rejection, original and reloaded native scope, and unchanged custody and case count. Retain the separate proof that the source was created through normal game effects."
+  },
   "arrestLateEvidenceRecovery": {
     "schema": "reign-arrest-late-evidence-native-v1",
     "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#arrest-late-evidence-save-recovery",

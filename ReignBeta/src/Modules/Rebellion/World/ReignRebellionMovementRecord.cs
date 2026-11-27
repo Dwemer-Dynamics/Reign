@@ -55,6 +55,27 @@ namespace ReignBeta.World
         [SaveableField(48)] public string BackingTerminalReason;
         [SaveableField(49)] public float RebelLeaderCapturedDay;
         [SaveableField(50)] public float ChallengedRulerCapturedDay;
+        [SaveableField(51)] public string PublicOutbreakCampaignId = string.Empty;
+        [SaveableField(52)] public string PublicOutbreakTimelineId = string.Empty;
+        [SaveableField(53)] public string PublicOutbreakFounderHeroId = string.Empty;
+        [SaveableField(54)] public string PublicOutbreakRulerHeroId = string.Empty;
+
+        internal string PublicRebellionArrestEvidenceId(string campaignId, string timelineId,
+            string parentKingdomId, string rulerId, string accusedId)
+        {
+            if (string.IsNullOrWhiteSpace(campaignId) || string.IsNullOrWhiteSpace(timelineId)
+                || PublicOutbreakCampaignId != campaignId || PublicOutbreakTimelineId != timelineId
+                || string.IsNullOrWhiteSpace(parentKingdomId) || ParentKingdomStringId != parentKingdomId
+                || string.IsNullOrWhiteSpace(rulerId) || PublicOutbreakRulerHeroId != rulerId
+                || string.IsNullOrWhiteSpace(accusedId) || PublicOutbreakFounderHeroId != accusedId || accusedId == rulerId
+                || Stage != "civil_war" || ResolutionApplied || !(CivilWarStartedDay >= 0f)
+                || float.IsInfinity(CivilWarStartedDay) || string.IsNullOrWhiteSpace(RebelKingdomStringId)
+                || RebelKingdomStringId == parentKingdomId || string.IsNullOrWhiteSpace(MovementId)
+                || MovementId.Contains(","))
+                return string.Empty;
+
+            return "rebellion_founder:" + MovementId;
+        }
 
         public ReignRebellionMovementRecord()
         {

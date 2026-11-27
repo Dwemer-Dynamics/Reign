@@ -83,5 +83,40 @@ namespace ReignBeta.Court.Campaign
             }
             return false;
         }
+
+        bool ICourtWorldBridge.HasPublicSabotageArrestEvidence(Hero ruler, Hero accused, out string evidence)
+        {
+            evidence = string.Empty;
+            var history = ReignServices.WorldHistory;
+            Kingdom kingdom = ruler?.Clan?.Kingdom;
+            ReignSpymasterState state = SpymasterState;
+            if (kingdom == null || kingdom.IsEliminated || kingdom.Leader != ruler || accused == null
+                || !ReignCampaignIdentity.HasActiveCampaign() || ReignSaveSyncCoordinator.IsAlignmentPending
+                || history?.TimelineReady != true || !ReferenceEquals(ReignServices.CourtWorld, this)
+                || state?.ForeignAgents == null || state.ForeignAgentActions == null
+                || state.AppliedForeignAgentActionIds == null)
+                return false;
+
+            string campaignId = ReignCampaignIdentity.CurrentCampaignId();
+            string timelineId = history.TimelineId;
+            var agents = state.ForeignAgents.Where(agent => agent?.AgentHeroStringId == accused.StringId
+                && agent.AssignmentTimelineId == timelineId).Take(2).ToArray();
+            if (agents.Length != 1)
+                return false;
+
+            foreach (var action in state.ForeignAgentActions)
+            {
+                string candidate = action?.PublicSabotageArrestEvidenceId(campaignId, timelineId,
+                    kingdom.StringId, accused.StringId, agents[0]);
+                if (!string.IsNullOrEmpty(candidate)
+                    && state.AppliedForeignAgentActionIds.Count(id => id == action.ActionId) == 1
+                    && state.ForeignAgentActions.Count(row => row?.ActionId == action.ActionId) == 1)
+                {
+                    evidence = candidate;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

@@ -152,13 +152,26 @@ namespace ReignBeta.WorldSimulation.Campaign
             catch (Exception ex) { return LiveCommandResult.Failed(ex.Message); }
         }
 
-        private static LiveCommandResult ObserveArrestMurderEvidence(JObject command, JObject test, JObject enrollment)
+        private static LiveCommandResult ObserveLocalArrestEvidence(JObject command, JObject test, JObject enrollment)
         {
+            bool murder = test.Value<string>("actionId") == "fixture.arrest_murder_evidence_witness";
             JObject arguments = test["arguments"] as JObject;
-            if (test.Count != 6 || arguments?.Count != 2
+            if (test.Count != 6 || arguments?.Count != (murder ? 2 : 3)
                 || !TryReadArrestWitnessId(arguments["accusedHeroId"], out string accusedId)
-                || !TryReadArrestWitnessId(arguments["matterId"], out string matterId))
-                return LiveCommandResult.Failed("The witness requires one exact accused hero and already disclosed murder matter.");
+                || !TryReadArrestWitnessId(arguments[murder ? "matterId" : "sourceId"], out string sourceId))
+                return LiveCommandResult.Failed("The witness requires one exact accused hero and existing evidence source.");
+
+            string chargeCategory = murder ? "murder" : (string)arguments["chargeCategory"];
+            string expectedEvidence = chargeCategory switch
+            {
+                "murder" when murder => "noble_murder:" + sourceId + ":complete_chain",
+                "espionage" when sourceId == accusedId => "foreign_agent:" + sourceId,
+                "rebellion" => "rebellion_founder:" + sourceId,
+                "sabotage" => "foreign_agent_sabotage:" + sourceId,
+                _ => string.Empty
+            };
+            if (expectedEvidence.Length == 0)
+                return LiveCommandResult.Failed("The witness requires an exact supported charge and source ID.");
 
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             string campaignId = enrollment.Value<string>("campaignId");
@@ -189,9 +202,10 @@ namespace ReignBeta.WorldSimulation.Campaign
             bool wasPrisoner = accused.IsPrisoner;
             PartyBase custody = accused.PartyBelongedToAsPrisoner;
             // Use only the native evidence predicate. Neither candidate is registered as an arrest.
-            var charge = new ReignArrestCase { AccusedHeroStringId = accusedId, ChargeCategory = "murder" };
+            var charge = new ReignArrestCase { AccusedHeroStringId = accusedId, ChargeCategory = chargeCategory,
+                PlayerHeroStringId = Hero.MainHero?.StringId ?? string.Empty };
             bool established = ReignArrestCampaignBehavior.TryGetLocalEvidence(charge, accused, out string evidence)
-                && evidence == "noble_murder:" + matterId + ":complete_chain";
+                && evidence == expectedEvidence;
             charge.ChargeCategory = "treason";
             bool rejectedWrongCharge = !ReignArrestCampaignBehavior.TryGetLocalEvidence(charge, accused, out string wrongEvidence)
                 && string.IsNullOrEmpty(wrongEvidence);
@@ -203,9 +217,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (!established || !rejectedWrongCharge || !unchanged)
                 return LiveCommandResult.Failed("The exact disclosed evidence or unchanged-custody control did not pass.");
 
-            return LiveCommandResult.Completed("Observed exact public murder evidence and the wrong-charge negative.", new JObject
+            return LiveCommandResult.Completed("Observed exact local arrest evidence and the wrong-charge negative.", new JObject
             {
-                ["schema"] = "reign-arrest-public-evidence-witness-v1",
+                ["schema"] = murder ? "reign-arrest-public-evidence-witness-v1" : "reign-arrest-scoped-evidence-witness-v1",
                 ["caseId"] = test.Value<string>("caseId"),
                 ["operationId"] = test.Value<string>("operationId"),
                 ["campaignTestRunId"] = enrollment.Value<string>("campaignTestRunId"),
@@ -217,11 +231,11 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["checkpointSha256"] = hash,
                 ["checkpointLoadOwner"] = loadOwner,
                 ["accusedHeroId"] = accusedId,
-                ["matterId"] = matterId,
+                [murder ? "matterId" : "sourceId"] = sourceId,
                 ["before"] = new JObject { ["caseCount"] = caseCount, ["isPrisoner"] = wasPrisoner, ["hasCustodian"] = custody != null },
                 ["after"] = new JObject { ["caseCount"] = behavior.Cases.Count, ["isPrisoner"] = accused.IsPrisoner,
                     ["hasCustodian"] = accused.PartyBelongedToAsPrisoner != null, ["custodyOwnerUnchanged"] = true },
-                ["positive"] = new JObject { ["chargeCategory"] = "murder", ["causeEstablished"] = true, ["evidenceId"] = evidence },
+                ["positive"] = new JObject { ["chargeCategory"] = chargeCategory, ["causeEstablished"] = true, ["evidenceId"] = evidence },
                 ["negative"] = new JObject { ["chargeCategory"] = "treason", ["causeEstablished"] = false, ["evidenceId"] = string.Empty }
             });
         }

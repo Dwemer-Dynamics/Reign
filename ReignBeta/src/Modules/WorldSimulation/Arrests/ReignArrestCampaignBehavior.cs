@@ -889,14 +889,23 @@ namespace ReignBeta.WorldSimulation.Arrests
         internal static bool TryGetLocalEvidence(ReignArrestCase item, Hero accused, out string evidence)
         {
             evidence = string.Empty;
-#if !REIGN_EXCLUDE_COURT
             if (!MatchesEvidenceSubject(item, accused))
                 return false;
+
+            Hero ruler = Hero.MainHero;
+            bool ownsArrest = ruler != null && ruler.StringId == item.PlayerHeroStringId;
+            if (item.ChargeCategory == "rebellion")
+                return ownsArrest && ReignServices.Rebellion is { } rebellion
+                    && rebellion.TryGetPublicRebellionArrestEvidence(ruler, accused, out evidence);
+
+#if !REIGN_EXCLUDE_COURT
             ICourtWorldBridge court = ReignServices.CourtWorld;
             if (court == null)
                 return false;
             if (item.ChargeCategory == "espionage")
                 return court.HasExposedAgentEvidence(accused, out evidence);
+            if (item.ChargeCategory == "sabotage")
+                return ownsArrest && court.HasPublicSabotageArrestEvidence(ruler, accused, out evidence);
             return item.ChargeCategory == "murder" && court.HasPublicMurderArrestEvidence(accused, out evidence);
 #else
             return false;
