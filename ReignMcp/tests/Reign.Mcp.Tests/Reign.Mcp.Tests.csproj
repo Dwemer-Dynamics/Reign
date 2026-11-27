@@ -39,6 +39,10 @@
              Link="Shared\ReignCourtLifeDomain.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Arrests\ReignArrestEvidenceResponse.cs"
              Link="Shared\ReignArrestEvidenceResponse.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Rebellion\World\ReignRebellionMovementRecord.cs"
+             Link="Shared\ReignRebellionMovementRecord.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Spymaster\Campaign\ReignForeignAgentRecords.cs"
+             Link="Shared\ReignForeignAgentRecords.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"
              Link="Shared\PngEncoder.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngReencode.cs"

@@ -36,6 +36,18 @@ public sealed class StructuredActionToolsTests
             input.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
     }
 
+    [Fact]
+    public void MurderEvidenceStagingRequiresOneArgumentFreeCaseAndRecoveryCheckpoint()
+    {
+        string request = ArrestMurderEvidenceCase("{}").Replace("_witness", "_stage", StringComparison.Ordinal);
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(Assert.Single(StructuredActionTools.ParseCases(request))));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request[..^1] + ", {\"caseId\":\"extra\",\"phase\":\"catalog\"}]"));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("{}", "{\"accusedHeroId\":\"lord_1\"}", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("{}", "null", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("\"arguments\":{}", "\"query\":\"extra\",\"arguments\":{}", StringComparison.Ordinal)));
+    }
+
     [Theory]
     [InlineData("prepare")]
     [InlineData("advance")]
@@ -126,6 +138,32 @@ public sealed class StructuredActionToolsTests
         [{"caseId":"evidence","phase":"fixture","kind":"fixture","actionId":"fixture.arrest_murder_evidence_witness",
         "operationId":"case-1","arguments":ARGUMENTS}]
         """.Replace("ARGUMENTS", arguments);
+
+    [Theory]
+    [InlineData("espionage", "lord_1", true)]
+    [InlineData("espionage", "lord_2", false)]
+    [InlineData("rebellion", "reb_id", true)]
+    [InlineData("sabotage", "agent_action_1", true)]
+    [InlineData("sabotage", " agent_action_1", false)]
+    [InlineData("treason", "reb_id", false)]
+    [InlineData("murder", "noble_matter_1", false)]
+    public void ScopedArrestWitnessUsesOneTypedExistingSource(string charge, string source, bool accepted)
+    {
+        string args = JsonSerializer.Serialize(new { accusedHeroId = "lord_1", chargeCategory = charge, sourceId = source });
+        string fixture = ArrestMurderEvidenceCase(args).Replace("fixture.arrest_murder_evidence_witness", "fixture.arrest_scoped_evidence_witness");
+        if (!accepted)
+        {
+            Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(fixture));
+            return;
+        }
+
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(fixture));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Equal(args, parsed.GetProperty("arguments").GetRawText());
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(fixture.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
+        string entry = fixture[1..^1];
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases("[" + entry + "," + entry.Replace("\"evidence\"", "\"second-case\"") + "]"));
+    }
 
     [Theory]
     [InlineData("food")]

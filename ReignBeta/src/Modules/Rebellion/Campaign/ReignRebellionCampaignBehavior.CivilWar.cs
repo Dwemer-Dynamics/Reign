@@ -18,6 +18,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Integration;
@@ -443,8 +444,43 @@ namespace ReignBeta.Rebellion.Campaign
             movement.ExecutionPhase = "verified";
             EmitHistory(movement, "civil_war_started", "completed", movement.LeaderHeroStringId,
                 rebels.InformalName + " rose against " + parent.InformalName + " for the throne.", false);
+            var history = ReignServices.WorldHistory;
+            if (ReignCampaignIdentity.HasActiveCampaign() && !ReignSaveSyncCoordinator.IsAlignmentPending
+                && history?.TimelineReady == true)
+            {
+                movement.PublicOutbreakCampaignId = ReignCampaignIdentity.CurrentCampaignId();
+                movement.PublicOutbreakTimelineId = history.TimelineId;
+                movement.PublicOutbreakFounderHeroId = founder.StringId;
+                movement.PublicOutbreakRulerHeroId = challengedRuler.StringId;
+            }
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] "
                 + rebels.InformalName + " has begun a rebellion against " + parent.InformalName + "."));
+        }
+
+        internal bool TryGetPublicRebellionArrestEvidence(Hero ruler, Hero accused, out string evidence)
+        {
+            evidence = string.Empty;
+            var history = ReignServices.WorldHistory;
+            Kingdom parent = ruler?.Clan?.Kingdom;
+            if (parent == null || parent.IsEliminated || parent.Leader != ruler || accused == null
+                || !ReferenceEquals(ReignServices.Rebellion, this) || !ReignCampaignIdentity.HasActiveCampaign()
+                || ReignSaveSyncCoordinator.IsAlignmentPending || history?.TimelineReady != true)
+                return false;
+
+            string campaignId = ReignCampaignIdentity.CurrentCampaignId();
+            foreach (ReignRebellionMovementRecord movement in _movements)
+            {
+                string candidate = movement?.PublicRebellionArrestEvidenceId(campaignId, history.TimelineId,
+                    parent.StringId, ruler.StringId, accused.StringId);
+                if (!string.IsNullOrEmpty(candidate) && FindKingdom(movement.RebelKingdomStringId) is Kingdom rebels
+                    && !rebels.IsEliminated && rebels.IsAtWarWith(parent)
+                    && _movements.Count(row => row?.MovementId == movement.MovementId) == 1)
+                {
+                    evidence = candidate;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void HoldOutbreak(ReignRebellionMovementRecord movement, string reason)

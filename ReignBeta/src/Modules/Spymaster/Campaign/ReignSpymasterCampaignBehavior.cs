@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Runtime;
 using ReignBeta.Spymaster.Campaign;
@@ -1203,6 +1204,17 @@ namespace ReignBeta.Court.Campaign
                     SponsorAttributed = (bool?)row["sponsorAttributed"] == true,
                     Summary = (string)row["summary"] ?? "A hidden foreign agent disrupted the settlement."
                 };
+                var history = ReignServices.WorldHistory;
+                if (timedDisruption && ReignCampaignIdentity.HasActiveCampaign() && !ReignSaveSyncCoordinator.IsAlignmentPending
+                    && history?.TimelineReady == true && history.TimelineId == timeline
+                    && agent.SettlementStringId == effect.SettlementStringId
+                    && FindSettlement(effect.SettlementStringId)?.MapFaction is Kingdom targetKingdom)
+                {
+                    record.AssignmentCampaignId = ReignCampaignIdentity.CurrentCampaignId();
+                    record.AssignmentTimelineId = timeline;
+                    record.AssignmentId = agent.AssignmentId;
+                    record.TargetKingdomStringId = targetKingdom.StringId;
+                }
                 state.Effects.Add(effect);
                 state.ForeignAgentActions.Add(record);
                 state.AppliedForeignAgentActionIds.Add(actionId);
