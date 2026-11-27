@@ -124,10 +124,30 @@ namespace ReignBeta.Characters.Campaign
             if (QuietMap() && ReignNpcLivesClient.NpcLivesOptionsConfirmed && day >= _nextEvaluation)
             {
                 _nextEvaluation = day + 1d / 24;
-                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true); p["locations"] = ReignNpcLivesClient.CaptureNpcStoryLocations();
-                Request("evaluate", p); return;
+                Request("evaluate", CaptureEvaluationContext());
+                return;
             }
             Request("state", ReignNpcLivesClient.CaptureNpcLivesContext(Generation));
+        }
+
+        private JObject CaptureEvaluationContext()
+        {
+            var context = ReignNpcLivesClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true);
+            context["locations"] = ReignNpcLivesClient.CaptureNpcStoryLocations();
+            return context;
+        }
+
+        internal bool TryStartSoloCheckpointEvaluation()
+        {
+            if (!Ready() || _busy || !QuietMap() || !ReignNpcLivesClient.NpcLivesOptionsConfirmed
+                || PassiveCheckpointBlocker(_campaign, _timeline, out _).Length != 0)
+                return false;
+            var context = CaptureEvaluationContext();
+            if (!(context["members"] is JArray { Count: 0 })) return false;
+
+            // Exercise the actual request boundary without scheduling or inventing an NPC commitment.
+            Request("evaluate", context);
+            return _checkpointMutationInFlight;
         }
         private void Request(string route, JObject payload, string operation = "")
         {
