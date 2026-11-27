@@ -250,7 +250,7 @@
     ],
     "timePolicy": "Advance only to the next required assertion boundary; combine compatible cases; restore incompatible branches. No fixed soak.",
     "evidenceSchema": "reign-ruler-fixture-v1",
-    "judgmentTiming": "Seven fractional campaign days from original capture before any verdict, then eight additional days from sentencing for execution. Preserve existing absolute deadlines and capture anchors across saves and handover; cancel escape/rescue immediately. RUL-TIME-001 through003 remain native acceptance gates.",
+    "judgmentTiming": "Seven fractional campaign days from first verified custody in the enemy sovereign's party or a dungeon in their realm, then eight additional days from sentencing for execution. Independent, uninvolved and subordinate field parties leave the clock unset. Same-realm transfer and reload preserve confirmed starts, and existing sentences keep their absolute deadlines. Cancel on escape or rescue. RUL-TIME-001 through003 remain native acceptance gates. Verify the existing in-person appeal for multiple rebel clan leaders during the primary window and independently observe each chosen fate after royal victory.",
     "runtimeTimingEvidence": "reign-ruler-runtime-v1 adds activeJudgments, judgmentsLimit20 and bounded judgments with prisoner/victor IDs, stage, capturedDay, decisionDueDay, timeGateOpen, sentencedDay, executionDueDay and an empty verdict until decided; -1 denotes unavailable or inapplicable anchors. Read-only observation, no fixture/time authority.",
     "caseCount": 76,
     "townCrier": {

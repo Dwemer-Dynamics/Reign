@@ -68,6 +68,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             var saved = JObject.Parse(ReignSavePayloadCodec.Decode(_chunks));
             State = saved["state"]?.ToObject<RulerState>() ?? new RulerState();
             if (State.Version != 1) throw new InvalidOperationException("Unsupported ruler save format.");
+            foreach (var judgment in State.Judgments) ReignRulerPolicy.RestoreDecisionCustodyClock(judgment);
             _relationOutbox = saved["relations"]?.ToObject<List<JObject>>() ?? new List<JObject>();
         }
         private void OnSession(CampaignGameStarter starter)
@@ -100,23 +101,25 @@ namespace ReignBeta.WorldSimulation.Rulers
             foreach (var j in State.Judgments.ToList())
             {
                 if (j.Stage == RulerJudgmentStage.Completed || j.Stage == RulerJudgmentStage.Cancelled) continue;
-                ReignRulerPolicy.EnsureCaptureDay(j, Day);
                 ReignRulerPolicy.EnsureSentenceDeadline(j, Day);
-                if (j.Stage == RulerJudgmentStage.AwaitingDecision && Realm(j.VictorKingdomId)?.Leader?.IsAlive == true)
-                    ReignRulerPolicy.SetDecisionAuthority(j, Realm(j.VictorKingdomId).Leader.StringId);
+                var victorRealm = Realm(j.VictorKingdomId);
+                var authority = victorRealm?.Leader;
+                if (j.Stage == RulerJudgmentStage.AwaitingDecision && authority?.IsAlive == true)
+                    ReignRulerPolicy.SetDecisionAuthority(j, authority.StringId);
                 Hero prisoner = HeroById(j.PrisonerId);
                 if (prisoner == null) { j.Failure = "Prisoner identity is unavailable."; continue; }
-                if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsAlive || !prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner?.MapFaction != Realm(j.VictorKingdomId)))
+                var holder = prisoner.PartyBelongedToAsPrisoner;
+                if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsAlive || !prisoner.IsPrisoner || holder?.MapFaction != victorRealm))
                 { CancelForLostCustody(j, prisoner.IsAlive, "cancelled"); continue; }
                 if (j.Stage == RulerJudgmentStage.AwaitingAuthority)
                 {
-                    Hero authority = Realm(j.VictorKingdomId)?.Leader;
-                    if (authority?.IsAlive != true
-                        || (authority != Hero.MainHero && prisoner.PartyBelongedToAsPrisoner == PartyBase.MainParty)) continue;
-                    ReignRulerPolicy.SetDecisionAuthority(j, authority.StringId);
-                    j.Stage = RulerJudgmentStage.AwaitingDecision;
+                    if (!JudgmentRealmsAtWar(j) || !IsSovereignCustody(holder, victorRealm)) continue;
+                    StartSovereignCustody(j, authority);
                 }
-                if (ReignRulerPolicy.DecisionDue(j, Day) && !_networkBusy)
+                if (j.Stage == RulerJudgmentStage.AwaitingDecision && !j.DecisionCustodyConfirmed
+                    && (j.DefeatedLord || IsSovereignCustody(holder, victorRealm) && JudgmentRealmsAtWar(j)))
+                    ReignRulerPolicy.EnsureCaptureDay(j, Day);
+                if (ReignRulerPolicy.DecisionDue(j, Day) && !_networkBusy && HeldForJudgment(j))
                 {
                     if (HeroById(j.VictorId) == Hero.MainHero) { if (!_presenting) PrepareDecision(j, null); }
                     else PrepareDecision(j, null);
@@ -242,11 +245,10 @@ namespace ReignBeta.WorldSimulation.Rulers
             PartyBase custody = sovereign.PartyBelongedTo?.Party ?? Capital(sovereign.Clan.Kingdom)?.Party; if (custody == null) return;
             prisoner.PartyBelongedToAsPrisoner?.PrisonRoster.RemoveTroop(prisoner.CharacterObject);
             TakePrisonerAction.Apply(custody, prisoner);
-            var j = State.Judgments.LastOrDefault(x => x.PrisonerId == prisoner.StringId && x.Stage == RulerJudgmentStage.AwaitingAuthority);
-            if (j != null) j.Stage = RulerJudgmentStage.AwaitingDecision;
+            if (prisoner.PartyBelongedToAsPrisoner == custody) QueueRulerJudgment(custody, prisoner);
         }
         private void PrisonerTaken(PartyBase captor, Hero prisoner)
-            => QueueRulerJudgment(captor, prisoner, Day);
+            => QueueRulerJudgment(captor, prisoner);
 
         private void ReconcileHostileRulerCustody()
         {
@@ -256,25 +258,48 @@ namespace ReignBeta.WorldSimulation.Rulers
                 Hero ruler = realm.Leader;
                 if (realm.IsEliminated || ruler?.IsPrisoner != true) continue;
                 // Prison roster transfers and existing saves can establish custody without a new capture callback.
-                QueueRulerJudgment(ruler.PartyBelongedToAsPrisoner, ruler, ruler.CaptivityStartTime.ToDays);
+                QueueRulerJudgment(ruler.PartyBelongedToAsPrisoner, ruler);
             }
         }
 
-        private void QueueRulerJudgment(PartyBase captor, Hero prisoner, double capturedDay)
+        private static void StartSovereignCustody(RulerJudgment judgment, Hero sovereign)
+        {
+            ReignRulerPolicy.SetDecisionAuthority(judgment, sovereign.StringId);
+            judgment.Stage = RulerJudgmentStage.AwaitingDecision;
+            ReignRulerPolicy.EnsureCaptureDay(judgment, Day);
+        }
+
+        internal static bool IsSovereignCustody(PartyBase holder, Kingdom realm)
+            => realm?.Leader?.IsAlive == true && holder?.MapFaction == realm
+                && (holder.Settlement?.IsFortification == true || holder.MobileParty?.LeaderHero == realm.Leader);
+
+        private void QueueRulerJudgment(PartyBase captor, Hero prisoner)
         {
             if (!Enabled(RulerOptions.Judgments) || ApplyingNative || !Sovereign(prisoner)
                 || !(captor?.MapFaction is Kingdom victor) || victor.IsEliminated || victor.Leader?.IsAlive != true) return;
             var loser = prisoner.Clan.Kingdom;
             if (victor == loser || loser.IsEliminated || !victor.IsAtWarWith(loser)) return;
-            double now = Day;
-            if (!(capturedDay > 0 && capturedDay <= now)) capturedDay = now;
             var war = GetWar(victor, loser, true);
-            if (HasJudgmentForCustody(prisoner.StringId, war.Id, capturedDay)) return;
+            bool awaitingHandover = !IsSovereignCustody(captor, victor);
+            var waiting = State.Judgments.FirstOrDefault(j => j.PrisonerId == prisoner.StringId && j.WarId == war.Id
+                && j.VictorKingdomId == victor.StringId && j.Stage == RulerJudgmentStage.AwaitingAuthority);
+            if (waiting != null)
+            {
+                if (!awaitingHandover) StartSovereignCustody(waiting, victor.Leader);
+                return;
+            }
+
+            // Native captivity identifies a continuous imprisonment for deduplication only.
+            // Its start can predate enemy control of the prisoner.
+            double nativeCaptivityDay = prisoner.CaptivityStartTime.ToDays;
+            if (!(nativeCaptivityDay > 0 && nativeCaptivityDay <= Day)) nativeCaptivityDay = Day;
+            if (HasJudgmentForCustody(prisoner.StringId, war.Id, nativeCaptivityDay)) return;
             var jnew = new RulerJudgment { Id = Guid.NewGuid().ToString("N"), PrisonerId = prisoner.StringId, VictorId = victor.Leader.StringId,
-                DefeatedKingdomId = loser.StringId, VictorKingdomId = victor.StringId, CapturedDay = capturedDay, WarId = war.Id,
-                Stage = captor == PartyBase.MainParty && victor.Leader != Hero.MainHero ? RulerJudgmentStage.AwaitingAuthority : RulerJudgmentStage.AwaitingDecision };
+                DefeatedKingdomId = loser.StringId, VictorKingdomId = victor.StringId, WarId = war.Id,
+                Stage = RulerJudgmentStage.AwaitingAuthority };
             ReignServices.Rebellion?.DescribeRulerJudgment(jnew);
             if (jnew.CivilWar && !Enabled(RulerOptions.CivilWars)) return;
+            if (!awaitingHandover) StartSovereignCustody(jnew, victor.Leader);
             State.Judgments.Add(jnew);
         }
 

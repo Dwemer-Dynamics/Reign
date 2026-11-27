@@ -53,12 +53,12 @@ namespace ReignBeta.WorldSimulation.Actions
                 case "rulerJudgment":
                     var rulers = ReignServices.Ruler;
                     if (clause != null && rulers != null)
-                        foreach (var judgment in rulers.InfluenceJudgments(ReignActionService.HeroById(clause.RecipientId)))
-                            Add(judgment.Id, ReignActionService.HeroById(judgment.PrisonerId)?.Name.ToString() ?? judgment.PrisonerId);
+                        foreach (var target in rulers.InfluenceTargets(ReignActionService.HeroById(clause.RecipientId)))
+                            Add(target.Id, ReignActionService.HeroById(target.SubjectId)?.Name.ToString() ?? target.SubjectId);
                     break;
                 case "rulerVerdict":
                     var adjudicator = ReignServices.Ruler;
-                    var pending = adjudicator?.FindInfluenceJudgment(ReignActionService.Arg(clause, "judgmentId"), clause?.RecipientId ?? "");
+                    var pending = adjudicator?.FindInfluenceTarget(ReignActionService.Arg(clause, "judgmentId"), clause?.RecipientId ?? "");
                     if (pending != null)
                         foreach (var verdict in adjudicator.InfluenceVerdicts(pending))
                             Add(verdict.ToString(), ReignRulerCampaignBehavior.InfluenceVerdictLabel(verdict));

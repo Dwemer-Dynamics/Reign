@@ -62,7 +62,9 @@ Life and death is required while its feature is enabled; combat-death difficulty
 
 ## Judgments
 
-Sovereigns decide regardless of government type. Existing saved sentences retain their stored absolute deadlines; a legacy pending record without a capture timestamp starts a full seven-day window on first observation. AI realm captures queue judgment at capture. No verdict is permitted until seven full fractional campaign days after the original capture; handover does not restart this clock. A player vassal/mercenary keeps ordinary prisoner control until direct handover; dungeon donation alone is insufficient. Player sovereigns can choose and suffer all outcomes.
+Sovereigns decide regardless of government type. The seven-day decision window begins when the captive enters the opposing sovereign's own party or a dungeon in that sovereign's realm. A sovereign who captures the prisoner directly starts the clock immediately. Independent parties, uninvolved realms and subordinate field parties leave the clock unset. Transfers within the deciding realm preserve a confirmed clock, and the verdict waits for qualified custody. A legacy pending sovereign judgment without a verified custody start receives a full seven days from its first qualifying observation. Existing issued sentences keep their saved absolute deadlines. Player sovereigns can choose and suffer all outcomes.
+
+During the royal judgment window, the in-person appeal action lists the captive ruler and the eligible leaders of the other rebel clans. Each clan has one attempt addressed to the deciding sovereign, at their relation toward the player minus 25 percentage points with a zero floor. A successful recommendation for the same clan leader and sovereign supplies that clan's verdict when the civil war resolves, before the automatic mercy roll. An attempted appeal stays recorded through save/load. A replacement leader or sovereign, a failed appeal, or a verdict that becomes unavailable leaves the ordinary decision in place.
 
 | Verdict | Permanent resolution |
 |---|---|

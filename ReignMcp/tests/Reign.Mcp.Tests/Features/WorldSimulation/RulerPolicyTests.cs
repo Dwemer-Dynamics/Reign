@@ -98,18 +98,69 @@ public sealed class RulerPolicyTests
     }
 
     [Fact]
-    public void Legacy_authority_wait_is_anchored_before_handover_without_rewriting_sentenced_history()
+    public void Sovereign_handover_starts_the_clock_and_legacy_migration_preserves_sentences()
     {
-        var j = new RulerJudgment { Stage = RulerJudgmentStage.AwaitingAuthority };
+        var j = new RulerJudgment { Stage = RulerJudgmentStage.AwaitingAuthority, CapturedDay = 99 };
+        ReignRulerPolicy.RestoreDecisionCustodyClock(j);
         ReignRulerPolicy.EnsureCaptureDay(j, 100.5);
+        Assert.Equal(-1, j.CapturedDay);
+        Assert.False(ReignRulerPolicy.DecisionDue(j, 110));
         j.Stage = RulerJudgmentStage.AwaitingDecision;
         ReignRulerPolicy.EnsureCaptureDay(j, 110);
-        Assert.Equal(100.5, j.CapturedDay);
-        Assert.True(ReignRulerPolicy.DecisionDue(j, 110));
+        var reloaded = JsonSerializer.Deserialize<RulerJudgment>(JsonSerializer.Serialize(j))!;
+        ReignRulerPolicy.RestoreDecisionCustodyClock(reloaded);
+        ReignRulerPolicy.EnsureCaptureDay(reloaded, 112);
+        Assert.Equal(110, reloaded.CapturedDay);
+        Assert.False(ReignRulerPolicy.DecisionDue(reloaded, 116.999));
+        Assert.True(ReignRulerPolicy.DecisionDue(reloaded, 117));
+
+        var oldPending = JsonSerializer.Deserialize<RulerJudgment>("{\"Stage\":1,\"CapturedDay\":99}")!;
+        ReignRulerPolicy.RestoreDecisionCustodyClock(oldPending);
+        Assert.False(ReignRulerPolicy.DecisionDue(oldPending, 110));
+        ReignRulerPolicy.EnsureCaptureDay(oldPending, 111);
+        Assert.Equal(111, oldPending.CapturedDay);
         j.Stage = RulerJudgmentStage.Sentenced;
-        j.CapturedDay = -1;
+        j.Deadline = 122;
+        ReignRulerPolicy.RestoreDecisionCustodyClock(j);
         ReignRulerPolicy.EnsureCaptureDay(j, 120);
-        Assert.Equal(-1, j.CapturedDay);
+        Assert.Equal(110, j.CapturedDay);
+        Assert.Equal(122, j.Deadline);
+    }
+
+    [Fact]
+    public void Clan_appeals_are_independent_and_bound_to_the_saved_clan_leader_and_sovereign()
+    {
+        var j = new RulerJudgment { Id = "lead", VictorId = "ruler", CapturedDay = 100,
+            Stage = RulerJudgmentStage.AwaitingDecision, CivilWar = true,
+            Influence = new RulerJudgmentInfluence { OperationId = "lead-appeal", RulerId = "ruler" } };
+        j.ClanInfluences.Add("clan-a", new RulerJudgmentInfluence { RulerId = "ruler", SubjectId = "leader-a",
+            OperationId = "appeal-a", Verdict = RulerVerdict.Freedom, Chance = 50, Roll = 40, Succeeded = true });
+        j.ClanInfluences.Add("clan-b", new RulerJudgmentInfluence { RulerId = "ruler", SubjectId = "leader-b",
+            OperationId = "appeal-b", Verdict = RulerVerdict.CleanExecution, Chance = 50, Roll = 70 });
+        Assert.False(ReignRulerPolicy.InfluenceOpen(j, 106));
+        Assert.True(ReignRulerPolicy.AppealWindowOpen(j, 106));
+        Assert.False(ReignRulerPolicy.AppealWindowOpen(j, 107));
+
+        var loaded = JsonSerializer.Deserialize<RulerJudgment>(JsonSerializer.Serialize(j))!;
+        loaded.Stage = RulerJudgmentStage.Applying;
+        Assert.False(ReignRulerPolicy.AppealWindowOpen(loaded, 106));
+        Assert.Equal("appeal-a", loaded.ClanInfluences["clan-a"].OperationId);
+        Assert.Equal(40, loaded.ClanInfluences["clan-a"].Roll);
+        Assert.Equal(RulerVerdict.Freedom, ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-a", "leader-a", "ruler", true));
+        Assert.Null(ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-a", "successor", "ruler", true));
+        Assert.Null(ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-b", "leader-b", "ruler", true));
+        Assert.Null(ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-c", "leader-a", "ruler", true));
+        Assert.Null(ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-a", "leader-a", "other-ruler", true));
+        Assert.False(ReignRulerPolicy.ClanAppealVerdictEligible(RulerVerdict.CleanExecution, false));
+        Assert.False(ReignRulerPolicy.ClanAppealVerdictEligible(RulerVerdict.Submission, true));
+        ReignRulerPolicy.SetDecisionAuthority(loaded, "successor");
+        ReignRulerPolicy.SetDecisionAuthority(loaded, "ruler");
+        Assert.Null(ReignRulerPolicy.InfluencedClanVerdict(loaded, "clan-a", "leader-a", "ruler", true));
+
+        string targetId = ReignRulerPolicy.ClanAppealId(j.Id, "clan-a", "leader-a");
+        Assert.Equal(targetId, ReignRulerPolicy.ClanAppealId(loaded.Id, "clan-a", "leader-a"));
+        Assert.NotEqual(targetId, ReignRulerPolicy.ClanAppealId(j.Id, "clan-a", "successor"));
+        Assert.NotEqual(ReignRulerPolicy.ClanAppealId(j.Id, "a", "bc"), ReignRulerPolicy.ClanAppealId(j.Id, "ab", "c"));
     }
 
     [Fact]
