@@ -15,19 +15,26 @@ using TaleWorlds.Library;
 using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Runtime;
+using ReignBeta.Persistence.Integration;
 
 namespace ReignBeta.WorldSimulation.Integration
 {
     internal static class ReignWorldHistoryClient
     {
-        internal static async Task<JObject> OpenWorldHistoryTimelineAsync(string timelineId, long savedSequence, string savedHeadEventId, float completeFromDay)
+        internal static async Task<JObject> OpenWorldHistoryTimelineAsync(string timelineId, long savedSequence,
+            string savedHeadEventId, float completeFromDay, string ownedOrigin)
         {
-            return await PostJsonAsync("/world-history/timeline/open", new JObject
+            const string route = "/world-history/timeline/open";
+            var request = new JObject
             {
                 ["campaignId"] = GetCampaignId(), ["timelineId"] = timelineId ?? "main", ["savedSequence"] = savedSequence,
                 ["savedHeadEventId"] = savedHeadEventId ?? string.Empty, ["historyCompleteFromWorldDay"] = completeFromDay,
                 ["currentWorldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : TaleWorlds.CampaignSystem.CampaignTime.Now.ToDays
-            }).ConfigureAwait(false);
+            };
+            if (string.IsNullOrEmpty(ownedOrigin)) return await PostJsonAsync(route, request).ConfigureAwait(false);
+            int alignment = ReignSaveSyncCoordinator.CampaignGeneration;
+            return await SendToOwnedHistoryOriginAsync(ownedOrigin, route, request,
+                () => ReignSaveSyncCoordinator.CampaignGeneration == alignment).ConfigureAwait(false);
         }
 
         internal static async Task<JObject> VerifyWorldHistoryAsync(string claim, string claimantId, string speakerId, string speakerKingdomId, float worldDay, string timelineId)
@@ -89,28 +96,105 @@ namespace ReignBeta.WorldSimulation.Integration
             return await PostOwnedJsonAsync("/world-history/lie-check", payload, requestOwner).ConfigureAwait(false);
         }
 
-        internal static async Task<JObject> IngestWorldHistoryBatchAsync(string campaignId, string timelineId, float completeFromDay, JArray events, string generation, long epoch)
+        internal static async Task<JObject> IngestWorldHistoryBatchAsync(string campaignId, string timelineId,
+            float completeFromDay, JArray events, string generation, long epoch, string ownedOrigin)
         {
+            if (events != null && events.OfType<JObject>().Any(ReignWorldHistoryOutbox.HasOwnedHistoryMarker))
+                throw new InvalidOperationException("An owned history record cannot use ordinary aggregate ingest.");
             var request = new JObject
             {
                 ["campaignId"] = campaignId, ["clientId"] = "reign_native_campaign", ["timelineId"] = timelineId ?? "main",
                 ["sharedActivityGeneration"] = generation, ["_reignHistoryEpoch"] = epoch,
                 ["historyCompleteFromWorldDay"] = completeFromDay, ["events"] = events ?? new JArray()
             };
-            return await PostJsonAsync("/world-history/ingest-batch", request,
-                () => Task.FromResult(ReignWorldHistoryTransport.IsCurrentRequest(request))).ConfigureAwait(false);
+            const string route = "/world-history/ingest-batch";
+            bool Current() => ReignWorldHistoryTransport.IsCurrentRequest(request);
+            return string.IsNullOrEmpty(ownedOrigin)
+                ? await PostJsonAsync(route, request, () => Task.FromResult(Current())).ConfigureAwait(false)
+                : await SendToOwnedHistoryOriginAsync(ownedOrigin, route, request, Current).ConfigureAwait(false);
+        }
+
+        internal static async Task<bool> ObserveOwnedJusticePredecessorAsync(string origin, int alignment,
+            string campaign, string timeline, string generation, string loadSession, long sequence, string head)
+        {
+            string route = "/world-history/head?headProofVersion=1&campaignId=" + Uri.EscapeDataString(campaign)
+                + "&timelineId=" + Uri.EscapeDataString(timeline)
+                + "&sharedActivityGeneration=" + Uri.EscapeDataString(generation);
+            bool Current() => ReignSaveSyncCoordinator.CampaignGeneration == alignment;
+            JObject reply = await SendToOwnedHistoryOriginAsync(origin, route, null, Current)
+                .ConfigureAwait(false);
+            return Current() && reply?["ok"]?.Type == JTokenType.Boolean && reply.Value<bool>("ok")
+                && reply["headProofVersion"]?.Type == JTokenType.Integer && reply.Value<int>("headProofVersion") == 1
+                && AsExactString(reply, "result") == "observed" && reply["ownership"] is JObject owner
+                && AsExactString(owner, "campaignId") == campaign && AsExactString(owner, "timelineId") == timeline
+                && AsExactString(owner, "sharedActivityGeneration") == generation
+                && AsExactString(reply, "nativeLoadSessionId") == loadSession
+                && reply["headSequence"]?.Type == JTokenType.Integer && reply.Value<long>("headSequence") == sequence
+                && AsExactString(reply, "headEventId") == head;
+        }
+
+        private static async Task<JObject> SendToOwnedHistoryOriginAsync(string origin, string route, JObject request, Func<bool> current)
+        {
+            await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
+            await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
+            return await ReignHttpTransport.SendWorkerOwnedPinnedJsonAsync(origin, route, request, current).ConfigureAwait(false);
+        }
+
+        private static string AsExactString(JObject value, string key) =>
+            value?[key]?.Type == JTokenType.String ? value.Value<string>(key) : null;
+
+        internal static JObject BuildOwnedJusticeHistoryEnvelope(JObject facts)
+        {
+            string player = facts.Value<string>("playerHeroId");
+            string accused = facts.Value<string>("accusedHeroId");
+            bool measured = facts["effectIntentId"]?.Type == JTokenType.String;
+            var material = new JObject { ["caseId"] = facts["caseId"].DeepClone(), ["accusedHeroId"] = accused, ["playerHeroId"] = player };
+            if (measured)
+            {
+                foreach (string field in new[] { "discoveryEventId", "effectIntentId", "appliedRelationshipDelta",
+                    "measuredRelationshipChange", "reputationValue" })
+                    material[field] = facts[field].DeepClone();
+                material["effectStatus"] = "measured";
+            }
+            else
+            {
+                material["evidenceIds"] = facts["evidenceIds"].DeepClone();
+                material["effectStatus"] = "pending";
+            }
+            return new JObject
+            {
+                ["eventId"] = facts["eventId"].DeepClone(), ["sequence"] = facts["sequence"].DeepClone(),
+                ["worldDay"] = facts["worldDay"].DeepClone(), ["category"] = "justice",
+                ["eventType"] = measured ? "arrest_reclassification_effect_settled" : "arrest_evidence_reclassified",
+                ["phase"] = measured ? "effect_settled" : "evidence_established",
+                ["correlationId"] = facts["caseId"].DeepClone(), ["locationId"] = facts["locationId"].DeepClone(),
+                ["locationName"] = facts["locationName"].DeepClone(), ["source"] = "reign_system",
+                ["disseminationClass"] = "ordinary", ["isComplete"] = true,
+                ["summary"] = measured ? "The relationship and reputation effects of reclassification were measured."
+                    : "New evidence established cause in an active arrest.",
+                ["payload"] = material,
+                ["entities"] = new JArray
+                {
+                    new JObject { ["entityId"] = player, ["entityType"] = "hero", ["role"] = "political actor", ["isPlayer"] = true },
+                    new JObject { ["entityId"] = accused, ["entityType"] = "hero", ["role"] = "political participant" }
+                }
+            };
         }
 
         // The caller retains the saved event and owns both this scope and the pinned origin.
         // An unavailable proof leaves the saved work pending; this read never mutates the outbox.
         internal static async Task<bool> MatchesWorldHistoryEventAtOriginAsync(
-            ReignWorldHistoryEventProof expected, Func<bool> requestOwner)
+            ReignWorldHistoryEventProof expected, Func<bool> requestOwner, string ownedLoadSession = null)
         {
             if (expected == null || requestOwner == null) return false;
             bool Current() => requestOwner() && ReignHttpTransport.IsAllowedPinnedOrigin(expected.Origin);
-            JObject reply = await SendPinnedJsonAsync(expected.Origin, expected.PathAndQuery, null, Current)
+            string route = expected.PathAndQuery;
+            if (ownedLoadSession != null)
+                route += "&ownedAdmissionProofVersion=1&nativeLoadSessionId=" + Uri.EscapeDataString(ownedLoadSession);
+            JObject reply = await SendPinnedJsonAsync(expected.Origin, route, null, Current)
                 .ConfigureAwait(false);
-            return expected.Matches(reply) && await ReignMainThread.InvokeAsync(Current).ConfigureAwait(false);
+            bool exact = ownedLoadSession == null ? expected.Matches(reply) : expected.MatchesOwnedAdmission(reply, ownedLoadSession);
+            return exact && await ReignMainThread.InvokeAsync(Current).ConfigureAwait(false);
         }
 
         internal static async Task<JObject> GetSocialCatalogAsync()
@@ -176,6 +260,30 @@ namespace ReignBeta.WorldSimulation.Integration
         private static string _timelineId = "main";
         private static float _completeFromDay;
         private static long _epoch;
+        private sealed class OwnedJusticeDelivery
+        {
+            internal OwnedJusticeDelivery(JObject record, string origin, int alignment, long epoch,
+                long sequence, string loadSession, JObject request, ReignWorldHistoryEventProof proof)
+            {
+                Record = record;
+                Origin = origin;
+                Alignment = alignment;
+                Epoch = epoch;
+                Sequence = sequence;
+                LoadSession = loadSession;
+                Request = request;
+                Proof = proof;
+            }
+            internal JObject Record { get; }
+            internal string Origin { get; }
+            internal int Alignment { get; }
+            internal long Epoch { get; }
+            internal long Sequence { get; }
+            internal string LoadSession { get; }
+            internal JObject Request { get; }
+            internal ReignWorldHistoryEventProof Proof { get; }
+        }
+        private static OwnedJusticeDelivery _ownedJusticeDelivery;
 
         internal static bool IsCurrentRequest(JObject payload) =>
             payload?.Value<long?>("_reignHistoryEpoch") == Interlocked.Read(ref _epoch);
@@ -186,7 +294,11 @@ namespace ReignBeta.WorldSimulation.Integration
             lock (StateLock)
             {
                 if (_campaignId != SafeSegment(campaignId, "default") || _timelineId != SafeSegment(timelineId, "main"))
-                { SharedPending.Clear(); Interlocked.Increment(ref _epoch); }
+                {
+                    SharedPending.Clear();
+                    Volatile.Write(ref _ownedJusticeDelivery, null);
+                    Interlocked.Increment(ref _epoch);
+                }
                 _campaignId = SafeSegment(campaignId, "default");
                 _timelineId = SafeSegment(timelineId, "main");
                 _completeFromDay = completeFromDay;
@@ -206,6 +318,49 @@ namespace ReignBeta.WorldSimulation.Integration
         internal static bool UsesOrdinarySystemQueue(string eventType) =>
             !string.IsNullOrWhiteSpace(eventType) && eventType != "public_announcement"
             && !RoutineEventTypes.Contains(eventType);
+
+        internal static bool TryStageOwnedJusticeDelivery(JObject historyEvent, JObject request,
+            string origin, int alignment, long epoch, Action publishHead)
+        {
+            if (historyEvent == null || request == null || publishHead == null
+                || request["campaignId"]?.Type != JTokenType.String || request["timelineId"]?.Type != JTokenType.String
+                || request["sharedActivityGeneration"]?.Type != JTokenType.String || request["nativeLoadSessionId"]?.Type != JTokenType.String
+                || historyEvent.Value<long?>("sequence") is not long sequence
+                || !ReignWorldHistoryEventProof.TryCreate(origin, request.Value<string>("campaignId"),
+                    request.Value<string>("timelineId"), request.Value<string>("sharedActivityGeneration"), historyEvent, out var proof))
+                return false;
+
+            string campaign = request.Value<string>("campaignId");
+            string timeline = request.Value<string>("timelineId");
+            string loadSession = request.Value<string>("nativeLoadSessionId");
+            if (alignment != ReignSaveSyncCoordinator.CampaignGeneration || !ReignHttpTransport.IsAllowedPinnedOrigin(origin))
+                return false;
+            FlushRoutineBuckets(true);
+            lock (StateLock)
+            lock (FileLock)
+            {
+                if (epoch != _epoch || campaign != _campaignId || timeline != _timelineId
+                    || _ownedJusticeDelivery != null || !Pending.IsEmpty || !SharedPending.IsEmpty)
+                    return false;
+                string path = PendingPath(timeline, campaign);
+                if (File.Exists(path) && new FileInfo(path).Length != 0) return false;
+                JObject immutableRequest = (JObject)request.DeepClone();
+                var diskRecord = (JObject)historyEvent.DeepClone();
+                diskRecord[ReignWorldHistoryOutbox.OwnedHistoryMarker] = new JObject
+                {
+                    ["version"] = 1,
+                    ["origin"] = origin,
+                    ["request"] = immutableRequest.DeepClone()
+                };
+                var delivery = new OwnedJusticeDelivery(diskRecord, origin, alignment, epoch, sequence, loadSession, immutableRequest, proof);
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                ReignWorldHistoryOutbox.AppendRecords(path, diskRecord.ToString(Formatting.None) + Environment.NewLine, flushToDisk: true);
+                publishHead();
+                Volatile.Write(ref _ownedJusticeDelivery, delivery);
+            }
+            Kick();
+            return true;
+        }
 
         // A ready native system event is complete before admission. Keep its scope
         // check, staging and head publication together while resets are excluded.
@@ -281,15 +436,17 @@ namespace ReignBeta.WorldSimulation.Integration
 
         internal static async Task<JObject> SynchronizeSharedActivitiesAsync()
         {
-            string timeline, campaign, generation;
+            string timeline, campaign, generation, ownedOrigin;
             float completeFrom;
             long epoch;
             lock (StateLock) { timeline = _timelineId; campaign = _campaignId; completeFrom = _completeFromDay;
-                epoch = _epoch; generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty; }
+                epoch = _epoch; generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
+                ownedOrigin = ReignServices.WorldHistory?.OwnedJusticeHistoryOrigin; }
             string path = PendingPath(timeline, campaign);
             // Recover relevant durable outbox entries without making the next
             // reply wait for unrelated world traffic or the normal upload cadence.
             List<JObject> eligible;
+            bool ownedHistoryPending;
             lock (StateLock)
             {
                 if (epoch != _epoch)
@@ -297,11 +454,17 @@ namespace ReignBeta.WorldSimulation.Integration
                         ["eventIds"] = new JArray(), ["pendingPublicNews"] = 0, ["reason"] = "activity_sync_stale_owner" };
                 lock (FileLock)
                 {
+                    ownedHistoryPending = Pending.Any(ReignWorldHistoryOutbox.HasOwnedHistoryMarker)
+                        || SharedPending.Values.Any(ReignWorldHistoryOutbox.HasOwnedHistoryMarker);
                     if (File.Exists(path))
                         foreach (string line in File.ReadLines(path))
                         {
                             JObject item;
-                            try { item = JObject.Parse(line); } catch { continue; }
+                            if (!ReignWorldHistoryOutbox.TryReadOrdinaryRecord(line, out item, out bool owned))
+                            {
+                                ownedHistoryPending |= owned;
+                                continue;
+                            }
                             if ((!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
                                     || IsPublicHistoryEvent(item))
                                 && !string.IsNullOrWhiteSpace(item.Value<string>("eventId")))
@@ -309,17 +472,22 @@ namespace ReignBeta.WorldSimulation.Integration
                         }
                 }
                 long boundary = Volatile.Read(ref _activeSaveBoundarySequence);
-                eligible = SharedPending.Values.Where(e => e.Value<string>("_reignTimelineId") == timeline
+                eligible = SharedPending.Values.Where(e => !ReignWorldHistoryOutbox.HasOwnedHistoryMarker(e)
+                    && e.Value<string>("_reignTimelineId") == timeline
                     && e.Value<string>("_reignCampaignId") == campaign
                     && (e.Value<long?>("sequence") ?? 0) <= boundary).ToList();
             }
             int publicNewsCount = eligible.Count(IsPublicHistoryEvent);
+            if (ownedHistoryPending)
+                return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["generation"] = generation,
+                    ["eventIds"] = new JArray(), ["pendingPublicNews"] = publicNewsCount, ["reason"] = "activity_sync_owned_history_pending" };
             var pending = eligible.OrderBy(e => !IsPublicHistoryEvent(e))
                 .ThenBy(e => e.Value<string>("eventType") == "party_contact_interval")
                 .ThenByDescending(e => e.Value<long?>("sequence") ?? 0).Take(256).OrderBy(e => e.Value<long?>("sequence") ?? 0).ToList();
             var ids = new JArray(pending.Select(e => e.Value<string>("eventId")));
             if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount };
-            var upload = ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
+            var upload = ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom,
+                new JArray(pending), generation, epoch, ownedOrigin);
             if (await Task.WhenAny(upload, Task.Delay(4000)).ConfigureAwait(false) != upload)
             {
                 // Observe any late failure; the durable outbox owns retry.
@@ -405,9 +573,9 @@ namespace ReignBeta.WorldSimulation.Integration
         private static bool HasPendingThroughSequenceInMemory(
             long maximumSequence)
         {
-            return Pending.Any(item =>
-                ReignWorldHistoryFlushPolicy.IsSequenceWithinBoundary(
-                    item?.Value<long?>("sequence"), maximumSequence));
+            return Pending.Any(item => ReignWorldHistoryOutbox.HasOwnedHistoryMarker(item)
+                ? ReignWorldHistoryOutbox.RetainOwnedThroughSequence(item, maximumSequence)
+                : ReignWorldHistoryFlushPolicy.IsSequenceWithinBoundary(item?.Value<long?>("sequence"), maximumSequence));
         }
 
         private static bool HasPendingThroughSequenceOnDisk(
@@ -422,8 +590,9 @@ namespace ReignBeta.WorldSimulation.Integration
                     try
                     {
                         JObject item = JObject.Parse(line);
-                        if (ReignWorldHistoryFlushPolicy.IsSequenceWithinBoundary(
-                                item.Value<long?>("sequence"), maximumSequence))
+                        if (ReignWorldHistoryOutbox.HasOwnedHistoryMarker(item)
+                            ? ReignWorldHistoryOutbox.RetainOwnedThroughSequence(item, maximumSequence)
+                            : ReignWorldHistoryFlushPolicy.IsSequenceWithinBoundary(item.Value<long?>("sequence"), maximumSequence))
                             return true;
                     }
                     catch
@@ -479,6 +648,7 @@ namespace ReignBeta.WorldSimulation.Integration
             lock (StateLock)
             {
                 SharedPending.Clear();
+                Volatile.Write(ref _ownedJusticeDelivery, null);
                 Interlocked.Increment(ref _epoch);
                 _campaignId = campaign;
                 _timelineId = timeline;
@@ -488,30 +658,22 @@ namespace ReignBeta.WorldSimulation.Integration
                 {
                     string queuedCampaign = queued.Value<string>("_reignCampaignId") ?? string.Empty;
                     string queuedTimeline = queued.Value<string>("_reignTimelineId") ?? string.Empty;
-                    long sequence = queued.Value<long?>("sequence") ?? long.MaxValue;
+                    bool throughSave = ReignWorldHistoryOutbox.HasOwnedHistoryMarker(queued)
+                        ? ReignWorldHistoryOutbox.RetainOwnedThroughSequence(queued, maximumSequence)
+                        : (queued.Value<long?>("sequence") ?? long.MaxValue) <= maximumSequence;
                     if (queuedCampaign.Equals(campaign, StringComparison.OrdinalIgnoreCase)
                         && queuedTimeline.Equals(timeline, StringComparison.OrdinalIgnoreCase)
-                        && sequence <= maximumSequence) retained.Add(queued);
+                        && throughSave) retained.Add(queued);
                 }
-                foreach (JObject item in retained.OrderBy(x => x.Value<long?>("sequence") ?? 0L)) Pending.Enqueue(item);
+                IEnumerable<JObject> restored = retained.Any(ReignWorldHistoryOutbox.HasOwnedHistoryMarker)
+                    ? retained : retained.OrderBy(x => x.Value<long?>("sequence") ?? 0L);
+                foreach (JObject item in restored) Pending.Enqueue(item);
 
                 string path = PendingPath(timeline);
                 lock (FileLock)
                 {
                     if (!File.Exists(path)) return;
-                    ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
-                    {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            try
-                            {
-                                JObject item = JObject.Parse(line);
-                                if ((item.Value<long?>("sequence") ?? long.MaxValue) <= maximumSequence) writer.WriteLine(line);
-                            }
-                            catch { }
-                        }
-                    });
+                    ReignWorldHistoryOutbox.RestoreThroughSequence(path, maximumSequence);
                 }
             }
         }
@@ -615,13 +777,14 @@ namespace ReignBeta.WorldSimulation.Integration
 
         private static async Task ProcessAsync()
         {
+            bool heldOwnedMarker = false;
             try
             {
                 if (Volatile.Read(ref _urgentFlush) == 0)
                     await Task.Delay(250).ConfigureAwait(false);
                 while (true)
                 {
-                    string timeline, campaign, generation;
+                    string timeline, campaign, generation, ownedOrigin;
                     long epoch;
                     float completeFrom;
                     lock (StateLock)
@@ -630,6 +793,7 @@ namespace ReignBeta.WorldSimulation.Integration
                         campaign = _campaignId;
                         epoch = _epoch;
                         generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
+                        ownedOrigin = ReignServices.WorldHistory?.OwnedJusticeHistoryOrigin;
                         completeFrom = _completeFromDay;
                     }
                     string path = PendingPath(timeline, campaign);
@@ -646,7 +810,7 @@ namespace ReignBeta.WorldSimulation.Integration
                     long maximumSequence = Volatile.Read(
                         ref _activeSaveBoundarySequence);
                     List<JObject> persisted = ReadPendingBatch(path,
-                        uploadBatchSize, maximumSequence);
+                        uploadBatchSize, maximumSequence, out bool ownedHistoryPending);
                     if (persisted.Count > 0 && !urgent)
                     {
                         Stopwatch coalesceTimer = Stopwatch.StartNew();
@@ -669,10 +833,21 @@ namespace ReignBeta.WorldSimulation.Integration
                         maximumSequence = Volatile.Read(
                             ref _activeSaveBoundarySequence);
                         persisted = ReadPendingBatch(path, uploadBatchSize,
-                            maximumSequence);
+                            maximumSequence, out ownedHistoryPending);
                     }
                     if (persisted.Count == 0)
                     {
+                        if (ownedHistoryPending)
+                        {
+                            var delivery = Volatile.Read(ref _ownedJusticeDelivery);
+                            if (delivery != null && WorkerOwns(delivery, epoch))
+                            {
+                                if (await TryDeliverOwnedJusticeAsync(path, delivery, epoch).ConfigureAwait(false)) continue;
+                                if (WorkerOwns(delivery, epoch)) RegisterUploadFailure();
+                            }
+                            heldOwnedMarker = true;
+                            break;
+                        }
                         if (!HasPendingThroughSequenceInMemory(maximumSequence))
                         {
                             break;
@@ -684,7 +859,8 @@ namespace ReignBeta.WorldSimulation.Integration
                     {
                         Stopwatch uploadTimer = Stopwatch.StartNew();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
-                        JObject response = await ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
+                        JObject response = await ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom,
+                            new JArray(persisted), generation, epoch, ownedOrigin).ConfigureAwait(false);
                         uploadTimer.Stop();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
                         if (response?.Value<bool?>("ok") != true)
@@ -713,11 +889,44 @@ namespace ReignBeta.WorldSimulation.Integration
             finally
             {
                 Interlocked.Exchange(ref _workerRunning, 0);
-                if (!Pending.IsEmpty && CanAttemptUpload())
+                if (!heldOwnedMarker && !Pending.IsEmpty && CanAttemptUpload())
                 {
                     Kick();
                 }
             }
+        }
+
+        private static bool WorkerOwns(OwnedJusticeDelivery delivery, long epoch) =>
+            delivery.Epoch == epoch && epoch == Interlocked.Read(ref _epoch)
+            && ReferenceEquals(delivery, Volatile.Read(ref _ownedJusticeDelivery))
+            && delivery.Sequence <= Volatile.Read(ref _activeSaveBoundarySequence)
+            && ReignSaveSyncCoordinator.CampaignGeneration == delivery.Alignment;
+
+        private static async Task<bool> TryDeliverOwnedJusticeAsync(string path, OwnedJusticeDelivery delivery, long epoch)
+        {
+            bool Current() => WorkerOwns(delivery, epoch);
+            lock (FileLock)
+                if (!ReignWorldHistoryOutbox.HasExactOwnedFirstRecord(path, delivery.Record)) return false;
+            JObject reply;
+            try
+            {
+                reply = await ReignHttpTransport.SendWorkerOwnedPinnedJsonAsync(delivery.Origin,
+                    "/world-history/owned-justice/append", delivery.Request, Current).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!Current()) { return false; }
+            if (!Current() || !delivery.Proof.MatchesAppend(reply, delivery.LoadSession)) return false;
+            lock (StateLock)
+            lock (FileLock)
+            {
+                if (epoch != _epoch || !ReferenceEquals(delivery, _ownedJusticeDelivery)
+                    || delivery.Sequence > Volatile.Read(ref _activeSaveBoundarySequence)
+                    || ReignSaveSyncCoordinator.CampaignGeneration != delivery.Alignment
+                    || !ReignWorldHistoryOutbox.AcknowledgeExactOwnedFirstRecord(path, delivery.Record))
+                    return false;
+                Volatile.Write(ref _ownedJusticeDelivery, null);
+            }
+            RegisterUploadSuccess();
+            return true;
         }
 
         private static int PersistPendingPrefix(string path, int limit, long epoch)
@@ -753,6 +962,8 @@ namespace ReignBeta.WorldSimulation.Integration
         {
             FileInfo info = new FileInfo(path);
             if (!info.Exists || info.Length <= MaximumOutboxBytes) return;
+            // Trimming around an owned record could erase the unsent predecessor or the barrier itself.
+            if (ReignWorldHistoryOutbox.FindOwnedSequence(File.ReadLines(path), Array.Empty<JObject>()).HasValue) return;
 
             long start = Math.Max(0L, info.Length - RetainedOutboxBytes);
             ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
@@ -785,69 +996,48 @@ namespace ReignBeta.WorldSimulation.Integration
             ReignLog.Warn("World-history outbox exceeded 32 MB; personal activity and public announcements were preserved alongside the newest 16 MB of ordinary events.");
         }
 
+        // Callers hold StateLock and FileLock so the on-disk and queued records are one observation.
+        private static long? OwnedSequenceOnDiskOrInQueue(string path) =>
+            ReignWorldHistoryOutbox.FindOwnedSequence(File.Exists(path) ? File.ReadLines(path) : Enumerable.Empty<string>(),
+                Pending.Concat(SharedPending.Values));
+
         private static List<JObject> ReadPendingBatch(
-            string path,
-            int limit,
-            long maximumSequence)
+            string path, int limit, long maximumSequence, out bool ownedHistoryPending)
         {
+            lock (StateLock)
             lock (FileLock)
             {
-                if (!File.Exists(path)) return new List<JObject>();
-                Dictionary<string, JObject> unique = new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
-                foreach (string line in File.ReadLines(path))
-                {
-                    try
-                    {
-                        JObject item = JObject.Parse(line);
-                        if (!ReignWorldHistoryFlushPolicy.IsSequenceWithinBoundary(
-                                item.Value<long?>("sequence"), maximumSequence))
-                            continue;
-                        string id = item.Value<string>("eventId");
-                        if (!string.IsNullOrWhiteSpace(id)) unique[id] = item;
-                    }
-                    catch { }
-
-                    if (unique.Count >= Math.Max(1, limit))
-                    {
-                        break;
-                    }
-                }
-                return unique.Values.OrderBy(x => x.Value<long?>("sequence") ?? 0L).ToList();
+                long? ownedSequence = OwnedSequenceOnDiskOrInQueue(path);
+                ownedHistoryPending = ownedSequence.HasValue;
+                return File.Exists(path)
+                    ? ReignWorldHistoryOutbox.ReadOrdinaryPrefix(File.ReadLines(path), limit, maximumSequence, ownedSequence)
+                    : new List<JObject>();
             }
         }
 
         private static bool AcknowledgeCurrentEpoch(string path, IEnumerable<JObject> events, long epoch)
         {
             lock (StateLock)
-            {
-                if (epoch != _epoch) return false;
-                var ids = events.Select(item => item.Value<string>("eventId"))
-                    .Where(id => !string.IsNullOrWhiteSpace(id)).ToArray();
-                RemoveAcknowledged(path, ids);
-                foreach (string id in ids) SharedPending.TryRemove(id, out _);
-                return true;
-            }
-        }
-
-        private static void RemoveAcknowledged(string path, IEnumerable<string> ids)
-        {
-            HashSet<string> acknowledged = new HashSet<string>(ids ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             lock (FileLock)
             {
-                if (!File.Exists(path)) return;
-                ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
+                if (epoch != _epoch) return false;
+                long? ownedSequence = OwnedSequenceOnDiskOrInQueue(path);
+                if (events.Any(item => ReignWorldHistoryOutbox.HasOwnedHistoryMarker(item)
+                        || !ReignWorldHistoryOutbox.PrecedesOwnedSequence(item.Value<long?>("sequence"), ownedSequence)))
+                    return false;
+
+                var ids = new HashSet<string>(events.Select(item => item.Value<string>("eventId"))
+                    .Where(id => !string.IsNullOrWhiteSpace(id)), StringComparer.OrdinalIgnoreCase);
+                if (File.Exists(path)) ReignWorldHistoryOutbox.RemoveOrdinaryAcknowledged(path, ids, ownedSequence);
+                foreach (string id in ids)
                 {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        try
-                        {
-                            JObject item = JObject.Parse(line);
-                            if (!acknowledged.Contains(item.Value<string>("eventId") ?? string.Empty)) writer.WriteLine(line);
-                        }
-                        catch { }
-                    }
-                });
+                    if (!ownedSequence.HasValue)
+                        SharedPending.TryRemove(id, out _);
+                    else if (SharedPending.TryGetValue(id, out var cached) && !ReignWorldHistoryOutbox.HasOwnedHistoryMarker(cached)
+                        && ReignWorldHistoryOutbox.PrecedesOwnedSequence(cached.Value<long?>("sequence"), ownedSequence))
+                        ((ICollection<KeyValuePair<string, JObject>>)SharedPending).Remove(new KeyValuePair<string, JObject>(id, cached));
+                }
+                return true;
             }
         }
 

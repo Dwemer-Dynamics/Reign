@@ -379,6 +379,7 @@ namespace ReignBeta.Platform.Integration
         internal static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
         {
             if (parsed == null || !(route == "/dialogue/respond"
+                || route == "/arrests/evidence/evaluate"
                 || (route == "/arrests/case/apply" && parsed["operation"]?.Type == JTokenType.String
                     && parsed.Value<string>("operation") == "inspect")
                 || route.StartsWith("/actions/next?", StringComparison.Ordinal)
@@ -437,18 +438,37 @@ namespace ReignBeta.Platform.Integration
         // response body; the caller keeps its exact report pending. requestOwner is a
         // required game-thread predicate, rechecked here (after the caller's readiness gates)
         // and again immediately before dispatch (an abandoned owner sends nothing).
-        internal static async Task<JObject> SendPinnedJsonAsync(string origin, string pathAndQuery, JObject payload, Func<bool> requestOwner)
+        internal static Task<JObject> SendPinnedJsonAsync(string origin, string pathAndQuery, JObject payload, Func<bool> requestOwner)
         {
             if (requestOwner == null) throw new ArgumentNullException(nameof(requestOwner));
-            await EnsureRequestOwnerAsync(requestOwner, "pinned request preparation").ConfigureAwait(false);
+            return SendPinnedRequestAsync(origin, pathAndQuery, payload, stage => EnsureRequestOwnerAsync(requestOwner, stage));
+        }
+
+        // This predicate can only inspect immutable admission data and thread-safe revocation state.
+        // History draining and save registration can run while Bannerlord is blocked in OnBeforeSave.
+        internal static Task<JObject> SendWorkerOwnedPinnedJsonAsync(
+            string origin, string pathAndQuery, JObject payload, Func<bool> workerOwner, HttpClient client = null)
+        {
+            if (workerOwner == null) throw new ArgumentNullException(nameof(workerOwner));
+            return SendPinnedRequestAsync(origin, pathAndQuery, payload, stage =>
+            {
+                if (!workerOwner()) throw new OperationCanceledException("Owned history scope was lost before " + stage + ".");
+                return Task.CompletedTask;
+            }, client);
+        }
+
+        private static async Task<JObject> SendPinnedRequestAsync(
+            string origin, string pathAndQuery, JObject payload, Func<string, Task> ensureOwner, HttpClient client = null)
+        {
+            await ensureOwner("pinned request preparation").ConfigureAwait(false);
             if (!IsAllowedPinnedOrigin(origin))
                 throw new InvalidOperationException("The pinned terminal report origin is no longer an allowed local endpoint.");
             string url = origin + pathAndQuery;
             using (var request = new HttpRequestMessage(payload == null ? HttpMethod.Get : HttpMethod.Post, url))
             {
                 if (payload != null) request.Content = new ReignJsonHttpContent(payload);
-                await EnsureRequestOwnerAsync(requestOwner, "pinned transport dispatch").ConfigureAwait(false);
-                using (HttpResponseMessage response = await PinnedClient.SendAsync(request).ConfigureAwait(false))
+                await ensureOwner("pinned transport dispatch").ConfigureAwait(false);
+                using (HttpResponseMessage response = await (client ?? PinnedClient).SendAsync(request).ConfigureAwait(false))
                 {
                     Uri final = response.RequestMessage?.RequestUri;
                     if (final == null || !string.Equals(final.AbsoluteUri, new Uri(url).AbsoluteUri, StringComparison.Ordinal))

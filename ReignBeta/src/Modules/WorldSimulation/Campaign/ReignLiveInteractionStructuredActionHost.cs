@@ -39,6 +39,8 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static Task<LiveCommandResult> StructuredActionTestAsync(JObject command) =>
             (command["testCase"] as JObject)?.Value<string>("actionId") == "fixture.notable_startup_reservation"
                 ? StageNotableStartupReservationAsync(command)
+                : (command["testCase"] as JObject)?.Value<string>("actionId") == "fixture.arrest_late_evidence"
+                    ? ObserveOrAdvanceLateArrestAsync(command)
                 : ReignMainThread.InvokeAsync(() =>
         {
             JObject enrollment = command["enrollment"] as JObject;

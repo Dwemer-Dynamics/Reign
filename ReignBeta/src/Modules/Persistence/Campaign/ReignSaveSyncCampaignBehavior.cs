@@ -57,6 +57,8 @@ namespace ReignBeta.Persistence.Campaign
         private bool _loadedFromNativeSave;
         private bool _registrationFailedForCurrentSave;
         private string _registrationFailureDetail = string.Empty;
+        private string _registrationOrigin = string.Empty;
+        private int _registrationAlignment;
 
         public static ReignSaveSyncCampaignBehavior Instance => ReignServices.SaveSync;
 
@@ -173,7 +175,7 @@ namespace ReignBeta.Persistence.Campaign
             payload["registrationConfirmed"] = _registrationConfirmed;
             payload["editorNativeOwnerVersion"] = 1;
             payload["calendarFirstUse"] = CanCreateCalendar;
-            ReignSaveSyncCoordinator.BeginLoadedSave(payload);
+            ReignSaveSyncCoordinator.BeginLoadedSave(payload, history?.OwnedJusticeHistoryOrigin);
         }
 
         private void OnSaveStarted()
@@ -198,6 +200,7 @@ namespace ReignBeta.Persistence.Campaign
                     "Campaign preparation has not received its durable readiness seal.";
             }
             ReignWorldHistoryCampaignBehavior history = ReignServices.WorldHistory;
+            _registrationOrigin = history?.OwnedJusticeHistoryOrigin ?? string.Empty;
             _savePointId = Guid.NewGuid().ToString("N");
             _savePointKind = "native_save";
             _capturedUtc = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
@@ -251,16 +254,35 @@ namespace ReignBeta.Persistence.Campaign
                 string campaignId = ReignCampaignIdentity.CurrentCampaignId();
                 _calendarSha256 = ReignCalendarService.FlushForSavePoint(campaignId);
                 JObject payload = BuildPayload(campaignId);
+                var history = ReignServices.WorldHistory;
+                string ownedOrigin = _registrationOrigin;
+                string observedRestoreGeneration = history?.SharedActivityGeneration;
+                if (ownedOrigin.Length != 0)
+                {
+                    if (!ReignSaveSyncCoordinator.TryCaptureOwnedHistoryAuthority(campaignId, observedRestoreGeneration,
+                            ownedOrigin, out _registrationAlignment, out string loadSession))
+                        throw new InvalidOperationException("The owned history checkpoint no longer belongs to the verified Save Sync origin.");
+                    payload["ownedJusticeHistoryBoundary"] = new JObject
+                    {
+                        ["version"] = 1,
+                        ["restoreGeneration"] = observedRestoreGeneration,
+                        ["nativeLoadSessionId"] = loadSession
+                    };
+                }
                 var loaded = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
                 if (loaded != null && loaded.CampaignId == campaignId
-                    && loaded.RestoreGeneration == ReignServices.WorldHistory?.SharedActivityGeneration
-                    && loaded.Origin == ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl()))
+                    && loaded.RestoreGeneration == observedRestoreGeneration
+                    && loaded.Origin == (ownedOrigin.Length != 0
+                        ? ownedOrigin : ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl())))
                     payload["editorNativeOwnerSessionId"] = loaded.LoadSessionId;
                 lock (NativeSaveObservationGate)
                     payload["nativeSaveName"] = _expectedNativeSaveName ?? string.Empty;
                 payload["worldHistoryOutboxDrained"] = historyDrained;
                 Stopwatch registrationTimer = Stopwatch.StartNew();
-                JObject response = ReignSaveSyncCoordinator.RegisterBeforeSaveAsync(payload).GetAwaiter().GetResult();
+                var registration = ownedOrigin.Length == 0
+                    ? ReignSaveSyncCoordinator.RegisterBeforeSaveAsync(payload)
+                    : ReignSaveSyncCoordinator.RegisterOwnedHistoryBeforeSaveAsync(payload, ownedOrigin, _registrationAlignment);
+                JObject response = registration.GetAwaiter().GetResult();
                 registrationTimer.Stop();
                 string result = response?.Value<string>("result") ?? string.Empty;
                 _registrationConfirmed = response?.Value<bool?>("ok") == true
@@ -314,12 +336,14 @@ namespace ReignBeta.Persistence.Campaign
                 + " totalMs=" + totalMs + " saveName=" + (saveName ?? string.Empty));
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
             string pointId = _savePointId;
+            bool confirmedCurrentPoint = _registrationConfirmed;
             if (!successful) RestorePreviousPoint();
-            if (_registrationConfirmed
+            if ((_registrationOrigin.Length == 0 ? _registrationConfirmed : confirmedCurrentPoint)
                 && !string.IsNullOrWhiteSpace(pointId)
                 && IsDurableCampaignId(campaignId))
             {
-                ReignSaveSyncCoordinator.FinalizeSavePoint(campaignId, pointId, successful, saveName ?? string.Empty);
+                ReignSaveSyncCoordinator.FinalizeSavePoint(campaignId, pointId, successful, saveName ?? string.Empty,
+                    _registrationOrigin);
             }
 
             if (successful && _registrationFailedForCurrentSave)
@@ -329,6 +353,7 @@ namespace ReignBeta.Persistence.Campaign
 
             _registrationFailedForCurrentSave = false;
             _registrationFailureDetail = string.Empty;
+            _registrationOrigin = string.Empty;
         }
 
         private static void ResetNativeSaveObservation()

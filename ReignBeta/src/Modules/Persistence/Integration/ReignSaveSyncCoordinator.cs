@@ -23,6 +23,7 @@ namespace ReignBeta.Persistence.Integration
         private static int _generation;
         private static string _campaignId = string.Empty;
         private static bool _alignmentInitialized;
+        private static bool _newCampaign;
         private static int _saveFinalizationsInFlight;
         private static string _lastFinalizeRequestedSaveName = string.Empty;
         private static string _lastFinalizedSaveName = string.Empty;
@@ -70,6 +71,24 @@ namespace ReignBeta.Persistence.Integration
         internal static int CampaignGeneration
         {
             get { lock (Gate) return _generation; }
+        }
+
+        // A history writer can use a fresh campaign or the exact current registered native load.
+        // A degraded or unregistered load never supplies authority for an owned history request.
+        internal static bool TryCaptureOwnedHistoryAuthority(string campaignId, string restoreGeneration, string origin,
+            out int alignment, out string loadSession)
+        {
+            lock (Gate)
+            {
+                alignment = _generation;
+                loadSession = string.Empty;
+                if (_newCampaign) return true;
+                if (_verifiedLoad == null || _verifiedLoad.CoordinatorGeneration != alignment
+                    || _verifiedLoad.CampaignId != campaignId || _verifiedLoad.RestoreGeneration != restoreGeneration
+                    || _verifiedLoad.Origin != origin || string.IsNullOrEmpty(_verifiedLoad.LoadSessionId)) return false;
+                loadSession = _verifiedLoad.LoadSessionId;
+                return true;
+            }
         }
 
         internal static bool IsAlignmentPending
@@ -130,25 +149,29 @@ namespace ReignBeta.Persistence.Integration
                 _generation++;
                 _campaignId = string.Empty;
                 _alignmentInitialized = false;
+                _newCampaign = false;
                 _ready = ReadySource(false);
             }
         }
 
-        internal static void MarkReadyForNewCampaign() { MarkReadyWithoutSync(); }
+        internal static void MarkReadyForNewCampaign() { MarkReadyWithoutSync(newCampaign: true); }
 
-        internal static void MarkReadyWithoutSync()
+        internal static void MarkReadyWithoutSync() { MarkReadyWithoutSync(newCampaign: false); }
+
+        private static void MarkReadyWithoutSync(bool newCampaign)
         {
             lock (Gate)
             {
                 _generation++;
                 _campaignId = string.Empty;
                 _alignmentInitialized = true;
+                _newCampaign = newCampaign;
                 _ready.TrySetResult(true);
                 _ready = ReadySource(true);
             }
         }
 
-        internal static void BeginLoadedSave(JObject payload)
+        internal static void BeginLoadedSave(JObject payload, string requiredOrigin = null)
         {
             if (payload == null) { MarkReadyWithoutSync(); return; }
             int generation;
@@ -170,9 +193,10 @@ namespace ReignBeta.Persistence.Integration
                 generation = ++_generation;
                 _campaignId = payload.Value<string>("campaignId") ?? string.Empty;
                 _alignmentInitialized = true;
+                _newCampaign = false;
                 _ready = ReadySource(false);
             }
-            _ = Task.Run(() => RunLoadHandshakeAsync(generation, loadPayload, campaign, scope));
+            _ = Task.Run(() => RunLoadHandshakeAsync(generation, loadPayload, campaign, scope, requiredOrigin));
         }
 
         internal static async Task WaitForReadyAsync(string route)
@@ -232,7 +256,12 @@ namespace ReignBeta.Persistence.Integration
             return PostDirectAsync("/save-sync/register", payload);
         }
 
-        internal static void FinalizeSavePoint(string campaignId, string savePointId, bool successful, string nativeSaveName)
+        internal static Task<JObject> RegisterOwnedHistoryBeforeSaveAsync(JObject payload, string origin, int alignment) =>
+            ReignHttpTransport.SendWorkerOwnedPinnedJsonAsync(origin, "/save-sync/register", payload,
+                () => CampaignGeneration == alignment, Client);
+
+        internal static void FinalizeSavePoint(string campaignId, string savePointId, bool successful, string nativeSaveName,
+            string origin = null)
         {
             lock (Gate)
             {
@@ -243,11 +272,16 @@ namespace ReignBeta.Persistence.Integration
             {
                 try
                 {
-                    JObject response = await PostDirectAsync("/save-sync/finalize", new JObject
+                    var payload = new JObject
                     {
                         ["campaignId"] = campaignId ?? string.Empty, ["savePointId"] = savePointId ?? string.Empty,
                         ["successful"] = successful, ["nativeSaveName"] = nativeSaveName ?? string.Empty
-                    }).ConfigureAwait(false);
+                    };
+                    Task<JObject> finalization = string.IsNullOrEmpty(origin)
+                        ? PostDirectAsync("/save-sync/finalize", payload)
+                        : ReignHttpTransport.SendWorkerOwnedPinnedJsonAsync(origin, "/save-sync/finalize", payload,
+                            () => true, Client);
+                    JObject response = await finalization.ConfigureAwait(false);
                     lock (Gate)
                     {
                         _lastFinalizedSaveName = nativeSaveName ?? string.Empty;
@@ -400,7 +434,7 @@ namespace ReignBeta.Persistence.Integration
         }
 
         private static async Task RunLoadHandshakeAsync(int generation, JObject payload,
-            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope)
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope, string requiredOrigin)
         {
             int failures = 0;
             bool waitingForCampaignIdentityLogged = false;
@@ -427,7 +461,11 @@ namespace ReignBeta.Persistence.Integration
 
                 try
                 {
-                    var answered = await PostDirectWithOriginAsync("/save-sync/load", payload).ConfigureAwait(false);
+                    var answered = string.IsNullOrEmpty(requiredOrigin)
+                        ? await PostDirectWithOriginAsync("/save-sync/load", payload).ConfigureAwait(false)
+                        : new System.Collections.Generic.KeyValuePair<JObject, string>(
+                            await ReignHttpTransport.SendWorkerOwnedPinnedJsonAsync(requiredOrigin, "/save-sync/load", payload,
+                                () => IsCurrentGeneration(generation, campaignId), Client).ConfigureAwait(false), requiredOrigin);
                     JObject response = answered.Key;
                     string result = response?.Value<string>("result") ?? string.Empty;
                     if (response?.Value<bool?>("ok") == true)

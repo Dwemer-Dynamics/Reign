@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using ReignBeta.WorldSimulation.Integration;
 
 namespace Reign.Mcp.Tests;
@@ -62,6 +63,136 @@ public sealed class ReignWorldHistoryOutboxTests
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    [Fact]
+    public void Ordinary_selection_and_acknowledgement_stop_at_the_persisted_owned_record()
+    {
+        string earlier = """{"eventId":"before","sequence":2}""";
+        string misplacedLater = """{"eventId":"ahead","sequence":8}""";
+        string owned = """{"eventId":"before","sequence":5,"_reignOwnedHistory":{"version":1}}""";
+        string later = """{"eventId":"before","sequence":6}""";
+        string misplacedAfter = """{"eventId":"after","sequence":3}""";
+        string[] records = { earlier, misplacedLater, owned, later, misplacedAfter };
+        long? fence = ReignWorldHistoryOutbox.FindOwnedSequence(records, Array.Empty<JObject>());
+        Assert.Equal(5L, fence);
+        Assert.Equal("before", Assert.Single(ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 10, 100, fence)).Value<string>("eventId"));
+
+        WithOutbox(records, path =>
+        {
+            ReignWorldHistoryOutbox.RemoveOrdinaryAcknowledged(path,
+                new HashSet<string>(new[] { "before", "ahead", "after" }, StringComparer.OrdinalIgnoreCase), fence);
+            Assert.Equal(new[] { misplacedLater, owned, later, misplacedAfter }, File.ReadAllLines(path));
+        });
+    }
+
+    [Fact]
+    public void Corrupt_owned_identity_holds_the_record_and_unusable_sequence_holds_the_whole_batch()
+    {
+        string earlier = """{"eventId":"before","sequence":2}""";
+        string corruptIdentity = """{"eventId":{"unexpected":1},"sequence":5,"_reignOwnedHistory":null}""";
+        string later = """{"eventId":"after","sequence":6}""";
+        Assert.False(ReignWorldHistoryOutbox.TryReadOrdinaryRecord(corruptIdentity, out _, out bool recognized));
+        Assert.True(recognized);
+        string[] records = { earlier, corruptIdentity, later };
+        long? fence = ReignWorldHistoryOutbox.FindOwnedSequence(records, Array.Empty<JObject>());
+        Assert.Equal(5L, fence);
+        Assert.Equal("before", Assert.Single(ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 10, 100, fence)).Value<string>("eventId"));
+
+        foreach (string corrupt in new[]
+        {
+            """{"_reignOwnedHistory":true,"sequence":"5"}""",
+            """{"\u005freignOwnedHistory":null,"sequence":""",
+        })
+        {
+            Assert.False(ReignWorldHistoryOutbox.TryReadOrdinaryRecord(corrupt, out _, out recognized));
+            Assert.True(recognized);
+            records[1] = corrupt;
+            fence = ReignWorldHistoryOutbox.FindOwnedSequence(records, Array.Empty<JObject>());
+            Assert.Equal(0L, fence);
+            Assert.Empty(ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 10, 100, fence));
+        }
+    }
+
+    [Fact]
+    public void Saved_restoration_retains_in_scope_marker_bytes_and_excludes_known_future_rows()
+    {
+        string earlier = """{"eventId":"before","sequence":2}""";
+        string owned = """{"sequence":5,"eventId":"owned","_reignOwnedHistory":{"version":2,"unsupported":true}}""";
+        string damaged = """{"_reignOwnedHistory":null,"sequence":""";
+        string future = """{"eventId":"future","sequence":9,"_reignOwnedHistory":true}""";
+        WithOutbox(new[] { earlier, owned, damaged, future }, path =>
+        {
+            ReignWorldHistoryOutbox.RestoreThroughSequence(path, 5);
+            Assert.Equal(new[] { earlier, owned, damaged }, File.ReadAllLines(path));
+            long? restoredFence = ReignWorldHistoryOutbox.FindOwnedSequence(File.ReadLines(path), Array.Empty<JObject>());
+            Assert.Equal(0L, restoredFence);
+            Assert.Empty(ReignWorldHistoryOutbox.ReadOrdinaryPrefix(File.ReadLines(path), 10, 100, restoredFence));
+        });
+    }
+
+    [Fact]
+    public void Ordinary_legacy_rows_keep_existing_limits_and_ignore_nested_or_textual_markers()
+    {
+        string[] records =
+        {
+            """{"eventId":"too_new","sequence":99}""",
+            """{"eventId":"earlier","sequence":2,"payload":{"_reignOwnedHistory":true}}""",
+            "unrelated malformed line",
+            """{"eventId":"EARLIER","sequence":2,"summary":"quoted _reignOwnedHistory only"}""",
+            """{"eventId":"next","sequence":4}""",
+            """{"eventId":"beyond_limit","sequence":5}""",
+        };
+        long? fence = ReignWorldHistoryOutbox.FindOwnedSequence(records, Array.Empty<JObject>());
+        Assert.Null(fence);
+        var prefix = ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 1, 5, fence);
+        Assert.Equal(new[] { "earlier" }, prefix.Select(item => item.Value<string>("eventId")));
+        prefix = ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 10, 3, fence);
+        Assert.Equal(new[] { "EARLIER" }, prefix.Select(item => item.Value<string>("eventId")));
+    }
+
+    [Fact]
+    public void Queued_owned_record_blocks_a_physically_earlier_later_sequence_before_append()
+    {
+        string[] records = { """{"eventId":"allowed","sequence":2}""", """{"eventId":"ahead","sequence":7}""" };
+        JObject queued = JObject.Parse("""{"eventId":"queued","sequence":4,"_reignOwnedHistory":true}""");
+        long? fence = ReignWorldHistoryOutbox.FindOwnedSequence(records, new[] { queued });
+        Assert.Equal(4L, fence);
+        var prefix = ReignWorldHistoryOutbox.ReadOrdinaryPrefix(records, 10, 100, fence);
+        Assert.Equal("allowed", Assert.Single(prefix).Value<string>("eventId"));
+    }
+
+    private static void WithOutbox(string[] records, Action<string> test)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "reign-owned-outbox-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(root);
+            string path = Path.Combine(root, "pending.jsonl");
+            File.WriteAllLines(path, records);
+            test(path);
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Owned_acknowledgment_retires_only_the_exact_first_record()
+    {
+        const string owned = """{"eventId":"same","sequence":5,"_reignOwnedHistory":{"version":1}}""";
+        const string later = """{"eventId":"same","sequence":6}""";
+        WithOutbox(new[] { owned, later }, path =>
+        {
+            var expected = JObject.Parse(owned);
+            var changed = (JObject)expected.DeepClone();
+            changed["sequence"] = 7;
+            Assert.False(ReignWorldHistoryOutbox.AcknowledgeExactOwnedFirstRecord(path, changed));
+            Assert.Equal(new[] { owned, later }, File.ReadAllLines(path));
+            Assert.True(ReignWorldHistoryOutbox.AcknowledgeExactOwnedFirstRecord(path, expected));
+            Assert.Equal(new[] { later }, File.ReadAllLines(path));
+        });
     }
 
     [Fact]

@@ -37,6 +37,22 @@ public sealed class StructuredActionToolsTests
     }
 
     [Theory]
+    [InlineData("prepare")]
+    [InlineData("advance")]
+    [InlineData("observe")]
+    public void ArrestLateEvidenceBindsOneExactActorAndRetainedCheckpoint(string stage)
+    {
+        string json = """
+            [{"caseId":"late","phase":"fixture","kind":"fixture","operationId":"late_once",
+              "actionId":"fixture.arrest_late_evidence","arguments":{"accusedHeroId":"lord_1","stage":"STAGE"}}]
+            """.Replace("STAGE", stage, StringComparison.Ordinal);
+        JsonElement test = Assert.Single(StructuredActionTools.ParseCases(json));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(test));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(json.Replace("lord_1", "../other", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(json.Replace("\"" + stage + "\"", "\"reset\"", StringComparison.Ordinal)));
+    }
+
+    [Theory]
     [InlineData("""{"accusedHeroId":"lord_1"}""")]
     [InlineData("""{"accusedHeroId":" lord_1","matterId":"noble-murder_1"}""")]
     [InlineData("""{"accusedHeroId":"lord_1","matterId":1}""")]
