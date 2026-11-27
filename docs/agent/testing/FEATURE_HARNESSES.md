@@ -704,7 +704,7 @@ For independent normal birth and reload evidence, retain the first read, advance
 
 ### Ruler timing beta batch (2026-11-14)
 
-RUL-TIME-001 through003 in the 76-case ruler manifest require fractional capture+7 and sentence+8 boundaries, save/load and handover anchor preservation, direct/async bypass rejection, immediate escape/rescue cancellation and retention of existing absolute sentence deadlines. Missing legacy capture timestamps begin a new full waiting window. Deterministic policy tests do not replace these native cases. Use only the existing enrolled disposable campaign gates; the current user campaign must not be advanced or altered for build validation.
+RUL-TIME-001 through003 in the 76-case ruler manifest require fractional seven-day boundaries from verified custody in the enemy sovereign's party or realm dungeon, eight days after sentencing for execution, save/load and same-realm anchor preservation, direct and asynchronous bypass rejection, immediate escape or rescue cancellation, and retention of existing absolute sentence deadlines. Independent, uninvolved and subordinate field parties leave the decision clock unset. A legacy pending judgment with an unverified custody start receives a full window from the first qualifying observation. For civil war appeals, choose different rebel clan leaders in the existing appeal action and verify their independent attempts and outcomes. Deterministic policy tests do not replace native acceptance. Use the existing enrolled disposable campaign gates.
 
 ### Wedding receipt reporting and background diagnostics (2026-11-14)
 

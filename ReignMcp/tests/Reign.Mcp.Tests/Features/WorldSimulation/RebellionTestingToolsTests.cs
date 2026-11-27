@@ -33,7 +33,15 @@ public sealed class RebellionTestingToolsTests
         string ruler = source[source.IndexOf("internal void CompleteRulerJudgment(", StringComparison.Ordinal)
             ..source.IndexOf("private void OnHeroPrisonerTaken(", StringComparison.Ordinal)];
         Assert.Contains("if (OrdinaryResolutionInProgress(movement)) throw", ruler);
-        Assert.Contains("if (!ResolveCivilWar(movement, false, \"ruler_judgment\"))", ruler);
+        Assert.Contains("if (!ResolveCivilWar(movement, false, \"ruler_judgment\", judgment))", ruler);
+        Assert.Contains("ApplyNpcMercyJudgment(movement, victor, member, rulerJudgment);", resolver);
+
+        string aftermath = source[source.IndexOf("private void ApplyNpcMercyJudgment(", StringComparison.Ordinal)
+            ..source.IndexOf("private void TryShowNextPlayerJudgment(", StringComparison.Ordinal)];
+        int appeal = aftermath.IndexOf("ReignRulerPolicy.InfluencedClanVerdict(", StringComparison.Ordinal);
+        int mercyRoll = aftermath.IndexOf("member.FateRoll = MBRandom.RandomInt", StringComparison.Ordinal);
+        Assert.True(appeal >= 0 && mercyRoll > appeal);
+        Assert.Contains("return;", aftermath[appeal..mercyRoll]);
     }
 
     [Fact]

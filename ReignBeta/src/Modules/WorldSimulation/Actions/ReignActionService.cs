@@ -43,7 +43,7 @@ namespace ReignBeta.Actions
             if (definition.Id == "expose_concealed_pregnancy")
                 return ReignServices.Family?.PregnancyExposureOptions(counterpart.StringId).Count > 0;
             if (definition.Id == AgreementRules.RulerInfluenceActionId)
-                return ReignServices.Ruler?.InfluenceJudgments(counterpart).Any() == true;
+                return ReignServices.Ruler?.InfluenceTargets(counterpart).Any() == true;
             if (definition.Adapter.StartsWith("asset:", StringComparison.Ordinal))
                 return definition.Id == "give.gold" ? actor.Gold > 0
                     : ReignActionEntities.Find(definition.Id.Substring(5), actor.StringId, clause: new ActionClause { ActionId = definition.Id, ActorId = actor.StringId, RecipientId = counterpart.StringId }).Any(r => r.Available);
@@ -180,8 +180,8 @@ namespace ReignBeta.Actions
                 else if (c.ActionId == AgreementRules.RulerInfluenceActionId)
                 {
                     var rulers = ReignServices.Ruler;
-                    var judgment = rulers?.FindInfluenceJudgment(Arg(c, "judgmentId"), c.RecipientId);
-                    if (c.ActorId != Hero.MainHero?.StringId || rulers?.CanRequestInfluence(judgment, Arg(c, "verdict"), out _) != true)
+                    var target = rulers?.FindInfluenceTarget(Arg(c, "judgmentId"), c.RecipientId);
+                    if (c.ActorId != Hero.MainHero?.StringId || rulers?.CanRequestInfluence(target, Arg(c, "verdict"), out _) != true)
                         errors.Add("This ruler's judgment or requested verdict is no longer available.");
                 }
                 else if (d.Adapter.StartsWith("npc_life:", StringComparison.Ordinal))

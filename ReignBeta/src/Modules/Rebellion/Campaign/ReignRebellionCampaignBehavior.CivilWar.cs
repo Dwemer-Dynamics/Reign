@@ -686,6 +686,25 @@ namespace ReignBeta.Rebellion.Campaign
             judgment.CivilWar = true; judgment.MovementId = movement.MovementId;
             judgment.RebelVictory = movement.OriginalRulerHeroStringId == judgment.PrisonerId;
         }
+
+        internal IEnumerable<(string ClanId, string LeaderId)> RebelClanAppealTargets(RulerJudgment judgment)
+        {
+            if (!judgment.CivilWar || judgment.RebelVictory || judgment.DefeatedLord) yield break;
+            var movement = _movements.FirstOrDefault(m => IsCivilWar(m) && m.MovementId == judgment.MovementId
+                && m.LeaderHeroStringId == judgment.PrisonerId && m.ParentKingdomStringId == judgment.VictorKingdomId
+                && m.RebelKingdomStringId == judgment.DefeatedKingdomId);
+            if (movement == null || movement.ResolutionApplied || HasRecognitionAttempt(movement)) yield break;
+
+            foreach (var member in MembersOf(movement))
+            {
+                if (!Same(member.Side, "rebel") || member.FateApplied || Same(member.ClanStringId, movement.LeaderClanStringId)) continue;
+                var clan = FindClan(member.ClanStringId);
+                if (clan?.IsEliminated == false && Same(clan.Kingdom?.StringId, movement.RebelKingdomStringId)
+                    && clan.Leader?.IsAlive == true && clan.Leader.StringId != judgment.PrisonerId)
+                    yield return (clan.StringId, clan.Leader.StringId);
+            }
+        }
+
         internal void CompleteRulerJudgment(RulerJudgment judgment)
         {
             var movement = _movements.FirstOrDefault(m => m.MovementId == judgment.MovementId);
@@ -700,7 +719,7 @@ namespace ReignBeta.Rebellion.Campaign
                 if (OrdinaryResolutionInProgress(movement)) throw new InvalidOperationException(OrdinaryReintegrationUnverified);
                 foreach (var member in MembersOf(movement).Where(m => m.ClanStringId == ReignRulerCampaignBehavior.HeroById(judgment.PrisonerId)?.Clan?.StringId))
                 { member.FateApplied = true; member.FateOutcome = judgment.Verdict.ToString(); }
-                if (!ResolveCivilWar(movement, false, "ruler_judgment"))
+                if (!ResolveCivilWar(movement, false, "ruler_judgment", judgment))
                     throw new InvalidOperationException(OrdinaryReintegrationUnverified);
                 return;
             }
@@ -736,7 +755,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void OnHeroPrisonerTaken(PartyBase captor, Hero prisoner)
         {
             Kingdom captorKingdom = captor?.MapFaction as Kingdom;
-            if (captorKingdom == null || prisoner == null) return;
+            if (prisoner == null || !ReignRulerCampaignBehavior.IsSovereignCustody(captor, captorKingdom)) return;
             foreach (ReignRebellionMovementRecord movement in _movements.Where(IsCivilWar).ToList())
             {
                 if (Same(movement.LeaderHeroStringId, prisoner.StringId)
@@ -877,7 +896,8 @@ namespace ReignBeta.Rebellion.Campaign
         private static bool OrdinaryResolutionInProgress(ReignRebellionMovementRecord movement)
             => movement.ExecutionPhase?.StartsWith("resolving", StringComparison.OrdinalIgnoreCase) == true;
 
-        private bool ResolveCivilWar(ReignRebellionMovementRecord movement, bool rebelVictory, string cause)
+        private bool ResolveCivilWar(ReignRebellionMovementRecord movement, bool rebelVictory, string cause,
+            RulerJudgment rulerJudgment = null)
         {
             if (movement == null || movement.ResolutionApplied || OrdinaryResolutionInProgress(movement)) return false;
             Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
@@ -901,6 +921,7 @@ namespace ReignBeta.Rebellion.Campaign
             movement.Resolution = rebelVictory ? "rebel_victory" : "loyalist_victory";
             movement.ResolutionCause = cause ?? string.Empty;
             Hero victor = rebelVictory ? FindHero(movement.LeaderHeroStringId) : FindHero(movement.OriginalRulerHeroStringId);
+            if (rulerJudgment != null && parent?.Leader?.IsAlive == true) victor = parent.Leader;
             movement.WinningLeaderHeroStringId = victor?.StringId ?? string.Empty;
             movement.Stage = "judgment";
             movement.UpdatedDay = CurrentDay();
@@ -921,7 +942,7 @@ namespace ReignBeta.Rebellion.Campaign
             else
             {
                 foreach (ReignRebellionMembershipRecord member in losingMembers.Where(x => !x.FateApplied).ToList())
-                    ApplyNpcMercyJudgment(movement, victor, member);
+                    ApplyNpcMercyJudgment(movement, victor, member, rulerJudgment);
             }
             FinalizeResolution(movement);
             return true;
@@ -960,13 +981,22 @@ namespace ReignBeta.Rebellion.Campaign
             return true;
         }
 
-        private void ApplyNpcMercyJudgment(ReignRebellionMovementRecord movement, Hero victor, ReignRebellionMembershipRecord member)
+        private void ApplyNpcMercyJudgment(ReignRebellionMovementRecord movement, Hero victor, ReignRebellionMembershipRecord member,
+            RulerJudgment rulerJudgment)
         {
             Hero defeated = CurrentLeader(member);
             if (defeated == null || defeated.IsDead)
             {
                 member.FateOutcome = "dead";
                 member.FateApplied = true;
+                return;
+            }
+            var appealed = ReignRulerPolicy.InfluencedClanVerdict(rulerJudgment, member.ClanStringId, defeated.StringId,
+                victor?.StringId, !CampaignOptions.IsLifeDeathCycleDisabled);
+            if (appealed.HasValue)
+            {
+                ApplyFate(movement, victor, member, appealed == RulerVerdict.Freedom ? "freedom"
+                    : appealed == RulerVerdict.Imprisonment ? "imprisonment" : "execution");
                 return;
             }
             if (member.FateRoll <= 0) member.FateRoll = MBRandom.RandomInt(1, 101);
@@ -1236,8 +1266,7 @@ namespace ReignBeta.Rebellion.Campaign
 
         private static bool IsHeldByFaction(Hero hero, Kingdom faction)
         {
-            return hero?.IsPrisoner == true && faction != null
-                && hero.PartyBelongedToAsPrisoner?.MapFaction == faction;
+            return hero?.IsPrisoner == true && ReignRulerCampaignBehavior.IsSovereignCustody(hero.PartyBelongedToAsPrisoner, faction);
         }
 
         private static Hero CurrentLeader(ReignRebellionMembershipRecord member)
