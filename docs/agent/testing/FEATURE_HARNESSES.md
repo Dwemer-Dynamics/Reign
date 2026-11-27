@@ -726,6 +726,12 @@ Use an already activated murder matter in that branch. Reveal its reliable compl
 
 Run one fixture.arrest_murder_evidence_witness case through reign_test_structured_actions with phase=fixture, kind=fixture, stable case and operation IDs, and only arguments.accusedHeroId and arguments.matterId. Retain the terminal reign-arrest-public-evidence-witness-v1 report with the checkpoint hash, adopted point and game instance. Require the exact public murder chain, the same hero rejected for treason, and unchanged arrest count and native custody. If the positive matter is unavailable, restore the test branch and obtain eligible production evidence before trying again.
 
+### Arrest late-evidence save recovery
+
+Use one `fixture.arrest_late_evidence` case through `reign_test_structured_actions` on the paused, armed, verified Current with a provider-free guard. Supply only the exact living `accusedHeroId` and `stage`. The `prepare` stage creates one run-owned arrest and captures the accused through Bannerlord's native prisoner action. It requires the ordinary prior relationship and reputation effects to be synchronized and supplies one fixture-owned evidence fact. Each `advance` stage runs one transition through the production review. The `observe` stage reports the current case, custody, journal phase, identities and exact history tuple.
+
+Use guarded campaign-test checkpoints and reload while the discovery is staged and again while the effect intent is pending. Confirm the loaded native case retains the same discovery identity and effect nonce, and compare both persisted history records to the verified native sequence and event ID. Discovery must report a pending effect. Settlement must link the earlier discovery and carry the retained measured effect once. The test fixture does not certify natural evidence discovery. Restore the protected baseline to remove test custody, case, effects and history. Remove only exact run-owned save files and slots.
+
 The live test reporter writes telemetry for the disposable campaign and can mark the active Save Sync sidecar dirty. Restore the exact owned Current and verify its checkpoint bytes and adopted point before further use. The post-restore snapshot can mark the sidecar dirty again.
 
 This records the live local evidence decision. Keep separate evidence of actual arrest preparation, the remote espionage route, and broader native custody acceptance.

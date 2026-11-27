@@ -24,7 +24,7 @@ using ReignBeta.Persistence.Integration;
 
 namespace ReignBeta.WorldSimulation.Arrests
 {
-    public sealed class ReignArrestCampaignBehavior : CampaignBehaviorBase
+    public sealed partial class ReignArrestCampaignBehavior : CampaignBehaviorBase
     {
         private List<ReignArrestCase> _cases = new List<ReignArrestCase>();
         private float _lastEvidenceReviewDay = -1000f;
@@ -468,7 +468,8 @@ namespace ReignBeta.WorldSimulation.Arrests
             ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
             if (!fence.IsCurrentActionPoll()) return;
 
-            var cases = _cases.Where(item => item.AccusationActive && item.IsOpen).ToList();
+            var cases = _cases.Where(item => item.AccusationActive && item.IsOpen
+                || !string.IsNullOrEmpty(item.DailyLateEvidenceIntentJson)).ToList();
             if (cases.Count == 0)
             {
                 _lastEvidenceReviewDay = day;
@@ -498,6 +499,14 @@ namespace ReignBeta.WorldSimulation.Arrests
             {
                 foreach (ReignArrestCase item in cases)
                 {
+                    bool lateEvidencePending = await ReignMainThread.InvokeAsync(() =>
+                        ownsPoint() && !string.IsNullOrEmpty(item.DailyLateEvidenceIntentJson)).ConfigureAwait(false);
+                    if (lateEvidencePending)
+                    {
+                        if (!await ReviewOwnedLateEvidenceAsync(item, ownsPoint).ConfigureAwait(false))
+                            capturedRepairsSettled = false;
+                        continue;
+                    }
                     var request = await ReignMainThread.InvokeAsync(() =>
                         CaptureDailyEvidenceRequest(fence, ownsPoint, item)).ConfigureAwait(false);
                     if (request.RequiresCapturedRepair)
@@ -508,6 +517,12 @@ namespace ReignBeta.WorldSimulation.Arrests
                     }
                     if (request.Payload == null)
                     {
+                        if (await ReignMainThread.InvokeAsync(() => !string.IsNullOrEmpty(item.DailyLateEvidenceIntentJson)).ConfigureAwait(false))
+                        {
+                            if (!await ReviewOwnedLateEvidenceAsync(item, ownsPoint).ConfigureAwait(false))
+                                capturedRepairsSettled = false;
+                            continue;
+                        }
                         if (!await ReignMainThread.InvokeAsync(ownsPoint).ConfigureAwait(false))
                             return;
                         continue;
@@ -530,6 +545,9 @@ namespace ReignBeta.WorldSimulation.Arrests
 
                     await ReignMainThread.InvokeAsync(() => request.Complete(response))
                         .ConfigureAwait(false);
+                    if (await ReignMainThread.InvokeAsync(() => !string.IsNullOrEmpty(item.DailyLateEvidenceIntentJson)).ConfigureAwait(false)
+                        && !await ReviewOwnedLateEvidenceAsync(item, ownsPoint).ConfigureAwait(false))
+                        capturedRepairsSettled = false;
                 }
                 finished = true;
             }
@@ -564,6 +582,11 @@ namespace ReignBeta.WorldSimulation.Arrests
                     : default;
             if (TryGetLocalEvidence(item, accused, out string evidence))
             {
+                if (item.Phase == ReignArrestPhase.Captured)
+                {
+                    RecordOwnedLateEvidence(item, accused, evidence);
+                    return default;
+                }
                 MarkEstablishedEvidence(item, "established", evidence);
                 ContinueDailyArrestMaintenance(item, accused, true);
                 return default;
@@ -584,6 +607,14 @@ namespace ReignBeta.WorldSimulation.Arrests
                 if (!Current()) return;
                 try
                 {
+                    if (item.Phase == ReignArrestPhase.Captured
+                        && ReignArrestEvidenceResponse.TryRead(payload, response, out string confirmedEvidence))
+                    {
+                        string responseOrigin = ReignServerClient.ResponseOrigin(response);
+                        if (!string.IsNullOrEmpty(responseOrigin))
+                            RecordOwnedLateEvidence(item, accused, confirmedEvidence, responseOrigin);
+                        return;
+                    }
                     ApplyEvidenceResponse(item, payload, response);
                 }
                 catch (Exception ex)
@@ -1282,11 +1313,11 @@ namespace ReignBeta.WorldSimulation.Arrests
                 : null);
         }
 
-        private static void AddHistory(ReignArrestCase item, string phase, string summary)
+        private static void AddHistory(ReignArrestCase item, string phase, string summary, double? observedDay = null)
         {
             if (item == null) return;
             item.History = item.History ?? new List<string>();
-            string entry = CurrentDay().ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
+            string entry = (observedDay ?? CurrentDay()).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
                 + "|" + (phase ?? string.Empty) + "|" + (summary ?? string.Empty);
             if (!item.History.Contains(entry)) item.History.Add(entry);
             if (item.History.Count > 120) item.History.RemoveRange(0, item.History.Count - 120);

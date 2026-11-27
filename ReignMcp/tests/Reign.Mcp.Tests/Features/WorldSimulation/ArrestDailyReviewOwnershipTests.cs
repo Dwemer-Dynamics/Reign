@@ -58,7 +58,7 @@ public sealed class ArrestDailyReviewOwnershipTests
         Assert.True(process.ExitCode == 0, (await output) + (await error) + " Evidence: " + evidence);
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
         Assert.Equal(new[] { "alignment-start", "alignment-reply", "load-reply", "generation-reply",
-            "point-reply", "save-sync-reply" },
+            "point-reply", "save-sync-reply", "legacy-reply" },
             report.RootElement.EnumerateArray().Select(item => item.GetString()).ToArray());
     }
 
@@ -91,10 +91,11 @@ public sealed class ArrestDailyReviewOwnershipTests
 
         namespace TaleWorlds.CampaignSystem { public static class Campaign { public static object Current = new object(); } }
         public sealed class Hero { public static Hero MainHero = new Hero("player"); public readonly string StringId; public Hero(string id) { StringId = id; } }
-        public enum ReignArrestPhase { Captured }
+        public enum ReignArrestPhase { Captured, Proposed }
         public sealed class ReignArrestCase {
             public string CaseId = "case", AccusedHeroStringId = "accused", PlayerHeroStringId = "player", ChargeCategory = "espionage", RawAccusation = "probe";
             public string EvidenceStatus = "unsupported", EvidenceIdsCsv = string.Empty;
+            public string DailyLateEvidenceIntentJson = string.Empty;
             public ReignArrestPhase Phase = ReignArrestPhase.Captured;
             public bool AccusationActive = true, IsOpen = true, CauseEstablished;
         }
@@ -119,6 +120,7 @@ public sealed class ArrestDailyReviewOwnershipTests
             public static TaskCompletionSource<JObject> Sent;
             public static TaskCompletionSource<JObject> Reply;
             public static string GetCampaignId() => "isolated";
+            public static string ResponseOrigin(JObject response) => "http://127.0.0.1:8089";
             public static void Prepare() {
                 Sent = new TaskCompletionSource<JObject>(TaskCreationOptions.RunContinuationsAsynchronously);
                 Reply = new TaskCompletionSource<JObject>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -140,6 +142,7 @@ public sealed class ArrestDailyReviewOwnershipTests
             private float _lastEvidenceReviewDay = -1000f;
             private ReignServerClient.RequestFence _dailyEvidenceReview;
             private int maintenance;
+            private int ownedReviews;
 
             private static float CurrentDay() => Day;
             private Hero FindHero(string id) => id == accused.StringId ? accused : null;
@@ -150,6 +153,18 @@ public sealed class ArrestDailyReviewOwnershipTests
             private static bool TryGetLocalEvidence(ReignArrestCase item, Hero hero, out string evidence) { evidence = string.Empty; return false; }
             private static void LogEvidenceReviewFailure(string id, Exception error) => throw new InvalidOperationException(id, error);
             private void ContinueDailyArrestMaintenance(ReignArrestCase item, Hero hero, bool reclassify) { maintenance++; }
+            // The source probe exercises production dispatch. Native journal and PostgreSQL receipt tests own delivery.
+            private static void RecordOwnedLateEvidence(ReignArrestCase item, Hero hero, string evidence, string origin = null)
+            {
+                Check(origin == "http://127.0.0.1:8089", "the captured remote result retains its answering origin");
+                item.DailyLateEvidenceIntentJson = evidence;
+            }
+            private Task<bool> ReviewOwnedLateEvidenceAsync(ReignArrestCase item, Func<bool> ownsPoint)
+            {
+                Check(ownsPoint(), "pending late evidence resumes only under the current review owner");
+                ownedReviews++;
+                return Task.FromResult(false);
+            }
             /* PRODUCTION_DAILY */
             /* PRODUCTION_RESPONSE */
 
@@ -222,7 +237,8 @@ public sealed class ArrestDailyReviewOwnershipTests
                     await oldReview.WaitAsync(TimeSpan.FromSeconds(5));
                     Check(owner._dailyEvidenceReview == null && owner._lastEvidenceReviewDay < Day
                         && owner.maintenance == 0 && !owner._cases[0].CauseEstablished
-                        && owner._cases[0].EvidenceStatus == "unsupported" && owner._cases[0].EvidenceIdsCsv == string.Empty,
+                        && owner._cases[0].EvidenceStatus == "unsupported" && owner._cases[0].EvidenceIdsCsv == string.Empty
+                        && owner._cases[0].DailyLateEvidenceIntentJson == string.Empty && owner.ownedReviews == 0,
                         "a stale reply cannot mutate the case, run maintenance or consume the open day");
 
                     ReignSaveSyncCoordinator.IsAlignmentPending = false;
@@ -230,13 +246,26 @@ public sealed class ArrestDailyReviewOwnershipTests
                     JObject retryRequest = await ReignServerClient.Sent.Task.WaitAsync(TimeSpan.FromSeconds(5));
                     ReignServerClient.Reply.SetResult(EspionageReply(retryRequest));
                     await retry.WaitAsync(TimeSpan.FromSeconds(5));
-                    Check(owner._dailyEvidenceReview == null && owner._lastEvidenceReviewDay == Day
-                        && owner.maintenance == 1 && owner._cases[0].CauseEstablished
-                        && owner._cases[0].EvidenceStatus == "established"
-                        && owner._cases[0].EvidenceIdsCsv == "foreign_agent:accused:sponsor",
-                        "the same day can retry and complete once under its current owner");
+                    Check(owner._dailyEvidenceReview == null && owner._lastEvidenceReviewDay < Day
+                        && owner.maintenance == 0 && !owner._cases[0].CauseEstablished
+                        && owner._cases[0].DailyLateEvidenceIntentJson == "foreign_agent:accused:sponsor" && owner.ownedReviews == 1,
+                        "the same day starts one owned transition and remains unfinished while delivery is pending");
+                    await owner.StartDailyReview().WaitAsync(TimeSpan.FromSeconds(5));
+                    Check(owner.ownedReviews == 2 && !ReignServerClient.Sent.Task.IsCompleted,
+                        "the pending intent resumes without requesting evidence twice");
                     passed.Add(change + "-reply");
                 }
+                var legacy = new ArrestReviewProbe();
+                legacy._cases[0].Phase = ReignArrestPhase.Proposed;
+                Instance = legacy;
+                Task legacyReview = legacy.StartDailyReview();
+                JObject legacyRequest = await ReignServerClient.Sent.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                ReignServerClient.Reply.SetResult(EspionageReply(legacyRequest));
+                await legacyReview.WaitAsync(TimeSpan.FromSeconds(5));
+                Check(legacy._lastEvidenceReviewDay == Day && legacy.maintenance == 1 && legacy.ownedReviews == 0
+                    && legacy._cases[0].CauseEstablished && legacy._cases[0].EvidenceIdsCsv == "foreign_agent:accused:sponsor",
+                    "a noncaptured case keeps its direct evidence path");
+                passed.Add("legacy-reply");
                 return passed.ToArray();
             }
         }

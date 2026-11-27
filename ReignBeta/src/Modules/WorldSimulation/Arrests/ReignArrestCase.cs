@@ -69,6 +69,7 @@ namespace ReignBeta.Campaign
         [SaveableField(31)] public string ReactionSnapshot = string.Empty;
         [SaveableField(32)] public float ReactionDay = -1f;
         [SaveableField(33)] public string DailyCapturedRepairIntentJson = string.Empty;
+        [SaveableField(34)] public string DailyLateEvidenceIntentJson = string.Empty;
 
         public ReignArrestPhase Phase
         {

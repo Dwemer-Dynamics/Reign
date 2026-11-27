@@ -41,6 +41,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         }
 
         private string _timelineId = "main";
+        private string _ownedJusticeHistoryOrigin = string.Empty;
         private string _headEventId = string.Empty;
         private long _sequence;
         private float _historyCompleteFromDay;
@@ -66,6 +67,30 @@ namespace ReignBeta.WorldSimulation.Campaign
         public float HistoryCompleteFromDay => _historyCompleteFromDay;
         internal bool TimelineReady => _timelineReady;
         internal string SharedActivityGeneration { get; private set; } = string.Empty;
+        internal string OwnedJusticeHistoryOrigin => _ownedJusticeHistoryOrigin ?? string.Empty;
+
+        internal bool TryPublishOwnedJusticeHistory(JObject facts, string campaign, string timeline, string generation,
+            string nativeLoadSession, string origin, int alignment, long epoch, long predecessor, string previousId, Action remember)
+        {
+            if (!_timelineReady || !ReferenceEquals(ReignServices.WorldHistory, this) || remember == null
+                || TimelineId != timeline || SharedActivityGeneration != generation || _sequence != predecessor
+                || _headEventId != previousId || (OwnedJusticeHistoryOrigin.Length != 0 && OwnedJusticeHistoryOrigin != origin))
+                return false;
+            var request = new JObject
+            {
+                ["historyAppendVersion"] = 1, ["campaignId"] = campaign, ["timelineId"] = timeline,
+                ["sharedActivityGeneration"] = generation, ["nativeLoadSessionId"] = nativeLoadSession,
+                ["previousSequence"] = predecessor, ["previousEventId"] = previousId, ["event"] = facts.DeepClone()
+            };
+            JObject projection = ReignWorldHistoryClient.BuildOwnedJusticeHistoryEnvelope(facts);
+            return ReignWorldHistoryTransport.TryStageOwnedJusticeDelivery(projection, request, origin, alignment, epoch, () =>
+            {
+                remember();
+                _ownedJusticeHistoryOrigin = origin;
+                _sequence = projection.Value<long>("sequence");
+                _headEventId = projection.Value<string>("eventId");
+            });
+        }
 
         public override void RegisterEvents()
         {
@@ -156,6 +181,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             if (dataStore.IsLoading) _publicNewsAttempts.Clear();
             dataStore.SyncData("_reign_worldHistoryTimelineId", ref _timelineId);
+            dataStore.SyncData("_reign_worldHistoryOwnedJusticeOrigin", ref _ownedJusticeHistoryOrigin);
             dataStore.SyncData("_reign_worldHistoryHeadEventId", ref _headEventId);
             dataStore.SyncData("_reign_worldHistorySequence", ref _sequence);
             dataStore.SyncData("_reign_worldHistoryCompleteFromDay", ref _historyCompleteFromDay);
@@ -193,7 +219,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                 _timelineId,
                 _sequence,
                 _headEventId,
-                _historyCompleteFromDay).ConfigureAwait(false);
+                _historyCompleteFromDay,
+                OwnedJusticeHistoryOrigin).ConfigureAwait(false);
             if (!ReignCampaignInitializationGate.IsActiveGeneration(generationId))
                 throw new InvalidOperationException(
                     "The world-history response belongs to a stale campaign generation.");

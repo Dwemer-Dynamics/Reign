@@ -66,8 +66,23 @@ namespace ReignBeta.WorldSimulation.Integration
         internal bool Matches(JObject reply)
         {
             if (!Flag(reply, "ok") || Text(reply, "result") != "observed"
-                || !Integer(reply["eventProofVersion"], out long version) || version != 1
-                || !(reply["ownership"] is JObject owner) || Text(owner, "campaignId") != _campaign
+                || !Integer(reply["eventProofVersion"], out long version) || version != 1)
+                return false;
+            return MatchesProjection(reply);
+        }
+
+        internal bool MatchesAppend(JObject reply, string loadSession)
+        {
+            if (!Flag(reply, "ok") || !(Text(reply, "result") is "inserted" or "replayed")
+                || !Integer(reply["historyAppendVersion"], out long version) || version != 1
+                || !(reply["ownership"] is JObject owner) || Text(owner, "nativeLoadSessionId") != loadSession)
+                return false;
+            return MatchesProjection(reply);
+        }
+
+        private bool MatchesProjection(JObject reply)
+        {
+            if (!(reply["ownership"] is JObject owner) || Text(owner, "campaignId") != _campaign
                 || Text(owner, "timelineId") != _timeline || Text(owner, "sharedActivityGeneration") != _generation
                 || !(reply["event"] is JObject observed) || Text(observed, "campaign_id") != _campaign
                 || Text(observed, "timeline_id") != _timeline || !Integer(observed["is_complete"], out long complete) || complete != 1
@@ -93,6 +108,10 @@ namespace ReignBeta.WorldSimulation.Integration
             }
             return true;
         }
+
+        internal bool MatchesOwnedAdmission(JObject reply, string session) =>
+            Matches(reply) && Integer(reply["ownedAdmissionProofVersion"], out long version) && version == 1
+            && Text(reply, "nativeLoadSessionId") == session;
 
         private static bool AdmissibleEntity(JToken candidate) => candidate is JObject entity && IsExactJson(entity)
             && ExactNonempty(Text(entity, "entityId")) && ExactNonempty(Text(entity, "entityType"))

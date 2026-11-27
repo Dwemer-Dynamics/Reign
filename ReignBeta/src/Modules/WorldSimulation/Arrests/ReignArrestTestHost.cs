@@ -15,6 +15,7 @@ using TaleWorlds.Core;
 using ReignBeta.Campaign;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Arrests;
 using ReignBeta.Platform.Runtime;
@@ -28,6 +29,125 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "evidence", "reputation", "town", "castle", "player_party", "surrender",
                 "escape", "duel", "battle", "sovereignty", "evaluation", "cleanup" },
             StringComparer.OrdinalIgnoreCase);
+
+        private static async Task<LiveCommandResult> ObserveOrAdvanceLateArrestAsync(JObject command)
+        {
+            const string fixture = "fixture.arrest_late_evidence";
+            try
+            {
+                JObject test = command["testCase"] as JObject;
+                JObject enrollment = command["enrollment"] as JObject;
+                JObject args = test?["arguments"] as JObject;
+                string phase = args?["stage"]?.Type == JTokenType.String ? args.Value<string>("stage") : "";
+                if (test?.Count != 6 || test.Value<string>("phase") != "fixture" || test.Value<string>("kind") != "fixture"
+                    || test.Value<string>("actionId") != fixture || args?.Count != 2 || phase is not ("prepare" or "advance" or "observe")
+                    || !TryReadArrestWitnessId(args["accusedHeroId"], out string accusedId))
+                    return LiveCommandResult.Failed("The late-evidence fixture requires one exact accused hero and a supported stage.");
+
+                string campaignId = enrollment?.Value<string>("campaignId");
+                string timeline = enrollment?.Value<string>("timelineId");
+                string save = enrollment?.Value<string>("disposableSaveName");
+                string baseline = enrollment?.Value<string>("protectedBaselineSaveName");
+                string point = enrollment?.Value<string>("checkpointSavePointId");
+                string hash = enrollment?.Value<string>("checkpointSha256");
+                string run = enrollment?.Value<string>("campaignTestRunId");
+                if (!_armed || enrollment?.Value<string>("source") != "reign_mcp_structured_actions"
+                    || enrollment.Value<bool?>("recoveryCheckpointVerified") != true || string.IsNullOrEmpty(run)
+                    || string.IsNullOrEmpty(save) || string.IsNullOrEmpty(baseline) || save == baseline
+                    || !Guid.TryParseExact(point, "N", out _) || hash?.Length != 64
+                    || command.Value<string>("campaignId") != campaignId || command.Value<string>("gameInstanceId") != _gameInstanceId)
+                    return LiveCommandResult.Failed("The fixture requires one exact retained checkpoint on the paused enrolled Current.");
+
+                var admitted = await ReignMainThread.InvokeAsync(() =>
+                {
+                    var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                    var gameScope = ReignMainThread.CurrentGameScope;
+                    var behavior = ReignServices.Arrest;
+                    if (campaign?.TimeControlMode != CampaignTimeControlMode.Stop || gameScope == null || behavior == null)
+                        throw new InvalidOperationException("The fixture requires the exact paused native campaign.");
+                    var expectedOwner = enrollment["checkpointLoadOwner"] as JObject;
+                    var observed = ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timeline, save, point);
+                    if (expectedOwner == null || !JToken.DeepEquals(expectedOwner, observed)
+                        || !NativeSaveHasPoint(save, campaignId, point) || NativeCheckpointHash(save) != hash
+                        || ReignServices.SaveSync?.CurrentSavePointId != point || ReignSaveSyncCoordinator.IsAlignmentPending)
+                        throw new InvalidOperationException("The fixture load owner or retained Current checkpoint could not be verified.");
+                    var hero = Hero.FindFirst(candidate => candidate.StringId == accusedId);
+                    if (hero == null || !hero.IsAlive || hero == Hero.MainHero)
+                        throw new InvalidOperationException("The exact living accused is unavailable.");
+                    return (Campaign: campaign, GameScope: gameScope, Behavior: behavior, Hero: hero,
+                        Alignment: ReignSaveSyncCoordinator.CampaignGeneration, LoadOwner: observed);
+                }).ConfigureAwait(false);
+
+                bool Current() => _armed && ReferenceEquals(admitted.GameScope, ReignMainThread.CurrentGameScope)
+                    && ReferenceEquals(admitted.Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                    && admitted.Campaign.TimeControlMode == CampaignTimeControlMode.Stop
+                    && ReferenceEquals(admitted.Behavior, ReignServices.Arrest)
+                    && ReignSaveSyncCoordinator.CampaignGeneration == admitted.Alignment
+                    && ReignServices.SaveSync?.CurrentSavePointId == point && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
+                    && ActiveSaveName() == save && ReignCampaignIdentity.CurrentCampaignId() == campaignId
+                    && ReignServices.WorldHistory?.TimelineId == timeline && command.Value<string>("gameInstanceId") == _gameInstanceId;
+
+                string ownedCaseId = admitted.Behavior.LateEvidenceFixtureCaseId(run);
+                var item = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!Current()) throw new InvalidOperationException("The fixture lost its current native owner.");
+                    var existing = admitted.Behavior.Cases.SingleOrDefault(candidate => candidate.CaseId == ownedCaseId);
+                    if (phase != "prepare")
+                    {
+                        if (existing?.AccusedHeroStringId != accusedId)
+                            throw new InvalidOperationException("The exact run-owned arrest case is missing.");
+                        return existing;
+                    }
+                    if (existing != null || admitted.Hero.IsPrisoner
+                        || admitted.Behavior.Cases.Any(candidate => candidate.IsOpen && candidate.AccusedHeroStringId == accusedId))
+                        throw new InvalidOperationException("The fixture requires an unused case and an accused free of other arrest cases.");
+                    var created = admitted.Behavior.PrepareNativeAcceptanceFixture(run, "late_evidence", admitted.Hero,
+                        ReignArrestPhase.AwaitingConfirmation, ReignArrestContextKind.PlayerParty, null, true, false);
+                    TakePrisonerAction.Apply(PartyBase.MainParty, admitted.Hero);
+                    if (created == null || created.CaseId != ownedCaseId || created.Phase != ReignArrestPhase.Captured
+                        || !admitted.Hero.IsPrisoner || admitted.Hero.PartyBelongedToAsPrisoner != PartyBase.MainParty
+                        || !admitted.Behavior.PrepareLateEvidenceFixture(created, admitted.Hero, run))
+                        throw new InvalidOperationException("The native capture, measured prior effect, or fixture evidence admission failed. Restore the checkpoint.");
+                    return created;
+                }).ConfigureAwait(false);
+
+                string before = await ReignMainThread.InvokeAsync(() => item.DailyLateEvidenceIntentJson ?? "").ConfigureAwait(false);
+                if (phase == "advance")
+                    await admitted.Behavior.AdvanceLateEvidenceFixtureAsync(item, run, Current).ConfigureAwait(false);
+
+                return await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!Current() || !JToken.DeepEquals(admitted.LoadOwner,
+                        ObservePassiveWorldCurrentLoad(command, admitted.Campaign, campaignId, timeline, save, point)))
+                        return LiveCommandResult.Failed("The native load owner changed during the late-evidence fixture.");
+                    string after = item.DailyLateEvidenceIntentJson ?? "";
+                    if (phase == "advance" && before == after)
+                        return LiveCommandResult.Failed("The owned late-evidence transition did not advance at this checkpoint.");
+                    JObject journal = after.Length == 0 ? new JObject() : JObject.Parse(after);
+                    var history = ReignServices.WorldHistory;
+                    return LiveCommandResult.Completed("Observed the exact run-owned late-evidence transition.", new JObject
+                    {
+                        ["schema"] = "reign-arrest-late-evidence-native-v1", ["stage"] = phase,
+                        ["campaignTestRunId"] = run, ["campaignId"] = campaignId, ["timelineId"] = timeline,
+                        ["gameInstanceId"] = _gameInstanceId, ["saveName"] = save, ["savePointId"] = point,
+                        ["checkpointSha256"] = hash, ["caseId"] = item.CaseId, ["accusedHeroId"] = accusedId,
+                        ["nativePhase"] = item.Phase.ToString(), ["causeEstablished"] = item.CauseEstablished,
+                        ["relationshipEffectSynchronized"] = item.RelationshipEffectSynchronized,
+                        ["reputationSynchronized"] = item.ReputationSynchronized,
+                        ["appliedRelationshipDelta"] = item.RelationshipDeltaApplied,
+                        ["journalPhase"] = journal.Value<string>("phase") ?? "",
+                        ["discoveryEventId"] = journal["facts"]?.Value<string>("eventId") ?? "",
+                        ["effectIntentId"] = journal["effectRequest"]?.Value<string>("effectIntentId") ?? "",
+                        ["settlementEventId"] = journal["effectReceipt"]?.Value<string>("eventId") ?? "",
+                        ["worldHistorySequence"] = history?.Sequence ?? 0L,
+                        ["worldHistoryHeadEventId"] = history?.HeadEventId ?? "",
+                        ["prisonerInPlayerCustody"] = admitted.Hero.IsPrisoner && admitted.Hero.PartyBelongedToAsPrisoner == PartyBase.MainParty,
+                        ["evidenceSource"] = "run_owned_fixture"
+                    });
+                }).ConfigureAwait(false);
+            }
+            catch (Exception ex) { return LiveCommandResult.Failed(ex.Message); }
+        }
 
         private static LiveCommandResult ObserveArrestMurderEvidence(JObject command, JObject test, JObject enrollment)
         {
