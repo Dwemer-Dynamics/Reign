@@ -3782,7 +3782,7 @@
       "/chat-view/archive"
     ],
     "contracts": [
-      "latest four complete exchanges including every NPC reply",
+      "latest four complete exchanges including every NPC reply; a player or NPC turn can anchor the image, and archived player anchors recheck the original input",
       "player/session/timeline/source-frame privacy",
       "source quotations and present cast",
       "full-body reference integrity and fifth-person retention",
@@ -3824,7 +3824,7 @@
       "writerMetadata": "viewWardrobeEvidence nominations are data, not game authority/semantic proof; no extra provider call",
       "storage": "chat_view_wardrobe_evidence in the accepted-source transaction; exact original player words and final NPC bytes; campaign/session/verified timeline fences",
       "bounds": "32 nominations/reply, 2000 characters/exact unique quote, 64000 serialized journal characters; 4096 prior frames, 64 historical source turns, 180000 combined selection characters; overflow fails before providers, never truncates",
-      "admission": "one mapped actor entry, up to8 net changes each and64 total, literal clothing phrase up to200 characters; explicit wearing or distinct-speaker agreement plus enacted activity; no future spans, scene/actor gaps, invented quotes/garments or unknown fields",
+      "admission": "one mapped actor entry, up to8 net changes each and64 total, literal clothing phrase up to200 characters; explicit wearing or distinct-speaker agreement plus enacted activity; bounded exact citation leads for removal are advisory; explicit whole-outfit removal accepts an exact state phrase without naming garments; no future spans, scene/actor gaps, invented quotes/garments or unknown fields",
       "prompt": "fixed identity/apparent-age authority, controlled clothing JSON for affected garments, remaining compatible portrait wardrobe; removed/replaced outfits are not layered underneath; proofs stay in receipts",
       "compatibility": "legacy/unavailable history is marked incomplete; exact shipped v1/v2 defaults migrate, custom styles survive; versioned jobs preserve old frozen prompts/images",
       "coverageGap": "source provenance does not establish language interpretation or generated-image adherence; native/photo acceptance remains separate"
