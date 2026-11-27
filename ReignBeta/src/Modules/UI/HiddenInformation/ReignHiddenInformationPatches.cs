@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.LogEntries;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Conversation;
@@ -25,6 +26,7 @@ namespace ReignBeta.UI.HiddenInformation
     {
         private const string HarmonyId = "com.bannerlordreign.reignbeta.hidden_information";
         private static Harmony _harmony;
+        private static readonly FieldInfo PregnancyLogMother = AccessTools.Field(typeof(PregnancyLogEntry), "Mother");
 
         public static void Apply()
         {
@@ -44,6 +46,8 @@ namespace ReignBeta.UI.HiddenInformation
                 Patch(AccessTools.Method(typeof(TooltipRefresherCollection), nameof(TooltipRefresherCollection.RefreshHeroTooltip)), postfix: nameof(RefreshHeroTooltipPostfix));
                 Patch(AccessTools.Method(typeof(EncyclopediaHeroPageVM), nameof(EncyclopediaHeroPageVM.Refresh)), postfix: nameof(EncyclopediaHeroRefreshPostfix));
                 Patch(AccessTools.Method(typeof(ClanLordItemVM), nameof(ClanLordItemVM.UpdateProperties)), postfix: nameof(ClanLordRefreshPostfix));
+                Patch(AccessTools.PropertyGetter(typeof(PregnancyLogEntry), nameof(PregnancyLogEntry.IsVisibleNotification)), postfix: nameof(PregnancyNotificationVisibilityPostfix));
+                Patch(AccessTools.Method(typeof(PregnancyLogEntry), nameof(PregnancyLogEntry.IsVisibleInEncyclopediaPageOf)), postfix: nameof(PregnancyHistoryVisibilityPostfix));
                 Patch(AccessTools.Method(typeof(MarriageOfferPopupHeroVM), nameof(MarriageOfferPopupHeroVM.RefreshValues)), postfix: nameof(MarriageHeroRefreshPostfix));
                 Patch(AccessTools.Method(typeof(HeirSelectionPopupHeroVM), nameof(HeirSelectionPopupHeroVM.RefreshValues)), postfix: nameof(HeirHeroRefreshPostfix));
                 Patch(AccessTools.Method(typeof(GameMenuPartyItemVM), nameof(GameMenuPartyItemVM.RefreshProperties)), postfix: nameof(GameMenuPartyRefreshPostfix));
@@ -131,6 +135,8 @@ namespace ReignBeta.UI.HiddenInformation
             {
                 return;
             }
+            if (__instance.IsPregnant && ReignHiddenInformationPolicy.ShouldMaskEarlyPregnancy(hero))
+                __instance.IsPregnant = false;
             if (!ReignHiddenInformationPolicy.ShouldMask(hero))
             {
                 return;
@@ -170,10 +176,25 @@ namespace ReignBeta.UI.HiddenInformation
         private static void ClanLordRefreshPostfix(ClanLordItemVM __instance)
         {
             Hero hero = __instance?.GetHero();
+            if (__instance?.IsPregnant == true && ReignHiddenInformationPolicy.ShouldMaskEarlyPregnancy(hero))
+                __instance.IsPregnant = false;
             if (ReignHiddenInformationPolicy.ShouldMask(hero))
             {
                 __instance.RelationToMainHeroText = string.Empty;
             }
+        }
+
+        private static void PregnancyNotificationVisibilityPostfix(PregnancyLogEntry __instance, ref bool __result)
+        {
+            if (__result && ReignHiddenInformationPolicy.ShouldMaskEarlyPregnancy(PregnancyLogMother?.GetValue(__instance) as Hero))
+                __result = false;
+        }
+
+        private static void PregnancyHistoryVisibilityPostfix(PregnancyLogEntry __instance, ref bool __result)
+        {
+            var mother = PregnancyLogMother?.GetValue(__instance) as Hero;
+            if (__result && (mother == null || mother.IsPregnant) && ReignHiddenInformationPolicy.ShouldMaskEarlyPregnancy(mother))
+                __result = false;
         }
 
         private static void MarriageHeroRefreshPostfix(MarriageOfferPopupHeroVM __instance)

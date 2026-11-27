@@ -43,6 +43,12 @@ namespace ReignBeta.UI.HiddenInformation
             }
         }
 
+        public static bool ShouldMaskEarlyPregnancy(Hero hero)
+        {
+            return ReignBetaSettings.Instance?.HideEarlyPregnancyStatus != false
+                && ReignServices.Family?.IsPregnancyStatusVisible(hero) != true;
+        }
+
         public static bool ShouldMask(Hero hero)
         {
             return !IsCheatRevealEnabled

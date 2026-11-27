@@ -8,6 +8,23 @@ namespace Reign.Mcp.Tests;
 
 public sealed class PregnancyContextTests
 {
+    [Theory]
+    [InlineData(36d, 19.99d, false)]
+    [InlineData(36d, 20d, true)]
+    [InlineData(36d, 21d, true)]
+    [InlineData(54d, 29.99d, false)]
+    [InlineData(54d, 30d, true)]
+    public void NativeStatusRevealsAtFiveOfNinePregnancyMonths(double term, double elapsed, bool visible)
+    {
+        var facts = new PregnancyFacts { Active = true, TimingKnown = true, ConceptionDay = 100d, DueDay = 100d + term, WorldDay = 100d + elapsed };
+        Assert.Equal(visible, PregnancyContextPolicy.NativeStatusVisible(facts));
+        facts.TimingKnown = false;
+        Assert.False(PregnancyContextPolicy.NativeStatusVisible(facts));
+        facts.TimingKnown = true;
+        facts.Active = false;
+        Assert.False(PregnancyContextPolicy.NativeStatusVisible(facts));
+    }
+
     private static PregnancyFacts Pregnancy() => new() { PregnancyId = "pregnancy", MotherId = "mother", MotherName = "Ingunde",
         BiologicalFatherId = "father", BiologicalFatherName = "Actual Father", LegalFatherId = "husband", LegalFatherName = "Husband",
         SpouseId = "husband", SpouseName = "Husband", SpouseAtConceptionId = "husband", MarriageAtConceptionKnown = true,

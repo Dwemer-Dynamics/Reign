@@ -342,6 +342,7 @@
   "pregnancyAwarenessAndExposure": {
     "entry": "reign_validate; reign_run_offline_verification",
     "suite": "prompt_efficiency",
+    "nativeStatusPrivacy": "Default General setting masks native badges, current pregnancy history, and immediate pregnancy notices before five ninths of the recorded term; unknown timing stays hidden. Pregnancy choice preview uses state-independent warning and nominal chance fields. Proceed evaluates true native pregnancy before conception.",
     "contracts": "PregnancyContextTests and pregnancy_context_*: existing-save flag and native schedule compatibility, mandatory self context, halfway visibility, remote/privacy controls, confirmed source-bound disclosures, false legal-paternity claims, unilateral action consent and timing, separate mother/father exposure, -50/-5 reputation, retry idempotence, timeline isolation and Save Sync relationship-table ownership.",
     "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md#pregnancy-awareness-and-exposure-2026-10-10",
     "help": "ReignServer/docs/server/PregnancyContext.md",

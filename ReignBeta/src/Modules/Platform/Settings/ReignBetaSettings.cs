@@ -39,6 +39,7 @@ namespace ReignBeta.Platform.Settings
         private bool _ambientRelationshipDriftEnabled = true;
         private bool _reignControlledNpcMarriageEnabled = true;
         private bool _pregnancyCombatRestrictionsEnabled = true;
+        private bool _hideEarlyPregnancyStatus = true;
         private bool _generatedWildernessEventsEnabled = true;
         private bool _eventRelationshipChangesEnabled = true;
         private bool _kingdomEventsEnabled = true;
@@ -250,6 +251,19 @@ namespace ReignBeta.Platform.Settings
                     OnPropertyChanged();
                     ReignServices.Family?.OnPregnancyRestrictionSettingsChanged();
                 }
+            }
+        }
+
+        [SettingPropertyBool("Hide Early Pregnancy Status", Order = 10, RequireRestart = false, HintText = "Hides native pregnancy badges, history and notifications during the first five pregnancy months. This setting changes presentation only.")]
+        [SettingPropertyGroup("General", GroupOrder = 0)]
+        public bool HideEarlyPregnancyStatus
+        {
+            get { return _hideEarlyPregnancyStatus; }
+            set
+            {
+                if (value == _hideEarlyPregnancyStatus) return;
+                _hideEarlyPregnancyStatus = value;
+                OnPropertyChanged();
             }
         }
 

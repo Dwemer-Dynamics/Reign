@@ -1073,7 +1073,7 @@ namespace ReignBeta.Platform.Integration
                                 ? ReignRelationshipDirectorClient.PreviewPlayerConceptionAttemptAsync(hero, reply.Text, conceptionAttemptId)
                                 : null).ConfigureAwait(false);
                         ReignConceptionAttemptResult preview = previewTask == null ? null : await previewTask.ConfigureAwait(false);
-                        if (preview != null && preview.Ok && preview.Verified && preview.Eligible)
+                        if (preview != null && preview.Ok && preview.Verified && preview.ShowWarning)
                         {
                             reply.ConceptionAttempt = preview;
                         }
