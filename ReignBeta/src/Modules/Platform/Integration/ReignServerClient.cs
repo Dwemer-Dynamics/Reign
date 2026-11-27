@@ -507,6 +507,8 @@ namespace ReignBeta.Platform.Integration
             return PostJsonCoreAsync(route, payload, null, requestOwner, requestScope);
         }
 
+        private const string ConversationClockContextPrefix = "Current campaign date and time for this turn: ";
+
         private static async Task<JObject> PostJsonCoreAsync(string route, JObject payload,
             Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner, ReignMainThread.GameScope requestScope = null)
         {
@@ -549,7 +551,7 @@ namespace ReignBeta.Platform.Integration
                 gossipSnapshot = await ReignPersonalGossipClient.RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
                 if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                     throw new OperationCanceledException("Request belongs to a previous loaded save.");
-                double nativeDay = await ReignMainThread.InvokeAsync(() =>
+                await ReignMainThread.InvokeAsync(() =>
                 {
                     // Same game-thread callback as the shared party-contact capture.
                     EnsureRequestOwner(requestOwner, "shared party contact capture");
@@ -562,15 +564,28 @@ namespace ReignBeta.Platform.Integration
                     payload["partyContext"] = partySnapshot;
                     if (payload["localPresence"] is JObject presence)
                         presence["partyContext"] = partySnapshot.DeepClone();
-                    if (ReignCalendarService.TryGetCalendarPosition(CampaignTime.Now, out int year, out _, out int season, out int day, out _))
+                    if (TaleWorlds.CampaignSystem.Campaign.Current == null) return;
+                    CampaignTime now = CampaignTime.Now;
+                    double nativeDay = now.ToDays;
+                    if (nativeDay > 0d) payload["worldDay"] = nativeDay;
+
+                    string timeLabel = ReignCalendarService.FormatConversationTimeLabel(now);
+                    string dateLabel = ReignCalendarService.FormatConversationDateTimeLabel(now, timeLabel);
+                    if (dateLabel.Length > 0) payload["conversationDateLabel"] = dateLabel;
+                    else payload.Remove("conversationDateLabel");
+                    if ((conversationInput || approachObservation) && timeLabel.Length > 0)
                     {
-                        double hour = (CampaignTime.Now.ToDays % 1d) * 24d;
-                        payload["conversationDateLabel"] = year + " " + new[] { "Spring", "Summer", "Autumn", "Winter" }[season]
-                            + " " + (day + 1) + " " + (hour < 6 || hour >= 21 ? "Night" : hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening");
+                        string scene = payload.Value<string>("sceneContext") ?? string.Empty;
+                        // Reusing a request refreshes the same line while leaving scene facts intact.
+                        if (scene.StartsWith(ConversationClockContextPrefix, StringComparison.Ordinal))
+                        {
+                            int lineEnd = scene.IndexOf('\n');
+                            scene = lineEnd >= 0 ? scene.Substring(lineEnd + 1) : string.Empty;
+                        }
+                        payload["sceneContext"] = ConversationClockContextPrefix
+                            + (dateLabel.Length > 0 ? dateLabel : timeLabel) + ".\n" + scene;
                     }
-                    return TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
                 }).ConfigureAwait(false);
-                if (nativeDay > 0d) payload["worldDay"] = nativeDay;
                 var publicationSyncTimer = System.Diagnostics.Stopwatch.StartNew();
                 JObject synchronization;
                 do

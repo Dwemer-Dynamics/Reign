@@ -199,6 +199,30 @@ namespace ReignBeta.WorldSimulation.Runtime
             return PromptRule;
         }
 
+        internal static string FormatConversationTimeLabel(CampaignTime now)
+        {
+            int minutesPerHour = CampaignTime.MinutesInHour;
+            int hoursPerDay = CampaignTime.HoursInDay;
+            double totalMinutes = now.ToMinutes;
+            if (minutesPerHour <= 0 || hoursPerDay <= 0 || totalMinutes < 0d
+                || double.IsNaN(totalMinutes) || double.IsInfinity(totalMinutes) || now == CampaignTime.Never)
+                return string.Empty;
+
+            int minuteOfDay = (int)Math.Floor(totalMinutes % ((double)hoursPerDay * minutesPerHour));
+            int hour = minuteOfDay / minutesPerHour;
+            int minute = minuteOfDay % minutesPerHour;
+            string part = now.IsNightTime ? "Night" : hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
+            return FormattableString.Invariant($"{part} {hour:00}:{minute:00}");
+        }
+
+        internal static string FormatConversationDateTimeLabel(CampaignTime now, string timeLabel)
+        {
+            if (string.IsNullOrEmpty(timeLabel)
+                || !TryGetCalendarPosition(now, out int year, out _, out int season, out int day, out _))
+                return string.Empty;
+            return FormattableString.Invariant($"{year} {SeasonName(season)} {day + 1} {timeLabel}");
+        }
+
         public static CampaignTime ConvertYearsValue(float years)
         {
             lock (Gate)
