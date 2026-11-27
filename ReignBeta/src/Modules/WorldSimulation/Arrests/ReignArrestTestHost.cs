@@ -19,6 +19,9 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Arrests;
 using ReignBeta.Platform.Runtime;
+#if !REIGN_EXCLUDE_COURT && !REIGN_EXCLUDE_VERIFICATION
+using ReignBeta.Court.Campaign;
+#endif
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -151,6 +154,88 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
             catch (Exception ex) { return LiveCommandResult.Failed(ex.Message); }
         }
+
+#if !REIGN_EXCLUDE_COURT && !REIGN_EXCLUDE_VERIFICATION
+        private static LiveCommandResult StageMurderArrestEvidence(JObject command, JObject test, JObject enrollment)
+        {
+            var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            var court = ReignServices.Court;
+            var arrest = ReignServices.Arrest;
+            var gameScope = ReignMainThread.CurrentGameScope;
+            string run = enrollment.Value<string>("campaignTestRunId");
+            string campaignId = enrollment.Value<string>("campaignId");
+            string timeline = enrollment.Value<string>("timelineId");
+            string save = enrollment.Value<string>("disposableSaveName");
+            string point = enrollment.Value<string>("checkpointSavePointId");
+            string hash = enrollment.Value<string>("checkpointSha256");
+            var expectedOwner = enrollment["checkpointLoadOwner"] as JObject;
+            bool OwnsLoadedPoint() => ReferenceEquals(gameScope, ReignMainThread.CurrentGameScope)
+                && ReferenceEquals(court, ReignServices.Court) && ReferenceEquals(arrest, ReignServices.Arrest)
+                && ActiveSaveName() == save && ReignServices.WorldHistory?.TimelineId == timeline
+                && ReignServices.SaveSync?.CurrentSavePointId == point
+                && JToken.DeepEquals(expectedOwner, ObservePassiveWorldCurrentLoad(command, campaign, campaignId, timeline, save, point));
+            if (test.Count != 6 || test["arguments"] is not JObject arguments || arguments.HasValues
+                || campaign == null || court == null || arrest == null || gameScope == null || string.IsNullOrEmpty(run)
+                || enrollment.Value<bool?>("recoveryCheckpointVerified") != true
+                || expectedOwner == null || !Guid.TryParseExact(point, "N", out _) || !OwnsLoadedPoint()
+                || hash?.Length != 64 || !NativeSaveHasPoint(save, campaignId, point) || NativeCheckpointHash(save) != hash)
+                return LiveCommandResult.Failed("Murder evidence staging requires an empty argument object and the exact reloaded recovery checkpoint.");
+
+            double day = CampaignTime.Now.ToDays;
+            var existingCases = arrest.Cases.ToArray();
+            var matter = ReignCourtTestControls.PrepareMurderArrestEvidenceFixture(court, run, save, _gameInstanceId);
+            var chain = matter.Evidence.SingleOrDefault(row => row.EvidenceId == "complete_chain");
+            var suspects = matter.Participants.Select(row => Hero.FindFirst(hero => hero.StringId == row.HeroId)).ToArray();
+            var accused = suspects.FirstOrDefault(hero => hero?.StringId == chain?.ImplicatesHeroId);
+            var victim = Hero.FindFirst(hero => hero.StringId == matter.VictimHeroId);
+            if (matter.CampaignId != campaignId || matter.TimelineId != timeline || !matter.IsMurder
+                || !ReignCourtCampaignBehavior.IsProtectedMurderVictim(victim) || suspects.Contains(victim)
+                || chain == null || !chain.Reliable || !chain.CompleteChain || chain.Revealed || accused == null
+                || chain.ImplicatesHeroId != matter.ActualCulpritHeroId || suspects.Length != 4
+                || suspects.Any(hero => hero == null || !hero.IsAlive || hero == Hero.MainHero)
+                || suspects.Distinct().Count() != suspects.Length)
+                return LiveCommandResult.Failed("The production template did not retain one hidden complete chain and four distinct living suspects. Restore the checkpoint.");
+
+            var custody = suspects.Select(hero => (Prisoner: hero.IsPrisoner, Owner: hero.PartyBelongedToAsPrisoner)).ToArray();
+            string EvidenceFor(Hero hero, string category) => ReignArrestCampaignBehavior.TryGetLocalEvidence(
+                new ReignArrestCase { AccusedHeroStringId = hero.StringId, ChargeCategory = category,
+                    PlayerHeroStringId = Hero.MainHero.StringId }, hero, out string evidence) ? evidence : string.Empty;
+            if (!OwnsLoadedPoint())
+                return LiveCommandResult.Failed("The fixture lost its native recovery owner before activation.");
+            if (!court.TryActivateNobleMatter(matter.MatterId, out string activationError))
+                return LiveCommandResult.Failed("Production matter activation failed. Restore the checkpoint. " + activationError);
+            if (!OwnsLoadedPoint() || victim.IsAlive || !matter.ActivationCommitted
+                || string.IsNullOrEmpty(matter.ActivationReceiptId) || matter.State != ReignNobleMatterState.Active
+                || suspects.Any(hero => EvidenceFor(hero, "murder").Length != 0))
+                return LiveCommandResult.Failed("The hidden chain or another public matter already established murder evidence. Restore the checkpoint.");
+
+            int DisclosureCount() => court.RulerDocketState.History.Count(row => row.PetitionId == matter.MatterId
+                && row.Type == "noble_matter" && row.Outcome == "evidence_revealed");
+            var otherClues = matter.Evidence.Where(row => row != chain).Select(row => (Clue: row, row.Revealed)).ToArray();
+            if (DisclosureCount() != 0)
+                return LiveCommandResult.Failed("The exact matter has an unexpected prior disclosure. Restore the checkpoint.");
+            court.RevealNobleEvidence(matter.MatterId, chain.EvidenceId);
+            string evidenceId = "noble_murder:" + matter.MatterId + ":complete_chain";
+            if (!OwnsLoadedPoint() || !chain.Revealed || DisclosureCount() != 1 || EvidenceFor(accused, "murder") != evidenceId
+                || EvidenceFor(accused, "treason").Length != 0 || suspects.Any(hero => hero != accused && EvidenceFor(hero, "murder").Length != 0)
+                || otherClues.Any(clue => clue.Clue.Revealed != clue.Revealed) || !existingCases.SequenceEqual(arrest.Cases)
+                || suspects.Where((hero, index) => hero.IsPrisoner != custody[index].Prisoner
+                    || !ReferenceEquals(hero.PartyBelongedToAsPrisoner, custody[index].Owner)).Any()
+                || CampaignTime.Now.ToDays != day)
+                return LiveCommandResult.Failed("The controlled disclosure did not pass its evidence and isolation checks. Restore the checkpoint.");
+
+            return LiveCommandResult.Completed("Observed hidden and public murder evidence across one controlled Court disclosure.", new JObject
+            {
+                ["schema"] = "reign-arrest-murder-evidence-stage-v1", ["campaignTestRunId"] = run,
+                ["gameInstanceId"] = _gameInstanceId, ["saveName"] = save, ["savePointId"] = point, ["checkpointSha256"] = hash,
+                ["matterId"] = matter.MatterId, ["accusedHeroId"] = accused.StringId, ["victimHeroId"] = matter.VictimHeroId,
+                ["activationReceiptId"] = matter.ActivationReceiptId, ["arrestEvidenceId"] = evidenceId,
+                ["hiddenChainRejected"] = true, ["otherSuspectsRejected"] = new JArray(suspects.Where(hero => hero != accused).Select(hero => hero.StringId)),
+                ["treasonRejected"] = true, ["disclosures"] = 1, ["custodyUnchanged"] = true, ["arrestsUnchanged"] = true,
+                ["worldDay"] = day, ["origin"] = "controlled_court_disclosure"
+            });
+        }
+#endif
 
         private static LiveCommandResult ObserveLocalArrestEvidence(JObject command, JObject test, JObject enrollment)
         {

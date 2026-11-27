@@ -239,6 +239,24 @@ namespace ReignBeta.Court.Campaign
             return new JObject { ["ok"] = true, ["kind"] = "none" };
         }
 
+        internal static ReignNobleDocketMatter PrepareMurderArrestEvidenceFixture(ReignCourtCampaignBehavior court,
+            string campaignTestRunId, string saveName, string gameInstanceId)
+        {
+            string runId = "arrest_murder_" + ReignCourtTerms.Hash(campaignTestRunId).Substring(0, 16);
+            if (FindRulerDocketMarker(court, runId) != null || FindNobleDocketTestMatter(court, runId) != null)
+                throw new InvalidOperationException("This campaign test already prepared its murder matter. Restore the recovery checkpoint before retrying.");
+
+            JObject preparation = PrepareNobleDocketFixture(court, runId, new JObject
+            {
+                ["confirmation"] = RulerDocketFixtureConfirmation,
+                ["templateId"] = "exceptional-murder"
+            }, saveName, gameInstanceId);
+            if (preparation.Value<bool?>("ok") != true)
+                throw new InvalidOperationException(preparation.Value<string>("error") ?? "The protected murder fixture could not be prepared.");
+            return FindNobleDocketTestMatter(court, runId)
+                ?? throw new InvalidOperationException("The run-owned murder matter is missing after preparation.");
+        }
+
         private static JObject OpenNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
             ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);

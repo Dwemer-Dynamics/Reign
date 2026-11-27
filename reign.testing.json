@@ -4565,6 +4565,14 @@
     "isolation": "One exact accusedHeroId and existing public murder matterId on the armed, paused, independently restorable Current. Requires exact checkpoint hash and active point, a diagnostic snapshot that leaves harness ownership intact, and the same idle verified load owner before and after. Reads the production local charge predicate without opening a case, committing custody, writing history, calling a provider, advancing, or saving.",
     "evidence": "Exact disclosed complete-chain ID for murder, same accused with treason rejected, and stable arrest count and native custody before and after. Separate evidence remains required for remote lookup, arrest preparation, execution and other charges."
   },
+  "arrestMurderEvidenceStage": {
+    "schema": "reign-arrest-murder-evidence-stage-v1",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#arrest-public-murder-evidence-witness",
+    "entry": "reign_test_structured_actions",
+    "fixture": "fixture.arrest_murder_evidence_stage",
+    "isolation": "One fixed case with empty arguments, a matching clean provider guard, and the exact paused, armed, reloaded Current with retained recovery checkpoint and verified native load owner. The existing Court selector and native activation own the protected victim and the suspects. Reveal only the pre-existing complete chain of the run-owned matter. No arrest, custody change, provider call, time advance or save. Repeated staging on the same branch is refused.",
+    "evidence": "Retain activation and exactly one controlled disclosure, hidden-chain rejection, the implicated-suspect positive, three other-suspect negatives, treason rejected, and unchanged arrest, custody and time. Save and reload the disposable Current with the campaign controller and use the independent murder evidence witness. Ordinary dialogue disclosure requires separate evidence."
+  },
   "arrestScopedEvidenceWitness": {
     "schema": "reign-arrest-scoped-evidence-witness-v1",
     "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#rebellion-and-sabotage-arrest-evidence",

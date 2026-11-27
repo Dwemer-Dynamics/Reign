@@ -36,6 +36,18 @@ public sealed class StructuredActionToolsTests
             input.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
     }
 
+    [Fact]
+    public void MurderEvidenceStagingRequiresOneArgumentFreeCaseAndRecoveryCheckpoint()
+    {
+        string request = ArrestMurderEvidenceCase("{}").Replace("_witness", "_stage", StringComparison.Ordinal);
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(Assert.Single(StructuredActionTools.ParseCases(request))));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request[..^1] + ", {\"caseId\":\"extra\",\"phase\":\"catalog\"}]"));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("{}", "{\"accusedHeroId\":\"lord_1\"}", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("{}", "null", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"", StringComparison.Ordinal)));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(request.Replace("\"arguments\":{}", "\"query\":\"extra\",\"arguments\":{}", StringComparison.Ordinal)));
+    }
+
     [Theory]
     [InlineData("prepare")]
     [InlineData("advance")]
