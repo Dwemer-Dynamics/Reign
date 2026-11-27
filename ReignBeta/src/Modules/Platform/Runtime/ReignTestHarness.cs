@@ -67,6 +67,7 @@ namespace ReignBeta.Platform.Runtime
         bool TryTakeMissionConsequence(string missionId, out float unitRoll);
         bool TryTakeBreakoutOutcome(string missionId, out float unitRoll);
         JObject PendingForeignAgentActionControl();
+        void ExerciseForeignAgentDelivery(JObject response, float requestDay);
         void RecordForeignAgentActionReceipt(JObject receipt);
         void RecordNativeIntent(string type, JObject data = null);
     }
@@ -158,6 +159,7 @@ namespace ReignBeta.Platform.Runtime
             public bool TryTakeMissionConsequence(string missionId, out float unitRoll) { unitRoll = 0f; return false; }
             public bool TryTakeBreakoutOutcome(string missionId, out float unitRoll) { unitRoll = 0f; return false; }
             public JObject PendingForeignAgentActionControl() => null;
+            public void ExerciseForeignAgentDelivery(JObject response, float requestDay) { }
             public void RecordForeignAgentActionReceipt(JObject receipt) { }
             public void RecordNativeIntent(string type, JObject data = null) { }
         }

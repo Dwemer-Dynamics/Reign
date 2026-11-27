@@ -725,6 +725,17 @@ namespace ReignBeta.Court.Campaign
         public float GetSpymasterLoyaltyDelta(Town town) => GetSettlementEffect(town, "loyalty");
 
 #if !REIGN_EXCLUDE_VERIFICATION
+        internal bool CanArmForeignAgentDelivery(string agentId, string assignmentId, string settlementId, string timelineId)
+        {
+            if (_spymasterAgentTickInFlight || _spymasterState?.ForeignAgents == null) return false;
+            var rows = _spymasterState.ForeignAgents.Where(row => row != null && row.AgentHeroStringId == agentId).ToArray();
+            if (rows.Length != 1) return false;
+            var agent = rows[0];
+            return agent.Activated && !agent.Exposed && !agent.ExposurePending
+                && agent.AssignmentId == assignmentId && agent.AssignmentTimelineId == timelineId
+                && agent.SettlementStringId == settlementId;
+        }
+
         internal JObject ObserveForeignAgentDisruption(Town town, string agentId, string assignmentId,
             string actionId, string effectType)
         {
@@ -921,6 +932,7 @@ namespace ReignBeta.Court.Campaign
                     {
                         float observationDay = (string)response["disruptionReplay"] == ForeignAgentDisruptionReplaySchema
                             ? CurrentDayFloat() : day;
+                        if (typed) ReignTestHarness.Current.Spymaster.ExerciseForeignAgentDelivery(response, day);
                         ApplyForeignAgentResponse(response, observationDay);
                         ReignTestHarness.Current.Spymaster.RecordForeignAgentActionReceipt(response["controlledAgentAction"] as JObject);
                     }
@@ -1198,7 +1210,7 @@ namespace ReignBeta.Court.Campaign
             StateChanged?.Invoke();
         }
 
-        private static bool TryReadForeignAgentDisruptionWindow(JObject row, float day, out float issued, out float expires)
+        internal static bool TryReadForeignAgentDisruptionWindow(JObject row, float day, out float issued, out float expires)
         {
             issued = expires = 0f;
             if (row["issuedDay"]?.Type is not (JTokenType.Integer or JTokenType.Float)

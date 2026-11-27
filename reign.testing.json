@@ -2932,6 +2932,16 @@
     "isolation": "Verification-enabled Court only, exact paused armed owned Current, retained recovery checkpoint, native-instance, campaign, timeline and idle Save Sync. Read only one exact assignment, action, settlement and effect type without normalizing the Spymaster ledger.",
     "evidence": "Measure exact action, effect and applied-marker cardinality, original issued/expiry days, bound assignment and actual production settlement modifier. An absent or capped record cannot prove never applied. Issuance, lost-reply injection and replay execution are separate."
   },
+  "spymasterDisruptionDelivery": {
+    "schema": "reign-spymaster-disruption-delivery-v1",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#foreign-agent-disruption-native-observation",
+    "entry": "reign_test_structured_actions",
+    "fixture": "fixture.spymaster_disruption_delivery",
+    "arguments": ["control", "agentHeroId", "assignmentId", "settlementId"],
+    "controls": ["arm", "observe"],
+    "isolation": "One case on the exact paused and armed verified Current, reloaded at the retained recovery point, with the matching clean provider guard. Arm an idle active hidden assignment. The optional control preserves the load owner and restore generation, expires after 20 monotonic minutes and skips at most one newly issued typed action before native application.",
+    "evidence": "Record the genuine action ID, issue and expiry days, preserved other action count and matching later same-generation response. Independently confirm the durable issuance, original native modifier and one applied marker and effect after replay and guarded reload."
+  },
   "arrest": {
     "schema": "reign-arrest-equivalence-manifest-v2",
     "manifest": "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/arrest-equivalence-manifest.json",

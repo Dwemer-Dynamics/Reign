@@ -20,6 +20,8 @@ namespace ReignBeta.Spymaster.Campaign
         public bool TryTakeBreakoutOutcome(string missionId, out float unitRoll) =>
             ReignSpymasterTestRuntime.TryTakeBreakoutOutcome(missionId, out unitRoll);
         public JObject PendingForeignAgentActionControl() => ReignSpymasterTestRuntime.PendingForeignAgentActionControl();
+        public void ExerciseForeignAgentDelivery(JObject response, float requestDay) =>
+            ReignSpymasterTestRuntime.ExerciseForeignAgentDelivery(response, requestDay);
         public void RecordForeignAgentActionReceipt(JObject receipt) => ReignSpymasterTestRuntime.RecordForeignAgentActionReceipt(receipt);
         public void RecordNativeIntent(string type, JObject data = null) => ReignSpymasterTestRuntime.RecordNativeIntent(type, data);
     }
