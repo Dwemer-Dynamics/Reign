@@ -101,10 +101,13 @@ namespace ReignBeta.WorldSimulation.Campaign
                     if (existing != null || admitted.Hero.IsPrisoner
                         || admitted.Behavior.Cases.Any(candidate => candidate.IsOpen && candidate.AccusedHeroStringId == accusedId))
                         throw new InvalidOperationException("The fixture requires an unused case and an accused free of other arrest cases.");
-                    var created = admitted.Behavior.PrepareNativeAcceptanceFixture(run, "late_evidence", admitted.Hero,
+                    var created = admitted.Behavior.PrepareNativeAcceptanceFixture(run,
+                        ReignArrestCampaignBehavior.LateEvidenceFixtureSuffix, admitted.Hero,
                         ReignArrestPhase.AwaitingConfirmation, ReignArrestContextKind.PlayerParty, null, true, false);
+                    if (created == null || created.CaseId != ownedCaseId)
+                        throw new InvalidOperationException("The fixture did not create the expected arrest case. Restore the checkpoint.");
                     TakePrisonerAction.Apply(PartyBase.MainParty, admitted.Hero);
-                    if (created == null || created.CaseId != ownedCaseId || created.Phase != ReignArrestPhase.Captured
+                    if (created.Phase != ReignArrestPhase.Captured
                         || !admitted.Hero.IsPrisoner || admitted.Hero.PartyBelongedToAsPrisoner != PartyBase.MainParty
                         || !admitted.Behavior.PrepareLateEvidenceFixture(created, admitted.Hero, run))
                         throw new InvalidOperationException("The native capture, measured prior effect, or fixture evidence admission failed. Restore the checkpoint.");

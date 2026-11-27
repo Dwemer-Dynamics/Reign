@@ -16,9 +16,10 @@ namespace ReignBeta.WorldSimulation.Arrests
     public sealed partial class ReignArrestCampaignBehavior
     {
         private const string OwnedReclassificationRoute = "/arrests/case/reclassify";
+        internal const string LateEvidenceFixtureSuffix = "late_evidence";
 
         internal string LateEvidenceFixtureCaseId(string fixtureRunId) =>
-            "arrest_test_" + CompactId(fixtureRunId) + "_native_late_evidence";
+            NativeAcceptanceFixtureCaseId(CompactId(fixtureRunId), CompactId(LateEvidenceFixtureSuffix));
 
         internal bool PrepareLateEvidenceFixture(ReignArrestCase item, Hero target, string fixtureRunId)
         {

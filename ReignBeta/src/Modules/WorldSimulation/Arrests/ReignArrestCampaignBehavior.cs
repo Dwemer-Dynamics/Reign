@@ -408,6 +408,9 @@ namespace ReignBeta.WorldSimulation.Arrests
                 StringComparison.OrdinalIgnoreCase) == true);
         }
 
+        private static string NativeAcceptanceFixtureCaseId(string safeRun, string safeSuffix) =>
+            "arrest_test_" + safeRun + "_native_" + safeSuffix;
+
         internal ReignArrestCase PrepareNativeAcceptanceFixture(string fixtureRunId,
             string caseSuffix, Hero accused, ReignArrestPhase phase,
             ReignArrestContextKind context, Settlement settlement,
@@ -416,7 +419,7 @@ namespace ReignBeta.WorldSimulation.Arrests
             string safeRun = CompactId(fixtureRunId);
             string safeSuffix = CompactId(caseSuffix);
             if (safeRun.Length == 0 || safeSuffix.Length == 0 || accused == null) return null;
-            string caseId = "arrest_test_" + safeRun + "_native_" + safeSuffix;
+            string caseId = NativeAcceptanceFixtureCaseId(safeRun, safeSuffix);
             _cases.RemoveAll(item => string.Equals(item?.CaseId, caseId,
                 StringComparison.OrdinalIgnoreCase));
             ReignArrestCase created = new ReignArrestCase
