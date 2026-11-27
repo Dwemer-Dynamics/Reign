@@ -38,7 +38,7 @@ public sealed class NpcLivesHarnessTests
         if (changed is "armed" or "cleanProviderFreeRun") marker[changed] = false;
         else if (changed != "exact") marker["owner"]![changed] = "different";
         using var document = System.Text.Json.JsonDocument.Parse(provider.ToJsonString());
-        Assert.Equal(expected, NpcLivesTestTools.MatchesCheckpointEvaluationGuard(document.RootElement,
+        Assert.Equal(expected, NpcLivesTestTools.MatchesCleanNativeProviderGuard(document.RootElement,
             "run", "campaign", "timeline", "Current", "protected"));
     }
 

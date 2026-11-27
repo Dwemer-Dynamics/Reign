@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json.Linq;
+using ReignBeta.Court.Campaign;
 
 namespace ReignBeta.Spymaster.Campaign
 {
@@ -23,6 +26,101 @@ namespace ReignBeta.Spymaster.Campaign
         private static Random _random;
         private static ForcedForeignAgentAction _forcedForeignAgentAction;
         private static JObject _lastForeignAgentActionReceipt;
+        private static ForeignAgentDeliveryProbe _deliveryProbe;
+
+        private sealed class ForeignAgentDeliveryProbe
+        {
+            internal string OperationId, RunId, SavePointId, GameInstanceId, RestoreGeneration;
+            internal string AgentId, AssignmentId, SettlementId;
+            internal Func<bool> OwnsLoad;
+            internal readonly Stopwatch Elapsed = Stopwatch.StartNew();
+            internal JObject DroppedAction;
+            internal int OtherActions;
+            internal float? ReplayDay;
+            internal bool Expired => Elapsed.Elapsed >= TimeSpan.FromMinutes(20);
+
+            internal bool Matches(JObject row) =>
+                (string)row["agentHeroStringId"] == AgentId
+                && (string)row["assignmentId"] == AssignmentId
+                && (string)row["settlementStringId"] == SettlementId;
+
+            internal JObject Evidence() => new JObject
+            {
+                ["schema"] = "reign-spymaster-disruption-delivery-v1",
+                ["operationId"] = OperationId, ["campaignTestRunId"] = RunId,
+                ["savePointId"] = SavePointId, ["gameInstanceId"] = GameInstanceId,
+                ["restoreGeneration"] = RestoreGeneration, ["agentHeroId"] = AgentId,
+                ["assignmentId"] = AssignmentId, ["settlementId"] = SettlementId,
+                ["state"] = ReplayDay.HasValue ? "replay_observed" : DroppedAction != null ? "dropped"
+                    : Expired ? "expired" : "armed",
+                ["actionId"] = DroppedAction?["actionId"]?.DeepClone(),
+                ["effectType"] = DroppedAction?["effectType"]?.DeepClone(),
+                ["issuedDay"] = DroppedAction?["issuedDay"]?.DeepClone(),
+                ["expiresDay"] = DroppedAction?["expiresDay"]?.DeepClone(),
+                ["otherActionCount"] = OtherActions, ["replayDay"] = ReplayDay
+            };
+        }
+
+        internal static JObject ControlForeignAgentDelivery(JObject args, string operationId, string runId,
+            string point, string gameInstanceId, string restoreGeneration, bool canArm, Func<bool> ownsLoad)
+        {
+            string agentId = (string)args["agentHeroId"];
+            string assignmentId = (string)args["assignmentId"];
+            string settlementId = (string)args["settlementId"];
+            var probe = _deliveryProbe;
+            bool sameLoad = probe != null && probe.OwnsLoad();
+            if ((string)args["control"] == "arm" && !sameLoad)
+            {
+                if (!canArm || !ownsLoad())
+                    throw new InvalidOperationException("Select one current active hidden assignment while the tick is idle.");
+                _deliveryProbe = probe = new ForeignAgentDeliveryProbe
+                {
+                    OperationId = operationId, RunId = runId, SavePointId = point, GameInstanceId = gameInstanceId,
+                    RestoreGeneration = restoreGeneration, AgentId = agentId, AssignmentId = assignmentId,
+                    SettlementId = settlementId, OwnsLoad = ownsLoad
+                };
+                sameLoad = true;
+            }
+            if (!sameLoad || probe.OperationId != operationId || probe.RunId != runId
+                || probe.AgentId != agentId || probe.AssignmentId != assignmentId || probe.SettlementId != settlementId)
+                throw new InvalidOperationException("The operation does not own this assignment's loaded checkpoint.");
+            return probe.Evidence();
+        }
+
+        internal static void ExerciseForeignAgentDelivery(JObject response, float requestDay)
+        {
+            var probe = _deliveryProbe;
+            if (probe == null) return;
+            if (!probe.OwnsLoad())
+            {
+                _deliveryProbe = null;
+                return;
+            }
+            if (probe.Expired
+                || (string)response["restoreGeneration"] != probe.RestoreGeneration
+                || (string)response["disruptionReplay"] != ReignCourtCampaignBehavior.ForeignAgentDisruptionReplaySchema
+                || !(response["actions"] is JArray actions)) return;
+
+            var matching = actions.OfType<JObject>().Where(probe.Matches);
+            if (probe.DroppedAction != null)
+            {
+                if (!probe.ReplayDay.HasValue && requestDay > (float)probe.DroppedAction["issuedDay"]
+                    && matching.Any(row => JToken.DeepEquals(row, probe.DroppedAction)))
+                    probe.ReplayDay = requestDay;
+                return;
+            }
+            var newActions = matching.Where(row =>
+                ReignCourtCampaignBehavior.TryReadForeignAgentDisruptionWindow(row, requestDay, out float issued, out _)
+                && issued == requestDay && row["exposureRevision"]?.Type == JTokenType.Integer
+                && (int)row["exposureRevision"] == 0 && !string.IsNullOrWhiteSpace((string)row["actionId"])).ToArray();
+            if (newActions.Length != 1) return;
+
+            // Consume the opt-in before skipping one real action. Keep every assignment and other action in the response.
+            var dropped = newActions[0];
+            probe.DroppedAction = (JObject)dropped.DeepClone();
+            probe.OtherActions = actions.Count - 1;
+            dropped.Remove();
+        }
 
         private sealed class ForcedMissionOutcome
         {
@@ -261,6 +359,7 @@ namespace ReignBeta.Spymaster.Campaign
             ControlledMissionIdsByRun.Clear();
             _forcedForeignAgentAction = null;
             _lastForeignAgentActionReceipt = null;
+            _deliveryProbe = null;
             NativeIntents.Clear();
         }
     }

@@ -71,6 +71,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.spymaster_disruption_observe")
                     return LiveCommandResult.Completed("Measured the exact disruption markers and native settlement modifier.",
                         ObserveStructuredSpymasterDisruption(c, enrollment));
+                if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.spymaster_disruption_delivery")
+                    return LiveCommandResult.Completed("Observed the exact one-shot disruption delivery control.",
+                        ControlStructuredSpymasterDelivery(c, enrollment));
                 foreach (string field in new[] { "heroIds", "itemIds" })
                     if (c[field] != null && (!(c[field] is JArray list) || list.Count > 16 || list.Any(x => x.Type != JTokenType.String)))
                         throw new InvalidOperationException("Snapshot IDs must be bounded exact string lists.");
@@ -196,6 +199,51 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("Structured action case failed: " + detail.Substring(0, Math.Min(detail.Length, 4096)));
             }
         });
+
+        private static JObject ControlStructuredSpymasterDelivery(JObject c, JObject enrollment)
+        {
+#if REIGN_EXCLUDE_COURT || REIGN_EXCLUDE_VERIFICATION
+            throw new InvalidOperationException("The Court verifier is unavailable.");
+#else
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing disruption delivery arguments.");
+            string[] fields = { "control", "agentHeroId", "assignmentId", "settlementId" };
+            if (args.Count != fields.Length || args.Properties().Any(p => !fields.Contains(p.Name)
+                || p.Value.Type != JTokenType.String || ((string)p.Value).Length is < 1 or > 128
+                || ((string)p.Value).Any(ch => ch > 127 || (!char.IsLetterOrDigit(ch) && ch != '_' && ch != '-' && ch != '.')))
+                || (string)args["control"] is not ("arm" or "observe"))
+                throw new InvalidOperationException("Supply arm or observe and the exact agent, assignment, and settlement.");
+            string campaign = enrollment.Value<string>("campaignId");
+            string timeline = enrollment.Value<string>("timelineId");
+            string point = enrollment.Value<string>("checkpointSavePointId");
+            string hash = enrollment.Value<string>("checkpointSha256") ?? "";
+            string activeSave = enrollment.Value<string>("disposableSaveName");
+            string generation = ReignServices.WorldHistory?.SharedActivityGeneration;
+            string instance = _gameInstanceId;
+            var load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            var scope = ReignMainThread.CurrentGameScope;
+            var court = ReignServices.Court;
+            if (court == null) throw new InvalidOperationException("Court behavior unavailable.");
+            var courtOwner = new WeakReference<ReignBeta.Court.Campaign.ReignCourtCampaignBehavior>(court);
+            bool OwnsLoad() => _armed && _gameInstanceId == instance && ReferenceEquals(ReignMainThread.CurrentGameScope, scope)
+                && courtOwner.TryGetTarget(out var owner) && ReferenceEquals(ReignServices.Court, owner)
+                && ReferenceEquals(ReignSaveSyncCoordinator.CurrentVerifiedLoad, load)
+                && ReignServices.SaveSync?.CurrentSavePointId == point && ActiveSaveName() == activeSave
+                && ReignServices.WorldHistory?.TimelineId == timeline && ReignServices.WorldHistory?.SharedActivityGeneration == generation
+                && !ReignSaveSyncCoordinator.IsAlignmentPending && !ReignSaveSyncCoordinator.IsSaveFinalizationPending
+                && !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress;
+            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true || load == null || scope == null
+                || string.IsNullOrEmpty(generation) || load.CampaignId != campaign || load.SavePointId != point
+                || !Guid.TryParseExact(point, "N", out _) || hash.Length != 64 || !OwnsLoad()
+                || NativeCheckpointHash(activeSave) != hash || !NativeSaveHasPoint(activeSave, campaign, point))
+                throw new InvalidOperationException("Use the verified loaded Current checkpoint, point and bytes.");
+
+            bool canArm = (string)args["control"] == "arm" && court.CanArmForeignAgentDelivery(
+                (string)args["agentHeroId"], (string)args["assignmentId"], (string)args["settlementId"], timeline);
+            return ReignBeta.Spymaster.Campaign.ReignSpymasterTestRuntime.ControlForeignAgentDelivery(
+                args, c.Value<string>("operationId"), enrollment.Value<string>("campaignTestRunId"),
+                point, instance, generation, canArm, OwnsLoad);
+#endif
+        }
 
         private static JObject ObserveStructuredSpymasterDisruption(JObject c, JObject enrollment)
         {

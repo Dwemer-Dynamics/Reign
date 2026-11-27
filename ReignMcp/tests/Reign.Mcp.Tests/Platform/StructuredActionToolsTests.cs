@@ -158,6 +158,36 @@ public sealed class StructuredActionToolsTests
         "\"operationId\":\"disruption_before\",\"actionId\":\"fixture.spymaster_disruption_observe\",\"arguments\":" + args + "}]";
 
     [Theory]
+    [InlineData("arm")]
+    [InlineData("observe")]
+    public void SpymasterDisruptionDeliveryRequiresOneExactRecoveryCase(string control)
+    {
+        string args = JsonSerializer.Serialize(new { control, agentHeroId = "lord_1", assignmentId = "agent_1", settlementId = "town_1" });
+        string fixture = SpymasterDisruptionDeliveryCase(args);
+        var parsed = Assert.Single(StructuredActionTools.ParseCases(fixture));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(parsed));
+        Assert.Equal(args, parsed.GetProperty("arguments").GetRawText());
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(fixture.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
+        string entry = fixture[1..^1];
+        string batch = "[" + entry + "," + entry.Replace("disruption-delivery", "other-case") + "]";
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(batch));
+    }
+
+    [Theory]
+    [InlineData("{\"control\":\"release\",\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"settlementId\":\"town_1\"}")]
+    [InlineData("{\"control\":\"arm\",\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"settlementId\":\"town_1\",\"actionId\":\"chosen\"}")]
+    [InlineData("{\"control\":\"arm\",\"agentHeroId\":\"lord_1\",\"assignmentId\":\" agent_1\",\"settlementId\":\"town_1\"}")]
+    [InlineData("{\"control\":\"arm\",\"agentHeroId\":\"lord_1\",\"assignmentId\":\"agent_1\",\"settlementId\":5}")]
+    public void SpymasterDisruptionDeliveryRejectsOverridesAndInvalidSelectors(string args)
+    {
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(SpymasterDisruptionDeliveryCase(args)));
+    }
+
+    private static string SpymasterDisruptionDeliveryCase(string args) =>
+        "[{\"caseId\":\"disruption-delivery\",\"phase\":\"fixture\",\"kind\":\"fixture\"," +
+        "\"operationId\":\"disruption_delivery\",\"actionId\":\"fixture.spymaster_disruption_delivery\",\"arguments\":" + args + "}]";
+
+    [Theory]
     [InlineData("{\"motherId\":\"mother_1\"}")]
     [InlineData("{\"motherId\":\"mother_1\",\"conceptionId\":\"conception-1\"}")]
     public void ManagedBirthObservationRequiresRecoveryAndPreservesExactArguments(string args)

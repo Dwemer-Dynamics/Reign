@@ -66,6 +66,10 @@ The existing `reign_run_offline_verification` supports the focused `npc_lives` q
 
 The optional `checkpoint_evaluation` phase accepts one exact arm or observation for the next rolling Current checkpoint. It requires the exact reloaded point and bytes and the clean provider guard owned by that campaign test. The final native callback can start the normal NPC Lives evaluation with zero companions after the external drain. The ordinary save guard still decides whether to submit the save. [Campaign checkpoint procedure](../../docs/agent/testing/CAMPAIGN_AND_RUNTIME.md)
 
+### Structured Spymaster disruption delivery fixture
+
+Use one `fixture.spymaster_disruption_delivery` case through `reign_test_structured_actions`. Supply `control` as `arm` or `observe` with the exact `agentHeroId`, `assignmentId` and `settlementId`. The disposable Current must be paused, armed, reloaded at its retained recovery point and protected by its clean provider guard. The optional control skips one newly issued typed action for the selected assignment and observes its later same-generation replay. [Native proof procedure](../../docs/agent/testing/FEATURE_HARNESSES.md#foreign-agent-disruption-native-observation)
+
 ### Structured Notable startup reservation fixture
 
 Use `reign_test_structured_actions` with one `fixture.notable_startup_reservation` case and only the exact current town `settlementId`. The verified, reloaded recovery point and matching provider-free enrollment are required. The fixture creates one native merchant on the disposable Current and leaves the real startup reservation unconfirmed. Use the [held startup procedure](../../docs/agent/testing/FEATURE_HARNESSES.md#held-notable-startup-observation) to save, roll back, and obtain independent readback.

@@ -33,7 +33,7 @@ public static class NpcLivesTestTools
         if (checkpointEvaluation)
         {
             var provider = await api.GetAsync("/api/provider/status", cancellationToken: cancellationToken).ConfigureAwait(false);
-            if (!provider.Ok || provider.Data is not JsonElement data || !MatchesCheckpointEvaluationGuard(
+            if (!provider.Ok || provider.Data is not JsonElement data || !MatchesCleanNativeProviderGuard(
                 data, campaignTestRunId, campaignId, auth.TimelineId, auth.CurrentSaveName, auth.BaselineSaveName))
                 throw new InvalidOperationException("Checkpoint evaluation requires this campaign test's clean provider guard.");
             enrollment["checkpointSavePointId"] = checkpoint.SavePointId;
@@ -51,7 +51,7 @@ public static class NpcLivesTestTools
             ["coverage"] = "operator native fixture; verify production outcome and exactly-once rewards", ["start"] = started };
     }
 
-    internal static bool MatchesCheckpointEvaluationGuard(JsonElement provider, string run, string campaign,
+    internal static bool MatchesCleanNativeProviderGuard(JsonElement provider, string run, string campaign,
         string timeline, string current, string baseline)
     {
         static bool ExactText(JsonElement item, string name, string value) =>
