@@ -60,6 +60,8 @@ public sealed class TavernPortraitSeedTests
         Assert.Equal(result.GetProperty("catalogTownCount").GetInt32(), result.GetProperty("towns").GetArrayLength());
         Assert.True(result.GetProperty("relocatedTimestampCasePassed").GetBoolean());
         Assert.Equal(3, result.GetProperty("corruptionCasesRejectedWithoutCacheChanges").GetInt32());
+        Assert.True(result.GetProperty("delayedLookupRetried").GetBoolean());
+        Assert.True(result.GetProperty("unrelatedMasterPreserved").GetBoolean());
         Assert.True(result.GetProperty("sourcePackUnchanged").GetBoolean());
         Assert.Equal(scratch, result.GetProperty("scratchRoot").GetString());
         Assert.False(Directory.Exists(scratch));

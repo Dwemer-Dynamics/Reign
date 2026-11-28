@@ -51,7 +51,8 @@ namespace ReignBeta.Characters.UI
         private string _pendingRequestId;
         private List<Hero> _pendingSpeakers;
         private int _pendingSpeakerIndex;
-        private float _portraitPoll;
+        private float _portraitPoll = 1f;
+        private readonly ReignTavernHousePortraitSeed.VisitRetries _portraitSeeds = new ReignTavernHousePortraitSeed.VisitRetries();
         public Settlement Town { get; }
         [DataSourceProperty] public MBBindingList<ReignPartyChatMemberVM> Madam { get; } = new MBBindingList<ReignPartyChatMemberVM>();
         [DataSourceProperty] public MBBindingList<ReignPartyChatMemberVM> Workers { get; } = new MBBindingList<ReignPartyChatMemberVM>();
@@ -140,17 +141,23 @@ namespace ReignBeta.Characters.UI
 
         public void Tick(float dt)
         {
+            if (_finalized) return;
             _portraitPoll += dt;
             if (_portraitPoll < 1f) return;
             _portraitPoll = 0;
             foreach (var member in Madam.Concat(Workers))
             {
+                bool portraitChecked = _fixture || TrySeedPortrait(member);
                 bool selected = _receipt?.ParticipantHeroIds.Contains(member.Hero.StringId) == true;
                 member.Status = PortraitCache.IsPending(member.PortraitCacheKey) ? "Portrait pending"
+                    : !portraitChecked ? "Checking for a portrait"
                     : !PortraitCache.ExistsOnDisk(member.PortraitCacheKey) ? "Use the eye for a portrait"
                     : selected && IsVisiting ? "Visiting with you" : member.Hero == _madam ? "Madam" : "House worker";
             }
         }
+
+        private bool TrySeedPortrait(ReignPartyChatMemberVM member) => _portraitSeeds.TryHandle(member.PortraitCacheKey,
+            () => ReignTavernHousePortraitSeed.TrySeed(member.Hero, _house.GetPerson(member.Hero)));
 
         public void ExecuteSend()
         {
@@ -344,7 +351,12 @@ namespace ReignBeta.Characters.UI
         private void PreviewPortrait(ReignPartyChatMemberVM member) { _preview = member; Refresh(); }
         private void GeneratePortrait(ReignPartyChatMemberVM member)
         {
-            if (_fixture || member?.Hero == null) return;
+            if (_fixture || _finalized || member?.Hero == null) return;
+            if (!TrySeedPortrait(member))
+            {
+                _statusText = "Checking for " + member.Name + "'s portrait."; Refresh();
+                return;
+            }
             ReignPortraitBridge.TryRequestPortrait(member.Hero, out string message, out uint color);
             _statusText = message; Refresh();
         }

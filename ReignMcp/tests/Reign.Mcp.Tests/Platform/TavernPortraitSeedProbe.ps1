@@ -47,6 +47,24 @@ $resolver = [ResolveEventHandler] {
 $client = [Reflection.Assembly]::LoadFrom($clientPath)
 $flags = [Reflection.BindingFlags]'Public,NonPublic,Static'
 $install = $client.GetType('ReignBeta.Portraits.Integration.ReignTavernPortraitPack', $true).GetMethod('Install', $flags)
+$seed = $client.GetType('ReignBeta.Portraits.Integration.ReignTavernHousePortraitSeed', $true)
+$requiresRepair = $seed.GetMethod('RequiresSeedRepair', $flags)
+$retryType = $seed.GetNestedType('VisitRetries', [Reflection.BindingFlags]::NonPublic)
+$retryMethod = $retryType.GetMethod('TryHandle', [Reflection.BindingFlags]'Instance,NonPublic')
+$visit = [Activator]::CreateInstance($retryType, $true)
+$script:attempts = 0
+$attempt = [Func[bool]] { $script:attempts++; return $script:attempts -ge 3 }
+$finished = [Func[bool]] { return $true }
+$unexpected = [Func[bool]] { throw 'A completed card was checked again.' }
+Require (-not $retryMethod.Invoke($visit, [object[]]@('first', $attempt))) 'First pending lookup was treated as settled.'
+Require (-not $retryMethod.Invoke($visit, [object[]]@('first', $attempt))) 'A pending eye click bypassed the lookup.'
+Require ($retryMethod.Invoke($visit, [object[]]@('second', $finished))) 'A second card could not settle independently.'
+Require ($retryMethod.Invoke($visit, [object[]]@('first', $attempt))) 'The delayed lookup was not retried.'
+Require ($retryMethod.Invoke($visit, [object[]]@('first', $unexpected))) 'The admitted card did not remain settled.'
+Require ($retryMethod.Invoke($visit, [object[]]@('second', $unexpected))) 'The existing portrait was checked again.'
+$reopened = [Activator]::CreateInstance($retryType, $true)
+$unavailable = [Func[bool]] { return $false }
+Require (-not $retryMethod.Invoke($reopened, [object[]]@('first', $unavailable))) 'A new visit reused a prior admission.'
 $core = $client.GetType('ReignPortraits.PortraitDerivativeCore', $true)
 $current = $core.GetMethod('IsCurrentV2', $flags)
 $manifestType = $client.GetType('ReignPortraits.PortraitDerivativeManifestV2', $true)
@@ -124,6 +142,23 @@ $relocated = Read-Manifest $source
 Require (-not (Is-Current $relocated (Join-Path $source 'portrait.png') $source)) 'Fixture did not reproduce old timestamp rejection.'
 Install-Pack $fixture $cast $target | Out-Null
 Assert-Cache $cast $target
+$seedReceipt = Join-Path $target '.tavern_seed.json'
+$cachedMaster = Join-Path $target 'portrait.png'
+$sourceMaster = Join-Path $source 'portrait.png'
+$masterHash = Hash $cachedMaster
+@{ castId = $cast; masterSha256 = $masterHash; sourceSha256 = $masterHash; derivativesReady = $true } |
+    ConvertTo-Json -Compress | Set-Content -LiteralPath $seedReceipt -Encoding UTF8
+$repairArgs = [object[]]@([string]$seedReceipt, [string]$cast, [string]$sourceMaster, [string]$target)
+Require (-not $requiresRepair.Invoke($null, $repairArgs)) 'An intact shipped portrait was scheduled for repair.'
+Remove-Item -LiteralPath (Join-Path $target 'thumbnail.png')
+Require ($requiresRepair.Invoke($null, $repairArgs)) 'The shipped master could not repair its missing derivative.'
+$otherCast = $catalog.Towns[0].People[1].Id
+Copy-Item -LiteralPath (Join-Path (Join-Path $pack $otherCast) 'portrait.png') -Destination $cachedMaster -Force
+Require (-not $requiresRepair.Invoke($null, $repairArgs)) 'A stale seed receipt would overwrite a different portrait.'
+Set-Content -LiteralPath $seedReceipt -Value '{' -Encoding UTF8
+Require (-not $requiresRepair.Invoke($null, $repairArgs)) 'A corrupt receipt would overwrite a different portrait.'
+Install-Pack $fixture $cast $target | Out-Null
+Require ($requiresRepair.Invoke($null, $repairArgs)) 'An exact shipped master could not recover a corrupt receipt.'
 $corruptionCases = 0
 foreach ($name in @('portrait.png', 'thumbnail.png', '.portrait_derivatives.json')) {
     $file = Join-Path $source $name
@@ -151,6 +186,7 @@ $report = [ordered]@{
     catalogTownCount = $catalog.Towns.Count; catalogCastCount = $castCount
     oldTimestampCheckRejections = $oldRejections; firstVisitPassed = $firstVisit; repairPassed = $repair
     relocatedTimestampCasePassed = $true; corruptionCasesRejectedWithoutCacheChanges = $corruptionCases
+    delayedLookupRetried = $true; unrelatedMasterPreserved = $true
     sourcePackUnchanged = $true; towns = $townReports
     scratchRoot = $scratch
 }
