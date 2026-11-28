@@ -11,6 +11,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 using ReignBeta.Platform.Settings;
 
 namespace ReignBeta.UI.HiddenInformation
