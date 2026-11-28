@@ -2,6 +2,12 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Government named construction and Save Sync forks
+
+Use `reign_start_government_test` with the `construction` profile only on the enrolled, paused, aligned disposable Current in a safe town owned by the player ruler. The tool requires that run's retained recovery checkpoint and clean provider guard. Use the same `fixtureRunId` for all steps. `prepare` freezes one pending R083 row and checks the installed stock Harmony hooks. `observe` reports the row, queue head, building level, campaign day and settlement reward state. `manual` runs the native queue helper. `automatic` first stages the head and progress and then calls the stock completion helper. Require no observation after staging and the exact expected observation after the stock helper. Staging establishes fixture conditions only.
+
+Checkpoint the pending row with the guarded controller. Compare the original terms, row revision, current timeline and rewards before and after same-day replay and fresh loads. A post-checkpoint observation must be absent when the pending checkpoint is restored. Actual fork proof requires an independently registered load and the exact verified world-history anchor for a changed fork. Use the native production evaluator to prove the reward, then check repetition and rollover independently. The fixture does not evaluate the reward, advance time, write a checkpoint or authorize a provider call. Follow the guarded cleanup procedure for the exact disposable Current.
+
 ## Virtual patronage speaker profiles (2026-10-26)
 
 Patronage creators are persistent court identities without native Bannerlord heroes. The dialogue route derives their political-author profile only for a known Patronage template and its exact catalog role, matching capital/host and ruler context, a patronage matter, and the campaign/capital/role-derived creator ID. They receive canonical timeline-scoped political beliefs without a native profile, noble status or office. Native nobles and ambassadors retain their existing profile requirement; arbitrary actor IDs or a source label alone cannot use this path.

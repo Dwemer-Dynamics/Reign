@@ -1,3 +1,7 @@
+## Government construction verification
+
+Government construction verification uses the existing authenticated live-test bridge. The `construction` profile checks the armed paused owned Current, retained recovery checkpoint and exact matching provider-free guard before dispatch. Native rechecks the save, aligned timeline, safe player-owned town, stopped time and exact stock hooks. A fixed fixture ID owns one named R083 row. Only stock callbacks can supply physical evidence. No command for arbitrary native methods, settlements, saves, time advancement or provider dispatch is exposed.
+
 ## Validation depth (2026-11-14)
 
 Normal validation uses exact changed paths and relevant module/dependency tests plus quick checks. Build coverage (`product` / `all`, including validator or release changes) does not authorize full behavioral testing. Only an explicit user request selects `behavioral` or a full artifact-bound offline run. `behavioral` retains an all-project report with offline depth; quick reports cannot substitute for explicitly requested full proof. Isolation, hygiene, artifact binding, OS lease and provider/native gates remain enforced.

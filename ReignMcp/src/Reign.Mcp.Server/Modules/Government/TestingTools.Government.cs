@@ -32,7 +32,7 @@ public static partial class TestingTools
         CampaignTestService campaignTests,
         string campaignId,
         string campaignTestRunId,
-        [AllowedValues("preflight", "contracts", "snapshot", "hearing_compose", "authority", "resolutions", "voting", "pressure", "save_prepare", "save_verify", "case_prepare", "case_observe", "case_execute", "soak_prepare", "soak_verify", "cleanup")]
+        [AllowedValues("preflight", "contracts", "snapshot", "hearing_compose", "authority", "resolutions", "construction", "voting", "pressure", "save_prepare", "save_verify", "case_prepare", "case_observe", "case_execute", "soak_prepare", "soak_verify", "cleanup")]
         string profile = "preflight",
         string fixtureRunId = "government_system_acceptance",
         [Description("Required for save_verify: the 64-character feature fingerprint returned by save_prepare before the external checkpoint/restart boundary.")]
@@ -45,6 +45,8 @@ public static partial class TestingTools
         string businessId = "",
         [Description("Required for hearing_compose: 1-1200 characters of natural player language. Sets only unsent text; native Speak submits it.")]
         string playerMessage = "",
+        [Description("Required for construction: prepare, observe, manual, or automatic. Uses one R083 fixture in the player's occupied owned town.")]
+        string constructionStep = "",
         CancellationToken cancellationToken = default)
     {
         if (!options.AllowVerificationControl)
@@ -55,7 +57,7 @@ public static partial class TestingTools
         fixtureRunId = RequiredIdentifier(fixtureRunId, nameof(fixtureRunId));
         profile = (profile ?? string.Empty).Trim().ToLowerInvariant();
         if (profile is not ("preflight" or "contracts" or "snapshot" or "hearing_compose" or "authority"
-            or "resolutions" or "voting" or "pressure" or "save_prepare" or "save_verify"
+            or "resolutions" or "construction" or "voting" or "pressure" or "save_prepare" or "save_verify"
             or "case_prepare" or "case_observe" or "case_execute"
             or "soak_prepare" or "soak_verify" or "cleanup"))
             throw new ArgumentException("Unsupported Government feature-harness profile.", nameof(profile));
@@ -76,8 +78,28 @@ public static partial class TestingTools
         else if (!string.IsNullOrEmpty(businessId) || !string.IsNullOrEmpty(playerMessage))
             throw new ArgumentException("Hearing text is only accepted by hearing_compose.");
 
-        CampaignTestAuthorization authorization = await campaignTests.RequireArmedOwnedSaveAsync(
-            campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        constructionStep = InputGuard.BoundedText(constructionStep ?? string.Empty, nameof(constructionStep), 10);
+        CampaignTestAuthorization authorization;
+        if (profile == "construction")
+        {
+            if (constructionStep is not ("prepare" or "observe" or "manual" or "automatic"))
+                throw new ArgumentException("Supply one fixed construction step.", nameof(constructionStep));
+            (authorization, _, _) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
+                campaignTestRunId, campaignId, bindCheckpoint: false, cancellationToken).ConfigureAwait(false);
+            campaignTests.RequireRetainedRecoveryCheckpoint(authorization);
+            var provider = await api.GetAsync("/api/provider/status", cancellationToken: cancellationToken).ConfigureAwait(false);
+            if (!provider.Ok || provider.Data is not JsonElement data || !NpcLivesTestTools.MatchesCleanNativeProviderGuard(
+                data, campaignTestRunId, campaignId, authorization.TimelineId,
+                authorization.CurrentSaveName, authorization.BaselineSaveName))
+                throw new InvalidOperationException("Construction fixtures require this campaign test's clean provider guard.");
+        }
+        else
+        {
+            if (constructionStep.Length != 0)
+                throw new ArgumentException("Construction steps require the construction profile.", nameof(constructionStep));
+            authorization = await campaignTests.RequireArmedOwnedSaveAsync(
+                campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        }
         object[] steps =
         {
             new
@@ -85,6 +107,7 @@ public static partial class TestingTools
                 operation = "government_test", profile, fixtureRunId,
                 expectedSaveName = authorization.CurrentSaveName,
                 campaignTestRunId, expectedFeatureFingerprint, previousGameInstanceId, businessId, playerMessage,
+                constructionStep, expectedConstructionTimeline = profile == "construction" ? authorization.TimelineId : string.Empty,
                 timeoutSeconds = 180
             }
         };

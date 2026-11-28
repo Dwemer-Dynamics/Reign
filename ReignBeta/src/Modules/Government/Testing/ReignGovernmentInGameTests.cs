@@ -44,6 +44,7 @@ namespace ReignBeta.Government.Testing
                             : "Open the exact interactive hearing and provide 1-1200 characters. No text was changed." };
                 case "authority": return GovernmentAuthorityContracts(government, id);
                 case "resolutions": return GovernmentResolutionContracts(government, id);
+                case "construction": return GovernmentConstructionTest(government, id, options, gameInstanceId);
                 case "voting": return GovernmentVotingContracts(id);
                 case "pressure": return GovernmentPressureContracts(government, id);
                 case "save_prepare": return GovernmentSavePrepare(government, id, options, gameInstanceId);

@@ -156,7 +156,9 @@ namespace ReignBeta.Government.Campaign
             dataStore.SyncData("_reignGovernment_governments", ref _governments);
             dataStore.SyncData("_reignGovernment_parties", ref _parties);
             dataStore.SyncData("_reignGovernment_seats", ref _seats);
+            if (dataStore.IsLoading) _resolutions = new List<ReignGovernmentResolutionRecord>();
             dataStore.SyncData("_reignGovernment_resolutions", ref _resolutions);
+            if (dataStore.IsLoading) CaptureLoadedConstructionResolutions();
             dataStore.SyncData("_reignGovernment_pressures", ref _pressures);
             dataStore.SyncData("_reignGovernment_lobbyRecords", ref _lobbyRecords);
             dataStore.SyncData("_reignGovernment_meetings", ref _meetings);

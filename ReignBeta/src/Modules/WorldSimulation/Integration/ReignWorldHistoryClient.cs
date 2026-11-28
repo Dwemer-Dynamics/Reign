@@ -22,7 +22,8 @@ namespace ReignBeta.WorldSimulation.Integration
     internal static class ReignWorldHistoryClient
     {
         internal static async Task<JObject> OpenWorldHistoryTimelineAsync(string timelineId, long savedSequence,
-            string savedHeadEventId, float completeFromDay, string ownedOrigin)
+            string savedHeadEventId, float completeFromDay, string ownedOrigin, string generationId,
+            ReignSaveSyncCoordinator.VerifiedLoad verifiedLoad)
         {
             const string route = "/world-history/timeline/open";
             var request = new JObject
@@ -31,6 +32,20 @@ namespace ReignBeta.WorldSimulation.Integration
                 ["savedHeadEventId"] = savedHeadEventId ?? string.Empty, ["historyCompleteFromWorldDay"] = completeFromDay,
                 ["currentWorldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : TaleWorlds.CampaignSystem.CampaignTime.Now.ToDays
             };
+            if (verifiedLoad != null)
+            {
+                request["campaignId"] = verifiedLoad.CampaignId;
+                request["verifiedForkLoad"] = new JObject
+                {
+                    ["schemaVersion"] = 1,
+                    ["savePointId"] = verifiedLoad.SavePointId,
+                    ["loadSessionId"] = verifiedLoad.LoadSessionId,
+                    ["restoreGeneration"] = verifiedLoad.RestoreGeneration
+                };
+                return await SendToOwnedHistoryOriginAsync(verifiedLoad.Origin, route, request,
+                    () => ReferenceEquals(ReignSaveSyncCoordinator.CurrentVerifiedLoad, verifiedLoad)
+                        && ReignCampaignInitializationGate.IsActiveGeneration(generationId)).ConfigureAwait(false);
+            }
             if (string.IsNullOrEmpty(ownedOrigin)) return await PostJsonAsync(route, request).ConfigureAwait(false);
             int alignment = ReignSaveSyncCoordinator.CampaignGeneration;
             return await SendToOwnedHistoryOriginAsync(ownedOrigin, route, request,

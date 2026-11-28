@@ -200,7 +200,7 @@ namespace ReignBeta.Government.Campaign
             var record = matches[0];
             if (!ReferenceEquals(record, FindUniqueSeasonalResolution(record.ResolutionId))) return;
             var offer = ReadConstructionOffer(record, ReadResolutionEvidence(record));
-            var active = ReadConstructionTerms(record, offer);
+            var active = ReadEffectiveConstructionTerms(record, offer);
             if (active != null && active.CampaignId == campaignId && active.TimelineId == timelineId
                 && offer["observation"] == null)
                 terms = active;
@@ -228,7 +228,7 @@ namespace ReignBeta.Government.Campaign
             ReignGovernmentResolutionRecord record, ReignGovernmentResolutionTemplate template)
         {
             var offer = ReadConstructionOffer(record, ReadResolutionEvidence(record));
-            var terms = ReadConstructionTerms(record, offer);
+            var terms = ReadEffectiveConstructionTerms(record, offer);
             if (terms == null)
             {
                 InvalidateConstruction(record, "The named construction terms could not be verified.");
@@ -242,7 +242,7 @@ namespace ReignBeta.Government.Campaign
                 return;
             }
 
-            var observation = ReignGovernmentConstructionObservation.Read(offer["observation"], terms);
+            var observation = ReadConstructionObservation(record, offer);
             double now = CampaignTime.Now.ToDays;
             if (observation != null && observation.ObservedDay <= now)
             {

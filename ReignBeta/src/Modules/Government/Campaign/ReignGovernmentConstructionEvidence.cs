@@ -44,6 +44,10 @@ namespace ReignBeta.Government.Campaign
 
         internal bool IsWithinWindow(double day) => InOrder(AcceptedDay, day) && InOrder(day, DueDay);
 
+        internal ReignGovernmentConstructionTerms ForTimeline(string timelineId) => timelineId == TimelineId ? this
+            : new ReignGovernmentConstructionTerms(ResolutionId, CampaignId, timelineId, KingdomId, SettlementId,
+                PreviousProjectId, ProjectId, LevelAtAcceptance, LevelCapAtAcceptance, AcceptedDay, DueDay);
+
         internal bool Matches(ReignGovernmentConstructionTerms other) => other != null
             && ResolutionId == other.ResolutionId && CampaignId == other.CampaignId && TimelineId == other.TimelineId
             && KingdomId == other.KingdomId && SettlementId == other.SettlementId

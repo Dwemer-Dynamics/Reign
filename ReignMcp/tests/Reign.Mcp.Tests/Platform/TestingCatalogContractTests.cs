@@ -779,8 +779,9 @@ public sealed class TestingCatalogContractTests
             StringComparison.OrdinalIgnoreCase);
         Assert.Contains("cannot advance time", rulerDocket.GetProperty("safety").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Equal("reign-government-release-certification-v1", government.GetProperty("schema").GetString());
-        Assert.Equal(16, government.GetProperty("profiles").GetArrayLength());
+        Assert.Equal(17, government.GetProperty("profiles").GetArrayLength());
         Assert.Contains(government.GetProperty("profiles").EnumerateArray(), value => value.GetString() == "hearing_compose");
+        Assert.Contains(government.GetProperty("profiles").EnumerateArray(), value => value.GetString() == "construction");
         Assert.Equal(9, government.GetProperty("mcpTools").GetArrayLength());
         Assert.Contains("reign_prepare_government_certification", raw, StringComparison.Ordinal);
         Assert.Contains("reign_carry_forward_government_passes", raw, StringComparison.Ordinal);
