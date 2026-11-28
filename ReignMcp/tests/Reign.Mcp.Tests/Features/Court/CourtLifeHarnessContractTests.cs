@@ -918,6 +918,26 @@ public sealed class CourtLifeHarnessContractTests
     }
 
     [Fact]
+    public void DirectPrisonerAcceptanceRechecksNativeEvidenceInsteadOfReferralMetadata()
+    {
+        string root = TestOptions.FindWorkspace();
+        string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Court/Campaign/ReignCourtLifeInGameTests.cs"));
+        Assert.Contains("matter.SelectedOptionId == \"accept\" && remedy == \"prisoner\"", native, StringComparison.Ordinal);
+        Assert.Contains("(remedy == \"proposal\" && payload[\"normalizedAction\"] is JObject)", native, StringComparison.Ordinal);
+        Assert.Contains("result[\"ok\"] = decisionAssertions.All", native, StringComparison.Ordinal);
+        Assert.Contains("direct_court_prisoner_released_from_original_roster", native, StringComparison.Ordinal);
+        Assert.Contains("direct_court_prisoner_payment_matches_native_balances", native, StringComparison.Ordinal);
+        Assert.Contains("direct_court_prisoner_has_one_history_and_no_diplomatic_action", native, StringComparison.Ordinal);
+        Assert.Contains("(long)payerBefore.Value - payerAfter.Value == gold.Value", native, StringComparison.Ordinal);
+        Assert.Contains("(long)recipientAfter.Value - recipientBefore.Value == gold.Value", native, StringComparison.Ordinal);
+        using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        string contract = catalog.RootElement.GetProperty("rulerDocket").GetProperty("courtLifeDirectPrisonerCompletion").GetString()!;
+        Assert.Equal(contract, TestingTools.GetRulerDocketTestManifest()["courtLifeDirectPrisonerCompletion"]);
+        foreach (string document in new[] { "docs/agent/testing/COURT_AND_DIPLOMACY.md", "ReignMcp/docs/security-model.md", "ReignMcp/docs/tool-catalog.md" })
+            Assert.Contains(contract, TestingDocumentation.Read(Path.Combine(root, document)), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void FamilyExpectationsRequireExactVisitTransitionsAndRetainedNeglectEvidence()
     {
         string root = TestOptions.FindWorkspace();

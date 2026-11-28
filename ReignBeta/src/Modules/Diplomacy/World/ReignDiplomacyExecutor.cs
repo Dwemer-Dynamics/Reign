@@ -596,7 +596,8 @@ namespace ReignBeta.Diplomacy.World
             }
         }
 
-        private static ReignActionResult RansomPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
+        internal static ReignActionResult RansomPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action,
+            Func<bool> ownsOperation = null)
         {
             var native = new ReignNativeRansom();
             var recorder = ReignServices.AI;
@@ -610,7 +611,8 @@ namespace ReignBeta.Diplomacy.World
             bool AuthorityIsCurrent() => recorder != null && ReignServices.AI == recorder
                 && actor != null && target != null && actor != target && !actor.IsEliminated && !target.IsEliminated
                 && payee?.IsAlive == true && payer?.IsAlive == true && payee != payer
-                && actor.Leader == payee && target.Leader == payer && OrdinaryRansomIdentity(action) == owner.IdentityJson;
+                && actor.Leader == payee && target.Leader == payer && OrdinaryRansomIdentity(action) == owner.IdentityJson
+                && (ownsOperation == null || ownsOperation());
             if (!native.OwnsLoadedWorld() || !AuthorityIsCurrent() || string.IsNullOrWhiteSpace(action.ActionId))
                 return ReignActionResult.ValidationFailed("The two ransom authorities or the loaded campaign are no longer available.");
 
