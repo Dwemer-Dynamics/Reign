@@ -1673,6 +1673,19 @@
     "safety": "Read-only, redacted, bounded GET through the existing World Test route. No provider request, incident generation, pressure mutation, campaign advancement, save or cleanup.",
     "verification": "MCP political-pressure GET routing and catalog contracts; isolated World Test contracts political_pressure_incident_sides_observed, political_pressure_observation_scope_and_missing_incident and political_pressure_observation_is_non_mutating. Observe retained incidents on the exact enrolled campaign; observation alone is not proof of a newly executed NPC decision."
   },
+  "politicalPressureLegacyMetadataRepair": {
+    "scope": "One registered campaign, exact active timeline, physical PostgreSQL storage witness and restore generation per maintenance callback.",
+    "evidence": "A metadata-schema cursor commits with one 32-row keyset window. Only absent raw completion activity and its two counters can be inserted. Existing incidents, political or native effects, existing activity and historical reports remain unmodified.",
+    "safety": "Provider-free background maintenance. Interactive operations retain admission priority. Ownership contention, stale restore generations and failed durable dirty publication leave the window retryable. No public mutation command.",
+    "verification": "Disposable PostgreSQL cases daily_legacy_exact_window_repairs_only_proven_missing_metadata, daily_legacy_cursor_is_durable_and_exactly_owned, daily_legacy_cursor_revisits_newly_provable_history and daily_legacy_dirty_marker_failure_rolls_back_telemetry_and_cursor. Use the exact campaign, restored storage and cursor from the fixture.",
+    "guide": "docs/agent/testing/COURT_AND_DIPLOMACY.md"
+  },
+  "politicalPressureDailySeal": {
+    "scope": "One live claim, its original serialized plan, and the same campaign, timeline and PostgreSQL storage generation.",
+    "safety": "Only a busy advisory lock can trigger up to three short retries after the transaction, connection and timeline lock are released. Each attempt rechecks the exact witness, claim, deadline and input digest. Planning and provider dispatch are unchanged.",
+    "evidence": "diplomacy.pressure_producer_seal records the campaign, timeline, day, reason and attempt count for a recovered or deferred seal. A pressure producer row with no result digest remains unfinished.",
+    "verification": "The isolated world_test case daily_seal_retries_transient_advisory_contention_for_same_owner takes the real advisory lock on an independent PostgreSQL connection and releases it after the first refusal. The original claim must seal and publish. Existing old-owner and restore-generation cases continue to reject stale work. Read the exact terminal result and single counter after a guarded native checkpoint reload."
+  },
   "relationshipPairObservation": {
     "tool": "reign_get_world_details",
     "subsystem": "relationship pair",
