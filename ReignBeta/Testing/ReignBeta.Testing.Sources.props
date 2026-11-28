@@ -17,6 +17,7 @@
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentCertificationTests.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentCertificationTests.NativeCases.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentCertificationTests.PressureAndHistory.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentConstructionTests.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentFiefNativeTests.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentHearingNativeTests.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentInGameTests.cs" />

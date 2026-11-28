@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,56 @@ namespace Reign.Mcp.Tests;
 
 public sealed class GovernmentTestingToolsTests
 {
+    [QualifiedClientFact]
+    public async Task VerifiedChildAdoptsOnlyTheExactLoadedConstructionEvidence()
+    {
+        string client = MapBarInputSafetyTests.CurrentClientArtifact()!;
+        string evidence = Path.Combine(new DirectoryInfo(AppContext.BaseDirectory).Parent!.FullName,
+            "government-verified-fork", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(evidence);
+        string shell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0");
+        var start = new ProcessStartInfo(Path.Combine(shell, "powershell.exe"))
+        {
+            UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = evidence,
+            RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true
+        };
+        start.Environment["PSModulePath"] = Path.Combine(shell, "Modules");
+        start.Environment["REIGN_VALIDATION_MODE"] = "1";
+        foreach (string argument in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+            Path.Combine(TestOptions.FindWorkspace(), "ReignMcp/tests/Reign.Mcp.Tests/Features/Government/GovernmentVerifiedForkProbe.ps1"),
+            "-ClientAssembly", client, "-EvidenceDirectory", evidence,
+            "-BannerlordPath", Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")! })
+            start.ArgumentList.Add(argument);
+
+        using var process = Process.Start(start) ?? throw new InvalidOperationException("Could not start the construction fork probe.");
+        process.StandardInput.Close();
+        Task<string> output = process.StandardOutput.ReadToEndAsync();
+        Task<string> error = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        try { await process.WaitForExitAsync(timeout.Token); }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            await process.WaitForExitAsync();
+            throw new TimeoutException("Construction fork probe exceeded 60 seconds: " + evidence);
+        }
+
+        Assert.True(process.ExitCode == 0, (await output) + (await error) + " Evidence: " + evidence);
+        using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
+        Assert.Equal(client, report.RootElement.GetProperty("clientAssembly").GetString());
+        Assert.Equal(10, report.RootElement.GetProperty("passed").GetArrayLength());
+    }
+
+    private sealed class QualifiedClientFactAttribute : FactAttribute
+    {
+        public QualifiedClientFactAttribute()
+        {
+            if (MapBarInputSafetyTests.CurrentClientArtifact() == null
+                || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")))
+                Skip = "Requires the same-run qualified client and licensed Bannerlord dependencies.";
+        }
+    }
+
     [Theory]
     [InlineData("decided", "reject", true)]
     [InlineData("decided", "accept", false)]
@@ -23,6 +74,7 @@ public sealed class GovernmentTestingToolsTests
     [Theory]
     [InlineData("preflight")]
     [InlineData("hearing_compose")]
+    [InlineData("construction")]
     public async Task GovernmentToolRefusesAnUnarmedCampaignTestEnrollment(string profile)
     {
         string temporary = Path.Combine(Path.GetTempPath(), "reign-government-test-"
@@ -51,6 +103,7 @@ public sealed class GovernmentTestingToolsTests
                     profile: profile, fixtureRunId: "government_fixture",
                     businessId: profile == "hearing_compose" ? "government_business_test" : "",
                     playerMessage: profile == "hearing_compose" ? "What are the terms?" : "",
+                    constructionStep: profile == "construction" ? "prepare" : "",
                     expectedFeatureFingerprint: "", previousGameInstanceId: "",
                     confirmation: "start Reign government test on disposable save",
                     cancellationToken: CancellationToken.None));
@@ -72,8 +125,9 @@ public sealed class GovernmentTestingToolsTests
         JsonElement root = manifest.RootElement;
         Assert.False(root.GetProperty("preparedOnly").GetBoolean());
         Assert.True(root.GetProperty("requiresCampaignTestRunId").GetBoolean());
-        Assert.Equal(16, root.GetProperty("profiles").GetArrayLength());
+        Assert.Equal(17, root.GetProperty("profiles").GetArrayLength());
         Assert.Contains(root.GetProperty("profiles").EnumerateArray(), value => value.GetString() == "hearing_compose");
+        Assert.Contains(root.GetProperty("profiles").EnumerateArray(), value => value.GetString() == "construction");
         Assert.Equal(104, root.GetProperty("contracts").GetProperty("resolutionTemplateCount").GetInt32());
         JsonElement hearing = root.GetProperty("contracts").GetProperty("hearingIntegration");
         Assert.Equal(0, hearing.GetProperty("maximumPostponements").GetInt32());
@@ -90,6 +144,7 @@ public sealed class GovernmentTestingToolsTests
         Assert.Contains("Only a new scoped receipt counts", hearing.GetProperty("privateLobbyCertification").GetString());
         using JsonDocument testingCatalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(workspace, "reign.testing.json")));
         JsonElement governmentCatalog = testingCatalog.RootElement.GetProperty("government");
+        Assert.Contains("clean provider guard", governmentCatalog.GetProperty("constructionNativeContract").GetString());
         Assert.Contains("Level five", governmentCatalog.GetProperty("hearingIntegrationContract").GetString());
         Assert.Contains("GovernmentBusinessRules", governmentCatalog.GetProperty("hearingDeterministicVerification").GetString());
         Assert.Equal(-70, root.GetProperty("contracts").GetProperty("forcedFiveToFour")

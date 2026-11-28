@@ -61,7 +61,6 @@ public sealed class GovernmentParticipationContractTests
         foreach (string guard in new[] { "exactPausedOwnedCurrent", "retainedRecoveryCheckpoint", "productionChatOnly",
             "actualCapitalOnly", "noProviderOrVote", "conservationRequired", "partialFailureNeverReplayed" })
             Assert.True(contract.GetProperty(guard).GetBoolean());
-        Assert.Equal(16, manifest.RootElement.GetProperty("profiles").GetArrayLength());
         string source = File.ReadAllText(Path.Combine(root,
             "ReignBeta/src/Modules/Government/Testing/ReignGovernmentPlayerFlowTests.cs"));
         Assert.Contains("GovernmentCapital(kingdom)", source);
