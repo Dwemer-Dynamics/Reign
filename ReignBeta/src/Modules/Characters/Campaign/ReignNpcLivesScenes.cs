@@ -98,7 +98,11 @@ namespace ReignBeta.Characters.Campaign
                     {
                         var leave = State.Leaves.FirstOrDefault(l => "leave:" + l.Id == key);
                         Hero hero = ReignActionService.HeroById(leave?.HeroId);
-                        if (leave != null && WithPlayer(leave.HeroId)) ReignIndividualChatScreenManager.OpenForHero(hero, new JObject { ["npcLifeRequestId"] = leave.Id }, null);
+                        if (leave != null && WithPlayer(leave.HeroId))
+                            ReignIndividualChatScreenManager.OpenForHero(hero, new JObject {
+                                ["npcLifeRequestId"] = leave.Id, ["npcLivesRevision"] = leave.Revision,
+                                ["npcLifeInvitationEntry"] = leave.Status == "discussing"
+                            }, null);
                         else if (leave != null) ShowLifeNote("Personal leave", "Status: " + leave.Status
                             + ". Time away: " + leave.AbsenceDays.ToString("0.##", CultureInfo.InvariantCulture) + " days after departure.");
                     }

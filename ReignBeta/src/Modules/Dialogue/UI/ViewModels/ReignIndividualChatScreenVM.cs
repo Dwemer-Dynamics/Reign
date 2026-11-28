@@ -341,6 +341,19 @@ namespace ReignBeta.Dialogue.UI
                 BusyText = "Calibration mode does not send dialogue.";
                 return;
             }
+            if (HasAcceptedNpcInvitation || HasPendingNpcLifeOpening)
+            {
+                if (!InputEnabled) return;
+                if (HasPendingNpcLifeOpening && !HasAcceptedNpcInvitation)
+                    await RequestLifeOpeningAsync();
+                else
+                {
+                    var turn = _failedTurn.HasPending ? BeginFailedConversationRetry() : null;
+                    await SendTextAsync(string.Empty, false, correlationId: turn?.CorrelationId,
+                        retrySceneTurnId: turn?.SceneTurnId, retrySavedTurn: turn != null);
+                }
+                return;
+            }
             if (TryRecoverSavedInput() || !_recoveredDraftReview.CanSubmit(DateTime.UtcNow)) return;
             string text = InputText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(text) && _failedTurn.HasPending && !IsBusy && !IsPregnancyWarningVisible)
@@ -355,7 +368,7 @@ namespace ReignBeta.Dialogue.UI
                 await RequestLifeOpeningAsync();
                 return;
             }
-            if ((string.IsNullOrWhiteSpace(text) && !HasAcceptedNpcInvitation) || IsBusy || IsPregnancyWarningVisible)
+            if (string.IsNullOrWhiteSpace(text) || IsBusy || IsPregnancyWarningVisible)
             {
                 return;
             }
@@ -456,7 +469,9 @@ namespace ReignBeta.Dialogue.UI
                     return false;
                 }
 
-                if ((_presentationInitializing && !npcOpening) || IsBusy || IsPregnancyWarningVisible || IsOutfitVisible)
+                if ((_presentationInitializing && !npcOpening) || !_loadFence.IsCurrent() || IsBusy
+                    || IsPregnancyWarningVisible || IsOutfitVisible
+                    || (!npcOpening && (HasAcceptedNpcInvitation || HasPendingNpcLifeOpening)))
                 {
                     reply.Error = "Chat is busy.";
                     return false;
@@ -475,7 +490,6 @@ namespace ReignBeta.Dialogue.UI
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
                 }
                 prepareLifeContext = !npcOpening && CanStartLifeOpening;
-                if (!npcOpening && HasAcceptedNpcInvitation) _conversationContext["approachOpening"] = false;
                 _firstMoveChosen = true;
                 if (!npcOpening && !retrySavedTurn) AddChatLine(playerName, text);
                 if (clearInput)
@@ -556,7 +570,16 @@ namespace ReignBeta.Dialogue.UI
                     {
                         if (!ownerCurrent()) return false;
                         ClearFailedConversationTurn();
-                        if (npcOpening) _conversationContext["approachOpening"] = false;
+                        if (npcOpening)
+                        {
+                            _conversationContext["approachOpening"] = false;
+                            if (_conversationContext.Value<bool?>("rescueOpening") == true)
+                            {
+                                ReignServices.RescueConversation?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
+                                _conversationContext["rescueOpening"] = false;
+                                _conversationContext.Remove("sceneContextDirective");
+                            }
+                        }
                         return true;
                     }).ConfigureAwait(false);
                     if (reload) await LoadHistoryAsync(ownerCurrent, releaseInput: false).ConfigureAwait(false);
@@ -636,7 +659,7 @@ namespace ReignBeta.Dialogue.UI
                     List<string> statusLines = reply.Ok ? ReignStructuredActionClient.NativeStatusLines(reply.RawResponse) : new List<string>();
                     if (heldDirectiveId != null)
                         statusLines.Add("[unknown: " + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
-                    if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || statusLines.Count > 0))
+                    if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || !npcOpening && statusLines.Count > 0))
                     {
                         ClearFailedConversationTurn();
                         if (_conversationContext.Value<bool?>("rescueOpening") == true)
@@ -1212,9 +1235,14 @@ namespace ReignBeta.Dialogue.UI
             {
                 await EnsureConversationSessionAsync().ConfigureAwait(false);
                 await LoadHistoryAsync().ConfigureAwait(false);
-                // Accepted invitations already represent the player's decision to hear the NPC.
-                if (HasAcceptedNpcInvitation && !_isFinalized)
-                    await SendTextAsync(string.Empty, false).ConfigureAwait(false);
+                // An explicit entry is already the player's decision to hear this NPC.
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (_conversationFinishRequested || !_loadFence.IsCurrent()) return Task.CompletedTask;
+                    if (HasAcceptedNpcInvitation && !_isFinalized)
+                        return SendTextAsync(string.Empty, false);
+                    return HasPendingNpcLifeOpening && !_isFinalized ? RequestLifeOpeningAsync() : Task.CompletedTask;
+                }).Unwrap().ConfigureAwait(false);
                 return !_isFinalized;
             }
             catch (Exception ex)
@@ -1232,7 +1260,16 @@ namespace ReignBeta.Dialogue.UI
             }
         }
 
-        private bool HasAcceptedNpcInvitation => _conversationContext.Value<bool?>("approachOpening") == true;
+        private bool HasAcceptedNpcInvitation =>
+            (_conversationContext.Value<bool?>("approachOpening") == true
+                && !string.IsNullOrWhiteSpace(_conversationContext.Value<string>("approachRequestId")))
+            || (_conversationContext.Value<bool?>("rescueOpening") == true
+                && !string.IsNullOrWhiteSpace(_conversationContext["rescueContext"]?.Value<string>("eventId")));
+
+        private bool HasPendingNpcLifeOpening => !_firstMoveChosen
+            && _conversationContext.Value<bool?>("npcLifeInvitationEntry") == true
+            && !string.IsNullOrWhiteSpace(_conversationContext.Value<string>("npcLifeRequestId"));
+
         private bool IsNpcInvitationOpening(string text) => HasAcceptedNpcInvitation && string.IsNullOrWhiteSpace(text);
 
         private bool CanStartLifeOpening
@@ -1241,7 +1278,8 @@ namespace ReignBeta.Dialogue.UI
             {
                 string mode = _conversationContext.Value<string>("conversationMode") ?? "";
                 return _initializePresentation && !_firstMoveChosen && !_calibrationMode && !_isOfficialAmbassadorMode
-                    && !HasAcceptedNpcInvitation && _conversationContext.Value<bool?>("rescueOpening") != true
+                    && !HasAcceptedNpcInvitation && !HasPendingNpcLifeOpening
+                    && string.IsNullOrWhiteSpace(_conversationContext.Value<string>("approachRequestId"))
                     && (mode.Length == 0 || mode == "in_person" || mode == "npc_story")
                     && string.IsNullOrEmpty(_conversationContext.Value<string>("continuationReason"))
                     && !ReignRecoveredDraftReview.HasPendingInSession(_recoverableInputs, _conversationContext.Value<string>("sessionId"));
@@ -1268,7 +1306,8 @@ namespace ReignBeta.Dialogue.UI
         private async Task RequestLifeOpeningAsync()
         {
             Func<bool> current = () => !_isFinalized && !_conversationFinishRequested && _loadFence.IsCurrent();
-            if (!current()) return;
+            if (!current() || IsBusy) return;
+            bool invitation = HasPendingNpcLifeOpening;
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             _conversationTurnCompletion = completion;
             IsBusy = true;
@@ -1284,7 +1323,8 @@ namespace ReignBeta.Dialogue.UI
                 var response = await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext,
                     requestOwner: current).ConfigureAwait(false);
                 string status = response.Value<string>("status");
-                if (response.Value<bool?>("ok") != true || (status != "opened" && status != "resume" && status != "disabled"))
+                if (response.Value<bool?>("ok") != true || (status != "opened" && status != "resume"
+                    && (status != "disabled" || invitation)))
                 {
                     error = FriendlyServerError(response.Value<string>("error"));
                     return;
@@ -1312,7 +1352,9 @@ namespace ReignBeta.Dialogue.UI
                     if (!current()) return;
                     IsBusy = false;
                     BusyText = error ?? "";
-                    if (error != null) AddSystemLine(error + " Select Approach to try again, or write a message.");
+                    if (error != null) AddSystemLine(error + (invitation
+                        ? " Select Retry to hear this invitation."
+                        : " Select Approach to try again, or write a message."));
                 }).ConfigureAwait(false);
             }
         }

@@ -94,6 +94,23 @@ namespace ReignBeta.Characters.Campaign
         private static bool IsActivePregnancyRecord(ReignConceptionRecord record) => record != null
             && record.Status == "active" && ReignActionService.HeroById(record.MotherId)?.IsPregnant == true;
 
+        internal bool IsPregnancyStatusVisible(Hero mother)
+        {
+            if (mother?.IsPregnant != true) return false;
+            var records = _conceptions.Concat(_nativePregnancyContexts)
+                .Where(r => r != null && r.MotherId == mother.StringId && r.Status == "active").Take(2).ToList();
+            if (records.Count != 1) return false;
+            var record = records[0];
+            return PregnancyContextPolicy.NativeStatusVisible(new PregnancyFacts
+            {
+                Active = true,
+                TimingKnown = record.DueDay > 0f && record.DueDay > record.ConceptionDay,
+                ConceptionDay = record.ConceptionDay,
+                DueDay = record.DueDay,
+                WorldDay = CampaignTime.Now.ToDays
+            });
+        }
+
         internal PregnancyFacts PregnancyFactsFor(ReignConceptionRecord record)
         {
             Hero mother = ReignActionService.HeroById(record.MotherId), father = ReignActionService.HeroById(record.BiologicalFatherId);

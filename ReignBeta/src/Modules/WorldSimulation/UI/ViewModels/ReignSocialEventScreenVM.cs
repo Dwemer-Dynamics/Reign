@@ -20,6 +20,7 @@ using ReignBeta.Portraits.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.Events;
 using ReignBeta.WorldSimulation.World;
 using ReignBeta.Platform.Runtime;
 
@@ -103,7 +104,56 @@ namespace ReignBeta.WorldSimulation.UI
                 _ = RestorePersonalStoryAsync();
             }
             else
-                _ = ReignServerClient.StartSocialEventAsync(_session);
+                _ = InitializeSocialEventAsync();
+        }
+
+        private async Task InitializeSocialEventAsync()
+        {
+            string initiatorId = _session.Record.GeneratedInitiatorHeroStringId;
+            Hero initiator = _session.Record.IsGeneratedWildernessEvent && !string.IsNullOrWhiteSpace(initiatorId)
+                ? _session.ActiveHeroes().FirstOrDefault(hero => hero.StringId == initiatorId)
+                : null;
+            if (initiator == null)
+            {
+                await ReignServerClient.StartSocialEventAsync(_session).ConfigureAwait(false);
+                return;
+            }
+
+            SocialTurnOwner owner = CaptureSocialOwner();
+            IsBusy = true;
+            BusyText = "Waiting for Bannerlord Reign...";
+            bool started = _session.InitiatorOpening != null
+                || await ReignServerClient.StartSocialEventAsync(_session).ConfigureAwait(false);
+            Task<ReignEventReply> opening = await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!IsSocialTurnCurrent(owner)) return null;
+                if (!started && _session.InitiatorOpening == null)
+                {
+                    IsBusy = false;
+                    BusyText = string.Empty;
+                    AddSystemLine("The event could not start. Reopen it to hear the opening.");
+                    return null;
+                }
+                // Once admitted, the opening belongs to this event session. A
+                // replacement view joins the same request and can show its reply.
+                return _session.InitiatorOpening ?? (_session.InitiatorOpening = RecordInitiatorOpeningAsync(initiator, owner));
+            }).ConfigureAwait(false);
+            if (opening != null)
+                await RequestRepliesAsync(new List<Hero> { initiator }, string.Empty, true, owner, opening).ConfigureAwait(false);
+        }
+
+        private async Task<ReignEventReply> RecordInitiatorOpeningAsync(Hero initiator, SocialTurnOwner owner)
+        {
+            Func<bool> current = () => owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero)
+                && _session.Record.Status == SocialEventStatus.Attended;
+            var reply = await ReignServerClient.RequestSocialEventResponseAsync(
+                _session, initiator, string.Empty, true, current).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (current() && reply.Ok && !string.IsNullOrWhiteSpace(reply.Text))
+                    _session.RecordTranscriptLine(initiator.Name?.ToString() ?? "NPC", reply.Text.Trim());
+            }).ConfigureAwait(false);
+            return reply;
         }
 
         public MBBindingList<ReignSocialEventAttendeeVM> Attendees { get; }
@@ -741,7 +791,8 @@ namespace ReignBeta.WorldSimulation.UI
             foreach (string line in ReignStructuredActionClient.NativeStatusLines(response)) AddChatLine("Event", line, "system");
         }
 
-        private async Task RequestRepliesAsync(List<Hero> activeHeroes, string playerText, bool approachOpening, SocialTurnOwner owner)
+        private async Task RequestRepliesAsync(List<Hero> activeHeroes, string playerText, bool approachOpening, SocialTurnOwner owner,
+            Task<ReignEventReply> initialSceneOpening = null)
         {
             if (!approachOpening)
             {
@@ -763,7 +814,9 @@ namespace ReignBeta.WorldSimulation.UI
                 foreach (Hero speaker in activeHeroes)
                 {
                     // Each approach dispatch is admitted only for the still-current owner.
-                    ReignEventReply reply = await ReignServerClient.RequestSocialEventResponseAsync(_session, speaker, playerText, approachOpening, current).ConfigureAwait(false);
+                    ReignEventReply reply = initialSceneOpening == null
+                        ? await ReignServerClient.RequestSocialEventResponseAsync(_session, speaker, playerText, approachOpening, current).ConfigureAwait(false)
+                        : await initialSceneOpening.ConfigureAwait(false);
                     bool stillCurrent = await ReignMainThread.InvokeAsync(() =>
                     {
                         if (!current()) return false;
@@ -773,8 +826,9 @@ namespace ReignBeta.WorldSimulation.UI
                         {
                             if (!string.IsNullOrWhiteSpace(reply.Text))
                             {
-                                AddChatLine(speakerName, reply.Text.Trim(), "npc");
-                                _session.RecordTranscriptLine(speakerName, reply.Text.Trim());
+                                string spoken = reply.Text.Trim();
+                                AddChatLine(speakerName, spoken, "npc");
+                                if (initialSceneOpening == null) _session.RecordTranscriptLine(speakerName, spoken);
                             }
                             AddNativeStatusLines(reply.RawResponse);
                             if (!string.IsNullOrWhiteSpace(reply.TimingSummary))

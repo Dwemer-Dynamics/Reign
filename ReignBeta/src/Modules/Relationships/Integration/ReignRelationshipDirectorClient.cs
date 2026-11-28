@@ -86,6 +86,7 @@ namespace ReignBeta.Relationships.Integration
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Verified = response.Value<bool?>("verified") == true;
                 result.Eligible = response.Value<bool?>("eligible") == true;
+                result.ShowWarning = response.Value<bool?>("showWarning") ?? result.Eligible;
                 result.Success = response.Value<bool?>("success") == true;
                 result.Cancelled = response.Value<bool?>("cancelled") == true;
                 result.RollPerformed = response.Value<bool?>("rollPerformed") == true;
@@ -911,6 +912,7 @@ namespace ReignBeta.Relationships.Integration
 
     public sealed class ReignConceptionAttemptResult
     {
+        public bool ShowWarning { get; set; }
         public bool Ok { get; set; } public bool Verified { get; set; } public bool Eligible { get; set; } public bool Success { get; set; }
         public bool Cancelled { get; set; } public bool RollPerformed { get; set; } public string Decision { get; set; } = string.Empty; public string AttemptId { get; set; } = string.Empty;
         public double Chance { get; set; } public double Roll { get; set; } = -1d; public string ConceptionId { get; set; } = string.Empty;

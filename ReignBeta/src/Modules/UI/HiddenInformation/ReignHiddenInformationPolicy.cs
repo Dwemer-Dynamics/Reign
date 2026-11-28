@@ -11,6 +11,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 using ReignBeta.Platform.Settings;
 
 namespace ReignBeta.UI.HiddenInformation
@@ -41,6 +42,12 @@ namespace ReignBeta.UI.HiddenInformation
                     return false;
                 }
             }
+        }
+
+        public static bool ShouldMaskEarlyPregnancy(Hero hero)
+        {
+            return ReignBetaSettings.Instance?.HideEarlyPregnancyStatus != false
+                && ReignServices.Family?.IsPregnancyStatusVisible(hero) != true;
         }
 
         public static bool ShouldMask(Hero hero)
