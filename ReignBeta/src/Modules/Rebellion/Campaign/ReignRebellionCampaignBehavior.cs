@@ -152,7 +152,7 @@ namespace ReignBeta.Rebellion.Campaign
             if (dataStore.IsLoading)
             {
                 _resolvedProjectionOwner = null;
-                _mirroredResolutions.Clear();
+                _mirroredResolutions?.Clear();
                 _nextResolvedProjectionAttempt = DateTime.MinValue;
                 CloseResolvedPreparationPlots(_plots, _movements);
             }
