@@ -70,7 +70,8 @@ public sealed class TavernHouseUiContractTests
         Assert.DoesNotContain("GeneratePortrait", fixture, StringComparison.Ordinal);
         Assert.Contains("if (_fixture) return;", vm, StringComparison.Ordinal);
         Assert.Contains("if (_fixture || ReignBetaSettings.Instance == null) return;", vm, StringComparison.Ordinal);
-        Assert.Contains("if (_fixture || member?.Hero == null) return;", vm, StringComparison.Ordinal);
+        Assert.Contains("if (_fixture || _finalized || member?.Hero == null) return;", vm, StringComparison.Ordinal);
+        Assert.Contains("bool portraitChecked = _fixture || TrySeedPortrait(member);", vm, StringComparison.Ordinal);
         Assert.Contains("if (!_fixture &&", vm, StringComparison.Ordinal);
     }
 

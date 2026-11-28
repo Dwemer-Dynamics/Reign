@@ -177,7 +177,6 @@ namespace ReignBeta.Characters.Campaign
                 ResumeRecruitment();
                 ReserveTown(town);
                 MaintainTown(town, int.MaxValue);
-                foreach (Hero hero in GetStaff(town)) ReignTavernHousePortraitSeed.TrySeed(hero, GetPerson(hero));
                 return GetMadam(town) != null;
             }
             catch (Exception ex) { _lastError = ex.Message; ReignLog.Exception("Tavern house creation", ex); return false; }
