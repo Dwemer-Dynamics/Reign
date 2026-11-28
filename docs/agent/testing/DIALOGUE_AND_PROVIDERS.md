@@ -388,9 +388,11 @@ Restore a single blank reply key only when surrounding dialogue metadata makes i
 
 ## Individual Chat opening
 
-Opening ordinary Individual Chat loads history and leaves the first move to the player. An empty composer offers **Approach** when enabled. Clicking it requests the NPC opening. Typing switches the same button to **Send** and submits the player's message directly. Accepted NPC invitations continue to start with the NPC. Retry and Recover keep priority when their saved state applies.
+Opening ordinary Individual Chat loads history and leaves the first move to the player. An empty composer offers **Approach** when enabled. Clicking it requests the NPC opening. Typing switches the same button to **Send** and submits the player's message directly. Retry and Recover keep priority when their saved state applies.
 
-Run the production command probe in `IndividualChatApproachTests` and the provider-free `approach-ready` and `approach-typing` cases in the conversation retry preview contract. Native acceptance covers the explicit click and typed first message in separate conversations. Confirm that opening either screen does not generate dialogue by itself.
+An accepted, unheard jealousy or political invitation and an explicit rescue prompt use the NPC-first dialogue route. An explicit personal story or leave invitation uses its saved request and revision through the NPC Lives opening route, even with the optional ordinary greeting disabled. The recipient can retry an unsuccessful opening without sending a draft as the first line. Generated social encounters with a present designated initiator request that speaker's opening after event registration. Reopening the same event session reuses an accepted opening. Personal story chapters still display their authored opening when the scene appears.
+
+Run the production command probe in `IndividualChatApproachTests` and the provider-free `approach-ready` and `approach-typing` cases in the conversation retry preview contract. Native acceptance covers the explicit click and typed first message in separate ordinary conversations, one automatic opening for each invitation route, and a generated event with a present initiator.
 
 ## Codex 429 recovery and Retry (2026-10-14)
 

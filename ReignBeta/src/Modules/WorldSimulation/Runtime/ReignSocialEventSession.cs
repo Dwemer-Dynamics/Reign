@@ -6,6 +6,8 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.WorldSimulation.Events;
 using ReignBeta.Platform.Runtime;
+using ReignBeta.Platform.Integration;
+using System.Threading.Tasks;
 
 namespace ReignBeta.WorldSimulation.Runtime
 {
@@ -40,6 +42,7 @@ namespace ReignBeta.WorldSimulation.Runtime
         }
 
         public SocialEventRecord Record { get; }
+        internal Task<ReignEventReply> InitiatorOpening { get; set; }
         public ReignBeta.Shared.Characters.NpcStoryInstance PersonalStory { get; set; }
         public Newtonsoft.Json.Linq.JObject PersonalStoryContext { get; set; }
         public System.Threading.Tasks.Task<Newtonsoft.Json.Linq.JObject> PersonalStoryReady { get; set; }

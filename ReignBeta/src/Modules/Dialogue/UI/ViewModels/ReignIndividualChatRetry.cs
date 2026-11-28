@@ -31,7 +31,9 @@ namespace ReignBeta.Dialogue.UI
         {
             get
             {
-                if (!InputEnabled || !string.IsNullOrWhiteSpace(InputText)) return "Send";
+                if (!InputEnabled) return "Send";
+                if (HasAcceptedNpcInvitation || HasPendingNpcLifeOpening) return "Retry";
+                if (!string.IsNullOrWhiteSpace(InputText)) return "Send";
                 if (_failedTurn.HasPending) return "Retry";
                 if (_recoverableInputs.Count > 0) return "Recover";
                 return CanOfferApproach ? "Approach" : "Send";
@@ -67,7 +69,8 @@ namespace ReignBeta.Dialogue.UI
             _failedRecoveredInput = recoveredInput == null ? null : (JObject)recoveredInput.DeepClone();
             _failedCampaignInstance = campaign;
             string reason = FriendlyServerError(error);
-            AddSystemLine(reason + " Your message is saved. Select Retry to try this turn again, or write a new message.");
+            AddSystemLine(reason + (string.IsNullOrWhiteSpace(text) ? " Select Retry to hear the opening."
+                : " Your message is saved. Select Retry to try this turn again, or write a new message."));
             _generationErrorStatus = (reason.Length > 94 ? reason.Substring(0, 94).TrimEnd() + "…" : reason) + " Select Retry.";
             BusyText = _generationErrorStatus;
             OnPropertyChanged(nameof(SendButtonText));

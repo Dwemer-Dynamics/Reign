@@ -195,8 +195,14 @@ namespace ReignBeta.Characters.Campaign
                 string generation = response.Value<string>("generation") ?? "";
                 if (generation != Generation || snapshot.Revision >= State.Revision) State = snapshot;
                 Generation = generation; _initialized = true;
-                var story = State.Stories.FirstOrDefault(s => s.HeroId == hero.StringId && s.Status == "invited");
-                var leave = State.Leaves.FirstOrDefault(l => l.HeroId == hero.StringId && l.Status == "discussing");
+                bool invitation = context.Value<bool?>("npcLifeInvitationEntry") == true;
+                string requestedId = context.Value<string>("npcLifeRequestId");
+                string requestedStory = context.Value<string>("npcStoryId");
+                int? requestedRevision = context.Value<int?>("npcLivesRevision");
+                var story = State.Stories.FirstOrDefault(s => s.HeroId == hero.StringId && s.Status == "invited"
+                    && (!invitation || s.Id == requestedId && s.Id == requestedStory && s.Revision == requestedRevision));
+                var leave = State.Leaves.FirstOrDefault(l => l.HeroId == hero.StringId && l.Status == "discussing"
+                    && (!invitation || string.IsNullOrEmpty(requestedStory) && l.Id == requestedId && l.Revision == requestedRevision));
                 if (story == null && leave == null) return;
                 string id = story?.Id ?? leave.Id, proposal = story?.ProposalId ?? leave.ProposalId;
                 int revision = story?.Revision ?? leave.Revision;

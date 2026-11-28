@@ -18,10 +18,13 @@ namespace ReignBeta.Platform.Integration
     internal static class ReignHttpTransport
     {
         internal const int InteractiveProviderTimeoutSeconds = 900;
+        private const int PortraitGenerationTimeoutSeconds = 1260;
         internal static readonly HttpClient Client = CreateLocalServerHttpClient(8);
         internal static readonly HttpClient PriorityClient = CreateLocalServerHttpClient(4);
         internal static readonly HttpClient InteractiveClient =
             CreateLocalServerHttpClient(4, InteractiveProviderTimeoutSeconds);
+        private static readonly HttpClient PortraitGenerationClient =
+            CreateLocalServerHttpClient(4, PortraitGenerationTimeoutSeconds);
         internal static readonly HttpClient LiveTestClient = CreateLocalServerHttpClient(4, 5);
         // Terminal action report v1 only: one proven origin, never redirected.
         internal static readonly HttpClient PinnedClient = CreateLocalServerHttpClient(2, 30, false);
@@ -78,6 +81,9 @@ namespace ReignBeta.Platform.Integration
                 || value.StartsWith("/tests/npc-dialogue/request", StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool IsPortraitGenerationRoute(string route) =>
+            string.Equals(route, "/portraits/generate", StringComparison.OrdinalIgnoreCase);
+
         internal static bool IsProviderBackedInteractiveRoute(string route)
         {
             string value = route ?? string.Empty;
@@ -86,7 +92,7 @@ namespace ReignBeta.Platform.Integration
                 || value.Equals("/tavern-house/respond", StringComparison.OrdinalIgnoreCase)
                 || value.Equals("/tavern-house/scene", StringComparison.OrdinalIgnoreCase)
                 || value.Equals("/family-chambers/scene/generate", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/portraits/generate", StringComparison.OrdinalIgnoreCase);
+                || IsPortraitGenerationRoute(value);
         }
 
         internal static bool IsHighFrequencyControlRoute(string route)
@@ -105,6 +111,7 @@ namespace ReignBeta.Platform.Integration
             {
                 ["mode"] = "pooled_segmented_utf8_json",
                 ["interactiveProviderTimeoutSeconds"] = InteractiveProviderTimeoutSeconds,
+                ["portraitGenerationTimeoutSeconds"] = PortraitGenerationTimeoutSeconds,
                 ["interactiveProviderRoutes"] = new JArray(
                     "/dialogue/respond",
                     "/party-chat/respond",
@@ -508,6 +515,7 @@ namespace ReignBeta.Platform.Integration
             {
                 HttpClient routeClient = requestClient ?? (liveTestRoute
                     ? LiveTestClient
+                    : IsPortraitGenerationRoute(route) ? PortraitGenerationClient
                     : IsProviderBackedInteractiveRoute(route) ? InteractiveClient
                     : IsPriorityServerRoute(route) ? PriorityClient : Client);
                 JObject result = await WithCandidatesAsync(HttpMethod.Post, route, async (baseUrl, url, attempt) =>

@@ -372,14 +372,23 @@ namespace ReignBeta.Relationships.Campaign
                         { RestorePatrol(); _pursuit = null; }
                     }
                     ReleaseTime(request);
-                    string accepted = response["request"]?.Value<string>("status");
-                    if (accepted == "accepted" && Enabled(request) && StillPresent(request)
+                    var accepted = response["request"] as JObject;
+                    string requestId = request.Value<string>("requestId");
+                    if (accepted?.Value<string>("status") == "accepted" && !string.IsNullOrWhiteSpace(requestId)
+                        && accepted.Value<string>("requestId") == requestId && Enabled(request) && StillPresent(request)
                         && (choice != "cancel" || !LacksSharedApproachContact(request)))
                     {
-                        var heroes = (request["heroes"] as JArray).OfType<JObject>().Select(r => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == r.Value<string>("heroId"))).Where(h => h != null).ToList();
-                        if (request.Value<string>("kind") == "keep") ReignPartyChatScreenManager.OpenApproach(heroes, request);
-                        else if (heroes.Count > 0) ReignIndividualChatScreenManager.OpenForHero(heroes[0], new JObject
-                            { ["approachRequestId"] = request.Value<string>("requestId"), ["approachOpening"] = true }, null);
+                        var heroes = (accepted["heroes"] as JArray ?? new JArray()).OfType<JObject>()
+                            .Select(r => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == r.Value<string>("heroId")))
+                            .Where(h => h != null).ToList();
+                        if (request.Value<string>("kind") == "keep") ReignPartyChatScreenManager.OpenApproach(heroes, accepted);
+                        else if (heroes.Count > 0)
+                        {
+                            Hero speaker = heroes[0];
+                            bool opening = !(accepted["heard"] as JArray ?? new JArray()).Values<string>().Contains(speaker.StringId);
+                            ReignIndividualChatScreenManager.OpenForHero(speaker,
+                                new JObject { ["approachRequestId"] = requestId, ["approachOpening"] = opening }, null);
+                        }
                         if (!ReignPartyChatScreenManager.IsOpenOrPending && !ReignIndividualChatScreenManager.IsOpen)
                             throw new InvalidOperationException("The accepted conversation could not open; its invitation is retained.");
                     }
