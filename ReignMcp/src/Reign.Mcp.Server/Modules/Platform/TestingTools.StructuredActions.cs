@@ -15,10 +15,11 @@ public static class StructuredActionTools
     private const string ArrestScopedEvidenceWitness = "fixture.arrest_scoped_evidence_witness";
     private const string ArrestLateEvidenceFixture = "fixture.arrest_late_evidence";
     private const string NotableStartupReservationFixture = "fixture.notable_startup_reservation";
+    private const string OrdinaryRansomFixture = "fixture.ordinary_ransom";
 
     [McpServerTool(Name = "reign_test_structured_actions", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Disruption delivery accepts one arm or observe case on that exact reloaded Current with a matching clean provider guard, and skips at most one newly issued typed response action for the observed active assignment. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witnesses require the exact reloaded Current checkpoint and observe existing murder, espionage, rebellion or sabotage evidence for one exact accused and a wrong-charge negative without preparing an arrest. The murder evidence staging case takes empty arguments on the reloaded recovery checkpoint with a matching clean provider guard, activates one run-owned native Court matter and publishes its existing complete chain once. The late-evidence arrest fixture captures one exact run-owned accused and prepares, advances one transition, or observes the saved arrest on the same verified Current. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. The Notable startup fixture accepts one town ID and requires the reloaded recovery point and matching provider-free guard. It creates one merchant with an unconfirmed startup reservation. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
+    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding, accepted-guide-player-step, Spymaster disruption observation, managed-birth observation, public arrest evidence witness or relationship native pull fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. Spymaster disruption observation requires the retained checkpoint and reads one exact action, assignment and settlement. Disruption delivery accepts one arm or observe case on that exact reloaded Current with a matching clean provider guard, and skips at most one newly issued typed response action for the observed active assignment. Managed birth observation requires a retained recovery checkpoint and reads one existing conception for an exact mother. The arrest evidence witnesses require the exact reloaded Current checkpoint and observe existing murder, espionage, rebellion or sabotage evidence for one exact accused and a wrong-charge negative without preparing an arrest. The murder evidence staging case takes empty arguments on the reloaded recovery checkpoint with a matching clean provider guard, activates one run-owned native Court matter and publishes its existing complete chain once. The late-evidence arrest fixture captures one exact run-owned accused and prepares, advances one transition, or observes the saved arrest on the same verified Current. The fixed relationship native pull fixture accepts one exact-revision arm, exact-pair arm, observe or release case on the same verified Current and can hold one genuine response across a same-process load. It requires a retained recovery checkpoint. The Notable startup fixture accepts one town ID and requires the reloaded recovery point and matching provider-free guard. It creates one merchant with an unconfirmed startup reservation. The ordinary ransom fixture discovers safe parties, exercises fixed complete or held settlements, and can remove its own exact terminal row for a replay check. It requires a matching clean provider guard and a reloaded checkpoint. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestStructuredActions(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -36,23 +37,29 @@ public static class StructuredActionTools
         bool arrestLateEvidence = cases.Count == 1 && IsArrestLateEvidenceFixture(cases[0]);
         bool notableFixture = cases.Count == 1 && IsNotableStartupReservationFixture(cases[0]);
         bool spymasterDelivery = cases.Count == 1 && IsSpymasterDisruptionDelivery(cases[0]);
-        bool bindCheckpoint = arrestWitness || murderStage || arrestLateEvidence || notableFixture || spymasterDelivery
+        bool ransomFixture = cases.Count == 1 && IsOrdinaryRansomFixture(cases[0]);
+        bool requireLoadOwner = arrestWitness || murderStage || arrestLateEvidence || notableFixture || ransomFixture;
+        bool bindCheckpoint = requireLoadOwner || spymasterDelivery
             || (cases.Count == 1 && IsRelationshipPullFixture(cases[0]));
         var (auth, checkpoint, loadOwner) = await campaignTests.RequireArmedOwnedPausedActionCheckpointAsync(
             campaignTestRunId, campaignId, bindCheckpoint, cancellationToken,
-            postArmCurrentDiagnostic: arrestWitness || murderStage || arrestLateEvidence || notableFixture)
+            postArmCurrentDiagnostic: requireLoadOwner)
             .ConfigureAwait(false);
         bool recoveryFixture = cases.Any(RequiresRecoveryCheckpoint);
         if (recoveryFixture)
             campaignTests.RequireRetainedRecoveryCheckpoint(auth);
-        if (spymasterDelivery || murderStage)
+        if (spymasterDelivery || murderStage || ransomFixture)
         {
             var provider = await api.GetAsync("/api/provider/status", cancellationToken: cancellationToken).ConfigureAwait(false);
             if (!provider.Ok || provider.Data is not JsonElement data || !NpcLivesTestTools.MatchesCleanNativeProviderGuard(
                 data, campaignTestRunId, campaignId, auth.TimelineId, auth.CurrentSaveName, auth.BaselineSaveName))
+            {
+                if (ransomFixture)
+                    throw new InvalidOperationException("The ordinary ransom fixture requires this campaign test's clean provider guard.");
                 throw new InvalidOperationException(murderStage
                     ? "Murder evidence staging requires this campaign test's clean provider guard."
                     : "Disruption delivery requires this campaign test's clean provider guard.");
+            }
         }
         string liveRunId = "structured-" + batchId + "-" + Guid.NewGuid().ToString("N")[..8];
         var enrollment = new Dictionary<string, object>
@@ -115,6 +122,8 @@ public static class StructuredActionTools
                 throw new ArgumentException("The late arrest evidence requires the fixed fixture phase and kind.");
             if (IsNotableStartupReservationFixture(item) && (phase != "fixture" || Text("kind") != "fixture"))
                 throw new ArgumentException("The Notable reservation requires the fixed fixture phase and kind.");
+            if (IsOrdinaryRansomFixture(item) && (phase != "fixture" || Text("kind") != "fixture"))
+                throw new ArgumentException("Ordinary ransom requires the fixed fixture phase and kind.");
             if (phase is "preview" or "run" or "status" or "fixture")
             {
                 string operation = Required(Text("operationId"), "operationId");
@@ -148,6 +157,8 @@ public static class StructuredActionTools
                     else if (IsRelationshipPullFixture(item)) ValidateRelationshipPullFixture(item, fixtureArgs, operation, document.RootElement.GetArrayLength());
                     else if (IsNotableStartupReservationFixture(item))
                         ValidateNotableStartupReservationFixture(fixtureArgs, document.RootElement.GetArrayLength());
+                    else if (IsOrdinaryRansomFixture(item))
+                        ValidateOrdinaryRansomFixture(item, fixtureArgs, document.RootElement.GetArrayLength());
                     else if (Text("actionId") is "fixture.government_capital_visit" or "fixture.government_action_composer")
                         ValidateGovernmentFixtureArguments(Text("actionId"), fixtureArgs);
                     else throw new ArgumentException("Choose a registered fixed structured fixture.");
@@ -200,11 +211,39 @@ public static class StructuredActionTools
             or "fixture.arranged_wedding" or "fixture.spymaster_disruption_observe" or "fixture.spymaster_disruption_delivery"
             or "fixture.managed_birth_observe"
             or RelationshipPullFixture or ArrestMurderEvidenceWitness or ArrestScopedEvidenceWitness
-            or ArrestMurderEvidenceStage or ArrestLateEvidenceFixture or NotableStartupReservationFixture;
+            or ArrestMurderEvidenceStage or ArrestLateEvidenceFixture or NotableStartupReservationFixture or OrdinaryRansomFixture;
 
     private static bool IsArrestMurderEvidenceStage(JsonElement testCase) =>
         testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
         && action.GetString() == ArrestMurderEvidenceStage;
+
+    private static bool IsOrdinaryRansomFixture(JsonElement testCase) =>
+        testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String
+        && action.GetString() == OrdinaryRansomFixture;
+
+    private static void ValidateOrdinaryRansomFixture(JsonElement testCase, JsonElement args, int batchSize)
+    {
+        if (batchSize != 1 || testCase.EnumerateObject().Count() != 6 || args.ValueKind != JsonValueKind.Object
+            || !args.TryGetProperty("stage", out var stageProperty) || stageProperty.ValueKind != JsonValueKind.String)
+            throw new ArgumentException("Supply one bounded ordinary ransom fixture.");
+        string? stage = stageProperty.GetString();
+        if (stage == "discover" && args.EnumerateObject().Count() == 1) return;
+        if (stage is not ("run" or "prune" or "replay") || args.EnumerateObject().Count() != 5
+            || !args.TryGetProperty("scenario", out var scenario) || scenario.ValueKind != JsonValueKind.String
+            || scenario.GetString() is not ("named_paid" or "bulk_paid" or "named_free" or "named_pruned" or "named_hold_release" or "named_hold_payment")
+            || (stage == "prune" && scenario.GetString() != "named_pruned")
+            || !args.TryGetProperty("actorKingdomId", out var actor) || !ValidId(actor)
+            || !args.TryGetProperty("targetKingdomId", out var target) || !ValidId(target) || actor.GetString() == target.GetString()
+            || !args.TryGetProperty("captiveIds", out var captives) || captives.ValueKind != JsonValueKind.Array
+            || captives.GetArrayLength() != (scenario.GetString() == "bulk_paid" ? 3 : 1)
+            || !captives.EnumerateArray().All(ValidId)
+            || captives.EnumerateArray().Select(id => id.GetString()).Distinct(StringComparer.Ordinal).Count() != captives.GetArrayLength())
+            throw new ArgumentException("Supply an exact ordinary ransom scenario and distinct eligible identities.");
+
+        static bool ValidId(JsonElement id) => id.ValueKind == JsonValueKind.String
+            && id.GetString() is { Length: >= 1 and <= 128 } text
+            && text.All(ch => char.IsAsciiLetterOrDigit(ch) || ch is '_' or '-');
+    }
 
     private static bool IsNotableStartupReservationFixture(JsonElement testCase) =>
         testCase.TryGetProperty("actionId", out var action) && action.ValueKind == JsonValueKind.String

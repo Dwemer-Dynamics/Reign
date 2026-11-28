@@ -5,6 +5,40 @@ namespace Reign.Mcp.Tests;
 
 public sealed class StructuredActionToolsTests
 {
+    [Theory]
+    [InlineData("""{"stage":"discover"}""")]
+    [InlineData("""{"stage":"prune","scenario":"named_pruned","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"run","scenario":"named_hold_release","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"replay","scenario":"named_hold_payment","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"run","scenario":"named_paid","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"replay","scenario":"named_free","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"run","scenario":"bulk_paid","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1","lord_2","lord_3"]}""")]
+    public void OrdinaryRansomFixtureRequiresTheExactRetainedCheckpoint(string arguments)
+    {
+        string input = OrdinaryRansomCase(arguments);
+        JsonElement test = Assert.Single(StructuredActionTools.ParseCases(input));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(test));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(input[..^1] + """,{"caseId":"other","phase":"catalog"}]"""));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(input.Replace("\"phase\":\"fixture\"", "\"phase\":\"status\"")));
+    }
+
+    [Theory]
+    [InlineData("""{"stage":"discover","gold":0}""")]
+    [InlineData("""{"stage":"run","scenario":"named_paid","actorKingdomId":"empire","targetKingdomId":"empire","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"run","scenario":"bulk_paid","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1","lord_1","lord_3"]}""")]
+    [InlineData("""{"stage":"replay","scenario":"bulk_paid","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"replay","scenario":"named_free","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["../lord_1"]}""")]
+    [InlineData("""{"stage":"prune","scenario":"named_paid","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"]}""")]
+    [InlineData("""{"stage":"prune","scenario":"named_pruned","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"],"actionId":"another-action"}""")]
+    [InlineData("""{"stage":"run","scenario":"named_hold_payment","actorKingdomId":"empire","targetKingdomId":"aserai","captiveIds":["lord_1"],"gold":50}""")]
+    public void OrdinaryRansomFixtureRejectsUnboundedOrAmbiguousTerms(string arguments) =>
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(OrdinaryRansomCase(arguments)));
+
+    private static string OrdinaryRansomCase(string arguments) => $$"""
+        [{"caseId":"ransom","phase":"fixture","kind":"fixture","operationId":"ransom_once",
+          "actionId":"fixture.ordinary_ransom","arguments":{{arguments}}}]
+        """;
+
     [Fact]
     public void NotableStartupFixtureRequiresOneBoundedTownAndRecoveryCheckpoint()
     {

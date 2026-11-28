@@ -750,6 +750,18 @@ The live test reporter writes telemetry for the disposable campaign and can mark
 
 This records the live local evidence decision. Keep separate evidence of actual arrest preparation, the remote espionage route, and broader native custody acceptance.
 
+## Ordinary ransom native replay
+
+Before starting Bannerlord, arm the provider-free guard for the exact campaign-test run. Use `reign_test_structured_actions` with confirmation `test structured actions on disposable save` and one case with `phase=fixture`, `kind=fixture`, and `actionId=fixture.ordinary_ransom`. The loaded Current must be paused, owned, aligned to the exact retained checkpoint, and reloaded with the native load owner verified.
+
+Use `named_pruned` for the history-loss case. After `run` completes the eleven-denar settlement, save and reload the terminal fixture row. Submit `stage=prune` with the original operation ID and native identities. It removes only that fixture's persisted terminal row and compares the action result, native journal, custody, balances, publication count and other history rows. Save and reload again before `stage=replay`. The production lookup must recover the same result by exact ID without adding a history row or making another native change. The wrong-ID lookup must return no result.
+
+Use `named_hold_release` and `named_hold_payment` with separate operation IDs and eligible captives. The fixture retires its own authority immediately after observing the native release or the exact payment, respectively. The first case must keep both balances. The second must retain the eleven-denar debit and credit. Require the recorded released captive, exact held attempt and reason, unchanged relations, and zero agreement publications. Save and reload in a fresh process. Replay must return the same held result with the original journal and all native observations unchanged.
+
+Start with `arguments` containing only `stage=discover`. Select an exact safe holding kingdom, distinct paying kingdom, and eligible living non-ruler nobles from this read-only inventory. `stage=run` takes `scenario`, `actorKingdomId`, `targetKingdomId`, and one `captiveIds` entry for `named_paid` or `named_free`. For `bulk_paid`, pass three distinct eligible nobles from the target kingdom and choose a pair without any already matching custody. The fixture captures only the selected nobles into the actor ruler's actual party. It validates the ordinary action and invokes its production native settlement step for a fixed eleven denars, or zero for `named_free`. The bulk action uses a cap of two. The scope is the native settlement step normally reached after Government approval. Retain the unmodified recovery point before setup.
+
+After verifying the exact custody, gold and single agreement, make a guarded checkpoint and restart in a fresh Bannerlord process. Use `stage=replay` with the same operation ID and identical other arguments. The fixture matches the saved native ransom receipt before repeating the same action at the production diplomacy executor, then verifies the original receipt and unchanged native state. There is no queued action to supply the receipt. Retain the `reign-native-ordinary-ransom-fixture-v1` evidence and the native save/reload receipts for each scenario. Restore the retained checkpoint on partial failure and retire only the run-owned save when finished. Government deliberation and paid Court assent require their own evidence.
+
 
 ## Character Editor native Save Sync provenance
 

@@ -366,6 +366,7 @@ namespace ReignBeta.Court.Campaign
                         && !string.IsNullOrWhiteSpace(matter.ResolutionReceiptId)));
                     AddCourtLifeDecisionAssertions(court, decisionAssertions, marker, matter);
                     result["assertions"] = decisionAssertions;
+                    result["ok"] = decisionAssertions.All(a => a.Value<bool?>("passed") == true);
                 }
                 return result;
             }
@@ -825,8 +826,16 @@ namespace ReignBeta.Court.Campaign
             if (matter.Source == ReignDocketSource.International)
             {
                 JObject payload = ParseObject(matter.PayloadJson);
-                if (matter.SelectedOptionId == "accept" && (payload["normalizedAction"] is JObject
-                    || payload.Value<string>("remedy") == "sign_trade_agreement"))
+                string remedy = payload.Value<string>("remedy");
+                if (matter.SelectedOptionId == "accept" && remedy == "prisoner")
+                {
+                    JObject terms = ParseObject(matter.Options.FirstOrDefault(o => o.OptionId == "accept")?.TermsJson);
+                    AddDirectCourtPrisonerAssertions(assertions, terms, payload["nativeReceipt"] as JObject,
+                        marker["beforeDecision"] as JObject, CourtLifeNativeState(court, matter),
+                        matter.ResolutionReceiptId, Hero.MainHero?.StringId);
+                }
+                else if (matter.SelectedOptionId == "accept" && (remedy == "sign_trade_agreement"
+                    || (remedy == "proposal" && payload["normalizedAction"] is JObject)))
                 {
                     JObject action = (JObject)CourtLifeInternationalNativeState(court, matter)["nativeDiplomaticAction"];
                     assertions.Add(Assertion("accepted_diplomacy_has_one_completed_native_action",
@@ -846,6 +855,57 @@ namespace ReignBeta.Court.Campaign
             if (matter.SelectedOptionId == "decline") assertions.Add(Assertion("decline_creates_no_commission", c == null));
             else assertions.Add(Assertion("one_paid_commission_exact_cost", c != null && c.Paid && c.GoldPaid == ReignPatronageRules.Cost(c.Reach)
                 && court.EnsureRulerDocketState().PatronageCommissions.Count(x => x.MatterId == matter.MatterId) == 1));
+        }
+
+        private static void AddDirectCourtPrisonerAssertions(JArray assertions, JObject terms, JObject receipt,
+            JObject before, JObject after, string resolutionId, string rulerId)
+        {
+            string captiveId = terms.Value<string>("captiveId");
+            JObject beforeCaptive = before?["international"]?["captive"] as JObject;
+            JObject afterCaptive = after["international"]?["captive"] as JObject;
+            assertions.Add(Assertion("direct_court_prisoner_released_from_original_roster",
+                !string.IsNullOrWhiteSpace(captiveId)
+                && receipt?.Value<string>("schema") == "reign-direct-court-prisoner-v1"
+                && receipt.Value<string>("releasedHeroId") == captiveId
+                && !string.IsNullOrWhiteSpace(receipt.Value<string>("originalCaptorId"))
+                && receipt.Value<int?>("originalRosterCountBefore") == 1
+                && receipt.Value<int?>("originalRosterCountAfter") == 0
+                && receipt.Value<bool?>("isPrisoner") == false && receipt.Value<bool?>("hasCaptor") == false
+                && beforeCaptive?.Value<string>("heroId") == captiveId && beforeCaptive.Value<bool?>("heldByPlayer") == true
+                && afterCaptive?.Value<string>("heroId") == captiveId && afterCaptive.Value<bool?>("alive") == true
+                && afterCaptive.Value<bool?>("isPrisoner") == false && afterCaptive.Value<bool?>("heldByPlayer") == false
+                && string.IsNullOrEmpty(afterCaptive.Value<string>("custodianHeroId"))));
+
+            bool? ransom = terms.Value<bool?>("ransom");
+            int? gold = ransom == false ? 0 : terms.Value<int?>("gold");
+            JObject beforePayer = before?["international"]?["foreignRuler"] as JObject;
+            JObject afterPayer = after["international"]?["foreignRuler"] as JObject;
+            JObject payment = receipt?["payment"] as JObject;
+            int? payerBefore = beforePayer?.Value<int?>("gold"), payerAfter = afterPayer?.Value<int?>("gold");
+            int? recipientBefore = before?.Value<int?>("rulerGold"), recipientAfter = after.Value<int?>("rulerGold");
+            bool balancesMatch = gold.HasValue && gold.Value >= 0
+                && payerBefore.HasValue && payerAfter.HasValue && recipientBefore.HasValue && recipientAfter.HasValue
+                && (long)payerBefore.Value - payerAfter.Value == gold.Value
+                && (long)recipientAfter.Value - recipientBefore.Value == gold.Value;
+            bool exactPayment = ransom == false ? receipt?["payment"] == null : payment != null
+                && payment.Value<int?>("gold") == gold
+                && payment.Value<string>("payerId") == terms.Value<string>("payerHeroId")
+                && payment.Value<string>("payerId") == beforePayer?.Value<string>("heroId")
+                && payment.Value<string>("payerId") == afterPayer?.Value<string>("heroId")
+                && payment.Value<string>("recipientId") == terms.Value<string>("recipientHeroId")
+                && payment.Value<string>("recipientId") == rulerId
+                && payment.Value<int?>("payerBefore") == payerBefore && payment.Value<int?>("payerAfter") == payerAfter
+                && payment.Value<int?>("recipientBefore") == recipientBefore && payment.Value<int?>("recipientAfter") == recipientAfter;
+            assertions.Add(Assertion("direct_court_prisoner_payment_matches_native_balances",
+                ransom.HasValue && receipt?.Value<bool?>("ransom") == ransom
+                && receipt?.Value<int?>("ransomGold") == gold && balancesMatch && exactPayment));
+
+            JObject action = after["international"]?["nativeDiplomaticAction"] as JObject;
+            var history = (after["history"] as JArray ?? new JArray()).OfType<JObject>().ToList();
+            assertions.Add(Assertion("direct_court_prisoner_has_one_history_and_no_diplomatic_action",
+                !string.IsNullOrWhiteSpace(resolutionId) && history.Count == 1
+                && history[0].Value<string>("RecordId") == resolutionId
+                && action?.Value<bool?>("serviceAvailable") == true && action.Value<int?>("count") == 0));
         }
     }
 }

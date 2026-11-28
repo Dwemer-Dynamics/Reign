@@ -73,6 +73,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.arrest_murder_evidence_stage")
                     return StageMurderArrestEvidence(command, c, enrollment);
 #endif
+                if (c.Value<string>("actionId") == "fixture.ordinary_ransom")
+                    return ExerciseOrdinaryRansomFixture(command, c, enrollment, id);
                 if (phase == "fixture" && kind == "fixture" && c.Value<string>("actionId") == "fixture.spymaster_disruption_observe")
                     return LiveCommandResult.Completed("Measured the exact disruption markers and native settlement modifier.",
                         ObserveStructuredSpymasterDisruption(c, enrollment));
