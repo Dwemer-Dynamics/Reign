@@ -17,6 +17,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Integration;
@@ -59,6 +60,11 @@ namespace ReignBeta.Rebellion.Campaign
         private volatile bool _backingEvaluationPending;
         private readonly object _backingUpdatesLock = new object();
         private readonly List<ForeignBackingBatch> _pendingBackingUpdates = new List<ForeignBackingBatch>();
+        private const int ResolvedProjectionBatchSize = 32;
+        private readonly Dictionary<string, float> _mirroredResolutions = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        private Func<bool> _resolvedProjectionOwner;
+        private volatile bool _resolvedProjectionPending;
+        private DateTime _nextResolvedProjectionAttempt;
 
         private sealed class ForeignBackingBatch
         {
@@ -109,6 +115,7 @@ namespace ReignBeta.Rebellion.Campaign
         {
             ReignServices.Rebellion = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.TickEvent.AddNonSerializedListener(this, OnResolvedProjectionTick);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnMapEventEnded);
@@ -142,7 +149,13 @@ namespace ReignBeta.Rebellion.Campaign
             _negotiations = (_negotiations ?? new List<ReignNegotiatedActionRecord>()).Where(x => x != null).ToList();
             // Sealed saves skip initial world preparation. Repair their loaded
             // history here as well, before any new preparation request is read.
-            if (dataStore.IsLoading) CloseResolvedPreparationPlots(_plots, _movements);
+            if (dataStore.IsLoading)
+            {
+                _resolvedProjectionOwner = null;
+                _mirroredResolutions?.Clear();
+                _nextResolvedProjectionAttempt = DateTime.MinValue;
+                CloseResolvedPreparationPlots(_plots, _movements);
+            }
         }
 
         private void OnSessionLaunched(CampaignGameStarter starter)
@@ -193,6 +206,76 @@ namespace ReignBeta.Rebellion.Campaign
             // pauses first). This check is idempotent because the completed week
             // marker and saved per-clan rolls gate all actual work.
             TryStartWeeklyRelationshipEvaluation(CurrentDay());
+        }
+
+        private void OnResolvedProjectionTick(float dt)
+        {
+            if (DateTime.UtcNow >= _nextResolvedProjectionAttempt)
+                TryMirrorResolvedRebellions();
+        }
+
+        private void TryMirrorResolvedRebellions()
+        {
+            if (_resolvedProjectionPending || ReignCampaignInitializationGate.IsPending
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignServices.WorldHistory?.TimelineReady != true)
+                return;
+            _nextResolvedProjectionAttempt = DateTime.UtcNow.AddSeconds(15);
+
+            if (_resolvedProjectionOwner == null || !_resolvedProjectionOwner())
+            {
+                _mirroredResolutions.Clear();
+                _resolvedProjectionOwner = null;
+                var fence = ReignServerClient.RequestFence.Capture();
+                string origin = ResolvedProjectionOrigin();
+                if (!ReignHttpTransport.IsAllowedPinnedOrigin(origin)) return;
+                _resolvedProjectionOwner = () => ReferenceEquals(Instance, this) && fence.IsCurrentActionPoll()
+                    && origin == ResolvedProjectionOrigin();
+            }
+
+            float worldDay = CurrentDay();
+            var ready = _movements.Where(movement => !string.IsNullOrWhiteSpace(movement?.MovementId))
+                .GroupBy(movement => movement.MovementId, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() == 1).Select(group => group.Single())
+                .Where(movement => Same(movement.Stage, "resolved") && Same(movement.ExecutionPhase, "verified")
+                    && movement.ResolutionApplied && !movement.JudgmentsPending
+                    && movement.UpdatedDay >= 0f && movement.UpdatedDay <= worldDay
+                    && movement.CooldownUntilDay >= movement.UpdatedDay && !float.IsInfinity(movement.CooldownUntilDay)
+                    && (!_mirroredResolutions.TryGetValue(movement.MovementId, out float day) || day != movement.UpdatedDay))
+                .Take(ResolvedProjectionBatchSize).ToList();
+            if (ready.Count == 0) return;
+
+            _resolvedProjectionPending = true;
+            _ = MirrorResolvedRebellionsAsync(ready, worldDay, _resolvedProjectionOwner);
+        }
+
+        private static string ResolvedProjectionOrigin() => ReignSaveSyncCoordinator.CurrentVerifiedLoad?.Origin
+            ?? ReignHttpTransport.PinnableOrigin(ReignServerEndpoint.ConfiguredBaseUrl());
+
+        private async Task MirrorResolvedRebellionsAsync(List<ReignRebellionMovementRecord> movements, float worldDay,
+            Func<bool> ownsProjection)
+        {
+            try
+            {
+                var observations = movements.Select(movement => (Id: movement.MovementId, Day: movement.UpdatedDay)).ToList();
+                if (!await ReignRebellionServerClient.MirrorResolvedRebellionsAsync(ResolvedProjectionOrigin(),
+                    ReignServices.WorldHistory.SharedActivityGeneration, worldDay, movements, _memberships, ownsProjection).ConfigureAwait(false))
+                    return;
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!ReferenceEquals(_resolvedProjectionOwner, ownsProjection) || !ownsProjection()) return;
+                    foreach (var observation in observations)
+                        _mirroredResolutions[observation.Id] = observation.Day;
+                }).ConfigureAwait(false);
+            }
+            catch (ReignRequestOwnerAbandonedException) { }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Resolved rebellion projection failed: " + ex.Message);
+            }
+            finally
+            {
+                _resolvedProjectionPending = false;
+            }
         }
 
         private void TryEvaluateForeignBacking()
