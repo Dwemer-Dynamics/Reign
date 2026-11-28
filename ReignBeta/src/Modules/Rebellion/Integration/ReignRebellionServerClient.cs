@@ -69,6 +69,27 @@ namespace ReignBeta.Rebellion.Integration
                 && JToken.DeepEquals(owner["timelineId"], payload["timelineId"])
                 && JToken.DeepEquals(owner["sharedActivityGeneration"], payload["sharedActivityGeneration"]);
 
+        internal static async Task<bool> MirrorResolvedRebellionsAsync(string origin, string generation, float worldDay,
+            IReadOnlyList<ReignRebellionMovementRecord> movements, IReadOnlyList<ReignRebellionMembershipRecord> memberships,
+            Func<bool> requestOwner)
+        {
+            var movementIds = new JArray(movements.Select(movement => movement.MovementId));
+            var payload = new JObject
+            {
+                ["intent"] = "mirror_resolved",
+                ["campaignId"] = GetCampaignId(),
+                ["timelineId"] = ReignServices.WorldHistory.TimelineId,
+                ["sharedActivityGeneration"] = generation,
+                ["worldDay"] = worldDay,
+                ["movements"] = BuildMovementRows(movements, memberships)
+            };
+            JObject response = await SendPinnedJsonAsync(origin, "/rebellions/evaluate", payload, requestOwner).ConfigureAwait(false);
+            return response["ok"]?.Type == JTokenType.Boolean && (bool)response["ok"]
+                && response.Value<string>("status") == "resolved_mirrored"
+                && MatchesRebellionEvaluationOwner(response["ownership"] as JObject, payload)
+                && JToken.DeepEquals(response["movementIds"], movementIds);
+        }
+
         public static Task<JObject> CreateNegotiationDraftAsync(JObject draft)
         {
             JObject payload = draft == null ? new JObject() : (JObject)draft.DeepClone();
@@ -209,6 +230,21 @@ namespace ReignBeta.Rebellion.Integration
                 });
             }
 
+            return new JObject
+            {
+                ["campaignId"] = GetCampaignId(),
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
+                ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
+                ["campaignStartDay"] = ReignCampaignPreparationCampaignBehavior.AutonomousWorldOriginDay,
+                ["playerKingdomId"] = playerKingdom?.StringId ?? string.Empty,
+                ["kingdoms"] = kingdomRows,
+                ["movements"] = BuildMovementRows(movements, memberships)
+            };
+        }
+
+        private static JArray BuildMovementRows(IReadOnlyList<ReignRebellionMovementRecord> movements,
+            IReadOnlyList<ReignRebellionMembershipRecord> memberships)
+        {
             JArray movementRows = new JArray();
             foreach (ReignRebellionMovementRecord movement in movements ?? Array.Empty<ReignRebellionMovementRecord>())
             {
@@ -235,7 +271,9 @@ namespace ReignBeta.Rebellion.Integration
                     ["originalParentStrongholdIds"] = movement.OriginalParentStrongholdIdsCsv,
                     ["originalRebelStrongholdIds"] = movement.OriginalRebelStrongholdIdsCsv,
                     ["correlationId"] = movement.CorrelationId, ["cooldownUntilDay"] = movement.CooldownUntilDay,
-                    ["resolution"] = movement.Resolution, ["memberships"] = memberRows
+                    ["resolution"] = movement.Resolution, ["memberships"] = memberRows,
+                    ["resolutionCause"] = movement.ResolutionCause, ["resolutionApplied"] = movement.ResolutionApplied,
+                    ["executionPhase"] = movement.ExecutionPhase, ["judgmentsPending"] = movement.JudgmentsPending
                     , ["backingStatus"] = movement.BackingStatus ?? string.Empty
                     , ["backingAskedKingdomId"] = movement.BackingAskedKingdomStringId ?? string.Empty
                     , ["backingSponsorKingdomId"] = movement.BackingSponsorKingdomStringId ?? string.Empty
@@ -245,16 +283,7 @@ namespace ReignBeta.Rebellion.Integration
                 });
             }
 
-            return new JObject
-            {
-                ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
-                ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
-                ["campaignStartDay"] = ReignCampaignPreparationCampaignBehavior.AutonomousWorldOriginDay,
-                ["playerKingdomId"] = playerKingdom?.StringId ?? string.Empty,
-                ["kingdoms"] = kingdomRows,
-                ["movements"] = movementRows
-            };
+            return movementRows;
         }
 
         private static string SelectRedressSettlementId(Clan clan, Kingdom kingdom)

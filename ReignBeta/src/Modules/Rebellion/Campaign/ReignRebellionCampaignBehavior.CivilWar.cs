@@ -1189,6 +1189,7 @@ namespace ReignBeta.Rebellion.Campaign
                     + " because " + (movement.ResolutionCause ?? string.Empty).Replace('_', ' ') + ".", false);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] The rebellion has ended: "
                 + movement.Resolution.Replace('_', ' ') + "."));
+            TryMirrorResolvedRebellions();
         }
 
         private void ResolveWithoutMutation(ReignRebellionMovementRecord movement, string reason)
