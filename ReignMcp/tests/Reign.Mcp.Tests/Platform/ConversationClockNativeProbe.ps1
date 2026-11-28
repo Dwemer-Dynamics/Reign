@@ -100,6 +100,25 @@ public static class IsolatedConversationClockProbe {
                 }
             }
             Calendar(7, 3);
+            var promptCalendar = client.GetType("ReignBeta.WorldSimulation.Runtime.ReignCalendarService", true);
+            MethodInfo formatClock = promptCalendar.GetMethod("FormatConversationTimeLabel", S);
+            long promptDay = 91127L * T("TimeTicksPerDay") / T("TimeTicksPerMillisecond");
+            long campaignMinute = T("TimeTicksPerMinute") / T("TimeTicksPerMillisecond");
+            foreach (var sample in new[] {
+                new { Minute = -1, Expected = "Night 23:59" },
+                new { Minute = 0, Expected = "Night 00:00" },
+                new { Minute = 119, Expected = "Night 01:59" },
+                new { Minute = 120, Expected = "Morning 02:00" },
+                new { Minute = 303, Expected = "Morning 05:03" },
+                new { Minute = 720, Expected = "Afternoon 12:00" },
+                new { Minute = 1080, Expected = "Evening 18:00" },
+                new { Minute = 1319, Expected = "Evening 21:59" },
+                new { Minute = 1320, Expected = "Night 22:00" } })
+            {
+                CampaignTime time = CampaignTime.Milliseconds(promptDay + sample.Minute * campaignMinute);
+                Check((string)formatClock.Invoke(null, new object[] { time }) == sample.Expected,
+                    "native prompt clock " + sample.Expected);
+            }
             object hundred = Tracker(0); Attach(campaign, hundred);
             var absolute = new MBCampaignEvent(CampaignTime.Hours(1), CampaignTime.Hours(1));
             absolute.AddHandler(OnEvent);

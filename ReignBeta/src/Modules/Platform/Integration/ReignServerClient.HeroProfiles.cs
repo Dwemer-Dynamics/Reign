@@ -917,7 +917,7 @@ namespace ReignBeta.Platform.Integration
             builder.AppendLine("Conversation mode: individual one-to-one conversation.");
             if (TaleWorlds.CampaignSystem.Campaign.Current != null)
             {
-                builder.AppendLine(ReignCalendarService.BuildPromptCalendarContext());
+                builder.AppendLine(ReignCalendarService.PromptRule);
             }
             Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement ?? hero?.CurrentSettlement;
             if (settlement != null)

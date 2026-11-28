@@ -223,7 +223,7 @@ namespace ReignBeta.WorldSimulation.Runtime
         public string BuildSceneContext()
         {
             string settlement = Record.GetSettlement()?.Name?.ToString() ?? Record.SettlementStringId ?? "unknown settlement";
-            return BuildSceneContextText(ReignCalendarService.BuildPromptCalendarContext(), settlement,
+            return BuildSceneContextText(ReignCalendarService.PromptRule, settlement,
                 Record.GetHost()?.Name?.ToString() ?? "unknown");
         }
 

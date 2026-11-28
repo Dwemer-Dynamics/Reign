@@ -120,7 +120,7 @@ namespace ReignBeta.Dialogue.Runtime
                 .Where(x => !string.IsNullOrWhiteSpace(x)));
 
             return "Conversation mode: party chat\n"
-                + ReignCalendarService.BuildPromptCalendarContext() + "\n"
+                + ReignCalendarService.PromptRule + "\n"
                 + BuildLocationText() + "\n"
                 + "Player: " + (Hero.MainHero?.Name?.ToString() ?? "Player") + "\n"
                 + "Selected speakers: " + (string.IsNullOrWhiteSpace(active) ? "none" : active) + "\n"
